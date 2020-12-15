@@ -17,13 +17,11 @@ from datetime import datetime
 
 numberofcasesdayzero = [331]
 STARTDATE = "12/15/2020"
-NUMBEROFDAYS = 60
-TURNINGPOINTDAY = 10
+NUMBEROFDAYS = 90
+TURNINGPOINTDAY = 5
 # R-numbers. Decrease and increase in two seperate figures
-#Rvalues
-# = [[0.95,0.9,0.85,0.8,1.05,1.1,1.2]]
 Rold = 1.2
-Rvalues = [[0.9,0.8,0.7]]
+Rvalues = [[0.95, 0.9,0.85, 0.8,0.75, 0.7]]
 # Some manipulation of the x-values
 startx = dt.datetime.strptime(STARTDATE,'%m/%d/%Y').date() 
 then = startx + dt.timedelta(days=NUMBEROFDAYS)
@@ -61,9 +59,9 @@ for s in numberofcasesdayzero:
 
 # Add X and y Label and limits
 plt.xlabel('date')
-plt.xlim( x[0], x[-1]) 
+plt.xlim(x[0], x[-1]) 
 plt.ylabel('positive tests per 100k inhabitants in 7 days')
-plt.ylim(0,600)
+plt.ylim(0,450)
 
 # add horizontal lines and surfaces
 plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
@@ -77,6 +75,7 @@ plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
 plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
 plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
 plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
+plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
 # Add a grid
 plt.grid(alpha=.4,linestyle='--')
