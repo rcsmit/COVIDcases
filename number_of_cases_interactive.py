@@ -70,6 +70,8 @@ k = []
 plt.xlabel('date')
 plt.xlim(x[0], x[-1]) 
 plt.ylabel('positive tests per 100k inhabitants in 7 days')
+plt.ylim(bottom = 0)
+
 #plt.ylim(0,450)
 
 # add horizontal lines and surfaces
