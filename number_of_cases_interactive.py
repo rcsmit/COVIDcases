@@ -27,7 +27,7 @@ fig, ax = plt.subplots()
 
 numberofcasesdayzero = 331
 STARTDATE = "12/15/2020"
-NUMBEROFDAYS = 90
+NUMBEROFDAYS = st.slider('R-number', 15, 150, 60)
 TURNINGPOINTDAY = 10
 # R-numbers. Decrease and increase in two seperate figures
 Rold = 1.2
