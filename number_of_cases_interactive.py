@@ -37,6 +37,8 @@ x = mdates.drange(startx,then,dt.timedelta(days=1))
 z  = np.array(range(NUMBEROFDAYS))
 k = []
 
+@st.cache
+
 date_format = "%m/%d/%Y"
 a = datetime.strptime(STARTDATE, date_format)
 
