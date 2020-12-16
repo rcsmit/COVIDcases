@@ -2,6 +2,8 @@
 # For information only. Provided "as-is" etc.
 
 # Import our modules that we are using
+import streamlit as st
+
 import matplotlib.pyplot as plt
 import numpy as np
 import math
