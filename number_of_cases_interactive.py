@@ -5,6 +5,7 @@
 import streamlit as st
 
 import matplotlib.pyplot as plt
+
 import numpy as np
 import math
 
@@ -18,7 +19,7 @@ from ipywidgets import interact
 
 
 st.title('Covid cases in NL')
-
+fig, ax = plt.subplots()
 
 # VARIABLES
 # number of 'besmettelijken' on 26th of November 2020 in the Netherlands
@@ -29,7 +30,8 @@ STARTDATE = "12/15/2020"
 NUMBEROFDAYS = 90
 TURNINGPOINTDAY = 10
 # R-numbers. Decrease and increase in two seperate figures
-Rnew = st.slider('R-number', -2, 2, 0)
+Rold = 1.2
+Rnew = st.slider('R-number', 0.1, 2.0, 1.24)
 # Some manipulation of the x-values
 
 startx = dt.datetime.strptime(STARTDATE,'%m/%d/%Y').date() 
@@ -41,7 +43,6 @@ x = mdates.drange(startx,then,dt.timedelta(days=1))
 z  = np.array(range(NUMBEROFDAYS))
 k = []
 
-@st.cache
 
 date_format = "%m/%d/%Y"
 a = datetime.strptime(STARTDATE, date_format)
@@ -53,6 +54,7 @@ for t in range(1, NUMBEROFDAYS):
         Ry = Rold - (t/TURNINGPOINTDAY * (Rold - Rnew))
     else:
         Ry = Rnew
+    
     if Ry == 1:
         # prevent an [divide by zero]-error
         Ry = 1.000001
@@ -60,14 +62,15 @@ for t in range(1, NUMBEROFDAYS):
     thalf = 4 * math.log(0.5) / math.log(Ry)  
     k.append( k[t-1] * (0.5**(1/thalf)))
 labelx = 'Rnew = ' + str(Rnew)
-plt.plot(x,k,label =labelx)
+#plt.plot(x,k,label =labelx)
+ax.plot(x, k)
 k = []
 
 # Add X and y Label and limits
 plt.xlabel('date')
 plt.xlim(x[0], x[-1]) 
 plt.ylabel('positive tests per 100k inhabitants in 7 days')
-plt.ylim(0,450)
+#plt.ylim(0,450)
 
 # add horizontal lines and surfaces
 plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
@@ -105,5 +108,12 @@ plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
 plt.gcf().autofmt_xdate()
 
 # Show the plot
-return plt.figure() 
+plt.show() 
+#fig = plt.show()
+#fig = plt.subplots()
 
+
+
+ax.set_title(titlex)
+
+st.pyplot(fig)
