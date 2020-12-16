@@ -31,7 +31,7 @@ NUMBEROFDAYS = 90
 TURNINGPOINTDAY = 10
 # R-numbers. Decrease and increase in two seperate figures
 Rold = 1.2
-Rnew = st.slider('R-number', 0.1, 2.0, 1.24)
+Rnew = st.slider('R-number', 0.1, 2.0, 0.8)
 # Some manipulation of the x-values
 
 startx = dt.datetime.strptime(STARTDATE,'%m/%d/%Y').date() 
