@@ -16,6 +16,10 @@ from datetime import datetime
 from matplotlib import figure
 from ipywidgets import interact
 
+
+st.title('Covid cases in NL')
+
+
 # VARIABLES
 # number of 'besmettelijken' on 26th of November 2020 in the Netherlands
 # startdate in m/d/yyyy
