@@ -25,80 +25,79 @@ STARTDATE = "12/15/2020"
 NUMBEROFDAYS = 90
 TURNINGPOINTDAY = 10
 # R-numbers. Decrease and increase in two seperate figures
-@interact
+Rnew = st.slider('R-number', -2, 2, 0)
 # Some manipulation of the x-values
 
-def drawfigure(Rnew = 1.2):
-    startx = dt.datetime.strptime(STARTDATE,'%m/%d/%Y').date() 
-    then = startx + dt.timedelta(days=NUMBEROFDAYS)
-    x = mdates.drange(startx,then,dt.timedelta(days=1)) 
-    # x = dagnummer gerekend vanaf 1 januari 1970 (?)
-    # y = aantal gevallen
-    # z = dagnummer van 1 tot NUMBEROFDAYS
-    z  = np.array(range(NUMBEROFDAYS))
-    k = []
+startx = dt.datetime.strptime(STARTDATE,'%m/%d/%Y').date() 
+then = startx + dt.timedelta(days=NUMBEROFDAYS)
+x = mdates.drange(startx,then,dt.timedelta(days=1)) 
+# x = dagnummer gerekend vanaf 1 januari 1970 (?)
+# y = aantal gevallen
+# z = dagnummer van 1 tot NUMBEROFDAYS
+z  = np.array(range(NUMBEROFDAYS))
+k = []
 
-    date_format = "%m/%d/%Y"
-    a = datetime.strptime(STARTDATE, date_format)
-    
-    k.append (numberofcasesdayzero) 
-    
-    for t in range(1, NUMBEROFDAYS):
-        if t<TURNINGPOINTDAY :        
-            Ry = Rold - (t/TURNINGPOINTDAY * (Rold - Rnew))
-        else:
-            Ry = Rnew
-        if Ry == 1:
-            # prevent an [divide by zero]-error
-            Ry = 1.000001
-        
-        thalf = 4 * math.log(0.5) / math.log(Ry)  
-        k.append( k[t-1] * (0.5**(1/thalf)))
-    labelx = 'Rnew = ' + str(R)
-    plt.plot(x,k,label =labelx)
-    k = []
+date_format = "%m/%d/%Y"
+a = datetime.strptime(STARTDATE, date_format)
 
-    # Add X and y Label and limits
-    plt.xlabel('date')
-    plt.xlim(x[0], x[-1]) 
-    plt.ylabel('positive tests per 100k inhabitants in 7 days')
-    plt.ylim(0,450)
+k.append (numberofcasesdayzero) 
 
-    # add horizontal lines and surfaces
-    plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
-    plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
-    plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
-    plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
-    plt.fill_between(x, 500, 600, color='grey', alpha=0.3, label='zeer zeer ernstig')
+for t in range(1, NUMBEROFDAYS):
+    if t<TURNINGPOINTDAY :        
+        Ry = Rold - (t/TURNINGPOINTDAY * (Rold - Rnew))
+    else:
+        Ry = Rnew
+    if Ry == 1:
+        # prevent an [divide by zero]-error
+        Ry = 1.000001
 
-    plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
-    plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
-    plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
-    plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
-    plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
-    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    thalf = 4 * math.log(0.5) / math.log(Ry)  
+    k.append( k[t-1] * (0.5**(1/thalf)))
+labelx = 'Rnew = ' + str(Rnew)
+plt.plot(x,k,label =labelx)
+k = []
 
-    # Add a grid
-    plt.grid(alpha=.4,linestyle='--')
+# Add X and y Label and limits
+plt.xlabel('date')
+plt.xlim(x[0], x[-1]) 
+plt.ylabel('positive tests per 100k inhabitants in 7 days')
+plt.ylim(0,450)
 
-    #Add a Legend
-    fontP = FontProperties()
-    fontP.set_size('xx-small')
-    plt.legend(  loc='upper right', prop=fontP)
+# add horizontal lines and surfaces
+plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
+plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
+plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
+plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
+plt.fill_between(x, 500, 600, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
-    # Add a title
-    titlex = (
-        'Pos. tests per 100k inhabitants in 7 days.\n'
-        'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
-        'Rold = ' + str(Rold) + 
-        ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear decrease)'  )
-    plt.title(titlex , fontsize=10)
+plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
+plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
+plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
+plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
+plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
-    # lay-out of the x axis
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-    plt.gcf().autofmt_xdate()
+# Add a grid
+plt.grid(alpha=.4,linestyle='--')
 
-    # Show the plot
-    return plt.figure() 
-    
+#Add a Legend
+fontP = FontProperties()
+fontP.set_size('xx-small')
+plt.legend(  loc='upper right', prop=fontP)
+
+# Add a title
+titlex = (
+    'Pos. tests per 100k inhabitants in 7 days.\n'
+    'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
+    'Rold = ' + str(Rold) + 
+    ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear decrease)'  )
+plt.title(titlex , fontsize=10)
+
+# lay-out of the x axis
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+plt.gcf().autofmt_xdate()
+
+# Show the plot
+return plt.figure() 
+
