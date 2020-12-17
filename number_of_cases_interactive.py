@@ -30,7 +30,7 @@ STARTDATE = "12/15/2020"
 NUMBEROFDAYS = st.slider('Number of days', 15, 150, 60)
 TURNINGPOINTDAY = 10
 # R-numbers. Decrease and increase in two seperate figures
-Rold = 1.2
+Rold = 1.24
 Rnew = st.slider('R-number', 0.1, 2.0, 0.8)
 # Some manipulation of the x-values
 
