@@ -25,7 +25,9 @@ fig, ax = plt.subplots()
 # number of 'besmettelijken' on 26th of November 2020 in the Netherlands
 # startdate in m/d/yyyy
 
-numberofcasesdayzero = 331
+# https://www.bddataplan.nl/corona/
+numberofcasesdayzero = 331  
+
 STARTDATE = "12/15/2020"
 NUMBEROFDAYS = st.slider('Number of days in graph', 15, 150, 60)
 TURNINGPOINTDAY = st.slider('Number of days needed to go to new R', 1, 30,10)
