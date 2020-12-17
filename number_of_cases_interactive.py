@@ -69,6 +69,7 @@ st.title('Positive COVID-tests in NL')
 
 # POS TESTS /100k inhabitants / 7days ################################
 fig1, ax = plt.subplots()
+plt.plot(x, positivetests)
 positivetests = []
 
 # Add X and y Label and limits
@@ -76,7 +77,6 @@ plt.xlabel('date')
 plt.xlim(x[0], x[-1]) 
 plt.ylabel('positive tests per 100k inhabitants in 7 days')
 plt.ylim(bottom = 0)
-
 #plt.ylim(0,450)
 
 # add horizontal lines and surfaces
