@@ -202,7 +202,7 @@ st.pyplot(fig3)
 
 tekst = (
     '<hr>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
-    'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.'<br>'
+    'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
     'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a>' )
 links = (
 '<h3>Useful dashboards</h3><ul>'
