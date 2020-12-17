@@ -123,4 +123,4 @@ ax.set_title(titlex)
 
 st.pyplot(fig)
 
-st.text ("Made by Rene Smit. (@rcsmit) \n\n. Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.") 
+st.text ("Made by Rene Smit. (@rcsmit) \n\n. Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.\nnCode : https://github.com/rcsmit/COVIDcases/blob/main/number_of_cases_interactive.py") 
