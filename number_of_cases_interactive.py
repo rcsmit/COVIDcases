@@ -197,24 +197,3 @@ plt.gca().set_title(titlex , fontsize=10)
 
 st.pyplot(fig3)
 
-
-################################################
-
-tekst = (
-    '<hr>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
-    'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
-    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a>' )
-links = (
-'<h3>Useful dashboards</h3><ul>'
-
-'<li><a href=\"https://datagraver.com/corona\">https://www.datagraver/corona/</a></li>'
-'<li><a href=\"https://www.bddataplan.nl/corona\">https://www.bddataplan.nl/corona/</a></li>'
-'<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
-'<li><a href=\"https://coronadashboard.rijksoverheid.nl/\">Rijksoverheid NL</a></li>'
-
-'</ul>')
-
-st.markdown(tekst, unsafe_allow_html=True)
-st.markdown(links, unsafe_allow_html=True)
-
-
