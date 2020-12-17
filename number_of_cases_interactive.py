@@ -18,7 +18,7 @@ from matplotlib import figure
 from ipywidgets import interact
 
 
-st.title('Covid cases in NL')
+st.title('Positive COVID-tests in NL')
 fig, ax = plt.subplots()
 
 # VARIABLES
@@ -120,3 +120,5 @@ plt.show()
 ax.set_title(titlex)
 
 st.pyplot(fig)
+
+st.text ("Made by Rene Smit. (@rcsmit) \n\n. Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.") 
