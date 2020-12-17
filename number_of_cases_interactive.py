@@ -27,8 +27,8 @@ fig, ax = plt.subplots()
 
 numberofcasesdayzero = 331
 STARTDATE = "12/15/2020"
-NUMBEROFDAYS = st.slider('Number of days', 15, 150, 60)
-TURNINGPOINTDAY = 10
+NUMBEROFDAYS = st.slider('Number of days in graph', 15, 150, 60)
+TURNINGPOINTDAY = st.slider('Number of days need to go to new R', 1, 10,30)
 # R-numbers. Decrease and increase in two seperate figures
 Rold = 1.24
 Rnew = st.slider('R-number', 0.1, 2.0, 0.8)
@@ -102,7 +102,7 @@ titlex = (
     'Pos. tests per 100k inhabitants in 7 days.\n'
     'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
     'Rold = ' + str(Rold) + 
-    ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear decrease)'  )
+    ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
 
 # lay-out of the x axis
