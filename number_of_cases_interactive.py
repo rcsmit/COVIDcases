@@ -140,18 +140,18 @@ plt.ylim(bottom = 0)
 #plt.ylim(0,450)
  
 # add horizontal lines and surfaces
-plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
-plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
-plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
-plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
-if Rnew>1:
-    plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+#plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
+#plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
+#plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
+#plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
+#if Rnew>1:
+#    plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
-plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
-plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
-plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
-plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
-plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
+#plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+#plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
+#plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
+#plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
+#plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
 plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
 # Add a grid
