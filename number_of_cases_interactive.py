@@ -41,6 +41,7 @@ x = mdates.drange(startx,then,dt.timedelta(days=1))
 # y = aantal gevallen
 # z = dagnummer van 1 tot NUMBEROFDAYS
 z  = np.array(range(NUMBEROFDAYS))
+positivetests = []
 positiveteststot = []
 inhospital = []
 inIC=[]
