@@ -1,7 +1,7 @@
 # Calculate the number of cases with a decreasing R-number
 # For information only. Provided "as-is" etc.
 
-# The subplots are generated as 3 normal plots, thus repeating code :(
+# The subplots are generated as 4 normal plots, thus repeating code :(
 # 
 # https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py
 #
@@ -69,7 +69,7 @@ for t in range(1, NUMBEROFDAYS):
     positivetests.append(positivetests[t-1] * (0.5**(1/thalf)))
     inhospital.append(inhospital[t-1] * (0.5**(1/thalf)))
     inIC.append(inIC[t-1] * (0.5**(1/thalf)))
-
+    positiveteststot.append(positiveteststot[t-1] * (0.5**(1/thalf)))
 
 st.title('Positive COVID-tests in NL')
 
