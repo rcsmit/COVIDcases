@@ -75,8 +75,8 @@ st.title('Positive COVID-tests in NL')
 
 # POS TESTS /100k inhabitants / 7days ################################
 fig1, ax = plt.subplots()
-plt.plot(x, positiveteststot)
-positiveteststot = []
+plt.plot(x, positivetests)
+positivetests = []
 
 # Add X and y Label and limits
 plt.xlabel('date')
@@ -127,10 +127,10 @@ st.pyplot(fig1)
           
           
           
-# POS TESTS /100k inhabitants / 7days ################################
+# POS TESTS / 7days ################################
 fig1b, ax = plt.subplots()
-plt.plot(x, positivetests)
-positivetests = []
+plt.plot(x, positiveteststot)
+positiveteststot = []
 
 # Add X and y Label and limits
 plt.xlabel('date')
