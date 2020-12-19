@@ -73,7 +73,7 @@ for t in range(1, NUMBEROFDAYS):
 st.title('Positive COVID-tests in NL')
 
 # POS TESTS /100k inhabitants / 7days ################################
-fig1b, ax = plt.subplots()
+fig1, ax = plt.subplots()
 plt.plot(x, positiveteststot)
 positiveteststot = []
 
@@ -122,12 +122,12 @@ plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
 plt.gcf().autofmt_xdate()
 plt.gca().set_title(titlex , fontsize=10)
 
-st.pyplot(fig1
+st.pyplot(fig1)
           
           
           
 # POS TESTS /100k inhabitants / 7days ################################
-fig1, ax = plt.subplots()
+fig1b, ax = plt.subplots()
 plt.plot(x, positivetests)
 positivetests = []
 
