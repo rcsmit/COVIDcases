@@ -114,7 +114,7 @@ titlex = (
     'Pos. tests per 100k inhabitants in 7 days.\n'
     'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
     'Rold = ' + str(Rold) + 
-    ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    ' // Rnew (' + Rnew + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
 
 
@@ -168,7 +168,7 @@ titlex = (
     'Pos. tests per 100k inhabitants in 7 days.\n'
     'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
     'Rold = ' + str(Rold) + 
-    ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    ' // Rnew (' + Rnew + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
 
 
@@ -208,7 +208,7 @@ titlex = (
     'Ziekenhuisopnames per dag.\n'
     'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofhospitaldayzero) + '\n'
     'Rold = ' + str(Rold) + 
-    ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    ' // Rnew (' + Rnew + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
 
 # lay-out of the x axis
@@ -247,7 +247,7 @@ titlex = (
     'IC per dag.\n'
     'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofICdayzero) + '\n'
     'Rold = ' + str(Rold) + 
-    ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    ' // Rnew (' + Rnew + ')reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
 
 # lay-out of the x axis
