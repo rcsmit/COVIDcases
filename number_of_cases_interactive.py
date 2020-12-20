@@ -141,10 +141,10 @@ plt.ylim(bottom = 0)
 #plt.ylim(0,450)
  
 # add horizontal lines and surfaces
-plt.fill_between(x, 0, 1250, color='#f392bd',  label='waakzaam')
-plt.fill_between(x, 1251, 3750, color='#db5b94',  label='zorgelijk')
-plt.fill_between(x, 3751, 6250, color='#bc2165',  label='ernstig')
-plt.fill_between(x, 6250, 10000, color='#68032f', label='zeer ernstig')
+#plt.fill_between(x, 0, 1250, color='#f392bd',  label='waakzaam')
+#plt.fill_between(x, 1251, 3750, color='#db5b94',  label='zorgelijk')
+#plt.fill_between(x, 3751, 6250, color='#bc2165',  label='ernstig')
+#plt.fill_between(x, 6250, 10000, color='#68032f', label='zeer ernstig')
 #if Rnew>1:
 #    plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
