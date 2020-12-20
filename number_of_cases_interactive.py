@@ -136,7 +136,7 @@ positiveteststot = []
 # Add X and y Label and limits
 plt.xlabel('date')
 plt.xlim(x[0], x[-1]) 
-plt.ylabel('positive testsinhabitants in 7 walking average')
+plt.ylabel('new positive tests per day')
 plt.ylim(bottom = 0)
 #plt.ylim(0,450)
  
@@ -165,7 +165,7 @@ plt.legend(  loc='upper right', prop=fontP)
 
 # Add a title
 titlex = (
-    'Pos. tests per 100k inhabitants in 7 days.\n'
+    'New pos. tests per day.\n'
     'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
     'Rold = ' + str(Rold) + 
     ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
