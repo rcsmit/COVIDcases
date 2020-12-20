@@ -30,8 +30,8 @@ STARTDATE = "12/15/2020"
 st.sidebar.title('Parameters')
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 150, 60)
 TURNINGPOINTDAY = st.sidebar.slider('Number of days needed to go to new R', 1, 30,10)
-Rold = 1.24
-Rnew = st.sidebar.slider('R-number', 0.1, 2.0, 0.75)
+Rold = st.sidebar.slider('R-number old', 0.1, 2.0, 1.24)
+Rnew = st.sidebar.slider('R-number new', 0.1, 2.0, 0.75)
 # Some manipulation of the x-values
 
 startx = dt.datetime.strptime(STARTDATE,'%m/%d/%Y').date() 
