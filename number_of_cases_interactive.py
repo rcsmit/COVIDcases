@@ -166,7 +166,7 @@ plt.legend(  loc='upper right', prop=fontP)
 # Add a title
 titlex = (
     'Pos. tests per 100k inhabitants in 7 days.\n'
-    'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
+    'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
     'Rold = ' + str(Rold) + 
     ' // Rnew reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
