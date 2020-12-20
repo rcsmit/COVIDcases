@@ -30,7 +30,7 @@ STARTDATE = "12/15/2020"
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 150, 60)
 TURNINGPOINTDAY = st.sidebar.slider('Number of days needed to go to new R', 1, 30,10)
 
-st.title('Parameters')
+st.sidebar.title('Parameters')
 
 
 Rold = 1.24
@@ -277,7 +277,7 @@ links = (
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\">Corona lokaal</a></li>'
 '</ul>')
 
-st.markdown(tekst, unsafe_allow_html=True)
+st.sidebar.markdown(tekst, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
 
 
