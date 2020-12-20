@@ -267,11 +267,11 @@ tekst = (
 links = (
 '<h3>Useful dashboards</h3><ul>'
 
-'<li><a href=\"https://datagraver.com/corona\">https://www.datagraver/corona/</a></li>'
-'<li><a href=\"https://www.bddataplan.nl/corona\">https://www.bddataplan.nl/corona/</a></li>'
-'<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
-'<li><a href=\"https://coronadashboard.rijksoverheid.nl/\">Rijksoverheid NL</a></li>'
-'<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\">Corona lokaal</a></li>'
+'<li><a href=\"https://datagraver.com/corona\" target=\"_blank\">https://www.datagraver/corona/</a></li>'
+'<li><a href=\"https://www.bddataplan.nl/corona\" target=\"_blank\">https://www.bddataplan.nl/corona/</a></li>'
+'<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\" target=\"_blank\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
+'<li><a href=\"https://coronadashboard.rijksoverheid.nl/\" target=\"_blank\">Rijksoverheid NL</a></li>'
+'<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
 '</ul>')
 
 st.sidebar.markdown(tekst, unsafe_allow_html=True)
