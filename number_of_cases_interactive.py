@@ -166,7 +166,7 @@ plt.legend(  loc='upper right', prop=fontP)
 # Add a title
 titlex = (
     'New pos. tests per day.\n'
-    'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
+    'Number on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
     'Rold = ' + str(Rold) + 
     ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
@@ -206,7 +206,7 @@ plt.legend(  loc='upper right', prop=fontP)
 # Add a title
 titlex = (
     'Ziekenhuisopnames per dag.\n'
-    'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofhospitaldayzero) + '\n'
+    'Number on '+ str(STARTDATE) + ' = ' + str(numberofhospitaldayzero) + '\n'
     'Rold = ' + str(Rold) + 
     ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
@@ -245,7 +245,7 @@ plt.legend(  loc='upper right', prop=fontP)
 # Add a title
 titlex = (
     'IC per dag.\n'
-    'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofICdayzero) + '\n'
+    'Number on '+ str(STARTDATE) + ' = ' + str(numberofICdayzero) + '\n'
     'Rold = ' + str(Rold) + 
     ' // Rnew (' + str(Rnew) + ')reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
 plt.title(titlex , fontsize=10)
