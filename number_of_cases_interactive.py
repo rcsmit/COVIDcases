@@ -16,7 +16,8 @@ import datetime as dt
 from matplotlib.font_manager import FontProperties
 from datetime import datetime
 from matplotlib import figure
-
+from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
 
 # VARIABLES
 # startdate in m/d/yyyy
@@ -75,188 +76,192 @@ for t in range(1, NUMBEROFDAYS):
 st.title('Positive COVID-tests in NL')
 
 # POS TESTS /100k inhabitants / 7days ################################
-fig1, ax = plt.subplots()
-plt.plot(x, positivetests)
-positivetests = []
+with _lock:
+    fig1, ax = plt.subplots()
+    plt.plot(x, positivetests)
+    positivetests = []
 
-# Add X and y Label and limits
-plt.xlabel('date')
-plt.xlim(x[0], x[-1]) 
-plt.ylabel('positive tests per 100k inhabitants in 7 days')
-plt.ylim(bottom = 0)
-#plt.ylim(0,450)
+    # Add X and y Label and limits
+    plt.xlabel('date')
+    plt.xlim(x[0], x[-1]) 
+    plt.ylabel('positive tests per 100k inhabitants in 7 days')
+    plt.ylim(bottom = 0)
+    #plt.ylim(0,450)
 
-# add horizontal lines and surfaces
-plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
-plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
-plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
-plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
-if Rnew>1:
-    plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+    # add horizontal lines and surfaces
+    plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
+    plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
+    plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
+    plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
+    if Rnew>1:
+        plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
-plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
-plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
-plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
-plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
-plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
-plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+    plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
+    plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
+    plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
+    plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
+    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
-# Add a grid
-plt.grid(alpha=.4,linestyle='--')
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
 
-#Add a Legend
-fontP = FontProperties()
-fontP.set_size('xx-small')
-plt.legend(  loc='upper right', prop=fontP)
+    #Add a Legend
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+    plt.legend(  loc='upper right', prop=fontP)
 
-# Add a title
-titlex = (
-    'Pos. tests per 100k inhabitants in 7 days.\n'
-    'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
-    'Rold = ' + str(Rold) + 
-    ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
-plt.title(titlex , fontsize=10)
+    # Add a title
+    titlex = (
+        'Pos. tests per 100k inhabitants in 7 days.\n'
+        'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
+        'Rold = ' + str(Rold) + 
+        ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    plt.title(titlex , fontsize=10)
 
 
-# lay-out of the x axis
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-plt.gcf().autofmt_xdate()
-plt.gca().set_title(titlex , fontsize=10)
+    # lay-out of the x axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gcf().autofmt_xdate()
+    plt.gca().set_title(titlex , fontsize=10)
 
-st.pyplot(fig1)
+    st.pyplot(fig1)
           
           
           
 # POS TESTS / 7days ################################
-fig1b, ax = plt.subplots()
-plt.plot(x, positiveteststot)
-positiveteststot = []
+with _lock:
+    fig1b, ax = plt.subplots()
+    plt.plot(x, positiveteststot)
+    positiveteststot = []
 
-# Add X and y Label and limits
-plt.xlabel('date')
-plt.xlim(x[0], x[-1]) 
-plt.ylabel('new positive tests per day')
-plt.ylim(bottom = 0)
-#plt.ylim(0,450)
- 
-# add horizontal lines and surfaces
-plt.fill_between(x, 0, 1250, color='#f392bd',  label='waakzaam')
-plt.fill_between(x, 1251, 3750, color='#db5b94',  label='zorgelijk')
-plt.fill_between(x, 3751, 6250, color='#bc2165',  label='ernstig')
-plt.fill_between(x, 6251, 10000, color='#68032f', label='zeer ernstig')
-#if Rnew>1:
-#    plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+    # Add X and y Label and limits
+    plt.xlabel('date')
+    plt.xlim(x[0], x[-1]) 
+    plt.ylabel('new positive tests per day')
+    plt.ylim(bottom = 0)
+    #plt.ylim(0,450)
 
-#plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
-#plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
-#plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
-#plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
-#plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
-plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    # add horizontal lines and surfaces
+    plt.fill_between(x, 0, 1250, color='#f392bd',  label='waakzaam')
+    plt.fill_between(x, 1251, 3750, color='#db5b94',  label='zorgelijk')
+    plt.fill_between(x, 3751, 6250, color='#bc2165',  label='ernstig')
+    plt.fill_between(x, 6251, 10000, color='#68032f', label='zeer ernstig')
+    #if Rnew>1:
+    #    plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
-# Add a grid
-plt.grid(alpha=.4,linestyle='--')
+    #plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+    #plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
+    #plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
+    #plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
+    #plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
+    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
-#Add a Legend
-fontP = FontProperties()
-fontP.set_size('xx-small')
-plt.legend(  loc='upper right', prop=fontP)
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
 
-# Add a title
-titlex = (
-    'New pos. tests per day.\n'
-    'Number on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
-    'Rold = ' + str(Rold) + 
-    ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
-plt.title(titlex , fontsize=10)
+    #Add a Legend
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+    plt.legend(  loc='upper right', prop=fontP)
+
+    # Add a title
+    titlex = (
+        'New pos. tests per day.\n'
+        'Number on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
+        'Rold = ' + str(Rold) + 
+        ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    plt.title(titlex , fontsize=10)
 
 
-# lay-out of the x axis
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-plt.gcf().autofmt_xdate()
-plt.gca().set_title(titlex , fontsize=10)
+    # lay-out of the x axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gcf().autofmt_xdate()
+    plt.gca().set_title(titlex , fontsize=10)
 
-st.pyplot(fig1b)
+    st.pyplot(fig1b)
 
 ################## HOSPITAL ##########################################
-fig2, ax = plt.subplots()
-plt.plot(x, inhospital)
-inhospital = []
+with _lock:
+    fig2, ax = plt.subplots()
+    plt.plot(x, inhospital)
+    inhospital = []
 
-# Add X and y Label and limits
-plt.xlabel('date')
-plt.xlim(x[0], x[-1]) 
-plt.ylabel('ziekenhuisopnames')
-plt.ylim(bottom = 0)
+    # Add X and y Label and limits
+    plt.xlabel('date')
+    plt.xlim(x[0], x[-1]) 
+    plt.ylabel('ziekenhuisopnames')
+    plt.ylim(bottom = 0)
 
-# add horizontal lines and surfaces
-plt.axhline(y=40, color='green', alpha=.6,linestyle='--', label = "signaalwaarde" )
-plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    # add horizontal lines and surfaces
+    plt.axhline(y=40, color='green', alpha=.6,linestyle='--', label = "signaalwaarde" )
+    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
-# Add a grid
-plt.grid(alpha=.4,linestyle='--')
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
 
-#Add a Legend
-fontP = FontProperties()
-fontP.set_size('xx-small')
-plt.legend(  loc='upper right', prop=fontP)
+    #Add a Legend
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+    plt.legend(  loc='upper right', prop=fontP)
 
-# Add a title
-titlex = (
-    'Ziekenhuisopnames per dag.\n'
-    'Number on '+ str(STARTDATE) + ' = ' + str(numberofhospitaldayzero) + '\n'
-    'Rold = ' + str(Rold) + 
-    ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
-plt.title(titlex , fontsize=10)
+    # Add a title
+    titlex = (
+        'Ziekenhuisopnames per dag.\n'
+        'Number on '+ str(STARTDATE) + ' = ' + str(numberofhospitaldayzero) + '\n'
+        'Rold = ' + str(Rold) + 
+        ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    plt.title(titlex , fontsize=10)
 
-# lay-out of the x axis
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-plt.gcf().autofmt_xdate()
-plt.gca().set_title(titlex , fontsize=10)
+    # lay-out of the x axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gcf().autofmt_xdate()
+    plt.gca().set_title(titlex , fontsize=10)
 
-st.pyplot(fig2)
+    st.pyplot(fig2)
 
 ################## IC ##########################################
-fig3, ax = plt.subplots()
-plt.plot(x, inIC)
-inIC = []
+with _lock:
+    fig3, ax = plt.subplots()
+    plt.plot(x, inIC)
+    inIC = []
 
-# Add X and y Label and limits
-plt.xlabel('date')
-plt.xlim(x[0], x[-1]) 
-plt.ylabel('IC Opnames')
-plt.ylim(bottom = 0)
+    # Add X and y Label and limits
+    plt.xlabel('date')
+    plt.xlim(x[0], x[-1]) 
+    plt.ylabel('IC Opnames')
+    plt.ylim(bottom = 0)
 
-# add horizontal lines and surfaces
-plt.axhline(y=10, color='green', alpha=.6,linestyle='--', label = "signaalwaarde" )
-plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    # add horizontal lines and surfaces
+    plt.axhline(y=10, color='green', alpha=.6,linestyle='--', label = "signaalwaarde" )
+    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
-# Add a grid
-plt.grid(alpha=.4,linestyle='--')
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
 
-#Add a Legend
-fontP = FontProperties()
-fontP.set_size('xx-small')
-plt.legend(  loc='upper right', prop=fontP)
+    #Add a Legend
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+    plt.legend(  loc='upper right', prop=fontP)
 
-# Add a title
-titlex = (
-    'IC per dag.\n'
-    'Number on '+ str(STARTDATE) + ' = ' + str(numberofICdayzero) + '\n'
-    'Rold = ' + str(Rold) + 
-    ' // Rnew (' + str(Rnew) + ')reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
-plt.title(titlex , fontsize=10)
+    # Add a title
+    titlex = (
+        'IC per dag.\n'
+        'Number on '+ str(STARTDATE) + ' = ' + str(numberofICdayzero) + '\n'
+        'Rold = ' + str(Rold) + 
+        ' // Rnew (' + str(Rnew) + ')reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
+    plt.title(titlex , fontsize=10)
 
-# lay-out of the x axis
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-plt.gcf().autofmt_xdate()
-plt.gca().set_title(titlex , fontsize=10)
+    # lay-out of the x axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gcf().autofmt_xdate()
+    plt.gca().set_title(titlex , fontsize=10)
 
-st.pyplot(fig3)
+    st.pyplot(fig3)
 
 
 ################################################
