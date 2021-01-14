@@ -117,7 +117,7 @@ with _lock:
     plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
     plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
     plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
-    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    #plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
@@ -172,7 +172,7 @@ with _lock:
     #plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
     #plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
     #plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
-    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    #plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
@@ -213,7 +213,7 @@ with _lock:
 
     # add horizontal lines and surfaces
     plt.axhline(y=40, color='green', alpha=.6,linestyle='--', label = "signaalwaarde" )
-    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    #plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
@@ -253,7 +253,7 @@ with _lock:
 
     # add horizontal lines and surfaces
     plt.axhline(y=10, color='green', alpha=.6,linestyle='--', label = "signaalwaarde" )
-    plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
+    #plt.axvline(x=x[0]+35, color='purple', alpha=.6,linestyle='--',label = "19/01/2021")
 
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
