@@ -23,12 +23,25 @@ _lock = RendererAgg.lock
 # startdate in m/d/yyyy
 # https://www.bddataplan.nl/corona/
 
-numberofcasesdaytotzero = 8306  
-numberofcasesdayzero = 331  
-numberofhospitaldayzero = 175
-numberofICdayzero = 34
-STARTDATE = "12/15/2020"
+date_format = "%m/%d/%Y"
+b = datetime.today().strftime('%m/%d/%Y')
+
+#values mid december 
+# numberofcasesdaytotzero = 8306  
+# numberofcasesdayzero = 277 
+# numberofhospitaldayzero = 175
+# numberofICdayzero = 34
+
+#values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
+numberofcasesdayzero = st.sidebar.number_input('Total number of positive test 100k/7days',None,None,277)
+numberofcasesdaytotzero = st.sidebar.number_input('Total number of pos. test per day',None,None,6086)  
+    
+numberofhospitaldayzero = st.sidebar.number_input('Total number of hospital',None,None,75)  
+numberofICdayzero = st.sidebar.number_input('Total number of IC',None,None,34) 
+ 
+st.markdown("<hr>", unsafe_allow_html=True)
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 150, 60)
 
 Rold = st.sidebar.slider('R-number old', 0.1, 2.0, 1.24)
@@ -36,7 +49,11 @@ Rnew = st.sidebar.slider('R-number new', 0.1, 2.0, 0.75)
 TURNINGPOINTDAY = st.sidebar.slider('Number of days needed to go to new R', 1, 30,10)
 # Some manipulation of the x-values
 
-startx = dt.datetime.strptime(STARTDATE,'%m/%d/%Y').date() 
+try:
+    startx = dt.datetime.strptime(a,'%m/%d/%Y').date() 
+except:
+    st.markdown("Please make sure that the date is in format mm/dd/yyyy")
+    pass
 then = startx + dt.timedelta(days=NUMBEROFDAYS)
 x = mdates.drange(startx,then,dt.timedelta(days=1)) 
 # x = dagnummer gerekend vanaf 1 januari 1970 (?)
@@ -47,8 +64,7 @@ positivetests = []
 positiveteststot = []
 inhospital = []
 inIC=[]
-date_format = "%m/%d/%Y"
-a = datetime.strptime(STARTDATE, date_format)
+
 
 # START CALCULATING --------------------------------------------------------------------
 
@@ -114,7 +130,7 @@ with _lock:
     # Add a title
     titlex = (
         'Pos. tests per 100k inhabitants in 7 days.\n'
-        'Number of cases on '+ str(STARTDATE) + ' = ' + str(numberofcasesdayzero) + '\n'
+        'Number of cases on '+ str(a) + ' = ' + str(numberofcasesdayzero) + '\n'
         'Rold = ' + str(Rold) + 
         ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
     plt.title(titlex , fontsize=10)
@@ -169,7 +185,7 @@ with _lock:
     # Add a title
     titlex = (
         'New pos. tests per day.\n'
-        'Number on '+ str(STARTDATE) + ' = ' + str(numberofcasesdaytotzero) + '\n'
+        'Number on '+ str(a) + ' = ' + str(numberofcasesdaytotzero) + '\n'
         'Rold = ' + str(Rold) + 
         ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
     plt.title(titlex , fontsize=10)
@@ -210,7 +226,7 @@ with _lock:
     # Add a title
     titlex = (
         'Ziekenhuisopnames per dag.\n'
-        'Number on '+ str(STARTDATE) + ' = ' + str(numberofhospitaldayzero) + '\n'
+        'Number on '+ str(a) + ' = ' + str(numberofhospitaldayzero) + '\n'
         'Rold = ' + str(Rold) + 
         ' // Rnew (' + str(Rnew) + ') reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
     plt.title(titlex , fontsize=10)
@@ -250,7 +266,7 @@ with _lock:
     # Add a title
     titlex = (
         'IC per dag.\n'
-        'Number on '+ str(STARTDATE) + ' = ' + str(numberofICdayzero) + '\n'
+        'Number on '+ str(a) + ' = ' + str(numberofICdayzero) + '\n'
         'Rold = ' + str(Rold) + 
         ' // Rnew (' + str(Rnew) + ')reached in ' + str(TURNINGPOINTDAY) + ' days (linear change)'  )
     plt.title(titlex , fontsize=10)
@@ -282,5 +298,3 @@ links = (
 
 st.sidebar.markdown(tekst, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
-
-
