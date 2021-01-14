@@ -44,8 +44,8 @@ st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 150, 60)
 
-Rold = st.sidebar.slider('R-number old', 0.1, 2.0, 1.24)
-Rnew = st.sidebar.slider('R-number new', 0.1, 2.0, 0.75)
+Rold = st.sidebar.slider('R-number old', 0.1, 2.0, 0.95)
+Rnew = st.sidebar.slider('R-number new', 0.1, 2.0, 0.85)
 TURNINGPOINTDAY = st.sidebar.slider('Number of days needed to go to new R', 1, 30,10)
 # Some manipulation of the x-values
 
