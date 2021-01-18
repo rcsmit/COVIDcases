@@ -113,8 +113,8 @@ st.title('Positive COVID-tests in NL')
 # POS TESTS /day ################################
 with _lock:
     fig1, ax = plt.subplots()
-    plt.plot(x, positivetests1, label='Old variant')
-    plt.plot(x, positivetests2, label='New variant')
+    plt.plot(x, positivetests1, label='Old variant',  linestyle='--')
+    plt.plot(x, positivetests2, label='New variant',  linestyle='--')
     plt.plot(x, positivetests12, label='Total')
     positivetests1 = []
     positivetests2 = []
