@@ -44,7 +44,7 @@ numberofcasesdayzero = st.sidebar.number_input('Total number of positive tests',
  
 st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
-NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 150, 60)
+NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 60)
 vaccination = st.sidebar.checkbox("Vaccination")
 if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 365, 180)
@@ -210,6 +210,18 @@ if vaccination:
         plt.xlim(x[0], x[-1]) 
         plt.ylabel('R')
         plt.ylim(bottom = 0)
+
+        #Add a Legend
+        fontP = FontProperties()
+        fontP.set_size('xx-small')
+        plt.legend(  loc='upper right', prop=fontP)
+
+        # Add a title
+        titlex = (
+            'R number over time due to vaccination.\n'
+            )
+        
+        plt.title(titlex , fontsize=10)
 
         # Add a grid
         plt.grid(alpha=.4,linestyle='--')
