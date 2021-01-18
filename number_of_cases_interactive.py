@@ -318,14 +318,16 @@ with _lock:
 ################################################
 
 tekst = (
-    '<hr>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
+    '<style> .infobox {  background-color: lightblue;}</style>'
+    '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
     'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
     'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a><br>'
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\">rcsmit.medium.com</a><br>'
-    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\">this tweet</a> of Marino van Zelst')
+    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\">this tweet</a> of Marino van Zelst</div>')
 links = (
 '<h3>Useful dashboards</h3><ul>'
 
+    
 '<li><a href=\"https://datagraver.com/corona\" target=\"_blank\">https://www.datagraver/corona/</a></li>'
 '<li><a href=\"https://www.bddataplan.nl/corona\" target=\"_blank\">https://www.bddataplan.nl/corona/</a></li>'
 '<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\" target=\"_blank\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
@@ -333,7 +335,7 @@ links = (
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
 '</ul>')
 
-#st.sidebar.markdown(tekst, unsafe_allow_html=True)
-st.sidebar.info(tekst)
+st.sidebar.markdown(tekst, unsafe_allow_html=True)
+#st.sidebar.info(tekst)
 
 st.markdown(links, unsafe_allow_html=True)
