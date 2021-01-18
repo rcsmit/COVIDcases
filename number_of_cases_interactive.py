@@ -333,5 +333,7 @@ links = (
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
 '</ul>')
 
-st.sidebar.markdown(tekst, unsafe_allow_html=True)
+#st.sidebar.markdown(tekst, unsafe_allow_html=True)
+st.sidebar.info(tekst, unsafe_allow_html=True)
+
 st.markdown(links, unsafe_allow_html=True)
