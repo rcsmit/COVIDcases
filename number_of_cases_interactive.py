@@ -318,7 +318,8 @@ with _lock:
 tekst = (
     '<hr>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
     'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
-    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a>' )
+    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a>'
+    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\">this tweet</a> of Marino van Zelst')
 links = (
 '<h3>Useful dashboards</h3><ul>'
 
