@@ -334,6 +334,6 @@ links = (
 '</ul>')
 
 #st.sidebar.markdown(tekst, unsafe_allow_html=True)
-st.sidebar.info(tekst, unsafe_allow_html=True)
+st.sidebar.info(tekst)
 
 st.markdown(links, unsafe_allow_html=True)
