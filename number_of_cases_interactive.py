@@ -6,6 +6,8 @@
 # https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py
 #
 
+# Sorry for all the commented out code, maybe I will combine the old and new version(s) later
+
 # Import our modules that we are using
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -318,7 +320,8 @@ with _lock:
 tekst = (
     '<hr>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
     'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
-    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a>'
+    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a><br>'
+    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\">rcsmit.medium.com</a><br>'
     'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\">this tweet</a> of Marino van Zelst')
 links = (
 '<h3>Useful dashboards</h3><ul>'
