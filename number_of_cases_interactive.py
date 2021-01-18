@@ -45,7 +45,11 @@ numberofcasesdayzero = st.sidebar.number_input('Total number of positive tests',
 st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 150, 60)
+vaccination = st.sidebar.checkbox("Vaccination")
+if vaccination:
+    VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 365, 180)
 percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
+#percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
 
 #Rold = st.sidebar.slider('R-number old', 0.1, 2.0, 0.9)
 Rnew1 = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.9)
@@ -74,9 +78,13 @@ positivetests12 = []
 positiveteststot = []
 inhospital = []
 inIC=[]
+if vaccination:
+    Ry1x = []
+    Ry2x = []
 
-
-# START CALCULATING --------------------------------------------------------------------
+    # START CALCULATING --------------------------------------------------------------------
+    Ry1x.append(Rnew1)
+    Ry2x.append(Rnew2)
 
 positivetests12.append (numberofcasesdayzero12) 
 positivetests1.append (numberofcasesdayzero1)
@@ -86,13 +94,20 @@ positivetests2.append (numberofcasesdayzero2)
 # inIC.append(numberofICdayzero)
 
 for t in range(1, NUMBEROFDAYS):
-    # if t<TURNINGPOINTDAY :        
-    #     Ry1 = Rold - (t/TURNINGPOINTDAY * (Rold - Rnew1))
-    #     Ry2 = Rold - (t/TURNINGPOINTDAY * (Rold - Rnew2))
-    # else:
-    Ry1 = Rnew1
-    Ry2 = Rnew2
-    
+    if vaccination:
+
+        if t<VACTIME :        
+            #Ry1 = Rold - (t/VACTIME * (Rold - Rnew1))
+            #Ry2 = Rold - (t/VACTIME * (Rold - Rnew2))
+            Ry1 = Rnew1 * (1-(t/VACTIME))
+            Ry2 = Rnew2 * (1-(t/VACTIME))
+        else:
+            Ry1 = Rnew1 * 0.0000001 
+            Ry2 = Rnew2 * 0.0000001
+    else:
+            Ry1 = Rnew1 
+            Ry2 = Rnew2
+
     if Ry1 == 1:
         # prevent an [divide by zero]-error
         Ry1 = 1.000001
@@ -105,7 +120,9 @@ for t in range(1, NUMBEROFDAYS):
     positivetests1.append(positivetests1[t-1] * (0.5**(1/thalf1)))
     positivetests2.append(positivetests2[t-1] * (0.5**(1/thalf2)))
     positivetests12.append(positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))
-   
+    if vaccination:
+        Ry1x.append(Ry1)
+        Ry2x.append(Ry2)
     #inhospital.append(inhospital[t-1] * (0.5**(1/thalf)))
     #inIC.append(inIC[t-1] * (0.5**(1/thalf)))
     #positiveteststot.append(positiveteststot[t-1] * (0.5**(1/thalf)))
@@ -136,7 +153,7 @@ with _lock:
     # if Rnew2>1:
     #     plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
-    # plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+    # plt.axhline(y=0, color='green', alpha=.6,linestyle='--' ) 
     # plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
     # plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
     # plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
@@ -179,8 +196,34 @@ with _lock:
 
     st.pyplot(fig1)
           
-          
-          
+if vaccination:
+
+    with _lock:
+        fig1c, ax = plt.subplots()
+        plt.plot(x, Ry1x, label='Old variant',  linestyle='--')
+        plt.plot(x, Ry2x, label='New variant',  linestyle='--')
+        Ry1x = []
+        Ry2x = []
+        
+        # Add X and y Label and limits
+        plt.xlabel('date')
+        plt.xlim(x[0], x[-1]) 
+        plt.ylabel('R')
+        plt.ylim(bottom = 0)
+
+        # Add a grid
+        plt.grid(alpha=.4,linestyle='--')
+
+
+        plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+        # lay-out of the x axis
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+        plt.gcf().autofmt_xdate()
+
+        st.pyplot(fig1c)
+# 
+#           
 # # POS TESTS / 7days ################################
 # with _lock:
 #     fig1b, ax = plt.subplots()
@@ -318,11 +361,12 @@ with _lock:
 ################################################
 
 tekst = (
-    '<hr>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
+    '<style> .infobox {  background-color: lightblue;}</style>'
+    '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\'>@rcsmit</a>) <br>'
     'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
     'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\">github.com/rcsmit</a><br>'
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\">rcsmit.medium.com</a><br>'
-    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\">this tweet</a> of Marino van Zelst')
+    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\">this tweet</a> of Marino van Zelst</div>')
 links = (
 '<h3>Useful dashboards</h3><ul>'
 
@@ -333,7 +377,15 @@ links = (
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
 '</ul>')
 
-#st.sidebar.markdown(tekst, unsafe_allow_html=True)
-st.sidebar.info(tekst)
+vaccinationdisclaimer = (
+'<h3>Attention</h3>'
+'The plot when having vaccination is very indicative and very simplified.'
+' It assumes an uniform(?) distribution of the vaccins over the population, '
+' that a person who had the vaccin can\'t be sick immediately, '
+'that everybody takes the vaccin, the R is equal for everybody etc. etc.')
 
+st.sidebar.markdown(tekst, unsafe_allow_html=True)
+#st.sidebar.info(tekst)
+if vaccination:
+    st.markdown(vaccinationdisclaimer, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
