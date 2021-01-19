@@ -86,6 +86,8 @@ for t in range(1, NUMBEROFDAYS):
         if t<VACTIME :        
             Ry1 = Rnew1 * (1-(t/VACTIME))
             Ry2 = Rnew2 * (1-(t/VACTIME))
+            #Ry1 = Rnew1 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
+            #Ry2 = Rnew2 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
         else:
             Ry1 = Rnew1 * 0.0000001 
             Ry2 = Rnew2 * 0.0000001
