@@ -142,7 +142,7 @@ with _lock:
     #Add a Legend
     fontP = FontProperties()
     fontP.set_size('xx-small')
-    plt.legend(  loc='upper right', prop=fontP)
+    plt.legend(  loc='upper left', prop=fontP)
 
     # Add a title
     titlex = (
