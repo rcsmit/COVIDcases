@@ -116,7 +116,12 @@ for t in range(1, NUMBEROFDAYS):
     positivetests1.append(positivetests1[t-1] * (0.5**(1/thalf1)))
     positivetests2.append(positivetests2[t-1] * (0.5**(1/thalf2)))
 
-    # a * Ry1**1/4 works also
+    # This formula works also and gives same results 
+    # https://twitter.com/hk_nien/status/1350953807933558792
+    # positivetests1a.append(positivetests1a[t-1] * (Ry1**(1/4)))
+    # positivetests2a.append(positivetests2a[t-1] * (Ry2**(1/4)))
+    # positivetests12a.append(positivetests2a[t-1] * (Ry2**(1/4))+ positivetests1[t-1] * (Ry1**(1/4)))
+
 
     positivetests12.append(positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))
     positivetestsper100k.append((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))/25)
