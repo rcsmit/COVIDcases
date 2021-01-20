@@ -128,7 +128,7 @@ for t in range(1, NUMBEROFDAYS):
 st.title('Positive COVID-tests in NL')
 
 disclaimernew=('Attention: these results are different from the official models like shown in https://twitter.com/gerardv/status/1351186187617185800')
-st.markdown(disclaimernew,  unsafe_allow_html=True))
+st.markdown(disclaimernew,  unsafe_allow_html=True)
 
 # POS TESTS /day ################################
 with _lock:
