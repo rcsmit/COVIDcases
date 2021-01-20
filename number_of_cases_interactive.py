@@ -25,6 +25,14 @@ _lock = RendererAgg.lock
 # startdate in m/d/yyyy
 # https://www.bddataplan.nl/corona/
 
+# variable1 = old variant
+# variable2 = new variant
+# variable 12 = old + new
+
+# variablex = with vaccination
+
+
+
 date_format = "%m/%d/%Y"
 b = datetime.today().strftime('%m/%d/%Y')
 
@@ -48,7 +56,7 @@ numberofcasesdayzero1 = numberofcasesdayzero*(1-percentagenewversion)
 numberofcasesdayzero2 = numberofcasesdayzero*(percentagenewversion)
 numberofcasesdayzero12 = numberofcasesdayzero
 
-# Some manipulation of the x-values
+# Some manipulation of the x-values (the dates)
 
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date() 
@@ -104,15 +112,23 @@ for t in range(1, NUMBEROFDAYS):
 
     thalf1 = 4 * math.log(0.5) / math.log(Ry1)  
     thalf2 = 4 * math.log(0.5) / math.log(Ry2)
+
     positivetests1.append(positivetests1[t-1] * (0.5**(1/thalf1)))
     positivetests2.append(positivetests2[t-1] * (0.5**(1/thalf2)))
+
+    # a * Ry1**1/4 works also
+
     positivetests12.append(positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))
     positivetestsper100k.append((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))/25)
+    
     if vaccination:
         Ry1x.append(Ry1)
         Ry2x.append(Ry2)
 
 st.title('Positive COVID-tests in NL')
+
+disclaimernew=('Attention: these results are different from the official models like shown in https://twitter.com/gerardv/status/1351186187617185800')
+st.markdown(disclaimernew,  unsafe_allow_html=True))
 
 # POS TESTS /day ################################
 with _lock:
