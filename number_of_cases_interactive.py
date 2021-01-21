@@ -51,6 +51,8 @@ percentagenewversion = (st.sidebar.slider('Percentage British variant at start',
 
 Rnew1 = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.9)
 Rnew2 = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.26)
+Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
+
 
 numberofcasesdayzero1 = numberofcasesdayzero*(1-percentagenewversion)
 numberofcasesdayzero2 = numberofcasesdayzero*(percentagenewversion)
@@ -110,17 +112,17 @@ for t in range(1, NUMBEROFDAYS):
         # prevent an [divide by zero]-error
         Ry2 = 1.000001
 
-    thalf1 = 4 * math.log(0.5) / math.log(Ry1)  
-    thalf2 = 4 * math.log(0.5) / math.log(Ry2)
+    thalf1 = Tg * math.log(0.5) / math.log(Ry1)  
+    thalf2 = Tg * math.log(0.5) / math.log(Ry2)
 
     positivetests1.append(positivetests1[t-1] * (0.5**(1/thalf1)))
     positivetests2.append(positivetests2[t-1] * (0.5**(1/thalf2)))
 
     # This formula works also and gives same results 
     # https://twitter.com/hk_nien/status/1350953807933558792
-    # positivetests1a.append(positivetests1a[t-1] * (Ry1**(1/4)))
-    # positivetests2a.append(positivetests2a[t-1] * (Ry2**(1/4)))
-    # positivetests12a.append(positivetests2a[t-1] * (Ry2**(1/4))+ positivetests1[t-1] * (Ry1**(1/4)))
+    # positivetests1a.append(positivetests1a[t-1] * (Ry1**(1/Tg)))
+    # positivetests2a.append(positivetests2a[t-1] * (Ry2**(1/Tg)))
+    # positivetests12a.append(positivetests2a[t-1] * (Ry2**(1/Tg))+ positivetests1[t-1] * (Ry1**(1/Tg)))
 
 
     positivetests12.append(positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))
