@@ -291,8 +291,9 @@ links = (
 '<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\" target=\"_blank\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
 '<li><a href=\"https://coronadashboard.rijksoverheid.nl/\" target=\"_blank\">Rijksoverheid NL</a></li>'
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
-'</ul>')
-
+'<li><a href=\"https://discuss.streamlit.io/t/data-apps-regarding-covid-19/2203\">Various data apps made with Streamlit</a></li>'
+ '</ul>')
+   
 vaccinationdisclaimer = (
 '<h3>Attention</h3>'
 'The plot when having vaccination is very indicative and very simplified.'
