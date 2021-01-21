@@ -306,4 +306,4 @@ if vaccination:
     st.markdown(vaccinationdisclaimer, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
 
-st.markdown(st.geturl())
+
