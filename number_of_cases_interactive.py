@@ -76,9 +76,9 @@ numberofpositivetests12 = numberofpositivetests
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date() 
 except:
-    st.title("Please make sure that the date is in format mm/dd/yyyy")
-    pass
-
+    st.error("Please make sure that the date is in format mm/dd/yyyy")
+    st.stop()
+    
 then = startx + dt.timedelta(days=NUMBEROFDAYS)
 x = mdates.drange(startx,then,dt.timedelta(days=1)) 
 # x = dagnummer gerekend vanaf 1 januari 1970 (?)
