@@ -52,7 +52,8 @@ if showcummulative:
     try:
         numberofcasesdayzero = int(numberofcasesdayz)
     except:
-            st.title("Please enter a number for the number of cases on day zero")
+            st.error("Please enter a number for the number of cases on day zero")
+            st.stop()
 
 
 vaccination = st.sidebar.checkbox("Vaccination")
