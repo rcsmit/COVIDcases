@@ -10,6 +10,8 @@
 
 # Import our modules that we are using
 import streamlit as st
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -38,25 +40,35 @@ b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
-numberofcasesdayzero = st.sidebar.number_input('Total number of positive tests',None,None,5600)
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,5600)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 60)
+showcummulative = st.sidebar.checkbox("Show cummulative")
+if showcummulative:
+    numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
+    
+    try:
+        numberofcasesdayzero = int(numberofcasesdayz)
+    except:
+            st.title("Please enter a number for the number of cases on day zero")
+
+
 vaccination = st.sidebar.checkbox("Vaccination")
 if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 365, 180)
 percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
 #percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
 
-Rnew1 = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.9)
-Rnew2 = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.26)
+Rnew1 = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.95)
+Rnew2 = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
 Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 
 
-numberofcasesdayzero1 = numberofcasesdayzero*(1-percentagenewversion)
-numberofcasesdayzero2 = numberofcasesdayzero*(percentagenewversion)
-numberofcasesdayzero12 = numberofcasesdayzero
+numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
+numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
+numberofpositivetests12 = numberofpositivetests
 
 # Some manipulation of the x-values (the dates)
 
@@ -76,17 +88,27 @@ positivetests1 = []
 positivetests2 = []
 positivetests12 = []
 positivetestsper100k = []
+cummulative1 = []
+cummulative2 = []
+cummulative12 = []
+#walkingcummulative = []
 
+walkingR=[]
 if vaccination:
     Ry1x = []
     Ry2x = []
 
 # START CALCULATING --------------------------------------------------------------------
-positivetests1.append (numberofcasesdayzero1)
-positivetests2.append (numberofcasesdayzero2)
-positivetests12.append (numberofcasesdayzero12) 
-positivetestsper100k.append ((numberofcasesdayzero12/25)) 
-
+positivetests1.append (numberofpositivetests1)
+positivetests2.append (numberofpositivetests2)
+positivetests12.append (numberofpositivetests12) 
+positivetestsper100k.append ((numberofpositivetests12/25)) 
+walkingR.append(1)
+if showcummulative:
+    cummulative1.append(numberofcasesdayzero*(1-percentagenewversion))
+    cummulative2.append(numberofcasesdayzero*(percentagenewversion))
+    cummulative12.append(numberofcasesdayzero)
+#walkingcummulative.append(1)
 if vaccination:
     Ry1x.append(Rnew1)
     Ry2x.append(Rnew2)
@@ -126,6 +148,17 @@ for t in range(1, NUMBEROFDAYS):
 
 
     positivetests12.append(positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))
+    if showcummulative:
+        cummulative1.append   (cummulative1[t-1]+  (positivetests1[t-1] * (0.5**(1/thalf1))))
+        cummulative2.append   (cummulative2[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) )
+        cummulative12.append   (cummulative12[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) + (positivetests1[t-1] * (0.5**(1/thalf1))))
+    
+    #walkingcummulative.append((((cummulative[t-1]+  ((positivetests2[t-1] * (0.5**(1/thalf2))) + (positivetests1[t-1] * (0.5**(1/thalf1)))))/cummulative[t-1])))
+    #walkingcummulative.append(    ( ((cummulative[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1))))/1)))
+
+    ratio = ((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1))) / (positivetests2[t-1]+positivetests1[t-1]))
+    walkingR.append(ratio**4)
+
     positivetestsper100k.append((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))/25)
     
     if vaccination:
@@ -170,7 +203,7 @@ with _lock:
     # Add a title
     titlex = (
         'Pos. tests per day.\n'
-        'Number of cases on '+ str(a) + ' = ' + str(numberofcasesdayzero) + '\n')
+        'Number of cases on '+ str(a) + ' = ' + str(numberofpositivetests) + '\n')
        
     plt.title(titlex , fontsize=10)
     
@@ -232,6 +265,47 @@ with _lock:
 
     st.pyplot(fig1d)
 
+if showcummulative:
+    with _lock:
+        fig1e, ax = plt.subplots()
+        plt.plot(x,cummulative1, label='Cummulative cases old variant',  linestyle='--')
+        plt.plot(x,cummulative2, label='Cummulative cases new variant',  linestyle='--')
+        plt.plot(x,cummulative12, label='Cummulative cases total',)
+        
+        cummulative1 = []
+        cummulative2 = []
+        cummulative12 = []
+        # Add X and y Label and limits
+        plt.xlabel('date')
+        plt.xlim(x[0], x[-1]) 
+        plt.ylabel('Total cases')
+        plt.ylim(bottom = 0)
+
+        #Add a Legend
+        fontP = FontProperties()
+        fontP.set_size('xx-small')
+        plt.legend(  loc='upper right', prop=fontP)
+
+        # Add a title
+        titlex = (
+            'Cummulative cases.\n'
+            )
+        
+        plt.title(titlex , fontsize=10)
+
+        # Add a grid
+        plt.grid(alpha=.4,linestyle='--')
+
+
+        plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+        # lay-out of the x axis
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+        plt.gcf().autofmt_xdate()
+        st.markdown("Attention, people don't recover in this graph")
+        st.pyplot(fig1e)
+
+
 if vaccination:
 
     with _lock:
@@ -291,9 +365,8 @@ links = (
 '<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\" target=\"_blank\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
 '<li><a href=\"https://coronadashboard.rijksoverheid.nl/\" target=\"_blank\">Rijksoverheid NL</a></li>'
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
-'<li><a href=\"https://discuss.streamlit.io/t/data-apps-regarding-covid-19/2203\">Various data apps made with Streamlit</a></li>'
- '</ul>')
-   
+'</ul>')
+
 vaccinationdisclaimer = (
 '<h3>Attention</h3>'
 'The plot when having vaccination is very indicative and very simplified.'
@@ -306,5 +379,4 @@ st.sidebar.markdown(tekst, unsafe_allow_html=True)
 if vaccination:
     st.markdown(vaccinationdisclaimer, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
-
 
