@@ -41,15 +41,19 @@ b = datetime.today().strftime('%m/%d/%Y')
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
 numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,5600)
+
+st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 60)
 showcummulative = st.sidebar.checkbox("Show cummulative")
 if showcummulative:
     numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
+    
     try:
         numberofcasesdayzero = int(numberofcasesdayz)
     except:
-        st.title("Please enter a number for the number of cases on day zero")
+            st.title("Please enter a number for the number of cases on day zero")
+
 
 vaccination = st.sidebar.checkbox("Vaccination")
 if vaccination:
@@ -111,14 +115,21 @@ if vaccination:
 
 for t in range(1, NUMBEROFDAYS):
     if vaccination:
-        if t<VACTIME :        
-            Ry1 = Rnew1 * (1-(t/VACTIME))
-            Ry2 = Rnew2 * (1-(t/VACTIME))
-            #Ry1 = Rnew1 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
-            #Ry2 = Rnew2 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
+        if t>7:
+
+       
+            if t<(VACTIME+7) :        
+                Ry1 = Rnew1 * ((1-((t-7)/(VACTIME))))
+                Ry2 = Rnew2 * ((1-((t-7)/(VACTIME))))
+                #Ry1 = Rnew1 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
+                #Ry2 = Rnew2 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
+            
+            else:
+                Ry1 = Rnew1 * 0.0000001 
+                Ry2 = Rnew2 * 0.0000001
         else:
-            Ry1 = Rnew1 * 0.0000001 
-            Ry2 = Rnew2 * 0.0000001
+                Ry1 = Rnew1
+                Ry2 = Rnew2
     else:
             Ry1 = Rnew1 
             Ry2 = Rnew2
@@ -152,8 +163,8 @@ for t in range(1, NUMBEROFDAYS):
     #walkingcummulative.append((((cummulative[t-1]+  ((positivetests2[t-1] * (0.5**(1/thalf2))) + (positivetests1[t-1] * (0.5**(1/thalf1)))))/cummulative[t-1])))
     #walkingcummulative.append(    ( ((cummulative[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1))))/1)))
 
-    ratio = ((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1))) / (positivetests2[t-1]+positivetests1[t-1]))
-    walkingR.append(ratio**4)
+    #ratio = ((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1))) / (positivetests2[t-1]+positivetests1[t-1]))
+    #walkingR.append(ratio**4)
 
     positivetestsper100k.append((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))/25)
     
