@@ -44,7 +44,7 @@ numberofpositivetests = st.sidebar.number_input('Total number of positive tests'
 
 st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
-NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 60)
+NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 100)
 showcummulative = st.sidebar.checkbox("Show cummulative")
 if showcummulative:
     numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
@@ -62,9 +62,9 @@ if vaccination:
 percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
 #percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
 
-Rnew1 = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.95)
+Rnew1 = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.98)
 Rnew2 = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
-Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
+Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 5.0)
 
 
 numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
@@ -175,7 +175,9 @@ for t in range(1, NUMBEROFDAYS):
 
 st.title('Positive COVID-tests in NL')
 
-disclaimernew=('Attention: these results are different from the official models like shown in https://twitter.com/gerardv/status/1351186187617185800')
+disclaimernew=('Attention: these results are different from the official models like shown in https://twitter.com/gerardv/status/1351186187617185800'
+'Parameters adapted om 24/01 to align with the official model like shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
+
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 
 # POS TESTS /day ################################
