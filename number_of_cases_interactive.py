@@ -175,8 +175,8 @@ for t in range(1, NUMBEROFDAYS):
 
 st.title('Positive COVID-tests in NL')
 
-disclaimernew=('Attention: these results are different from the official models like shown in https://twitter.com/gerardv/status/1351186187617185800'
-'Parameters adapted om 24/01 to align with the official model like shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
+disclaimernew=('Attention: these results are different from the official models like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
+'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 
