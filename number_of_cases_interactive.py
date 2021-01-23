@@ -1,4 +1,4 @@
-# Calculate the number of cases with a decreasing R-number
+# Calculate the number of cases with a two variants with a different R-number
 # For information only. Provided "as-is" etc.
 
 # The subplots are generated as 4 normal plots, thus repeating code :(
