@@ -78,7 +78,6 @@ if turning:
         st.error("Turning point cannot be before startdate")
         st.stop()
     turningpoint =  abs((d2 - d1).days)
-    st.markdown(turningpoint)
 
 vaccination = st.sidebar.checkbox("Vaccination")
 
