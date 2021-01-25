@@ -1,4 +1,4 @@
-# Calculate the number of cases with a two variants with a different R-number
+# Calculate the number of cases with a decreasing R-number, 2 different variants and vaccination
 # For information only. Provided "as-is" etc.
 
 # The subplots are generated as 4 normal plots, thus repeating code :(
@@ -10,8 +10,6 @@
 
 # Import our modules that we are using
 import streamlit as st
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -33,8 +31,6 @@ _lock = RendererAgg.lock
 
 # variablex = with vaccination
 
-
-
 date_format = "%m/%d/%Y"
 b = datetime.today().strftime('%m/%d/%Y')
 
@@ -44,8 +40,54 @@ numberofpositivetests = st.sidebar.number_input('Total number of positive tests'
 
 st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
+
+try:
+    startx = dt.datetime.strptime(a,'%m/%d/%Y').date() 
+except:
+    st.error("Please make sure that the date is in format mm/dd/yyyy")
+    st.stop()
+
+
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 100)
+
+Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.98)
+Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
+
+percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
+
+Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
+
+turning = st.sidebar.checkbox("Turning point")
+
+if turning:  
+    #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
+    changefactor = st.sidebar.slider('Change factor (1.0 = no change)', 0.0, 3.0, 0.9)
+    #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
+    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', '01/31/2021')
+    turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
+    try:
+        starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date() 
+    except:
+        st.error("Please make sure that the date is in format mm/dd/yyyy")
+        st.stop()
+        
+
+    d1 = datetime.strptime(a, '%m/%d/%Y')
+    d2 = datetime.strptime(turningpointdate,'%m/%d/%Y')
+    if d2<d1:
+        st.error("Turning point cannot be before startdate")
+        st.stop()
+    turningpoint =  abs((d2 - d1).days)
+    st.markdown(turningpoint)
+
+vaccination = st.sidebar.checkbox("Vaccination")
+
+if vaccination:
+    VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 365, 180)
+#percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
+
 showcummulative = st.sidebar.checkbox("Show cummulative")
+
 if showcummulative:
     numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
     
@@ -55,30 +97,11 @@ if showcummulative:
             st.error("Please enter a number for the number of cases on day zero")
             st.stop()
 
-
-vaccination = st.sidebar.checkbox("Vaccination")
-if vaccination:
-    VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 365, 180)
-percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
-#percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
-
-Rnew1 = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.98)
-Rnew2 = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
-Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 5.0)
-
-
 numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
 numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
 numberofpositivetests12 = numberofpositivetests
 
 # Some manipulation of the x-values (the dates)
-
-try:
-    startx = dt.datetime.strptime(a,'%m/%d/%Y').date() 
-except:
-    st.error("Please make sure that the date is in format mm/dd/yyyy")
-    st.stop()
-    
 then = startx + dt.timedelta(days=NUMBEROFDAYS)
 x = mdates.drange(startx,then,dt.timedelta(days=1)) 
 # x = dagnummer gerekend vanaf 1 januari 1970 (?)
@@ -95,9 +118,10 @@ cummulative12 = []
 #walkingcummulative = []
 
 walkingR=[]
-if vaccination:
-    Ry1x = []
-    Ry2x = []
+
+#if vaccination:
+Ry1x = []
+Ry2x = []
 
 # START CALCULATING --------------------------------------------------------------------
 positivetests1.append (numberofpositivetests1)
@@ -110,15 +134,29 @@ if showcummulative:
     cummulative2.append(numberofcasesdayzero*(percentagenewversion))
     cummulative12.append(numberofcasesdayzero)
 #walkingcummulative.append(1)
-if vaccination:
-    Ry1x.append(Rnew1)
-    Ry2x.append(Rnew2)
+#if vaccination:
+Ry1x.append(Rnew1_)
+Ry2x.append(Rnew2_)
 
 for t in range(1, NUMBEROFDAYS):
+    if turning:   
+        if (t>=(turningpoint-1) and t<turningpoint+turningdays):
+            Rnew31 = Rnew1_ * changefactor
+            Rnew32 = Rnew2_ * changefactor
+            Rnew1 = Rnew31+ ((Rnew1_ - Rnew31)*(1-((t-(turningpoint-1))/turningdays)))
+            Rnew2 = Rnew32+ ((Rnew2_ - Rnew32)*(1-((t-(turningpoint-1))/turningdays)))
+        elif (t>=turningpoint-1+turningdays):
+            Rnew1 = Rnew31
+            Rnew2 = Rnew32
+        else:
+            Rnew1 = Rnew1_
+            Rnew2 = Rnew2_
+    else:
+        Rnew1 = Rnew1_
+        Rnew2 = Rnew2_
+
     if vaccination:
         if t>7:
-
-       
             if t<(VACTIME+7) :        
                 Ry1 = Rnew1 * ((1-((t-7)/(VACTIME))))
                 Ry2 = Rnew2 * ((1-((t-7)/(VACTIME))))
@@ -154,29 +192,24 @@ for t in range(1, NUMBEROFDAYS):
     # positivetests2a.append(positivetests2a[t-1] * (Ry2**(1/Tg)))
     # positivetests12a.append(positivetests2a[t-1] * (Ry2**(1/Tg))+ positivetests1[t-1] * (Ry1**(1/Tg)))
 
-
     positivetests12.append(positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))
     if showcummulative:
         cummulative1.append   (cummulative1[t-1]+  (positivetests1[t-1] * (0.5**(1/thalf1))))
         cummulative2.append   (cummulative2[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) )
         cummulative12.append   (cummulative12[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) + (positivetests1[t-1] * (0.5**(1/thalf1))))
     
-    #walkingcummulative.append((((cummulative[t-1]+  ((positivetests2[t-1] * (0.5**(1/thalf2))) + (positivetests1[t-1] * (0.5**(1/thalf1)))))/cummulative[t-1])))
-    #walkingcummulative.append(    ( ((cummulative[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1))))/1)))
-
-    #ratio = ((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1))) / (positivetests2[t-1]+positivetests1[t-1]))
-    #walkingR.append(ratio**4)
-
     positivetestsper100k.append((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))/25)
     
-    if vaccination:
-        Ry1x.append(Ry1)
-        Ry2x.append(Ry2)
+    #if vaccination:
+
+    Ry1x.append(Ry1)
+    Ry2x.append(Ry2)
 
 st.title('Positive COVID-tests in NL')
 
-disclaimernew=('Attention: these results are different from the official models like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
-'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
+disclaimernew=('Attention: these results are different from the official models probably due to different (secret) parameters.')
+#like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
+#'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 
@@ -316,8 +349,8 @@ if showcummulative:
         st.pyplot(fig1e)
 
 
-if vaccination:
-
+if (vaccination or turning):
+# Show the changing R number
     with _lock:
         fig1c, ax = plt.subplots()
         plt.plot(x, Ry1x, label='Old variant',  linestyle='--')
@@ -338,7 +371,7 @@ if vaccination:
 
         # Add a title
         titlex = (
-            'R number over time due to vaccination.\n'
+            'R number over time.\n'
             )
         
         plt.title(titlex , fontsize=10)
