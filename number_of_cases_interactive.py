@@ -115,7 +115,7 @@ cummulative1 = []
 cummulative2 = []
 cummulative12 = []
 #walkingcummulative = []
-
+ratio=[]
 walkingR=[]
 
 #if vaccination:
@@ -132,6 +132,7 @@ if showcummulative:
     cummulative1.append(numberofcasesdayzero*(1-percentagenewversion))
     cummulative2.append(numberofcasesdayzero*(percentagenewversion))
     cummulative12.append(numberofcasesdayzero)
+ratio.append(percentagenewversion*100 )
 #walkingcummulative.append(1)
 #if vaccination:
 Ry1x.append(Rnew1_)
@@ -196,6 +197,8 @@ for t in range(1, NUMBEROFDAYS):
         cummulative1.append   (cummulative1[t-1]+  (positivetests1[t-1] * (0.5**(1/thalf1))))
         cummulative2.append   (cummulative2[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) )
         cummulative12.append   (cummulative12[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) + (positivetests1[t-1] * (0.5**(1/thalf1))))
+    ratio.append   (100* (positivetests2[t-1] * (0.5**(1/thalf2)))/((positivetests2[t-1] * (0.5**(1/thalf2)))+(positivetests1[t-1] * (0.5**(1/thalf1)))))
+    
     
     positivetestsper100k.append((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))/25)
     
@@ -312,7 +315,7 @@ if showcummulative:
         fig1e, ax = plt.subplots()
         plt.plot(x,cummulative1, label='Cummulative cases old variant',  linestyle='--')
         plt.plot(x,cummulative2, label='Cummulative cases new variant',  linestyle='--')
-        plt.plot(x,cummulative12, label='Cummulative cases total',)
+        plt.plot(x,cummulative12, label='Cummulative cases TOTAL',)
         
         cummulative1 = []
         cummulative2 = []
@@ -346,6 +349,46 @@ if showcummulative:
         plt.gcf().autofmt_xdate()
         st.markdown("Attention, people don't recover in this graph")
         st.pyplot(fig1e)
+
+# Show the ratio
+with _lock:
+    fig1f, ax = plt.subplots()
+    plt.plot(x, ratio, label='Ratio',  linestyle='--')
+    
+    ratio = []
+    
+    # Add X and y Label and limits
+    plt.xlabel('date')
+    plt.xlim(x[0], x[-1]) 
+    plt.ylabel('ratio')
+    plt.ylim(bottom = 0)
+
+    #Add a Legend
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+    plt.legend(  loc='upper right', prop=fontP)
+
+    # Add a title
+    titlex = (
+        'Percentage new variant.\n'
+        )
+    
+    plt.title(titlex , fontsize=10)
+
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
+
+
+    plt.axhline(y=50, color='yellow', alpha=.6,linestyle='--')
+    # lay-out of the x axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gcf().autofmt_xdate()
+
+    st.pyplot(fig1f)
+
+
+
 
 
 if (vaccination or turning):
