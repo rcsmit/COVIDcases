@@ -82,7 +82,7 @@ if turning:
 vaccination = st.sidebar.checkbox("Vaccination")
 
 if vaccination:
-    VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 365, 180)
+    VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 730, 365)
 #percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
 
 showcummulative = st.sidebar.checkbox("Show cummulative")
