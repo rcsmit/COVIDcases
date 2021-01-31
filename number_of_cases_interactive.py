@@ -50,7 +50,7 @@ except:
 
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 100)
 
-Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.98)
+Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.9)
 Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
 
 percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
@@ -117,6 +117,7 @@ cummulative12 = []
 #walkingcummulative = []
 ratio=[]
 walkingR=[]
+actualR=[]
 
 #if vaccination:
 Ry1x = []
@@ -127,7 +128,7 @@ positivetests1.append (numberofpositivetests1)
 positivetests2.append (numberofpositivetests2)
 positivetests12.append (numberofpositivetests12) 
 positivetestsper100k.append ((numberofpositivetests12/25)) 
-walkingR.append(1)
+
 if showcummulative:
     cummulative1.append(numberofcasesdayzero*(1-percentagenewversion))
     cummulative2.append(numberofcasesdayzero*(percentagenewversion))
@@ -137,6 +138,7 @@ ratio.append(percentagenewversion*100 )
 #if vaccination:
 Ry1x.append(Rnew1_)
 Ry2x.append(Rnew2_)
+walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
 
 for t in range(1, NUMBEROFDAYS):
     if turning:   
@@ -183,8 +185,10 @@ for t in range(1, NUMBEROFDAYS):
     thalf1 = Tg * math.log(0.5) / math.log(Ry1)  
     thalf2 = Tg * math.log(0.5) / math.log(Ry2)
 
-    positivetests1.append(positivetests1[t-1] * (0.5**(1/thalf1)))
-    positivetests2.append(positivetests2[t-1] * (0.5**(1/thalf2)))
+    pt1 = (positivetests1[t-1] * (0.5**(1/thalf1)))
+    pt2 = (positivetests2[t-1] * (0.5**(1/thalf2)))
+    positivetests1.append(pt1)
+    positivetests2.append(pt2)
 
     # This formula works also and gives same results 
     # https://twitter.com/hk_nien/status/1350953807933558792
@@ -192,20 +196,23 @@ for t in range(1, NUMBEROFDAYS):
     # positivetests2a.append(positivetests2a[t-1] * (Ry2**(1/Tg)))
     # positivetests12a.append(positivetests2a[t-1] * (Ry2**(1/Tg))+ positivetests1[t-1] * (Ry1**(1/Tg)))
 
-    positivetests12.append(positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))
-    if showcummulative:
-        cummulative1.append   (cummulative1[t-1]+  (positivetests1[t-1] * (0.5**(1/thalf1))))
-        cummulative2.append   (cummulative2[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) )
-        cummulative12.append   (cummulative12[t-1]+  (positivetests2[t-1] * (0.5**(1/thalf2))) + (positivetests1[t-1] * (0.5**(1/thalf1))))
-    ratio.append   (100* (positivetests2[t-1] * (0.5**(1/thalf2)))/((positivetests2[t-1] * (0.5**(1/thalf2)))+(positivetests1[t-1] * (0.5**(1/thalf1)))))
-    
-    
-    positivetestsper100k.append((positivetests2[t-1] * (0.5**(1/thalf2)) + positivetests1[t-1] * (0.5**(1/thalf1)))/25)
-    
-    #if vaccination:
+    positivetests12.append(pt1+pt2)
 
+    if showcummulative:
+        cpt1 = (cummulative1[t-1]+  pt1)
+        cpt2 = (cummulative2[t-1]+  pt2 )
+        cpt12 =  (cummulative12[t-1]+ pt1 + pt2)
+        cummulative1.append   (cpt1)
+        cummulative2.append   (cpt2 )
+        cummulative12.append   (cpt12)
+    ratio_ =  ((pt2/(pt1+pt2)))
+    ratio.append   (100*ratio_)
+    positivetestsper100k.append((pt1+pt2)/25)
+ 
     Ry1x.append(Ry1)
     Ry2x.append(Ry2)
+    walkingR.append((Ry1**(1-ratio_))*(Ry2**(ratio_)))
+
 
 st.title('Positive COVID-tests in NL')
 
@@ -350,7 +357,7 @@ if showcummulative:
         st.markdown("Attention, people don't recover in this graph")
         st.pyplot(fig1e)
 
-# Show the ratio
+# Show the percentage new variant
 with _lock:
     fig1f, ax = plt.subplots()
     plt.plot(x, ratio, label='Ratio',  linestyle='--')
@@ -387,6 +394,43 @@ with _lock:
 
     st.pyplot(fig1f)
 
+
+# Show the R number in time
+with _lock:
+    fig1f, ax = plt.subplots()
+    plt.plot(x, walkingR, label='Combined R number in time',  linestyle='--')
+    
+    walkingR = []
+    
+    # Add X and y Label and limits
+    plt.xlabel('date')
+    plt.xlim(x[0], x[-1]) 
+    plt.ylabel('R-number')
+    plt.ylim(bottom = 0)
+
+    #Add a Legend
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+    plt.legend(  loc='upper right', prop=fontP)
+
+    # Add a title
+    titlex = (
+        'R number in time.\n'
+        )
+    
+    plt.title(titlex , fontsize=10)
+
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
+
+
+    plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+    # lay-out of the x axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gcf().autofmt_xdate()
+
+    st.pyplot(fig1f)
 
 
 
