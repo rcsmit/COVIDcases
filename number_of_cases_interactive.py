@@ -2,23 +2,23 @@
 # For information only. Provided "as-is" etc.
 
 # The subplots are generated as 4 normal plots, thus repeating code :(
-# 
+#
 # https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py
 #
 
 # Sorry for all the commented out code, maybe I will combine the old and new version(s) later
 
 # Import our modules that we are using
-import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
 import math
+from datetime import datetime
+
+import streamlit as st
+import numpy as np
 import matplotlib.dates as mdates
 import datetime as dt
-from matplotlib.font_manager import FontProperties
-from datetime import datetime
-from matplotlib import figure
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import RendererAgg
+from matplotlib.font_manager import FontProperties
 _lock = RendererAgg.lock
 
 # VARIABLES
@@ -31,7 +31,7 @@ _lock = RendererAgg.lock
 
 # variablex = with vaccination
 
-date_format = "%m/%d/%Y"
+DATE_FORMAT = "%m/%d/%Y"
 b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
@@ -42,7 +42,7 @@ st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 
 try:
-    startx = dt.datetime.strptime(a,'%m/%d/%Y').date() 
+    startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
 except:
     st.error("Please make sure that the date is in format mm/dd/yyyy")
     st.stop()
@@ -61,29 +61,29 @@ showcummulative = st.sidebar.checkbox("Show cummulative")
 
 if showcummulative:
     numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
-    
+
     try:
         numberofcasesdayzero = int(numberofcasesdayz)
     except:
-            st.error("Please enter a number for the number of cases on day zero")
-            st.stop()
+        st.error("Please enter a number for the number of cases on day zero")
+        st.stop()
 
 
 
 turning = st.sidebar.checkbox("Turning point")
 
-if turning:  
+if turning:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
     changefactor = st.sidebar.slider('Change factor (1.0 = no change)', 0.0, 3.0, 0.9)
     #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
     turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', '02/28/2021')
     turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
     try:
-        starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date() 
+        starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date()
     except:
         st.error("Please make sure that the date is in format mm/dd/yyyy")
         st.stop()
-        
+
 
     d1 = datetime.strptime(a, '%m/%d/%Y')
     d2 = datetime.strptime(turningpointdate,'%m/%d/%Y')
@@ -104,7 +104,7 @@ numberofpositivetests12 = numberofpositivetests
 
 # Some manipulation of the x-values (the dates)
 then = startx + dt.timedelta(days=NUMBEROFDAYS)
-x = mdates.drange(startx,then,dt.timedelta(days=1)) 
+x = mdates.drange(startx,then,dt.timedelta(days=1))
 # x = dagnummer gerekend vanaf 1 januari 1970 (?)
 # y = aantal gevallen
 # z = dagnummer van 1 tot NUMBEROFDAYS
@@ -123,13 +123,13 @@ actualR=[]
 
 #if vaccination:
 Ry1x = []
-Ry2x = []
+ry2x = []
 
 # START CALCULATING --------------------------------------------------------------------
 positivetests1.append (numberofpositivetests1)
 positivetests2.append (numberofpositivetests2)
-positivetests12.append (numberofpositivetests12) 
-positivetestsper100k.append ((numberofpositivetests12/25)) 
+positivetests12.append (numberofpositivetests12)
+positivetestsper100k.append ((numberofpositivetests12/25))
 
 if showcummulative:
     cummulative1.append(numberofcasesdayzero*(1-percentagenewversion))
@@ -139,17 +139,17 @@ ratio.append(percentagenewversion*100 )
 #walkingcummulative.append(1)
 #if vaccination:
 Ry1x.append(Rnew1_)
-Ry2x.append(Rnew2_)
+ry2x.append(Rnew2_)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
 
 for t in range(1, NUMBEROFDAYS):
-    if turning:   
+    if turning:
         if (t>=(turningpoint-1) and t<turningpoint+turningdays):
             Rnew31 = Rnew1_ * changefactor
             Rnew32 = Rnew2_ * changefactor
             Rnew1 = Rnew31+ ((Rnew1_ - Rnew31)*(1-((t-(turningpoint-1))/turningdays)))
             Rnew2 = Rnew32+ ((Rnew2_ - Rnew32)*(1-((t-(turningpoint-1))/turningdays)))
-        elif (t>=turningpoint-1+turningdays):
+        elif t>=turningpoint-1+turningdays:
             Rnew1 = Rnew31
             Rnew2 = Rnew32
         else:
@@ -161,42 +161,42 @@ for t in range(1, NUMBEROFDAYS):
 
     if vaccination:
         if t>7:
-            if t<(VACTIME+7) :        
-                Ry1 = Rnew1 * ((1-((t-7)/(VACTIME))))
-                Ry2 = Rnew2 * ((1-((t-7)/(VACTIME))))
-                #Ry1 = Rnew1 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
-                #Ry2 = Rnew2 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
-            
+            if t<(VACTIME+7) :
+                ry1 = Rnew1 * ((1-((t-7)/(VACTIME))))
+                ry2 = Rnew2 * ((1-((t-7)/(VACTIME))))
+                #ry1 = Rnew1 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
+                #ry2 = Rnew2 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
+
             else:
-                Ry1 = Rnew1 * 0.0000001 
-                Ry2 = Rnew2 * 0.0000001
+                ry1 = Rnew1 * 0.0000001
+                ry2 = Rnew2 * 0.0000001
         else:
-                Ry1 = Rnew1
-                Ry2 = Rnew2
+            ry1 = Rnew1
+            ry2 = Rnew2
     else:
-            Ry1 = Rnew1 
-            Ry2 = Rnew2
+        ry1 = Rnew1
+        ry2 = Rnew2
 
-    if Ry1 == 1:
+    if ry1 == 1:
         # prevent an [divide by zero]-error
-        Ry1 = 1.000001
-    if Ry2 == 1:
+        ry1 = 1.000001
+    if ry2 == 1:
         # prevent an [divide by zero]-error
-        Ry2 = 1.000001
+        ry2 = 1.000001
 
-    thalf1 = Tg * math.log(0.5) / math.log(Ry1)  
-    thalf2 = Tg * math.log(0.5) / math.log(Ry2)
+    thalf1 = Tg * math.log(0.5) / math.log(ry1)
+    thalf2 = Tg * math.log(0.5) / math.log(ry2)
 
     pt1 = (positivetests1[t-1] * (0.5**(1/thalf1)))
     pt2 = (positivetests2[t-1] * (0.5**(1/thalf2)))
     positivetests1.append(pt1)
     positivetests2.append(pt2)
 
-    # This formula works also and gives same results 
+    # This formula works also and gives same results
     # https://twitter.com/hk_nien/status/1350953807933558792
-    # positivetests1a.append(positivetests1a[t-1] * (Ry1**(1/Tg)))
-    # positivetests2a.append(positivetests2a[t-1] * (Ry2**(1/Tg)))
-    # positivetests12a.append(positivetests2a[t-1] * (Ry2**(1/Tg))+ positivetests1[t-1] * (Ry1**(1/Tg)))
+    # positivetests1a.append(positivetests1a[t-1] * (ry1**(1/Tg)))
+    # positivetests2a.append(positivetests2a[t-1] * (ry2**(1/Tg)))
+    # positivetests12a.append(positivetests2a[t-1] * (ry2**(1/Tg))+ positivetests1[t-1] * (ry1**(1/Tg)))
 
     positivetests12.append(pt1+pt2)
 
@@ -210,10 +210,10 @@ for t in range(1, NUMBEROFDAYS):
     ratio_ =  ((pt2/(pt1+pt2)))
     ratio.append   (100*ratio_)
     positivetestsper100k.append((pt1+pt2)/25)
- 
-    Ry1x.append(Ry1)
-    Ry2x.append(Ry2)
-    walkingR.append((Ry1**(1-ratio_))*(Ry2**(ratio_)))
+
+    Ry1x.append(ry1)
+    ry2x.append(ry2)
+    walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
 
 
 st.title('Positive COVID-tests in NL')
@@ -226,22 +226,22 @@ st.markdown(disclaimernew,  unsafe_allow_html=True)
 
 def configgraph(titlex):
     plt.xlabel('date')
-    plt.xlim(x[0], x[-1]) 
-    
+    plt.xlim(x[0], x[-1])
+
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
 
     #Add a Legend
     fontP = FontProperties()
     fontP.set_size('xx-small')
-    plt.legend(  loc='upper left', prop=fontP)   
+    plt.legend(  loc='upper left', prop=fontP)
     plt.title(titlex , fontsize=10)
-    
+
     # lay-out of the x axis
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
     plt.gcf().autofmt_xdate()
-    plt.gca().set_title(titlex , fontsize=10)     
+    plt.gca().set_title(titlex , fontsize=10)
 
 # POS TESTS /day ################################
 with _lock:
@@ -253,16 +253,16 @@ with _lock:
     positivetests2 = []
     positivetest12 = []
     # Add X and y Label and limits
-    
+
     plt.ylabel('positive tests per day')
     plt.ylim(bottom = 0)
- 
+
     plt.fill_between(x, 0, 1250, color='#f392bd',  label='waakzaam')
     plt.fill_between(x, 1251, 3750, color='#db5b94',  label='zorgelijk')
     plt.fill_between(x, 3751, 6250, color='#bc2165',  label='ernstig')
     plt.fill_between(x, 6251, 10000, color='#68032f', label='zeer ernstig')
     if Rnew2>1:
-       plt.fill_between(x, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+        plt.fill_between(x, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
     # Add a title
     titlex = (
@@ -270,14 +270,14 @@ with _lock:
         'Number of cases on '+ str(a) + ' = ' + str(numberofpositivetests) + '\n')
     configgraph(titlex)
     st.pyplot(fig1)
-          
+
 # # POS TESTS per 100k per week ################################
 with _lock:
     fig1d, ax = plt.subplots()
     plt.plot(x, positivetestsper100k)
     positivetestsper100k = []
 
-    # Add X and y Label and limits 
+    # Add X and y Label and limits
     plt.ylabel('new positive tests per 100k per week')
     plt.ylim(bottom = 0)
 
@@ -288,7 +288,7 @@ with _lock:
     plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
     if Rnew2>1:
         plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
- 
+
     plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
     plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
     plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
@@ -307,18 +307,18 @@ if showcummulative:
         plt.plot(x,cummulative1, label='Cummulative cases old variant',  linestyle='--')
         plt.plot(x,cummulative2, label='Cummulative cases new variant',  linestyle='--')
         plt.plot(x,cummulative12, label='Cummulative cases TOTAL',)
-        
+
         cummulative1 = []
         cummulative2 = []
         cummulative12 = []
         # Add X and y Label and limits
-        
+
         plt.ylabel('Total cases')
         plt.ylim(bottom = 0)
 
         # Add a title
         titlex = ('Cummulative cases\nNo recovery/death in this graph')
-        
+
         configgraph(titlex)
 
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
@@ -329,7 +329,7 @@ with _lock:
     fig1f, ax = plt.subplots()
     plt.plot(x, ratio, label='Ratio',  linestyle='--')
     ratio = []
-    
+
     # Add  y Label and limits
     plt.ylabel('ratio')
     plt.ylim(bottom = 0)
@@ -345,22 +345,22 @@ with _lock:
 with _lock:
     fig1f, ax = plt.subplots()
     plt.plot(x, walkingR, label='Combined R number in time',  linestyle='--')
-    
+
     walkingR = []
-    
+
     # Add X and y Label and limits
     plt.ylabel('R-number')
     #plt.ylim(bottom = 0)
 
     # Add a title
     titlex = ('R number in time.\n')
-    
+
     plt.title(titlex , fontsize=10)
 
     configgraph(titlex)
 
     plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-   
+
     st.pyplot(fig1f)
 
 if (vaccination or turning):
@@ -368,21 +368,21 @@ if (vaccination or turning):
     with _lock:
         fig1c, ax = plt.subplots()
         plt.plot(x, Ry1x, label='Old variant',  linestyle='--')
-        plt.plot(x, Ry2x, label='New variant',  linestyle='--')
+        plt.plot(x, ry2x, label='New variant',  linestyle='--')
         Ry1x = []
-        Ry2x = []
-        
+        ry2x = []
+
         # Add X and y Label and limits
         plt.ylabel('R')
         #plt.ylim(bottom = 0)
-    
+
         # Add a title
         titlex = ('The two R numbers in time.\n')
-        
+
         configgraph(titlex)
 
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-       
+
         st.pyplot(fig1c)
 
 ################################################
@@ -395,7 +395,7 @@ tekst = (
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
     'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst.<br>'
     'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a>.</div>')
-    
+
 links = (
 '<h3>Useful dashboards</h3><ul>'
 
@@ -418,4 +418,3 @@ st.sidebar.markdown(tekst, unsafe_allow_html=True)
 if vaccination:
     st.markdown(vaccinationdisclaimer, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
-
