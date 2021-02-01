@@ -56,7 +56,8 @@ Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
 percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
 
 Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
-
+global Tg_
+Tg_=Tg
 showcummulative = st.sidebar.checkbox("Show cummulative")
 
 if showcummulative:
@@ -224,6 +225,31 @@ disclaimernew=('Attention: these results are different from the official models 
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 
+
+def th2r(rz):
+    Tg_=4
+    th = int( Tg_ * math.log(0.5) / math.log(rz))
+    return th
+
+def r2th(th):
+    Tg_=4
+    r = int(10**((Tg_*mat.log(2))/th))
+    # HK is using  r = 2**(Tg_/th)
+    return r
+
+def getsecondax():
+    # get second y axis
+    # Door HK Nienhuis
+    #https://github.com/han-kwang/covid19/blob/master/nlcovidstats.py
+    ax2 = ax.twinx()
+    T2s = np.array([-2, -4,-7, -10, -11,-14, -21, -60, 9999, 60, 21, 14, 11,10, 7, 4, 2])
+    y2ticks = 2**(Tg_/T2s)
+    y2labels = [f'{t2 if t2 != 9999 else "∞"}' for t2 in T2s]
+    ax2.set_yticks(y2ticks)
+    ax2.set_yticklabels(y2labels)
+    ax2.set_ylim(*ax.get_ylim())
+    ax2.set_ylabel('Halverings-/verdubbelingstijd (dagen)')
+
 def configgraph(titlex):
     plt.xlabel('date')
     plt.xlim(x[0], x[-1])
@@ -301,6 +327,7 @@ with _lock:
 
     st.pyplot(fig1d)
 
+# Show cummulative cases
 if showcummulative:
     with _lock:
         fig1e, ax = plt.subplots()
@@ -354,13 +381,12 @@ with _lock:
 
     # Add a title
     titlex = ('R number in time.\n')
-
     plt.title(titlex , fontsize=10)
-
     configgraph(titlex)
-
     plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-
+    getsecondax()
+    #secax = ax.secondary_yaxis('right', functions=(r2th,th2r))
+    #secax.set_ylabel('Thalf')
     st.pyplot(fig1f)
 
 if (vaccination or turning):
@@ -380,7 +406,7 @@ if (vaccination or turning):
         titlex = ('The two R numbers in time.\n')
 
         configgraph(titlex)
-
+        getsecondax()
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
 
         st.pyplot(fig1c)
