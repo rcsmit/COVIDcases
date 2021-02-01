@@ -364,7 +364,7 @@ with _lock:
     st.pyplot(fig1f)
 
 if (vaccination or turning):
-# Show the changing R number
+# Show the changing R number of the two variants
     with _lock:
         fig1c, ax = plt.subplots()
         plt.plot(x, Ry1x, label='Old variant',  linestyle='--')
@@ -374,7 +374,7 @@ if (vaccination or turning):
         
         # Add X and y Label and limits
         plt.ylabel('R')
-        plt.ylim(bottom = 0)
+        #plt.ylim(bottom = 0)
     
         # Add a title
         titlex = ('The two R numbers in time.\n')
