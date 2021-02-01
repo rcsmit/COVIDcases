@@ -239,8 +239,8 @@ def r2th(th):
 
 def getsecondax():
     # get second y axis
-    # Door HK Nienhuis
-    #https://github.com/han-kwang/covid19/blob/master/nlcovidstats.py
+    # Door Han-Kwang Nienhuys - MIT License
+    # https://github.com/han-kwang/covid19/blob/master/nlcovidstats.py
     ax2 = ax.twinx()
     T2s = np.array([-2, -4,-7, -10, -11,-14, -21, -60, 9999, 60, 21, 14, 11,10, 7, 4, 2])
     y2ticks = 2**(Tg_/T2s)
