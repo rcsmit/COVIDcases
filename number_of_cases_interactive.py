@@ -57,13 +57,26 @@ percentagenewversion = (st.sidebar.slider('Percentage British variant at start',
 
 Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 
+showcummulative = st.sidebar.checkbox("Show cummulative")
+
+if showcummulative:
+    numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
+    
+    try:
+        numberofcasesdayzero = int(numberofcasesdayz)
+    except:
+            st.error("Please enter a number for the number of cases on day zero")
+            st.stop()
+
+
+
 turning = st.sidebar.checkbox("Turning point")
 
 if turning:  
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
     changefactor = st.sidebar.slider('Change factor (1.0 = no change)', 0.0, 3.0, 0.9)
     #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
-    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', '01/31/2021')
+    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', '02/28/2021')
     turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
     try:
         starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date() 
@@ -84,17 +97,6 @@ vaccination = st.sidebar.checkbox("Vaccination")
 if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 730, 365)
 #percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
-
-showcummulative = st.sidebar.checkbox("Show cummulative")
-
-if showcummulative:
-    numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
-    
-    try:
-        numberofcasesdayzero = int(numberofcasesdayz)
-    except:
-            st.error("Please enter a number for the number of cases on day zero")
-            st.stop()
 
 numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
 numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
@@ -222,6 +224,25 @@ disclaimernew=('Attention: these results are different from the official models 
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 
+def configgraph(titlex):
+    plt.xlabel('date')
+    plt.xlim(x[0], x[-1]) 
+    
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
+
+    #Add a Legend
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+    plt.legend(  loc='upper left', prop=fontP)   
+    plt.title(titlex , fontsize=10)
+    
+    # lay-out of the x axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gcf().autofmt_xdate()
+    plt.gca().set_title(titlex , fontsize=10)     
+
 # POS TESTS /day ################################
 with _lock:
     fig1, ax = plt.subplots()
@@ -232,8 +253,7 @@ with _lock:
     positivetests2 = []
     positivetest12 = []
     # Add X and y Label and limits
-    plt.xlabel('date')
-    plt.xlim(x[0], x[-1]) 
+    
     plt.ylabel('positive tests per day')
     plt.ylim(bottom = 0)
  
@@ -244,44 +264,24 @@ with _lock:
     if Rnew2>1:
        plt.fill_between(x, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
-    # Add a grid
-    plt.grid(alpha=.4,linestyle='--')
-
-    #Add a Legend
-    fontP = FontProperties()
-    fontP.set_size('xx-small')
-    plt.legend(  loc='upper left', prop=fontP)
-
     # Add a title
     titlex = (
         'Pos. tests per day.\n'
         'Number of cases on '+ str(a) + ' = ' + str(numberofpositivetests) + '\n')
-       
-    plt.title(titlex , fontsize=10)
-    
-    # lay-out of the x axis
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-    plt.gcf().autofmt_xdate()
-    plt.gca().set_title(titlex , fontsize=10)
-
+    configgraph(titlex)
     st.pyplot(fig1)
-                   
+          
 # # POS TESTS per 100k per week ################################
 with _lock:
     fig1d, ax = plt.subplots()
     plt.plot(x, positivetestsper100k)
     positivetestsper100k = []
 
-    # Add X and y Label and limits
-    plt.xlabel('date')
-    plt.xlim(x[0], x[-1]) 
+    # Add X and y Label and limits 
     plt.ylabel('new positive tests per 100k per week')
     plt.ylim(bottom = 0)
 
-
     # add horizontal lines and surfaces
-
     plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
     plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
     plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
@@ -294,26 +294,10 @@ with _lock:
     plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
     plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
     plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
-  
-    # Add a grid
-    plt.grid(alpha=.4,linestyle='--')
-
-    #Add a Legend
-    fontP = FontProperties()
-    fontP.set_size('xx-small')
-    plt.legend(  loc='upper right', prop=fontP)
 
     # Add a title
-    titlex = (
-        'New pos. tests per 100k per week.\n'  )
-    plt.title(titlex , fontsize=10)
-
-
-    # lay-out of the x axis
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-    plt.gcf().autofmt_xdate()
-    plt.gca().set_title(titlex , fontsize=10)
+    titlex = ( 'New pos. tests per 100k per week.\n'  )
+    configgraph(titlex)
 
     st.pyplot(fig1d)
 
@@ -328,70 +312,32 @@ if showcummulative:
         cummulative2 = []
         cummulative12 = []
         # Add X and y Label and limits
-        plt.xlabel('date')
-        plt.xlim(x[0], x[-1]) 
+        
         plt.ylabel('Total cases')
         plt.ylim(bottom = 0)
 
-        #Add a Legend
-        fontP = FontProperties()
-        fontP.set_size('xx-small')
-        plt.legend(  loc='upper right', prop=fontP)
-
         # Add a title
-        titlex = (
-            'Cummulative cases.\n'
-            )
+        titlex = ('Cummulative cases\nNo recovery/death in this graph')
         
-        plt.title(titlex , fontsize=10)
-
-        # Add a grid
-        plt.grid(alpha=.4,linestyle='--')
-
+        configgraph(titlex)
 
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-        # lay-out of the x axis
-        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-        plt.gcf().autofmt_xdate()
-        st.markdown("Attention, people don't recover in this graph")
         st.pyplot(fig1e)
 
 # Show the percentage new variant
 with _lock:
     fig1f, ax = plt.subplots()
     plt.plot(x, ratio, label='Ratio',  linestyle='--')
-    
     ratio = []
     
-    # Add X and y Label and limits
-    plt.xlabel('date')
-    plt.xlim(x[0], x[-1]) 
+    # Add  y Label and limits
     plt.ylabel('ratio')
     plt.ylim(bottom = 0)
 
-    #Add a Legend
-    fontP = FontProperties()
-    fontP.set_size('xx-small')
-    plt.legend(  loc='upper right', prop=fontP)
-
     # Add a title
-    titlex = (
-        'Percentage new variant.\n'
-        )
-    
-    plt.title(titlex , fontsize=10)
-
-    # Add a grid
-    plt.grid(alpha=.4,linestyle='--')
-
-
+    titlex = ('Percentage new variant.\n')
+    configgraph(titlex)
     plt.axhline(y=50, color='yellow', alpha=.6,linestyle='--')
-    # lay-out of the x axis
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-    plt.gcf().autofmt_xdate()
-
     st.pyplot(fig1f)
 
 
@@ -403,37 +349,19 @@ with _lock:
     walkingR = []
     
     # Add X and y Label and limits
-    plt.xlabel('date')
-    plt.xlim(x[0], x[-1]) 
     plt.ylabel('R-number')
     plt.ylim(bottom = 0)
 
-    #Add a Legend
-    fontP = FontProperties()
-    fontP.set_size('xx-small')
-    plt.legend(  loc='upper right', prop=fontP)
-
     # Add a title
-    titlex = (
-        'R number in time.\n'
-        )
+    titlex = ('R number in time.\n')
     
     plt.title(titlex , fontsize=10)
 
-    # Add a grid
-    plt.grid(alpha=.4,linestyle='--')
-
+    configgraph(titlex)
 
     plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-    # lay-out of the x axis
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-    plt.gcf().autofmt_xdate()
-
+   
     st.pyplot(fig1f)
-
-
-
 
 if (vaccination or turning):
 # Show the changing R number
@@ -445,48 +373,27 @@ if (vaccination or turning):
         Ry2x = []
         
         # Add X and y Label and limits
-        plt.xlabel('date')
-        plt.xlim(x[0], x[-1]) 
         plt.ylabel('R')
         plt.ylim(bottom = 0)
-
-        #Add a Legend
-        fontP = FontProperties()
-        fontP.set_size('xx-small')
-        plt.legend(  loc='upper right', prop=fontP)
-
+    
         # Add a title
-        titlex = (
-            'R number over time.\n'
-            )
+        titlex = ('The two R numbers in time.\n')
         
-        plt.title(titlex , fontsize=10)
-
-        # Add a grid
-        plt.grid(alpha=.4,linestyle='--')
-
+        configgraph(titlex)
 
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-        # lay-out of the x axis
-        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
-        plt.gcf().autofmt_xdate()
-
+       
         st.pyplot(fig1c)
-
-
-
 
 ################################################
 
 tekst = (
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
-    '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>).<br>'
+    '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
     'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
-    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\" target=\"_blank\">github.com/rcsmit</a>.<br>'
-    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a>.<br>'
-    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst.<br>'
-    'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a>.</div>')
+    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\" target=\"_blank\">github.com/rcsmit</a><br>'
+    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
+    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst</div>')
 links = (
 '<h3>Useful dashboards</h3><ul>'
 
