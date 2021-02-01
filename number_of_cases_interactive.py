@@ -350,7 +350,7 @@ with _lock:
     
     # Add X and y Label and limits
     plt.ylabel('R-number')
-    plt.ylim(bottom = 0)
+    #plt.ylim(bottom = 0)
 
     # Add a title
     titlex = ('R number in time.\n')
