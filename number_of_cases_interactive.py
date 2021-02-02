@@ -225,7 +225,8 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                '<div class=\"infobox\"><p>Attention: these results are different from the official models probably due to different (secret) parameters. </p>'
                '<p><b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models. </b></p>'
                '<p>At a certain moment the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination. '
-               'The goal was/is to show the (big) influence of (small) changes in the R-number.</p></div>')
+               'The goal was/is to show the (big) influence of (small) changes in the R-number. </p>'
+               '<p>At the bottom of the page are some liks to SEIR models.</p></div>')
 #like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
@@ -436,8 +437,16 @@ links = (
 '<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\" target=\"_blank\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
 '<li><a href=\"https://coronadashboard.rijksoverheid.nl/\" target=\"_blank\">Rijksoverheid NL</a></li>'
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
-'</ul>')
+'</ul>'
+    
+    
+'<h3>Other (SEIR) models</h3><ul>'
+'<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
+'<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
+'<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
+'<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>')
 
+                
 vaccinationdisclaimer = (
 '<h3>Attention</h3>'
 'The plot when having vaccination is very indicative and very simplified.'
