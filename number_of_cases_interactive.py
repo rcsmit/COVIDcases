@@ -48,8 +48,8 @@ except:
     st.stop()
 
 
-NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 100)
-if NUMBEROFDAYS >15:
+NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 30)
+if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
 Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.85)
 
