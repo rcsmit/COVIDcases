@@ -219,7 +219,8 @@ for t in range(1, NUMBEROFDAYS):
 
 st.title('Positive COVID-tests in NL')
 
-disclaimernew=('Attention: these results are different from the official models probably due to different (secret) parameters.')
+disclaimernew=('Attention: these results are different from the official models probably due to different (secret) parameters.<br>'
+               'This model is a simple growth model and doesn\'t take immunity into account like SEIR-models  ')
 #like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
