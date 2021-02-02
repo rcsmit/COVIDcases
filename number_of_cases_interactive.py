@@ -225,7 +225,7 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                '<div class=\"infobox\"><p>Attention: these results are different from the official models probably due to different (secret) parameters. </p>'
                '<p><b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models. </b></p>'
                '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
-               'At a certain moment the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination. '
+               'In reality the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination at a certain moment. '
                'At the bottom of the page are some links to SEIR models.</p></div>')
 #like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
