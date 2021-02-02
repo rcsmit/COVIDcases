@@ -36,7 +36,7 @@ b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
-numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,5600)
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,3561)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
@@ -51,11 +51,11 @@ except:
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 100)
 if NUMBEROFDAYS >15:
     st.sidebar.text("Attention: Read the disclaimer")
-Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.9)
+Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.85)
 
 Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
 
-percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
+percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 66.0)/100)
 
 Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
