@@ -219,9 +219,11 @@ for t in range(1, NUMBEROFDAYS):
 
 st.title('Positive COVID-tests in NL')
 
-disclaimernew=('Attention: these results are different from the official models probably due to different (secret) parameters.<br>'
-               '<b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models.</b> '
-               'The goal was/is to show the (big) influence of (small) changes in the R-number')
+disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 5px;}</style>'
+               '<div class=\"infobox\">Attention: these results are different from the official models probably due to different (secret) parameters.<br>'
+               '<b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models.</b>'
+               'At a certain moment the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination'
+               'The goal was/is to show the (big) influence of (small) changes in the R-number</div>')
 #like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
