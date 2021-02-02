@@ -52,6 +52,7 @@ NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 100)
 if NUMBEROFDAYS >15:
     st.sidebar.text("Attention: Read the disclaimer")
 Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.9)
+
 Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
 
 percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 10.0)/100)
@@ -220,11 +221,11 @@ for t in range(1, NUMBEROFDAYS):
 
 st.title('Positive COVID-tests in NL')
 
-disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;}</style>'
-               '<div class=\"infobox\">Attention: these results are different from the official models probably due to different (secret) parameters.<br>'
-               '<b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models.</b>'
-               'At a certain moment the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination'
-               'The goal was/is to show the (big) influence of (small) changes in the R-number</div>')
+disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
+               '<div class=\"infobox\">Attention: these results are different from the official models probably due to different (secret) parameters. <br>'
+               '<b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models. </b>'
+               'At a certain moment the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination. '
+               'The goal was/is to show the (big) influence of (small) changes in the R-number.</div>')
 #like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
