@@ -129,9 +129,11 @@ Ry1x = []
 ry2x = []
 if turning == False:
     label1= 'Old variant (R='+ str(Rnew1_) + ')'
-    label2= 'Old variant (R='+ str(Rnew2_) + ')'
-
-
+    label2= 'New variant (R='+ str(Rnew2_) + ')'
+else:
+    label1= 'Old variant'
+    label2= 'New variant'
+    
 # START CALCULATING --------------------------------------------------------------------
 positivetests1.append (numberofpositivetests1)
 positivetests2.append (numberofpositivetests2)
