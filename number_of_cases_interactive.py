@@ -271,7 +271,7 @@ def configgraph(titlex):
     #Add a Legend
     fontP = FontProperties()
     fontP.set_size('xx-small')
-    plt.legend(  loc='upper left', prop=fontP)
+    plt.legend(  loc='best', prop=fontP)
     plt.title(titlex , fontsize=10)
 
     # lay-out of the x axis
