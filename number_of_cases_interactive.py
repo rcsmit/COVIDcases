@@ -285,18 +285,19 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
-disclaimerimm = ('<h1>Immunization<h1><p>The immunization is very speculative.'
-    'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
-    'A lot of factors are not taken into account. Illustration puropose only.<br>'
-    'The number of test is multiplied by' +str(testimmunefactor)+ ' to get the extra number of people immune <br><br>'
-    '<font face=\'courier new\'>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-    '   people immune<sub>t</sub> - people immune<sub>0</sub><br>'
-    'R<sub>t</sub> =  R<sub>0</sub> * --------------------------------------<br>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-
-    'total population - people immune<sub>0</sub>   </font> </p>')
 if showimmunization:
+    disclaimerimm = ('<h1>Immunization<h1><p>The immunization is very speculative.'
+        'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
+        'A lot of factors are not taken into account. Illustration puropose only.<br>'
+        'The number of test is multiplied by' +str(testimmunefactor)+ ' to get the extra number of people immune <br><br>'
+        '<font face=\'courier new\'>'
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+        '   people immune<sub>t</sub> - people immune<sub>0</sub><br>'
+        'R<sub>t</sub> =  R<sub>0</sub> * --------------------------------------<br>'
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+
+        'total population - people immune<sub>0</sub>   </font> </p>')
+
     st.markdown(disclaimerimm, unsafe_allow_html=True)
 
 
