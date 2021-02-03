@@ -64,18 +64,18 @@ showcummulative = st.sidebar.checkbox("Show cummulative")
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
 if showcummulative:
-    numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
+    numberofcasesdayz = (st.sidebar.text_input('Number active cases on day zero', 130000))
 
     try:
         numberofcasesdayzero = int(numberofcasesdayz)
     except:
-        st.error("Please enter a number for the number of cases on day zero")
+        st.error("Please enter a number for the number of active cases on day zero")
         st.stop()
 
 
 showimmunization = st.sidebar.checkbox("Immunization")
 if showimmunization:
-    totalimmunedayzero_ = (st.sidebar.text_input('Total immune day zero', 2_500_000))
+    totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 2_500_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
     testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 5.0, 2.5)
     try:
