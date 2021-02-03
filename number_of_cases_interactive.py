@@ -294,9 +294,9 @@ with _lock:
     plt.ylabel('positive tests per day')
     plt.ylim(bottom = 0)
 
-    plt.fill_between(x, 0, 1250, color='#f392bd',  label='waakzaam')
-    plt.fill_between(x, 1251, 3750, color='#db5b94',  label='zorgelijk')
-    plt.fill_between(x, 3751, 6250, color='#bc2165',  label='ernstig')
+    plt.fill_between(x, 0, 875, color='#f392bd',  label='waakzaam')
+    plt.fill_between(x, 876, 2500, color='#db5b94',  label='zorgelijk')
+    plt.fill_between(x, 2501, 6250, color='#bc2165',  label='ernstig')
     plt.fill_between(x, 6251, 10000, color='#68032f', label='zeer ernstig')
     if Rnew2>1:
         plt.fill_between(x, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
@@ -319,12 +319,12 @@ with _lock:
     plt.ylim(bottom = 0)
 
     # add horizontal lines and surfaces
-    plt.fill_between(x, 0, 49, color='yellow', alpha=0.3, label='waakzaam')
-    plt.fill_between(x, 50, 149, color='orange', alpha=0.3, label='zorgelijk')
-    plt.fill_between(x, 150, 249, color='red', alpha=0.3, label='ernstig')
-    plt.fill_between(x, 250, 499, color='purple', alpha=0.3, label='zeer ernstig')
+    plt.fill_between(x, 0, 35, color='yellow', alpha=0.3, label='waakzaam')
+    plt.fill_between(x, 36, 100, color='orange', alpha=0.3, label='zorgelijk')
+    plt.fill_between(x, 101, 250, color='red', alpha=0.3, label='ernstig')
+    plt.fill_between(x, 251, 500, color='purple', alpha=0.3, label='zeer ernstig')
     if Rnew2>1:
-        plt.fill_between(x, 500, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+        plt.fill_between(x, 501, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
     plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
     plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
