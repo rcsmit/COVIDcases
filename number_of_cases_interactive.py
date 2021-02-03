@@ -76,17 +76,18 @@ if showcummulative:
 showimmunization = st.sidebar.checkbox("Immunization")
 if showimmunization:
     totalimmunedayzero_ = (st.sidebar.text_input('Total immune day zero', 2_500_000))
-    totalpopulation_ = (st.sidebar.text_input('Total population', 17_000_000))
+    totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
+    testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 5.0, 2.5)
     try:
         totalimmunedayzero = int(totalimmunedayzero_)
     except:
-        st.error("Please enter a number for the number of cases on day zero")
+        st.error("Please enter a number for the number of immune people on day zero")
         st.stop()
 
     try:
         totalpopulation = int(totalpopulation_)
     except:
-        st.error("Please enter a number for the number of cases on day zero")
+        st.error("Please enter a number for the number ofpopulation")
         st.stop()
 
     st.sidebar.text("Attention: Read the disclaimer")
@@ -265,7 +266,7 @@ for t in range(1, NUMBEROFDAYS):
     ratio.append   (100*ratio_)
     positivetestsper100k.append((pt1+pt2)/25)
     if showimmunization:
-        totalimmune.append(totalimmune[t-1]+pt1+pt2)
+        totalimmune.append(totalimmune[t-1]+((pt1+pt2)*testimmunefactor))
 
     ry1x.append(ry1)
     ry2x.append(ry2)
@@ -285,9 +286,16 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 disclaimerimm = ('<h1>Immunization<h1><p>The immunization is very speculative.'
-    'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a><br>. '
-    'A lot of factors are not taken into account. Illustration puropose only'
-    'R<sub>t</sub> =  R<sub>old</sub> * (people immune/total population) </p>')
+    'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
+    'A lot of factors are not taken into account. Illustration puropose only.<br>'
+    'The number of test is multiplied by' +str(testimmunefactor)+ ' to get the extra number of people immune <br><br>'
+    '<font face=\'courier new\'>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+    '   people immune<sub>t</sub> - people immune<sub>0</sub><br>'
+    'R<sub>t</sub> =  R<sub>0</sub> * --------------------------------------<br>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+
+    'total population - people immune<sub>0</sub>   </font> </p>')
 if showimmunization:
     st.markdown(disclaimerimm, unsafe_allow_html=True)
 
