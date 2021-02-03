@@ -128,6 +128,10 @@ actualR=[]
 Ry1x = []
 ry2x = []
 
+label1= 'Old variant (R='+ str(Rnew1_) + ')'
+label2= 'Old variant (R='+ str(Rnew2_) + ')'
+
+
 # START CALCULATING --------------------------------------------------------------------
 positivetests1.append (numberofpositivetests1)
 positivetests2.append (numberofpositivetests2)
@@ -279,8 +283,8 @@ def configgraph(titlex):
 # POS TESTS /day ################################
 with _lock:
     fig1, ax = plt.subplots()
-    plt.plot(x, positivetests1, label='Old variant',  linestyle='--')
-    plt.plot(x, positivetests2, label='New variant',  linestyle='--')
+    plt.plot(x, positivetests1, label=label1,  linestyle='--')
+    plt.plot(x, positivetests2, label=label2,  linestyle='--')
     plt.plot(x, positivetests12, label='Total')
     positivetests1 = []
     positivetests2 = []
