@@ -61,7 +61,8 @@ Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
 showcummulative = st.sidebar.checkbox("Show cummulative")
-
+if NUMBEROFDAYS >30:
+    st.sidebar.text("Attention: Read the disclaimer")
 if showcummulative:
     numberofcasesdayz = (st.sidebar.text_input('Number cases on day zero', 130000))
 
@@ -72,8 +73,25 @@ if showcummulative:
         st.stop()
 
 
+showimmunization = st.sidebar.checkbox("Immunization")
+if showimmunization:
+    totalimmunedayzero_ = (st.sidebar.text_input('Total immune day zero', 2_500_000))
+    totalpopulation_ = (st.sidebar.text_input('Total population', 17_000_000))
+    try:
+        totalimmunedayzero = int(totalimmunedayzero_)
+    except:
+        st.error("Please enter a number for the number of cases on day zero")
+        st.stop()
 
+    try:
+        totalpopulation = int(totalpopulation_)
+    except:
+        st.error("Please enter a number for the number of cases on day zero")
+        st.stop()
+
+    st.sidebar.text("Attention: Read the disclaimer")
 turning = st.sidebar.checkbox("Turning point")
+
 
 if turning:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
@@ -101,6 +119,13 @@ if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 730, 365)
 #percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
 
+if showimmunization and turning:
+    st.error("Choose either Turning point OR Immunization")
+    st.stop()
+if showimmunization and vaccination:
+    st.error("Choose either Vaccination OR Immunization")
+    st.stop()
+
 numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
 numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
 numberofpositivetests12 = numberofpositivetests
@@ -123,9 +148,10 @@ cummulative12 = []
 ratio=[]
 walkingR=[]
 actualR=[]
+totalimmune=[]
 
 #if vaccination:
-Ry1x = []
+ry1x = []
 ry2x = []
 if turning == False:
     label1= 'Old variant (R='+ str(Rnew1_) + ')'
@@ -133,7 +159,7 @@ if turning == False:
 else:
     label1= 'Old variant'
     label2= 'New variant'
-    
+
 # START CALCULATING --------------------------------------------------------------------
 positivetests1.append (numberofpositivetests1)
 positivetests2.append (numberofpositivetests2)
@@ -147,11 +173,17 @@ if showcummulative:
 ratio.append(percentagenewversion*100 )
 #walkingcummulative.append(1)
 #if vaccination:
-Ry1x.append(Rnew1_)
+ry1x.append(Rnew1_)
 ry2x.append(Rnew2_)
+immeratio_=[]
+immeratio_.append(1)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
+if showimmunization:
+    totalimmune.append(totalimmunedayzero)
 
 for t in range(1, NUMBEROFDAYS):
+
+
     if turning:
         if (t>=(turningpoint-1) and t<turningpoint+turningdays):
             Rnew31 = Rnew1_ * changefactor
@@ -186,6 +218,19 @@ for t in range(1, NUMBEROFDAYS):
         ry1 = Rnew1
         ry2 = Rnew2
 
+    if showimmunization:
+        immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[t-1])))
+        #st.write (str((totalimmune[t-1]-totalimmune[0])) + " /  " + str((totalpopulation-totalimmune[t-1])) + "  =  "+ str(immeratio))
+        ry1 = ry1x[0]*immeratio
+        ry2 = ry2x[0]*immeratio
+        immeratio_.append(immeratio)
+
+        #st.write (str(ry1) + "  " + str(ry2))
+    else:
+        Rnew1 = Rnew1_
+        Rnew2 = Rnew2_
+
+
     if ry1 == 1:
         # prevent an [divide by zero]-error
         ry1 = 1.000001
@@ -219,8 +264,10 @@ for t in range(1, NUMBEROFDAYS):
     ratio_ =  ((pt2/(pt1+pt2)))
     ratio.append   (100*ratio_)
     positivetestsper100k.append((pt1+pt2)/25)
+    if showimmunization:
+        totalimmune.append(totalimmune[t-1]+pt1+pt2)
 
-    Ry1x.append(ry1)
+    ry1x.append(ry1)
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
 
@@ -237,6 +284,12 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
+disclaimerimm = ('<h1>Immunization<h1><p>The immunization is very speculative.'
+    'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a><br>. '
+    'A lot of factors are not taken into account. Illustration puropose only'
+    'R<sub>t</sub> =  R<sub>old</sub> * (people immune/total population) </p>')
+if showimmunization:
+    st.markdown(disclaimerimm, unsafe_allow_html=True)
 
 
 def th2r(rz):
@@ -385,6 +438,8 @@ with _lock:
 with _lock:
     fig1f, ax = plt.subplots()
     plt.plot(x, walkingR, label='Combined R number in time',  linestyle='--')
+    plt.plot(x, ry1x, label='Old variant',  linestyle='--')
+    plt.plot(x, ry2x, label='New variant',  linestyle='--')
 
     walkingR = []
 
@@ -406,10 +461,9 @@ if (vaccination or turning):
 # Show the changing R number of the two variants
     with _lock:
         fig1c, ax = plt.subplots()
-        plt.plot(x, Ry1x, label='Old variant',  linestyle='--')
+        plt.plot(x, ry1x, label='Old variant',  linestyle='--')
         plt.plot(x, ry2x, label='New variant',  linestyle='--')
-        Ry1x = []
-        ry2x = []
+
 
         # Add X and y Label and limits
         plt.ylabel('R')
@@ -423,6 +477,9 @@ if (vaccination or turning):
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
 
         st.pyplot(fig1c)
+
+ry1x = []
+ry2x = []
 
 ################################################
 
@@ -444,15 +501,15 @@ links = (
 '<li><a href=\"https://coronadashboard.rijksoverheid.nl/\" target=\"_blank\">Rijksoverheid NL</a></li>'
 '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
 '</ul>'
-    
-    
+
+
 '<h3>Other (SEIR) models</h3><ul>'
 '<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
 '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
 '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
 '<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>')
 
-                
+
 vaccinationdisclaimer = (
 '<h3>Attention</h3>'
 'The plot when having vaccination is very indicative and very simplified.'
