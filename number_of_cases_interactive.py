@@ -127,9 +127,9 @@ actualR=[]
 #if vaccination:
 Ry1x = []
 ry2x = []
-
-label1= 'Old variant (R='+ str(Rnew1_) + ')'
-label2= 'Old variant (R='+ str(Rnew2_) + ')'
+if not turning:
+    label1= 'Old variant (R='+ str(Rnew1_) + ')'
+    label2= 'Old variant (R='+ str(Rnew2_) + ')'
 
 
 # START CALCULATING --------------------------------------------------------------------
