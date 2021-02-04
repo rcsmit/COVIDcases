@@ -99,7 +99,7 @@ if turning:
     changefactor = st.sidebar.slider('Change factor (1.0 = no change)', 0.0, 3.0, 0.9)
     #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
     turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', b)
-    turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
+    turningdays = st.sidebar.slider('Number of days needed to reach new R values', 0, 90, 10)
     try:
         starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date()
     except:
@@ -118,14 +118,6 @@ vaccination = st.sidebar.checkbox("Vaccination")
 
 if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 730, 365)
-#percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
-
-# if showimmunization and turning:
-#     st.error("Choose either Turning point OR Immunization")
-#     st.stop()
-# if showimmunization and vaccination:
-#     st.error("Choose either Vaccination OR Immunization")
-#     st.stop()
 
 numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
 numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
@@ -151,6 +143,7 @@ walkingR=[]
 actualR=[]
 totalimmune=[]
 hospital = []
+ic  = []
 #if vaccination:
 ry1x = []
 ry2x = []
@@ -179,7 +172,8 @@ ry2x.append(Rnew2_)
 immeratio_=[]
 immeratio_.append(1)
 
-hospital.append(0)
+hospital.append(None)
+ic.append(None)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
 if showimmunization:
     totalimmune.append(totalimmunedayzero)
@@ -290,7 +284,11 @@ for t in range(1, NUMBEROFDAYS):
     if t>=7:
         hospital.append(positivetests12[t-7]*0.04)
     else:
-        hospital.append(1)
+        hospital.append(None)
+    if t>=7:
+        ic.append(positivetests12[t-7]*0.008)
+    else:
+        ic.append(None)
 
 st.title('Positive COVID-tests in NL')
 
@@ -495,10 +493,10 @@ with _lock:
 with _lock:
     fig1g, ax = plt.subplots()
     plt.plot(x, hospital, label='Ziekenhuisopnames per dag')
-    
+    plt.plot(x, ic, label='IC per dag')
     # Add X and y Label and limits
 
-    plt.ylabel('ziekenhuis opanmes per day')
+    plt.ylabel('Ziekenhuis (4%) en IC (0.8%) opanmes per day, 7 dgn vertraging')
     plt.ylim(bottom = 0)
 
     # Add a title
@@ -509,7 +507,7 @@ with _lock:
 ry1x = []
 ry2x = []
 hospital = []
-
+ic = []
 ################################################
 
 tekst = (
