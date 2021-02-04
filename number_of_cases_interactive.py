@@ -414,10 +414,10 @@ with _lock:
     plt.fill_between(x, 501, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
     plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
-    plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
-    plt.axhline(y=149, color='orange', alpha=.6,linestyle='--')
-    plt.axhline(y=249, color='red', alpha=.6,linestyle='--')
-    plt.axhline(y=499, color='purple', alpha=.6,linestyle='--')
+    plt.axhline(y=35, color='yellow', alpha=.6,linestyle='--')
+    plt.axhline(y=100, color='orange', alpha=.6,linestyle='--')
+    plt.axhline(y=250, color='red', alpha=.6,linestyle='--')
+    plt.axhline(y=500, color='purple', alpha=.6,linestyle='--')
 
     # Add a title
     titlex = ( 'New pos. tests per 100k per week.\n'  )
@@ -498,7 +498,11 @@ with _lock:
 
     plt.ylabel('Ziekenhuis- en IC-opnames per day')
     plt.ylim(bottom = 0)
-
+    plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+    plt.axhline(y=12, color='yellow', alpha=.6,linestyle='--')
+    plt.axhline(y=40, color='orange', alpha=.6,linestyle='--')
+    plt.axhline(y=80, color='red', alpha=.6,linestyle='--')
+   
     # Add a title
     titlex = ('Ziekenhuis (4%) en IC (0.8%) opnames per day,\n7 dgn vertraging')
     configgraph(titlex)
@@ -535,7 +539,7 @@ links = (
 '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
 '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
 '<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li></ul>'
-
+'<h3>Other sources/info</h3><ul>'
 '<ul><li><a href=\"https://archive.is/dqOjs\" target=\"_blank\">Waarom bierviltjesberekeningen over het virus niet werken</a></li></ul>')
 
 
