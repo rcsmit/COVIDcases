@@ -197,7 +197,7 @@ for t in range(1, NUMBEROFDAYS):
 
     if turning:
        
-        if (t>=(turningpoint+1) and t<(turningpoint+turningdays)):
+        if (t>=(turningpoint-1) and t<(turningpoint+turningdays)):
             
             if turningdays==0: 
                 ry1__ = ry1_  * changefactor
