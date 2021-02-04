@@ -220,7 +220,7 @@ for t in range(1, NUMBEROFDAYS):
         ry2 = Rnew2
 
     if showimmunization:
-        immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[t-1])))
+        immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
         #st.write (str((totalimmune[t-1]-totalimmune[0])) + " /  " + str((totalpopulation-totalimmune[t-1])) + "  =  "+ str(immeratio))
         ry1 = ry1x[0]*immeratio
         ry2 = ry2x[0]*immeratio
