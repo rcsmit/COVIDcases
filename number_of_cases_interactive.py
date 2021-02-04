@@ -492,7 +492,7 @@ with _lock:
 # Ziekenhuis opnames
 with _lock:
     fig1g, ax = plt.subplots()
-    plt.plot(x, hospital, label='Ziekenhuis (4%) en IC (0.8%) opnames per day\n, 7 dgn vertraging')
+    plt.plot(x, hospital, label='Ziekenhuis per dag')
     plt.plot(x, ic, label='IC per dag')
     # Add X and y Label and limits
 
@@ -500,7 +500,7 @@ with _lock:
     plt.ylim(bottom = 0)
 
     # Add a title
-    titlex = ('Ziekenhuis opnames.')
+    titlex = ('Ziekenhuis (4%) en IC (0.8%) opnames per day\n, 7 dgn vertraging')
     configgraph(titlex)
     st.pyplot(fig1g)
 
