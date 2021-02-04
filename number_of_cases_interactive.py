@@ -294,7 +294,7 @@ if showimmunization:
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
         '   people immune<sub>t</sub> - people immune<sub>0</sub><br>'
-        'R<sub>t</sub> =  R<sub>0</sub> * 1 - ( --------------------------------------<br>'
+        'R<sub>t</sub> =  R<sub>0</sub> * 1 - ( -------------------------------------- )<br>'
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
                        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 
