@@ -492,11 +492,11 @@ with _lock:
 # Ziekenhuis opnames
 with _lock:
     fig1g, ax = plt.subplots()
-    plt.plot(x, hospital, label='Ziekenhuisopnames per dag')
+    plt.plot(x, hospital, label='Ziekenhuis (4%) en IC (0.8%) opnames per day\n, 7 dgn vertraging')
     plt.plot(x, ic, label='IC per dag')
     # Add X and y Label and limits
 
-    plt.ylabel('Ziekenhuis (4%) en IC (0.8%) opanmes per day, 7 dgn vertraging')
+    plt.ylabel('Ziekenhuis- en IC-opnames per day')
     plt.ylim(bottom = 0)
 
     # Add a title
