@@ -500,7 +500,7 @@ with _lock:
     plt.ylim(bottom = 0)
 
     # Add a title
-    titlex = ('Ziekenhuis (4%) en IC (0.8%) opnames per day\n, 7 dgn vertraging')
+    titlex = ('Ziekenhuis (4%) en IC (0.8%) opnames per day,\n7 dgn vertraging')
     configgraph(titlex)
     st.pyplot(fig1g)
 
