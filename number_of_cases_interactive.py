@@ -293,12 +293,12 @@ if showimmunization:
         '<font face=\'courier new\'>'
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        '   people immune<sub>t</sub> - people immune<sub>0</sub><br>'
+        '   people immune<sub>t</sub> - people immune<sub>t=0</sub><br>'
         'R<sub>t</sub> =  R<sub>0</sub> * ( 1 - -------------------------------------- )<br>'
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
                        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 
-        'total population - people immune<sub>0</sub>   </font> </p>')
+        'total population - people immune<sub>t=0</sub>   </font> </p>')
 
     st.markdown(disclaimerimm, unsafe_allow_html=True)
 
