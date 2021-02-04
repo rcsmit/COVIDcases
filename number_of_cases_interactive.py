@@ -98,7 +98,7 @@ if turning:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
     changefactor = st.sidebar.slider('Change factor (1.0 = no change)', 0.0, 3.0, 0.9)
     #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
-    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', '02/28/2021')
+    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', b)
     turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
     try:
         starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date()
@@ -150,7 +150,7 @@ ratio=[]
 walkingR=[]
 actualR=[]
 totalimmune=[]
-
+hospital = []
 #if vaccination:
 ry1x = []
 ry2x = []
@@ -178,6 +178,8 @@ ry1x.append(Rnew1_)
 ry2x.append(Rnew2_)
 immeratio_=[]
 immeratio_.append(1)
+
+hospital.append(0)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
 if showimmunization:
     totalimmune.append(totalimmunedayzero)
@@ -285,7 +287,10 @@ for t in range(1, NUMBEROFDAYS):
     ry1x.append(ry1)
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
-
+    if t>=7:
+        hospital.append(positivetests12[t-7]*0.04)
+    else:
+        hospital.append(1)
 
 st.title('Positive COVID-tests in NL')
 
@@ -374,6 +379,7 @@ with _lock:
     positivetests1 = []
     positivetests2 = []
     positivetest12 = []
+    
     # Add X and y Label and limits
 
     plt.ylabel('positive tests per day')
@@ -485,8 +491,24 @@ with _lock:
     #secax.set_ylabel('Thalf')
     st.pyplot(fig1f)
 
+# Ziekenhuis opnames
+with _lock:
+    fig1g, ax = plt.subplots()
+    plt.plot(x, hospital, label='Ziekenhuisopnames per dag')
+    
+    # Add X and y Label and limits
+
+    plt.ylabel('ziekenhuis opanmes per day')
+    plt.ylim(bottom = 0)
+
+    # Add a title
+    titlex = ('Ziekenhuis opnames.')
+    configgraph(titlex)
+    st.pyplot(fig1g)
+
 ry1x = []
 ry2x = []
+hospital = []
 
 ################################################
 
