@@ -99,7 +99,7 @@ if turning:
     changefactor = st.sidebar.slider('Change factor (1.0 = no change)', 0.0, 3.0, 0.9)
     #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
     turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', b)
-    turningdays = st.sidebar.slider('Number of days needed to reach new R values', 0, 90, 10)
+    turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
     try:
         starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date()
     except:
