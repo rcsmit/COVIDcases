@@ -291,10 +291,12 @@ if showimmunization:
         'A lot of factors are not taken into account. Illustration puropose only.<br>'
         'The number of test is multiplied by' +str(testimmunefactor)+ ' to get the extra number of people immune <br><br>'
         '<font face=\'courier new\'>'
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
         '   people immune<sub>t</sub> - people immune<sub>0</sub><br>'
-        'R<sub>t</sub> =  R<sub>0</sub> * --------------------------------------<br>'
+        'R<sub>t</sub> =  R<sub>0</sub> * 1 - ( --------------------------------------<br>'
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 
         'total population - people immune<sub>0</sub>   </font> </p>')
 
