@@ -198,12 +198,17 @@ for t in range(1, NUMBEROFDAYS):
     if turning:
        
         if (t>=(turningpoint-1) and t<(turningpoint+turningdays)):
-            fraction =  (1-((1+t-(turningpoint))/turningdays))
+            
+            if turningdays==0: 
+                ry1__ = ry1_  * changefactor
+                ry2__ = ry2_  * changefactor
+            else:
+                fraction =  (1-((1+t-(turningpoint))/turningdays))
            
 
                   
-            ry1__ =(ry1_  * changefactor) + ((ry1_ -(ry1_  * changefactor))*fraction)
-            ry2__ =(ry2_  * changefactor) + ((ry2_ -(ry2_  * changefactor))*fraction)
+                ry1__ =(ry1_  * changefactor) + ((ry1_ -(ry1_  * changefactor))*fraction)
+                ry2__ =(ry2_  * changefactor) + ((ry2_ -(ry2_  * changefactor))*fraction)
             
         elif t>=(turningpoint+turningdays):
             ry1__ = ry1_  * changefactor
