@@ -73,7 +73,7 @@ if showcummulative:
         st.stop()
 
 
-showimmunization = st.sidebar.checkbox("Immunization")
+showimmunization = st.sidebar.checkbox("Immunization", True)
 if showimmunization:
     totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 2_500_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
@@ -120,12 +120,12 @@ if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 730, 365)
 #percentagenonvacc = (st.sidebar.slider('Percentage non-vaxx', 0.0, 100.0, 20.0)/100)
 
-if showimmunization and turning:
-    st.error("Choose either Turning point OR Immunization")
-    st.stop()
-if showimmunization and vaccination:
-    st.error("Choose either Vaccination OR Immunization")
-    st.stop()
+# if showimmunization and turning:
+#     st.error("Choose either Turning point OR Immunization")
+#     st.stop()
+# if showimmunization and vaccination:
+#     st.error("Choose either Vaccination OR Immunization")
+#     st.stop()
 
 numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
 numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
@@ -184,52 +184,59 @@ if showimmunization:
 
 for t in range(1, NUMBEROFDAYS):
 
+    if showimmunization:
+        immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
+        #st.write (str((totalimmune[t-1]-totalimmune[0])) + " /  " + str((totalpopulation-totalimmune[t-1])) + "  =  "+ str(immeratio))
+        ry1_ = ry1x[0]*immeratio
+        ry2_ = ry2x[0]*immeratio
+        immeratio_.append(immeratio)
+    else:
+        ry1_ = ry1x[0]
+        ry2_ = ry2x[0]
+        
+
+    #st.write (str(ry1) + "  " + str(ry2))
+
+ 
 
     if turning:
-        if (t>=(turningpoint-1) and t<turningpoint+turningdays):
-            Rnew31 = Rnew1_ * changefactor
-            Rnew32 = Rnew2_ * changefactor
-            Rnew1 = Rnew31+ ((Rnew1_ - Rnew31)*(1-((t-(turningpoint-1))/turningdays)))
-            Rnew2 = Rnew32+ ((Rnew2_ - Rnew32)*(1-((t-(turningpoint-1))/turningdays)))
-        elif t>=turningpoint-1+turningdays:
-            Rnew1 = Rnew31
-            Rnew2 = Rnew32
+       
+        if (t>=(turningpoint-1) and t<(turningpoint+turningdays)):
+            fraction =  (1-((1+t-(turningpoint))/turningdays))
+           
+
+                  
+            ry1__ =(ry1_  * changefactor) + ((ry1_ -(ry1_  * changefactor))*fraction)
+            ry2__ =(ry2_  * changefactor) + ((ry2_ -(ry2_  * changefactor))*fraction)
+            
+        elif t>=(turningpoint+turningdays):
+            ry1__ = ry1_  * changefactor
+            ry2__ = ry2_  * changefactor
         else:
-            Rnew1 = Rnew1_
-            Rnew2 = Rnew2_
+            ry1__ = ry1_
+            ry2__ = ry2_
     else:
-        Rnew1 = Rnew1_
-        Rnew2 = Rnew2_
+            ry1__ = ry1_
+            ry2__ = ry2_
 
     if vaccination:
         if t>7:
             if t<(VACTIME+7) :
-                ry1 = Rnew1 * ((1-((t-7)/(VACTIME))))
-                ry2 = Rnew2 * ((1-((t-7)/(VACTIME))))
-                #ry1 = Rnew1 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
-                #ry2 = Rnew2 *     ((100-((100-percentagenonvacc)*   (t/VACTIME) )  )      /100)
-
+                ry1 = ry1__ * ((1-((t-7)/(VACTIME))))
+                ry2 = ry2__ * ((1-((t-7)/(VACTIME))))
             else:
-                ry1 = Rnew1 * 0.0000001
-                ry2 = Rnew2 * 0.0000001
+                # vaccination is done, everybody is immune
+                ry1 = ry1__ * 0.0000001
+                ry2 = ry2__ * 0.0000001
         else:
-            ry1 = Rnew1
-            ry2 = Rnew2
+            # it takes 7 days before vaccination works
+            ry1 = ry1__
+            ry2 = ry2__
     else:
-        ry1 = Rnew1
-        ry2 = Rnew2
+        ry1 = ry1__
+        ry2 = ry2__
 
-    if showimmunization:
-        immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
-        #st.write (str((totalimmune[t-1]-totalimmune[0])) + " /  " + str((totalpopulation-totalimmune[t-1])) + "  =  "+ str(immeratio))
-        ry1 = ry1x[0]*immeratio
-        ry2 = ry2x[0]*immeratio
-        immeratio_.append(immeratio)
 
-        #st.write (str(ry1) + "  " + str(ry2))
-    else:
-        Rnew1 = Rnew1_
-        Rnew2 = Rnew2_
 
 
     if ry1 == 1:
@@ -238,6 +245,13 @@ for t in range(1, NUMBEROFDAYS):
     if ry2 == 1:
         # prevent an [divide by zero]-error
         ry2 = 1.000001
+
+    if ry1 <= 0:
+        # prevent an [divide by zero]-error
+        ry1 = 0.000001
+    if ry2 <= 0:
+        # prevent an [divide by zero]-error
+        ry2 = 0.000001
 
     thalf1 = Tg * math.log(0.5) / math.log(ry1)
     thalf2 = Tg * math.log(0.5) / math.log(ry2)
@@ -276,32 +290,37 @@ for t in range(1, NUMBEROFDAYS):
 st.title('Positive COVID-tests in NL')
 
 disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
-               '<div class=\"infobox\"><p>Attention: these results are different from the official models probably due to different (secret) parameters. </p>'
-               '<p><b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models. </b></p>'
-               '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
-               'In reality the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination at a certain moment. '
-               'At the bottom of the page are some links to SEIR models.</p></div>')
+               '<div class=\"infobox\"><p>Attention: these results are different from the official models'
+               ' probably due to simplifications and different (secret) parameters.'
+               '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>)'
+
+                '</p>'
+                 '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
+              'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
 #like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
 #'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
+#  '<p><b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models. </b></p>'
+#     'In reality the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination at a certain moment. '
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
-    disclaimerimm = ('<h1>Immunization<h1><p>The immunization is very speculative.'
-        'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
-        'A lot of factors are not taken into account. Illustration puropose only.<br>'
-        'The number of test is multiplied by' +str(testimmunefactor)+ ' to get the extra number of people immune <br><br>'
-        '<font face=\'courier new\'>'
-        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        '   people immune<sub>t</sub> - people immune<sub>t=0</sub><br>'
-        'R<sub>t</sub> =  R<sub>0</sub> * ( 1 - -------------------------------------- )<br>'
-        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-
-        'total population - people immune<sub>t=0</sub>   </font> </p>')
+    disclaimerimm = ('<div class=\"infobox\"><p>The flattening  is very indicational. '
+            'A lot of factors are not taken into account. For illustration puropose only.'
+        'The number of test is multiplied by ' +str(testimmunefactor)+ ' to get an estimation of the number of immune persons</div>'
+        )
 
     st.markdown(disclaimerimm, unsafe_allow_html=True)
+#        'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
 
+# '<font face=\'courier new\'>'
+#         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+#         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+#         '   people immune<sub>t</sub> - people immune<sub>t=0</sub><br>'
+#         'R<sub>t</sub> =  R<sub>0</sub> * ( 1 - -------------------------------------- )<br>'
+#         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+#                        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+
+#         'total population - people immune<sub>t=0</sub>   </font> </p>'
 
 def th2r(rz):
     Tg_=4
@@ -364,8 +383,7 @@ with _lock:
     plt.fill_between(x, 876, 2500, color='#db5b94',  label='zorgelijk')
     plt.fill_between(x, 2501, 6250, color='#bc2165',  label='ernstig')
     plt.fill_between(x, 6251, 10000, color='#68032f', label='zeer ernstig')
-    if Rnew2>1:
-        plt.fill_between(x, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+    plt.fill_between(x, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
     # Add a title
     titlex = (
@@ -389,8 +407,7 @@ with _lock:
     plt.fill_between(x, 36, 100, color='orange', alpha=0.3, label='zorgelijk')
     plt.fill_between(x, 101, 250, color='red', alpha=0.3, label='ernstig')
     plt.fill_between(x, 251, 500, color='purple', alpha=0.3, label='zeer ernstig')
-    if Rnew2>1:
-        plt.fill_between(x, 501, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+    plt.fill_between(x, 501, 1000, color='grey', alpha=0.3, label='zeer zeer ernstig')
 
     plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
     plt.axhline(y=49, color='yellow', alpha=.6,linestyle='--')
@@ -468,27 +485,6 @@ with _lock:
     #secax.set_ylabel('Thalf')
     st.pyplot(fig1f)
 
-if (vaccination or turning):
-# Show the changing R number of the two variants
-    with _lock:
-        fig1c, ax = plt.subplots()
-        plt.plot(x, ry1x, label='Old variant',  linestyle='--')
-        plt.plot(x, ry2x, label='New variant',  linestyle='--')
-
-
-        # Add X and y Label and limits
-        plt.ylabel('R')
-        #plt.ylim(bottom = 0)
-
-        # Add a title
-        titlex = ('The two R numbers in time.\n')
-
-        configgraph(titlex)
-        getsecondax()
-        plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-
-        st.pyplot(fig1c)
-
 ry1x = []
 ry2x = []
 
@@ -518,7 +514,9 @@ links = (
 '<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
 '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
 '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
-'<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>')
+'<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li></ul>'
+
+'<ul><li><a href=\"https://archive.is/dqOjs\" target=\"_blank\">Waarom bierviltjesberekeningen over het virus niet werken</a></li></ul>')
 
 
 vaccinationdisclaimer = (
