@@ -51,9 +51,9 @@ except:
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 30)
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
-Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 2.0, 0.85)
+Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 10.0, 0.85)
 
-Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 2.0, 1.3)
+Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 6.0, 1.3)
 
 percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 66.0)/100)
 
