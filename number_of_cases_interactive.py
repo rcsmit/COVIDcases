@@ -552,9 +552,11 @@ links = (
 '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
 '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
 '<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li></ul>'
+'<li><a href=\"http://www.modelinginfectiousdiseases.org/\" target=\"_blank\">Code from the book Modeling Infectious Diseases in Humans and Animals '
+'(Matt J. Keeling & Pejman Rohani)</a></li></ul>'
 '<h3>Other sources/info</h3><ul>'
 '<ul><li><a href=\"https://archive.is/dqOjs\" target=\"_blank\">Waarom bierviltjesberekeningen over het virus niet werken</a></li>'
-'<li><a href=\"https://www.nature.com/articles/d41586-020-02009-ws\" target=\"_blank\">A guide to R — the pandemic\’s misunderstood metric</a></li></ul>')
+'<li><a href=\"https://www.nature.com/articles/d41586-020-02009-ws\" target=\"_blank\">A guide to R — the pandemic’s misunderstood metric</a></li></ul>')
 
 vaccinationdisclaimer = (
 '<h3>Attention</h3>'
