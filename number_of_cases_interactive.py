@@ -269,6 +269,15 @@ for t in range(1, NUMBEROFDAYS):
         cpt1 = (cummulative1[t-1]+  pt1)
         cpt2 = (cummulative2[t-1]+  pt2 )
         cpt12 =  (cummulative12[t-1]+ pt1 + pt2)
+        
+        if cpt1>=totalpopulation:
+            cpt1 = totalpopulation
+        if cpt2>=totalpopulation:
+            cpt2 = totalpopulation
+        if cpt12>=totalpopulation:
+            cpt12 = totalpopulation
+            
+        
         cummulative1.append   (cpt1)
         cummulative2.append   (cpt2 )
         cummulative12.append   (cpt12)
@@ -276,7 +285,11 @@ for t in range(1, NUMBEROFDAYS):
     ratio.append   (100*ratio_)
     positivetestsper100k.append((pt1+pt2)/25)
     if showimmunization:
-        totalimmune.append(totalimmune[t-1]+((pt1+pt2)*testimmunefactor))
+        totalimmune_ = totalimmune[t-1]+((pt1+pt2)*testimmunefactor)
+        
+        if totalimmune_>=totalpopulation:
+            totalimmune_ = totalpopulation
+        totalimmune.append(totalimmune_)
 
     ry1x.append(ry1)
     ry2x.append(ry2)
