@@ -551,7 +551,7 @@ links = (
 '<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
 '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
 '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
-'<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li></ul>'
+'<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>'
 '<li><a href=\"http://www.modelinginfectiousdiseases.org/\" target=\"_blank\">Code from the book Modeling Infectious Diseases in Humans and Animals '
 '(Matt J. Keeling & Pejman Rohani)</a></li></ul>'
 '<h3>Other sources/info</h3><ul>'
