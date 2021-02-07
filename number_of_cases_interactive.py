@@ -63,12 +63,13 @@ Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
 
-averagedayssick = (st.sidebar.slider('Average days sick', 5, 30, 20))
+averagedayssick = (st.sidebar.slider('Average days sick', 5, 30, 6))
+# https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
 showcummulative = st.sidebar.checkbox("Show cummulative")
 
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
-showSIR = st.sidebar.checkbox("Show SIR-model based on 100% second variant")
+showSIR = st.sidebar.checkbox("Show SIR-model based on 100% second variant",True)
 if showcummulative or showSIR:
     numberofcasesdayz = (st.sidebar.text_input('Number active cases on day zero', 130000))
     
@@ -574,7 +575,7 @@ ry2x = []
 hospital = []
 ic = []
 ################################################
-if showSIR and showcummulative:
+if showSIR:
     disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SIR-graphs</h1><p>These graphs are based on classical SIR models.'
     ' See <a href=\"https://web.stanford.edu/~jhj1/teachingdocs/Jones-on-R0.pdf\" target=\"_blank\">'
     'here</a> for an explanation. '
