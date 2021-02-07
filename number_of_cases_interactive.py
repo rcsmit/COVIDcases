@@ -504,7 +504,7 @@ if showcummulative:
         plt.ylim(bottom = 0)
 
         # Add a title
-        titlex = ('Suspectible - Infected - Recovered\n(test/immunityfactor is taken in account')
+        titlex = ('Suspectible - Infected - Recovered.\nBased on positive tests.\n(test/immunityfactor is taken in account)')
         configgraph(titlex)
         
         st.pyplot(fig1i)
@@ -715,13 +715,8 @@ if showSIR and showcummulative:
     #configgraph(titlex)
     plt.show()
     st.pyplot(fig2b)
-    #st.write(repr)
+
     repr=[]
-
-
-
-
-
 
 #####################################################
 
