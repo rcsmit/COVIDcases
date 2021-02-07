@@ -63,7 +63,7 @@ Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
 
-averagedayssick = (st.sidebar.slider('Average days sick', 5, 30, 6))
+averagedayssick = (st.sidebar.slider('Average days infectious', 5, 30, 20))
 # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
 showcummulative = st.sidebar.checkbox("Show cummulative")
 
@@ -338,7 +338,8 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                ' probably due to simplifications and different (secret) parameters.'
                '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>)'
 
-                '</p>'
+                '</p><p>Forward-looking projections are estimates of what <em>might</em> occur. '
+                'They are not predictions of what <em>will</em> occur. Actual results may vary substantially. </p>'
                  '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
               'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
 #like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
@@ -592,9 +593,9 @@ if showSIR:
     N = int(totalpopulation)
     
     # Initial number of infected and recovered individuals, I0 and R0.
-    I0, R0 = int(numberofcasesdayz), 0
+    I0, R0 = int(numberofcasesdayz), totalimmunedayzero
     # Everyone else, S0, is susceptible to infection initially.
-    S0 = N - I0 - R0 - totalimmunedayzero
+    S0 = N - I0 -  R0
     C0 = I0
     days = NUMBEROFDAYS
 
@@ -605,8 +606,8 @@ if showSIR:
     #gamma = 1/int(input("Mean recovery rate in days - 1/gamma  "))
 
     gamma = 1./averagedayssick
-    R0 = Rnew2_
-    beta = R0*gamma
+    Rstart = Rnew2_
+    beta = Rstart*gamma
     #beta, gamma = 0.2, 1./20
 
     # reproductionrate = beta / gamma
@@ -644,17 +645,33 @@ if showSIR:
     Tg = Tg_
     d = 1
     repr=[]
-    repr.append(None)
+    repr.append(Rstart)
+    repr_c=[]
+    repr_i=[]
+    repr_c.append(None)
+    repr_i.append(None)
     t = np.linspace(0, days, days)
     #print (I)
     Cnew=[]
-    Cnew.append(0)
+    #Cnew.append(int(numberofcasesdayz))
+    Cnew.append(None)
     for time in range(1,days):
         Cnew.append(C[time]-C[time-1])
-        repr_= (Cnew[time]/Cnew[time-1])**(Tg/d) 
+       
+        #if Cnew[time-1] == None:
+        if time == 1: 
+            repr_ = None
+            repr_c_ = None
+            repr_i_ = None
+        else:
+            #repr_= (C[time]/C[time-1])**(Tg/d) 
+            repr_= (Cnew[time]/Cnew[time-1])**(Tg/d) 
+            repr_c_= (C[time]/C[time-1])**(Tg/d) 
+            repr_i_= (I[time]/I[time-1])**(Tg/d) 
         #repr_= (I[time]/I[time-1])    
         repr.append(repr_)
-
+        repr_c.append(repr_c_)
+        repr_i.append(repr_i_)
 
         
     # Plot the data on three separate curves for S(t), I(t) and R(t)
@@ -662,7 +679,7 @@ if showSIR:
     ax = fig2a.add_subplot(111, facecolor='#dddddd', axisbelow=True)
     ax.plot(t, S, 'b', alpha=0.5, lw=2, label='Susceptible')
     ax.plot(t, I, 'r', alpha=0.5, lw=2, label='Infected')
-    #ax.plot(t, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
+    ax.plot(t, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
     ax.plot(t, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
     #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
     ax.set_xlabel('Time (days)')
@@ -681,12 +698,11 @@ if showSIR:
     st.pyplot(fig2a)
 
 
-
-    # Plot the data on three separate curves for S(t), I(t) and R(t)
+    # New cases
     fig2c = plt.figure(facecolor='w')
     ax = fig2c.add_subplot(111, facecolor='#dddddd', axisbelow=True)
-   
-    ax.plot(t, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
+    #ax.plot(t, C, 'green', alpha=0.5, lw=2, label='Cases')
+    ax.plot(t, Cnew, 'r', alpha=0.5, lw=2, label='New Cases')
     #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('Number')
@@ -703,9 +719,12 @@ if showSIR:
     plt.show()
     st.pyplot(fig2c)
 
+    # Gliding R number
     fig2b = plt.figure(facecolor='w')
     ax = fig2b.add_subplot(111, facecolor='#dddddd', axisbelow=True)
-    ax.plot(t, repr, 'b', alpha=0.5, lw=2, label='R getal')
+    #ax.plot(t, repr, 'b', alpha=0.5, lw=2, label='R getal_ based on Cnew')
+    ax.plot(t, repr_i, 'r', alpha=0.5, lw=2, label='R getal based on I')
+    #ax.plot(t, repr_c, 'g', alpha=0.5, lw=2, label='R getal based on C')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('R getal')
     #ax.set_ylim(0,2)
