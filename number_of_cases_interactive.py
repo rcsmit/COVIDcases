@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 _lock = RendererAgg.lock
-
+from scipy.integrate import odeint
 # VARIABLES
 # startdate in m/d/yyyy
 # https://www.bddataplan.nl/corona/
@@ -48,23 +48,30 @@ except:
     st.stop()
 
 
-NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 365, 30)
+NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 30)
+global numberofdays_
+numberofdays_ = NUMBEROFDAYS
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
-Rnew1_ = st.sidebar.slider('R-number old variant', 0.1, 10.0, 0.85)
+Rnew1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.85)
 
-Rnew2_ = st.sidebar.slider('R-number new British variant', 0.1, 6.0, 1.3)
+Rnew2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.3)
 
-percentagenewversion = (st.sidebar.slider('Percentage British variant at start', 0.0, 100.0, 66.0)/100)
+percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 66.0)/100)
 
 Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
+
+averagedayssick = (st.sidebar.slider('Average days sick', 5, 30, 20))
 showcummulative = st.sidebar.checkbox("Show cummulative")
+
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
-if showcummulative:
+showSIR = st.sidebar.checkbox("Show SIR-model based on 100% second variant")
+if showcummulative or showSIR:
     numberofcasesdayz = (st.sidebar.text_input('Number active cases on day zero', 130000))
+    
 
     try:
         numberofcasesdayzero = int(numberofcasesdayz)
@@ -92,7 +99,6 @@ if showimmunization:
 
     st.sidebar.text("Attention: Read the disclaimer")
 turning = st.sidebar.checkbox("Turning point")
-
 
 if turning:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
@@ -130,6 +136,9 @@ x = mdates.drange(startx,then,dt.timedelta(days=1))
 # y = aantal gevallen
 # z = dagnummer van 1 tot NUMBEROFDAYS
 z  = np.array(range(NUMBEROFDAYS))
+
+# TODO:  Transform this in a multi dimensional list
+
 positivetests1 = []
 positivetests2 = []
 positivetests12 = []
@@ -143,16 +152,23 @@ walkingR=[]
 actualR=[]
 totalimmune=[]
 hospital = []
+infected = []
 ic  = []
 #if vaccination:
 ry1x = []
 ry2x = []
+
+suspectible =[]
+suspectible.append(totalpopulation -totalimmunedayzero)
+
+recovered = []
+recovered.append(0)
 if turning == False:
-    label1= 'Old variant (R='+ str(Rnew1_) + ')'
-    label2= 'New variant (R='+ str(Rnew2_) + ')'
+    label1= 'First variant (R='+ str(Rnew1_) + ')'
+    label2= 'Second variant (R='+ str(Rnew2_) + ')'
 else:
-    label1= 'Old variant'
-    label2= 'New variant'
+    label1= 'First variant'
+    label2= 'Second variant'
 
 # START CALCULATING --------------------------------------------------------------------
 positivetests1.append (numberofpositivetests1)
@@ -164,6 +180,7 @@ if showcummulative:
     cummulative1.append(numberofcasesdayzero*(1-percentagenewversion))
     cummulative2.append(numberofcasesdayzero*(percentagenewversion))
     cummulative12.append(numberofcasesdayzero)
+    infected.append(numberofcasesdayzero)
 ratio.append(percentagenewversion*100 )
 #walkingcummulative.append(1)
 #if vaccination:
@@ -189,11 +206,8 @@ for t in range(1, NUMBEROFDAYS):
     else:
         ry1_ = ry1x[0]
         ry2_ = ry2x[0]
-        
-
+  
     #st.write (str(ry1) + "  " + str(ry2))
-
- 
 
     if turning:
        
@@ -284,13 +298,26 @@ for t in range(1, NUMBEROFDAYS):
     ratio_ =  ((pt2/(pt1+pt2)))
     ratio.append   (100*ratio_)
     positivetestsper100k.append((pt1+pt2)/25)
+
     if showimmunization:
         totalimmune_ = totalimmune[t-1]+((pt1+pt2)*testimmunefactor)
-        
+       
         if totalimmune_>=totalpopulation:
             totalimmune_ = totalpopulation
-        totalimmune.append(totalimmune_)
+        totalimmune.append(totalimmune_)   
 
+    if showcummulative:
+        if t>averagedayssick:
+            # infected.append (infected[t-1]+((pt1+pt2))  - ( infected[t-10])) 
+            infected.append (infected[t-1]+(((pt1+pt2))*testimmunefactor) - (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])*testimmunefactor ) ) 
+            suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
+            recovered.append(recovered[t-1]+ (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])*testimmunefactor ) ) 
+        else:
+            #infected.append (infected[t-1]+((pt1+pt2)) - (infected[0]/averagedayssick)  ) 
+            infected.append (infected[t-1]+((pt1+pt2)*testimmunefactor) - (infected[0]/averagedayssick))  
+            suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
+            recovered.append(recovered[t-1]+  (infected[0]/averagedayssick))
+            
     ry1x.append(ry1)
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
@@ -363,6 +390,8 @@ def getsecondax():
     ax2.set_ylabel('Halverings-/verdubbelingstijd (dagen)')
 
 def configgraph(titlex):
+    
+    interval_ = int(numberofdays_ / 20)
     plt.xlabel('date')
     plt.xlim(x[0], x[-1])
 
@@ -377,7 +406,7 @@ def configgraph(titlex):
 
     # lay-out of the x axis
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
     plt.gcf().autofmt_xdate()
     plt.gca().set_title(titlex , fontsize=10)
 
@@ -442,9 +471,9 @@ with _lock:
 if showcummulative:
     with _lock:
         fig1e, ax = plt.subplots()
-        plt.plot(x,cummulative1, label='Cummulative cases old variant',  linestyle='--')
-        plt.plot(x,cummulative2, label='Cummulative cases new variant',  linestyle='--')
-        plt.plot(x,cummulative12, label='Cummulative cases TOTAL',)
+        plt.plot(x,cummulative1, label='Cummulative pos. test first variant',  linestyle='--')
+        plt.plot(x,cummulative2, label='Cummulative pos. test second variant',  linestyle='--')
+        plt.plot(x,cummulative12, label='Cummulative pos. test TOTAL',)
 
         cummulative1 = []
         cummulative2 = []
@@ -455,13 +484,30 @@ if showcummulative:
         plt.ylim(bottom = 0)
 
         # Add a title
-        titlex = ('Cummulative cases\nNo recovery/death in this graph')
+        titlex = ('Cummulative positive tests\nNo recovery/death in this graph')
 
         configgraph(titlex)
 
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
         st.pyplot(fig1e)
 
+    # Infected
+    with _lock:
+        fig1i, ax = plt.subplots()
+        plt.plot(x, suspectible, label='Suspectible',  linestyle='--')
+        plt.plot(x, infected, label='Infected',  linestyle='--')
+        plt.plot(x, recovered, label='Recovered',  linestyle='--')
+        infected = []
+
+        # Add  y Label and limits
+        plt.ylabel('No of cases')
+        plt.ylim(bottom = 0)
+
+        # Add a title
+        titlex = ('Suspectible - Infected - Recovered\n(test/immunityfactor is taken in account')
+        configgraph(titlex)
+        
+        st.pyplot(fig1i)
 # Show the percentage new variant
 with _lock:
     fig1f, ax = plt.subplots()
@@ -521,11 +567,163 @@ with _lock:
     configgraph(titlex)
     st.pyplot(fig1g)
 
+
+
 ry1x = []
 ry2x = []
 hospital = []
 ic = []
 ################################################
+if showSIR and showcummulative:
+    disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SIR-graphs</h1><p>These graphs are based on classical SIR models.'
+    ' See <a href=\"https://web.stanford.edu/~jhj1/teachingdocs/Jones-on-R0.pdf\" target=\"_blank\">'
+    'here</a> for an explanation. '
+    'It is based on the number of cases  ' +str(numberofcasesdayz)+ ' and the population size</div>'
+        )
+
+    st.markdown(disclaimerSIR, unsafe_allow_html=True)
+    # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
+
+
+    # Total population, N.
+    #N = int(input("Total population, N "))
+    #if N == 0 :
+    N = int(totalpopulation)
+    
+    # Initial number of infected and recovered individuals, I0 and R0.
+    I0, R0 = int(numberofcasesdayz), 0
+    # Everyone else, S0, is susceptible to infection initially.
+    S0 = N - I0 - R0 - totalimmunedayzero
+    C0 = I0
+    days = NUMBEROFDAYS
+
+    #
+    # Contact rate, beta, and mean recovery rate, gamma, (in 1/days).
+    #beta, gamma = 0.2, 1./10
+    ##beta = float(input("Contact rate - beta [0-1] "))
+    #gamma = 1/int(input("Mean recovery rate in days - 1/gamma  "))
+
+    gamma = 1./averagedayssick
+    R0 = Rnew2_
+    beta = R0*gamma
+    #beta, gamma = 0.2, 1./20
+
+    # reproductionrate = beta / gamma
+
+    # β describes the effective contact rate of the disease: 
+    # an infected individual comes into contact with βN other 
+    # individuals per unit time (of which the fraction that are
+    # susceptible to contracting the disease is S/N).
+    # 1/gamma is recovery rate in days 
+
+    # A grid of time points (in days)
+    t = np.linspace(0, days, days)
+
+    # The SIR model differential equations.
+    # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
+    def deriv(y, t, N, beta, gamma):
+        S, I, C, R = y
+        dSdt = -beta * S * I / N   # aantal zieke mensen x aantal gezonde mensen x beta
+        dIdt = beta * S * I / N - gamma * I
+        dCdt = beta * S * I / N 
+        dRdt = gamma * I
+        
+        #print (dIdt)
+
+        # (n2/n1)^(Tg/t) 
+        return dSdt, dIdt, dRdt, dCdt
+
+    # Initial conditions vector
+    y0 = S0, I0, C0, R0
+    # Integrate the SIR equations over the time grid, t.
+    ret = odeint(deriv, y0, t, args=(N, beta, gamma))
+    S, I, C, R  = ret.T
+
+
+    Tg = Tg_
+    d = 1
+    repr=[]
+    repr.append(None)
+    t = np.linspace(0, days, days)
+    #print (I)
+    Cnew=[]
+    Cnew.append(0)
+    for time in range(1,days):
+        Cnew.append(C[time]-C[time-1])
+        repr_= (Cnew[time]/Cnew[time-1])**(Tg/d) 
+        #repr_= (I[time]/I[time-1])    
+        repr.append(repr_)
+
+
+        
+    # Plot the data on three separate curves for S(t), I(t) and R(t)
+    fig2a = plt.figure(facecolor='w')
+    ax = fig2a.add_subplot(111, facecolor='#dddddd', axisbelow=True)
+    ax.plot(t, S, 'b', alpha=0.5, lw=2, label='Susceptible')
+    ax.plot(t, I, 'r', alpha=0.5, lw=2, label='Infected')
+    #ax.plot(t, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
+    ax.plot(t, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
+    #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
+    ax.set_xlabel('Time (days)')
+    ax.set_ylabel('Number')
+    #ax.set_ylim(0,1.2)
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+    legend = ax.legend()
+    legend.get_frame().set_alpha(0.5)
+    for spine in ('top', 'right', 'bottom', 'left'):
+        ax.spines[spine].set_visible(False)
+    titlex = 'SIR based on cases first day'
+    #configgraph(titlex)
+    plt.show()
+    st.pyplot(fig2a)
+
+
+
+    # Plot the data on three separate curves for S(t), I(t) and R(t)
+    fig2c = plt.figure(facecolor='w')
+    ax = fig2c.add_subplot(111, facecolor='#dddddd', axisbelow=True)
+   
+    ax.plot(t, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
+    #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
+    ax.set_xlabel('Time (days)')
+    ax.set_ylabel('Number')
+    #ax.set_ylim(0,1.2)
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+    legend = ax.legend()
+    legend.get_frame().set_alpha(0.5)
+    for spine in ('top', 'right', 'bottom', 'left'):
+        ax.spines[spine].set_visible(False)
+    titlex = 'SIR based on cases first day'
+    #configgraph(titlex)
+    plt.show()
+    st.pyplot(fig2c)
+
+    fig2b = plt.figure(facecolor='w')
+    ax = fig2b.add_subplot(111, facecolor='#dddddd', axisbelow=True)
+    ax.plot(t, repr, 'b', alpha=0.5, lw=2, label='R getal')
+    ax.set_xlabel('Time (days)')
+    ax.set_ylabel('R getal')
+    #ax.set_ylim(0,2)
+    ax.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+    ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+    legend = ax.legend()
+    titlex = "Gliding R-number"
+    #configgraph(titlex)
+    plt.show()
+    st.pyplot(fig2b)
+    st.write(repr)
+    repr=[]
+
+
+
+
+
+
+#####################################################
 
 tekst = (
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
