@@ -715,7 +715,7 @@ if showSIR and showcummulative:
     #configgraph(titlex)
     plt.show()
     st.pyplot(fig2b)
-    st.write(repr)
+    #st.write(repr)
     repr=[]
 
 
