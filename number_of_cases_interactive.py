@@ -296,7 +296,11 @@ for t in range(1, NUMBEROFDAYS):
         cummulative1.append   (cpt1)
         cummulative2.append   (cpt2 )
         cummulative12.append   (cpt12)
-    ratio_ =  ((pt2/(pt1+pt2)))
+    if (pt1+p2)>0:
+        ratio_ =  ((pt2/(pt1+pt2)))
+    else:
+        ratio_ = 1
+        
     ratio.append   (100*ratio_)
     positivetestsper100k.append((pt1+pt2)/25)
 
