@@ -63,7 +63,7 @@ Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
 
-averagedayssick = (st.sidebar.slider('Average days infectious', 5, 30, 20))
+averagedayssick = (st.sidebar.slider('Average days infectious', 1, 30, 20))
 # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
 showcummulative = st.sidebar.checkbox("Show cummulative")
 
@@ -702,7 +702,7 @@ if showSIR:
     fig2c = plt.figure(facecolor='w')
     ax = fig2c.add_subplot(111, facecolor='#dddddd', axisbelow=True)
     #ax.plot(t, C, 'green', alpha=0.5, lw=2, label='Cases')
-    ax.plot(t, Cnew, 'r', alpha=0.5, lw=2, label='New Cases')
+    ax.plot(t, Cnew, 'y', alpha=0.5, lw=2, label='New Cases')
     #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('Number')
@@ -723,7 +723,7 @@ if showSIR:
     fig2b = plt.figure(facecolor='w')
     ax = fig2b.add_subplot(111, facecolor='#dddddd', axisbelow=True)
     #ax.plot(t, repr, 'b', alpha=0.5, lw=2, label='R getal_ based on Cnew')
-    ax.plot(t, repr_i, 'r', alpha=0.5, lw=2, label='R getal based on I')
+    ax.plot(t, repr_i, 'b', alpha=0.5, lw=2, label='R getal based on I')
     #ax.plot(t, repr_c, 'g', alpha=0.5, lw=2, label='R getal based on C')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('R getal')
