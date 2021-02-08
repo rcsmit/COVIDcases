@@ -55,7 +55,7 @@ ret = odeint(deriv, y0, t, args=(N, beta, gamma))
 S, I, C, R  = ret.T
 
 t = np.linspace(0, days, days)
-)
+
 for time in range(1,days):
     slidingR_= (C[time]/C[time-1])**(Tg/d)   
     slidingR.append(slidingR_)
