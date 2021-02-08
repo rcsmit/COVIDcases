@@ -677,7 +677,7 @@ if showSIR:
         repr_c.append(repr_c_)
         repr_i.append(repr_i_)
 
-        
+    st.write(beta)
     # Plot the data on three separate curves for S(t), I(t) and R(t)
     fig2a = plt.figure(facecolor='w')
     ax = fig2a.add_subplot(111, facecolor='#dddddd', axisbelow=True)
