@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
 
 # Total population, N.
-N = 10000
+N = 1000
    
 # Initial number of infected and recovered individuals, I0 and R0.
 I0, R0 = 7,0
@@ -13,7 +13,7 @@ I0, R0 = 7,0
 S0 = N - I0 - R0
 C0 = I0
 
-days = 300
+days = 5
 
 # Contact rate, beta, and mean recovery rate, gamma, (in 1/days).
 # β describes the effective contact rate of the disease: 
@@ -23,18 +23,20 @@ days = 300
 # 1/gamma is recovery rate in days 
 
 gamma = 1./7
-R0 = 3
+Rt0 = 3
+
+# Generation time, time unit (day) and a list for the sliding R-number
+Tg = 4
+d = 1
 
 # reproductionrate = beta / gamma
-beta = R0*gamma 
+beta = Rt0*gamma 
 print ("beta : "+  str(beta) + "/ gamma : " + str(gamma))
 
 # A grid of time points (in days)
 t = np.linspace(0, days, days)
 
-# Generation time, time unit (day) and a list for the sliding R-number
-Tg = 4
-d = 1
+
 slidingR=[]
 slidingR.append(None)
 
@@ -89,5 +91,16 @@ ax.grid(b=True, which='major', c='w', lw=2, ls='-')
 legend = ax.legend()
 plt.show()
 
+# Show plot for the sliding R-number
+fig2c = plt.figure(facecolor='w')
+ax = fig2c.add_subplot(111, facecolor='#dddddd', axisbelow=True)
+ax.plot(t, C, 'b', alpha=0.5, lw=2, label='R number')
+ax.set_xlabel('Time (days)')
+ax.set_ylabel('Cases')
+ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+legend = ax.legend()
+plt.show()
+
 # empty slidingR-list
 slidingR=[]
+print (C)
