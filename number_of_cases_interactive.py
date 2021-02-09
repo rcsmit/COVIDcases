@@ -36,10 +36,10 @@ b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
-numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,3561)
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,5744)
 
 st.markdown("<hr>", unsafe_allow_html=True)
-a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/22/2021")
 
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
@@ -48,16 +48,16 @@ except:
     st.stop()
 
 
-NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 30)
+NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
 global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
-Rnew1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.85)
+Rnew1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.80)
 
-Rnew2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.3)
+Rnew2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.13)
 
-percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 66.0)/100)
+percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 25.0)/100)
 
 Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
@@ -775,6 +775,7 @@ links = (
 '(Matt J. Keeling & Pejman Rohani)</a></li></ul>'
 '<h3>Other sources/info</h3><ul>'
 '<ul><li><a href=\"https://archive.is/dqOjs\" target=\"_blank\">Waarom bierviltjesberekeningen over het virus niet werken</a></li>'
+'<li><a href=\"https://www.scienceguide.nl/2020/03/modellen-geven-geen-absolute-zekerheid-maar-ze-zijn-ontontbeerlijk/\" target=\"_blank\"Modellen geven geen absolute zekerheid, maar ze zijn onontbeerlijk</a></li>''
 '<li><a href=\"https://www.nature.com/articles/d41586-020-02009-ws\" target=\"_blank\">A guide to R — the pandemic’s misunderstood metric</a></li></ul>')
 
 vaccinationdisclaimer = (
