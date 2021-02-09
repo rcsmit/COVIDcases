@@ -775,7 +775,7 @@ links = (
 '(Matt J. Keeling & Pejman Rohani)</a></li></ul>'
 '<h3>Other sources/info</h3><ul>'
 '<ul><li><a href=\"https://archive.is/dqOjs\" target=\"_blank\">Waarom bierviltjesberekeningen over het virus niet werken</a></li>'
-'<li><a href=\"https://www.scienceguide.nl/2020/03/modellen-geven-geen-absolute-zekerheid-maar-ze-zijn-ontontbeerlijk/\" target=\"_blank\"Modellen geven geen absolute zekerheid, maar ze zijn onontbeerlijk</a></li>''
+'<li><a href=\"https://www.scienceguide.nl/2020/03/modellen-geven-geen-absolute-zekerheid-maar-ze-zijn-ontontbeerlijk/\" target=\"_blank\"Modellen geven geen absolute zekerheid, maar ze zijn onontbeerlijk</a></li>'
 '<li><a href=\"https://www.nature.com/articles/d41586-020-02009-ws\" target=\"_blank\">A guide to R — the pandemic’s misunderstood metric</a></li></ul>')
 
 vaccinationdisclaimer = (
