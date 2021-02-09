@@ -69,7 +69,9 @@ showcummulative = st.sidebar.checkbox("Show cummulative")
 
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
-showSIR = st.sidebar.checkbox("Show SIR-model based on 100% second variant",True)
+#showSIR = st.sidebar.checkbox("Show SIR-model based on 100% second variant",True)
+showSIR = False
+
 if showcummulative or showSIR:
     numberofcasesdayz = (st.sidebar.text_input('Number active cases on day zero', 130000))
     
