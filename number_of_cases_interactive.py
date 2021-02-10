@@ -304,8 +304,7 @@ for t in range(1, NUMBEROFDAYS):
     if showcummulative:
         if t>averagedayssick:
             infected.append (infected[t-1]+(((pt1+pt2))*testimmunefactor) -
-                               (( positivetests1[t-averagedayssick]+
-                                  positivetests2[t-averagedayssick])*testimmunefactor )
+                               (( positivetests1[t-averagedayssick]+ positivetests2[t-averagedayssick])*testimmunefactor )
                              ) 
             suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
             recovered.append(recovered[t-1]+ 
