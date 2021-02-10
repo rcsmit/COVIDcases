@@ -73,8 +73,15 @@ showSIR = False
 
 showimmunization = st.sidebar.checkbox("Immunization", True)
 
-if showcummulative or showSIR or showimmunization:
+if showcummulative:
     numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero', 130000))
+
+    try:
+        numberofcasesdayzero = int(numberofcasesdayz)
+    except:
+        st.error("Please enter a number for the number of active cases on day zero")
+        st.stop()
+if showcummulative or showSIR or showimmunization:
     totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 2_500_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
     
@@ -84,11 +91,7 @@ if showcummulative or showSIR or showimmunization:
     except:
         st.error("Please enter a number for the number of immune people on day zero")
         st.stop()
-    try:
-        numberofcasesdayzero = int(numberofcasesdayz)
-    except:
-        st.error("Please enter a number for the number of active cases on day zero")
-        st.stop()
+    
     try:
         totalpopulation = int(totalpopulation_)
     except:
@@ -574,7 +577,7 @@ if showSIR:
                      ' See <a href=\"https://web.stanford.edu/~jhj1/teachingdocs/Jones-on-R0.pdf\"'
                      ' target=\"_blank\">'
                      'here</a> for an explanation. '
-                     'It is based on the number of cases  ' +str(numberofcasesdayz)+ ' and '
+                     'It is based on the number of immune peope at the start   ' +str(totalimmunedayzero)+ ' and '
                      'the population size</div>'
         )
 
