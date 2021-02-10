@@ -1,10 +1,8 @@
 # Calculate the number of cases with a decreasing R-number, 2 different variants and vaccination
 # For information only. Provided "as-is" etc.
 
-# The subplots are generated as 4 normal plots, thus repeating code :(
-#
 # https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py
-#
+# https://github.com/rcsmit/COVIDcases/blob/main/number_of_cases_interactive.py
 
 # Sorry for all the commented out code, maybe I will combine the old and new version(s) later
 
@@ -21,14 +19,12 @@ from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 _lock = RendererAgg.lock
 from scipy.integrate import odeint
-# VARIABLES
-# startdate in m/d/yyyy
-# https://www.bddataplan.nl/corona/
 
+# VARIABLES
+# startdate in mm/dd/yyyy
 # variable1 = old variant
 # variable2 = new variant
 # variable 12 = old + new
-
 # variablex = with vaccination
 
 DATE_FORMAT = "%m/%d/%Y"
@@ -47,18 +43,11 @@ except:
     st.error("Please make sure that the date is in format mm/dd/yyyy")
     st.stop()
 
-
-
-
-
-
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
 global numberofdays_
 numberofdays_ = NUMBEROFDAYS
-if NUMBEROFDAYS >30:
-    st.sidebar.text("Attention: Read the disclaimer")
-Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.80)
 
+Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.80)
 Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.13)
 correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
 Rnew1_= round(Rnew_1_ * correction,2)
@@ -72,42 +61,40 @@ Tg_=Tg
 
 averagedayssick = (st.sidebar.slider('Average days infectious', 1, 30, 20))
 # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
-showcummulative = st.sidebar.checkbox("Show cummulative")
+showcummulative = st.sidebar.checkbox("Show cummulative / SIR")
 
-if NUMBEROFDAYS >30:
-    st.sidebar.text("Attention: Read the disclaimer")
+
+# I wanted to link the classical SIR model of Kermack & McKendrik but the R_0 in that 
+# model isnt the same as the R_0 = beta / gamma from that model.
+# See https://www.reddit.com/r/epidemiology/comments/lfk83s/real_r0_at_the_start_not_the_same_as_given_r0/
+
 #showSIR = st.sidebar.checkbox("Show SIR-model based on 100% second variant",True)
 showSIR = False
 
-if showcummulative or showSIR:
-    numberofcasesdayz = (st.sidebar.text_input('Number active cases on day zero', 130000))
-    
-
-    try:
-        numberofcasesdayzero = int(numberofcasesdayz)
-    except:
-        st.error("Please enter a number for the number of active cases on day zero")
-        st.stop()
-
-
 showimmunization = st.sidebar.checkbox("Immunization", True)
-if showimmunization:
+
+if showcummulative or showSIR or showimmunization:
+    numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero', 130000))
     totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 2_500_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
+    
     testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 5.0, 2.5)
     try:
         totalimmunedayzero = int(totalimmunedayzero_)
     except:
         st.error("Please enter a number for the number of immune people on day zero")
         st.stop()
-
+    try:
+        numberofcasesdayzero = int(numberofcasesdayz)
+    except:
+        st.error("Please enter a number for the number of active cases on day zero")
+        st.stop()
     try:
         totalpopulation = int(totalpopulation_)
     except:
-        st.error("Please enter a number for the number ofpopulation")
+        st.error("Please enter a number for the number of population")
         st.stop()
 
-    st.sidebar.text("Attention: Read the disclaimer")
 turning = st.sidebar.checkbox("Turning point")
 
 if turning:
@@ -121,7 +108,6 @@ if turning:
     except:
         st.error("Please make sure that the date is in format mm/dd/yyyy")
         st.stop()
-
 
     d1 = datetime.strptime(a, '%m/%d/%Y')
     d2 = datetime.strptime(turningpointdate,'%m/%d/%Y')
@@ -147,12 +133,9 @@ x = mdates.drange(startx,then,dt.timedelta(days=1))
 # z = dagnummer van 1 tot NUMBEROFDAYS
 z  = np.array(range(NUMBEROFDAYS))
 
-
 a_ = dt.datetime.strptime(a,'%m/%d/%Y').date()
 b_ = dt.datetime.strptime(b,'%m/%d/%Y').date()
 datediff = ( abs((a_ - b_).days))
-
-
 
 # TODO:  Transform this in a multi dimensional list
 
@@ -176,7 +159,7 @@ ry1x = []
 ry2x = []
 
 suspectible =[]
-if showimmunization:
+if showcummulative or showSIR or showimmunization:
     suspectible.append(totalpopulation -totalimmunedayzero)
 
 recovered = []
@@ -214,32 +197,24 @@ if showimmunization:
     totalimmune.append(totalimmunedayzero)
 
 for t in range(1, NUMBEROFDAYS):
-
     if showimmunization:
         immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
-        #st.write (str((totalimmune[t-1]-totalimmune[0])) + " /  " + str((totalpopulation-totalimmune[t-1])) + "  =  "+ str(immeratio))
         ry1_ = ry1x[0]*immeratio
         ry2_ = ry2x[0]*immeratio
         immeratio_.append(immeratio)
     else:
         ry1_ = ry1x[0]
         ry2_ = ry2x[0]
-  
-    #st.write (str(ry1) + "  " + str(ry2))
 
     if turning:
-       
         if (t>=(turningpoint) and t<(turningpoint+turningdays)):
-            
             if turningdays==0: 
                 ry1__ = ry1_  * changefactor
                 ry2__ = ry2_  * changefactor
             else:
-                fraction =  (1-((t-(turningpoint))/turningdays))
-                  
+                fraction =  (1-((t-(turningpoint))/turningdays))                
                 ry1__ =(ry1_  * changefactor) + ((ry1_ -(ry1_  * changefactor))*fraction)
                 ry2__ =(ry2_  * changefactor) + ((ry2_ -(ry2_  * changefactor))*fraction)
-            
         elif t>=(turningpoint+turningdays):
             ry1__ = ry1_  * changefactor
             ry2__ = ry2_  * changefactor
@@ -247,8 +222,8 @@ for t in range(1, NUMBEROFDAYS):
             ry1__ = ry1_
             ry2__ = ry2_
     else:
-            ry1__ = ry1_
-            ry2__ = ry2_
+        ry1__ = ry1_
+        ry2__ = ry2_
 
     if vaccination:
         if t>7:
@@ -267,18 +242,14 @@ for t in range(1, NUMBEROFDAYS):
         ry1 = ry1__
         ry2 = ry2__
 
-    if ry1 == 1:
-        # prevent an [divide by zero]-error
+    # prevent an [divide by zero]-error
+    if ry1 == 1:    
         ry1 = 1.000001
     if ry2 == 1:
-        # prevent an [divide by zero]-error
         ry2 = 1.000001
-
     if ry1 <= 0:
-        # prevent an [divide by zero]-error
         ry1 = 0.000001
     if ry2 <= 0:
-        # prevent an [divide by zero]-error
         ry2 = 0.000001
 
     thalf1 = Tg * math.log(0.5) / math.log(ry1)
@@ -293,7 +264,8 @@ for t in range(1, NUMBEROFDAYS):
     # https://twitter.com/hk_nien/status/1350953807933558792
     # positivetests1a.append(positivetests1a[t-1] * (ry1**(1/Tg)))
     # positivetests2a.append(positivetests2a[t-1] * (ry2**(1/Tg)))
-    # positivetests12a.append(positivetests2a[t-1] * (ry2**(1/Tg))+ positivetests1[t-1] * (ry1**(1/Tg)))
+    # positivetests12a.append(positivetests2a[t-1] * (ry2**(1/Tg))+ positivetests1[t-1] 
+    #                                              * (ry1**(1/Tg)))
 
     positivetests12.append(pt1+pt2)
 
@@ -308,11 +280,11 @@ for t in range(1, NUMBEROFDAYS):
             cpt2 = totalpopulation
         if cpt12>=totalpopulation:
             cpt12 = totalpopulation
-            
-        
+
         cummulative1.append   (cpt1)
         cummulative2.append   (cpt2 )
         cummulative12.append   (cpt12)
+
     if (pt1+pt2)>0:
         ratio_ =  ((pt2/(pt1+pt2)))
     else:
@@ -323,20 +295,23 @@ for t in range(1, NUMBEROFDAYS):
 
     if showimmunization:
         totalimmune_ = totalimmune[t-1]+((pt1+pt2)*testimmunefactor)
-       
         if totalimmune_>=totalpopulation:
             totalimmune_ = totalpopulation
         totalimmune.append(totalimmune_)   
 
     if showcummulative:
         if t>averagedayssick:
-            # infected.append (infected[t-1]+((pt1+pt2))  - ( infected[t-10])) 
-            infected.append (infected[t-1]+(((pt1+pt2))*testimmunefactor) - (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])*testimmunefactor ) ) 
+            infected.append (infected[t-1]+(((pt1+pt2))*testimmunefactor) -
+                               (( positivetests1[t-averagedayssick]+
+                                  positivetests2[t-averagedayssick])*testimmunefactor )
+                             ) 
             suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
-            recovered.append(recovered[t-1]+ (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])*testimmunefactor ) ) 
+            recovered.append(recovered[t-1]+ 
+                          (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])
+                               * testimmunefactor ) ) 
         else:
-            #infected.append (infected[t-1]+((pt1+pt2)) - (infected[0]/averagedayssick)  ) 
-            infected.append (infected[t-1]+((pt1+pt2)*testimmunefactor) - (infected[0]/averagedayssick))  
+            infected.append ( infected[t-1]+((pt1+pt2)*testimmunefactor) - 
+                              (infected[0]/averagedayssick))  
             suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
             recovered.append(recovered[t-1]+  (infected[0]/averagedayssick))
             
@@ -389,12 +364,10 @@ if showimmunization:
 #         'total population - people immune<sub>t=0</sub>   </font> </p>'
 
 def th2r(rz):
-    Tg_=4
     th = int( Tg_ * math.log(0.5) / math.log(rz))
     return th
 
 def r2th(th):
-    Tg_=4
     r = int(10**((Tg_*mat.log(2))/th))
     # HK is using  r = 2**(Tg_/th)
     return r
@@ -413,7 +386,6 @@ def getsecondax():
     ax2.set_ylabel('Halverings-/verdubbelingstijd (dagen)')
 
 def configgraph(titlex):
-    
     interval_ = int(numberofdays_ / 20)
     plt.xlabel('date')
     plt.xlim(x[0], x[-1])
@@ -445,7 +417,6 @@ with _lock:
     positivetest12 = []
     
     # Add X and y Label and limits
-
     plt.ylabel('positive tests per day')
     plt.ylim(bottom = 0)
 
@@ -504,7 +475,7 @@ if showcummulative:
         cummulative12 = []
         # Add X and y Label and limits
 
-        plt.ylabel('Total cases')
+        plt.ylabel('Total positive tests')
         plt.ylim(bottom = 0)
 
         # Add a title
@@ -528,7 +499,8 @@ if showcummulative:
         plt.ylim(bottom = 0)
 
         # Add a title
-        titlex = ('Suspectible - Infected - Recovered.\nBased on positive tests.\n(test/immunityfactor is taken in account)')
+        titlex = ('Suspectible - Infected - Recovered.\nBased on positive tests.\n'
+                  '(test/immunityfactor is taken in account)')
         configgraph(titlex)
         
         st.pyplot(fig1i)
@@ -591,18 +563,19 @@ with _lock:
     configgraph(titlex)
     st.pyplot(fig1g)
 
-
-
 ry1x = []
 ry2x = []
 hospital = []
 ic = []
 ################################################
 if showSIR:
-    disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SIR-graphs</h1><p>These graphs are based on classical SIR models.'
-    ' See <a href=\"https://web.stanford.edu/~jhj1/teachingdocs/Jones-on-R0.pdf\" target=\"_blank\">'
-    'here</a> for an explanation. '
-    'It is based on the number of cases  ' +str(numberofcasesdayz)+ ' and the population size</div>'
+    disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SIR-graphs</h1>'
+                     '<p>These graphs are based on classical SIR models.'
+                     ' See <a href=\"https://web.stanford.edu/~jhj1/teachingdocs/Jones-on-R0.pdf\"'
+                     ' target=\"_blank\">'
+                     'here</a> for an explanation. '
+                     'It is based on the number of cases  ' +str(numberofcasesdayz)+ ' and '
+                     'the population size</div>'
         )
 
     st.markdown(disclaimerSIR, unsafe_allow_html=True)
