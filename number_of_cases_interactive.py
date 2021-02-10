@@ -162,11 +162,10 @@ ry1x = []
 ry2x = []
 
 suspectible =[]
+recovered = []
 if showcummulative or showSIR or showimmunization:
     suspectible.append(totalpopulation -totalimmunedayzero)
-
-recovered = []
-recovered.append(0)
+    recovered.append(totalimmunedayzero )
 if turning == False:
     label1= 'First variant (R='+ str(Rnew1_) + ')'
     label2= 'Second variant (R='+ str(Rnew2_) + ')'
