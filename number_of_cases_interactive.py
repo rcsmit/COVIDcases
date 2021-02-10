@@ -48,6 +48,10 @@ except:
     st.stop()
 
 
+
+
+
+
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
 global numberofdays_
 numberofdays_ = NUMBEROFDAYS
@@ -139,6 +143,13 @@ x = mdates.drange(startx,then,dt.timedelta(days=1))
 # y = aantal gevallen
 # z = dagnummer van 1 tot NUMBEROFDAYS
 z  = np.array(range(NUMBEROFDAYS))
+
+
+a_ = dt.datetime.strptime(a,'%m/%d/%Y').date()
+b_ = dt.datetime.strptime(b,'%m/%d/%Y').date()
+datediff = ( abs((a_ - b_).days))
+
+
 
 # TODO:  Transform this in a multi dimensional list
 
@@ -342,8 +353,8 @@ st.title('Positive COVID-tests in NL')
 disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
                '<div class=\"infobox\"><p>Attention: these results are different from the official models'
                ' probably due to simplifications and different (secret) parameters.'
-               '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>)'
-
+               '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>) '
+                'The default parameters on this site are the latest known parameters of the RIVM'
                 '</p><p>Forward-looking projections are estimates of what <em>might</em> occur. '
                 'They are not predictions of what <em>will</em> occur. Actual results may vary substantially. </p>'
                  '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
@@ -402,7 +413,8 @@ def configgraph(titlex):
     interval_ = int(numberofdays_ / 20)
     plt.xlabel('date')
     plt.xlim(x[0], x[-1])
-
+    todaylabel = "Today ("+ b + ")"
+    plt.axvline(x=x[0]+datediff, color='white', alpha=.6,linestyle='--',label = todaylabel)
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
 
