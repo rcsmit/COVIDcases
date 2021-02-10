@@ -414,7 +414,7 @@ def configgraph(titlex):
     plt.xlabel('date')
     plt.xlim(x[0], x[-1])
     todaylabel = "Today ("+ b + ")"
-    plt.axvline(x=x[0]+datediff, color='white', alpha=.6,linestyle='--',label = todaylabel)
+    plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
 
