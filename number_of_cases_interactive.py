@@ -176,7 +176,8 @@ ry1x = []
 ry2x = []
 
 suspectible =[]
-suspectible.append(totalpopulation -totalimmunedayzero)
+if showimmunization:
+    suspectible.append(totalpopulation -totalimmunedayzero)
 
 recovered = []
 recovered.append(0)
