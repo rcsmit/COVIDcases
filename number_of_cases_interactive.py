@@ -57,9 +57,12 @@ global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 if NUMBEROFDAYS >30:
     st.sidebar.text("Attention: Read the disclaimer")
-Rnew1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.80)
+Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.80)
 
-Rnew2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.13)
+Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.13)
+correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
+Rnew1_= round(Rnew_1_ * correction,2)
+Rnew2_= round(Rnew_2_ * correction,2)
 
 percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 25.0)/100)
 
