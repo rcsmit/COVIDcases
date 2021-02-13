@@ -67,8 +67,8 @@ showcummulative = st.sidebar.checkbox("Show cummulative / SIR")
 
 showimmunization = st.sidebar.checkbox("Immunization", True)
 
-showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
-#showSIR = False
+#showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
+showSIR = False
 
 if showcummulative or showSIR:
     numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero', 130000))
