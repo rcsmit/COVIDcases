@@ -59,16 +59,17 @@ Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
 
+lambdaa = st.sidebar.slider('Lambda / heterogeneity', 1.0, 6.0, 1.0)
 averagedayssick = (st.sidebar.slider('Average days infectious', 1, 30, 20))
 # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
-showcummulative = st.sidebar.checkbox("Show cummulative / SIR")
+showcummulative = st.sidebar.checkbox("Show cummulative / SIR", True)
 
 
 
 showimmunization = st.sidebar.checkbox("Immunization", True)
 
-#showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
-showSIR = False
+showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
+#showSIR = False
 
 if showcummulative or showSIR:
     numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero', 130000))
@@ -205,8 +206,8 @@ if showimmunization:
 for t in range(1, NUMBEROFDAYS):
     if showimmunization:
         immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
-        ry1_ = ry1x[0]*immeratio
-        ry2_ = ry2x[0]*immeratio
+        ry1_ = ry1x[0]*(immeratio**lambdaa)
+        ry2_ = ry2x[0]*(immeratio**lambdaa)
         immeratio_.append(immeratio)
     else:
         ry1_ = ry1x[0]
@@ -350,7 +351,7 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
-    disclaimerimm = ('<div class=\"infobox\"><p>The flattening  is very indicational. '
+    disclaimerimm = ('<div class=\"infobox\"><p>The flattening  is very indicational. It is based on the principe R<sub>t</sub> = R<sub>start</sub> x (Suspectible / Population)<sup>λ</sup>. '
             'A lot of factors are not taken into account. For illustration puropose only.'
         'The number of test is multiplied by ' +str(testimmunefactor)+ ' to get an estimation of the number of immune persons</div>'
         )
@@ -601,7 +602,8 @@ if showSIR:
 
     gamma = 1./Tg_
     Rstart = Rnew2_
-    beta = Rstart*gamma
+    #beta = Rstart*gamma
+    beta = Rstart*gamma/(S0/N)
     #beta, gamma = 0.2, 1./20
 
     # reproductionrate = beta / gamma
@@ -674,7 +676,7 @@ if showSIR:
                      'here</a> for an explanation. '
                      'It is based on the number of immune peope at the start   ' +str(totalimmunedayzero)+ ' and '
                      'the population size</p>'
-                     '<p>Beta : ' + str(beta) + ' / Gamma : ' + str(gamma) + ' / R<sub>0</sub> : '+ str(Rstart) + '</p>'
+                     '<p>Beta : ' + str(round(beta,4)) + ' / Gamma : ' + str(gamma) + ' / R<sub>0</sub> : '+ str(Rstart) + '</p>'
                      '</div>'
         )
 
@@ -682,69 +684,71 @@ if showSIR:
    
     # Plot the data on three separate curves for S(t), I(t) and R(t)
     fig2a = plt.figure(facecolor='w')
-    ax = fig2a.add_subplot(111, facecolor='#dddddd', axisbelow=True)
-    ax.plot(t, S, 'b', alpha=0.5, lw=2, label='Susceptible')
-    ax.plot(t, I, 'r', alpha=0.5, lw=2, label='Infected')
-    ax.plot(t, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
-    ax.plot(t, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
+    #ax = fig2a.add_subplot(111, facecolor='#dddddd', axisbelow=True)
+    ax = fig2a.add_subplot(111, axisbelow=True)
+    ax.plot(x, S, 'b', alpha=0.5, lw=2, label='Susceptible')
+    ax.plot(x, I, 'r', alpha=0.5, lw=2, label='Infected')
+    ax.plot(x, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
+    ax.plot(x, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
     #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('Number')
     #ax.set_ylim(0,1.2)
     ax.yaxis.set_tick_params(length=0)
     ax.xaxis.set_tick_params(length=0)
-    ax.grid(b=True, which='major', c='w', lw=2, ls='-')
-    legend = ax.legend()
-    legend.get_frame().set_alpha(0.5)
-    for spine in ('top', 'right', 'bottom', 'left'):
-        ax.spines[spine].set_visible(False)
+    #ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+    #legend = ax.legend()
+    #legend.get_frame().set_alpha(0.5)
+    #for spine in ('top', 'right', 'bottom', 'left'):
+    #    ax.spines[spine].set_visible(False)
     titlex = 'SIR based on cases first day'
-    #configgraph(titlex)
+    configgraph(titlex)
     plt.show()
     st.pyplot(fig2a)
 
 
     # New cases
     fig2c = plt.figure(facecolor='w')
-    ax = fig2c.add_subplot(111, facecolor='#dddddd', axisbelow=True)
+    ax = fig2c.add_subplot(111,  axisbelow=True)
     #ax.plot(t, C, 'green', alpha=0.5, lw=2, label='Cases')
-    ax.plot(t, Cnew, 'y', alpha=0.5, lw=2, label='New Cases')
+    ax.plot(x, Cnew, 'y', alpha=0.5, lw=2, label='New Cases')
     #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('Number')
     #ax.set_ylim(0,1.2)
     ax.yaxis.set_tick_params(length=0)
     ax.xaxis.set_tick_params(length=0)
-    ax.grid(b=True, which='major', c='w', lw=2, ls='-')
-    legend = ax.legend()
-    legend.get_frame().set_alpha(0.5)
-    for spine in ('top', 'right', 'bottom', 'left'):
-        ax.spines[spine].set_visible(False)
-    titlex = 'SIR based on cases first day'
-    #configgraph(titlex)
+    # ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+    # legend = ax.legend()
+    # legend.get_frame().set_alpha(0.5)
+    # for spine in ('top', 'right', 'bottom', 'left'):
+    #     ax.spines[spine].set_visible(False)
+    titlex = 'New cases'
+    configgraph(titlex)
     plt.show()
     st.pyplot(fig2c)
 
     # Gliding R number
     fig2b = plt.figure(facecolor='w')
-    ax = fig2b.add_subplot(111, facecolor='#dddddd', axisbelow=True)
-    ax.plot(t, repr, 'b', alpha=0.5, lw=2, label='R getal_ based on Cnew')
+    ax = fig2b.add_subplot(111,  axisbelow=True)
+    ax.plot(x, repr, 'b', alpha=0.5, lw=2, label='R getal_ based on Cnew')
     #ax.plot(t, repr_i, 'b', alpha=0.5, lw=2, label='R getal based on I')
     #ax.plot(t, repr_c, 'g', alpha=0.5, lw=2, label='R getal based on C')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('R getal')
     #ax.set_ylim(0,2)
     ax.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-    ax.grid(b=True, which='major', c='w', lw=2, ls='-')
-    legend = ax.legend()
+    # ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+    # legend = ax.legend()
     titlex = "Gliding R-number"
-    #configgraph(titlex)
+    configgraph(titlex)
     plt.show()
     st.pyplot(fig2b)
     
     st.write  ("attack rate growth model : " +        str(round(100*((recovered[days-1])/N),2))+ " %")
     st.write  ("attack rate classical SIR model : " + str(round(100*((C[days-1])        /N),2))+ " %")
-    
+    st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
+    st.write ("Attack rate = final size of the epidemic (FSE) ")
     repr=[]
 
 #####################################################
