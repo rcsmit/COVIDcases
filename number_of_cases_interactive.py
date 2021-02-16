@@ -336,7 +336,8 @@ for t in range(1, NUMBEROFDAYS):
 st.title('Positive COVID-tests in NL')
 
 disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
-               '<div class=\"infobox\"><p>Attention: these results are different from the official models'
+               '<div class=\"infobox\"><h1>Disclaimer</h1><p>For illustration purpose only.</p>'
+               '<p>Attention: these results are different from the official models'
                ' probably due to simplifications and different (secret) parameters.'
                '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>) '
                 'The default parameters on this site are the latest known parameters of the RIVM'
@@ -344,30 +345,16 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                 'They are not predictions of what <em>will</em> occur. Actual results may vary substantially. </p>'
                  '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
               'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
-#like shown in https://twitter.com/gerardv/status/1351186187617185800<br>'
-#'Parameters adapted at 24/01 to align with the graph shown in https://twitter.com/DanielTuijnman/status/1352250384077750274/photo/2')
-#  '<p><b>This model is a simple growth model and doesn\'t take immunity into account like SEIR-models. </b></p>'
-#     'In reality the curves will flatten and the numbers will drop due to measures, immunity and/or vaccination at a certain moment. '
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
     disclaimerimm = ('<div class=\"infobox\"><p>The flattening  is very indicational. It is based on the principe R<sub>t</sub> = R<sub>start</sub> x (Suspectible / Population)<sup>λ</sup>. '
-            'A lot of factors are not taken into account. For illustration puropose only.'
+            'A lot of factors are not taken into account.'
         'The number of test is multiplied by ' +str(testimmunefactor)+ ' to get an estimation of the number of immune persons</div>'
         )
 
     st.markdown(disclaimerimm, unsafe_allow_html=True)
 #        'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
-
-# '<font face=\'courier new\'>'
-#         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-#         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-#         '   people immune<sub>t</sub> - people immune<sub>t=0</sub><br>'
-#         'R<sub>t</sub> =  R<sub>0</sub> * ( 1 - -------------------------------------- )<br>'
-#         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-#                        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-
-#         'total population - people immune<sub>t=0</sub>   </font> </p>'
 
 def th2r(rz):
     th = int( Tg_ * math.log(0.5) / math.log(rz))
@@ -578,7 +565,6 @@ if showSIR:
    
     # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
 
-
     # Total population, N.
     #N = int(input("Total population, N "))
     #if N == 0 :
@@ -591,7 +577,6 @@ if showSIR:
     C0 = I0
     days = NUMBEROFDAYS
 
-    #
     # Contact rate, beta, and mean recovery rate, gamma, (in 1/days).
     #beta, gamma = 0.2, 1./10
     ##beta = float(input("Contact rate - beta [0-1] "))
@@ -775,6 +760,7 @@ links = (
 
 '<h3>Other (SEIR) models</h3><ul>'
 '<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
+'<li><a href=\"https://www.covidsim.org" target=\"_blank\">COVID-19 Scenario Analysis Tool (Imperial College London)</a></li>'
 '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
 '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
 '<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>'
