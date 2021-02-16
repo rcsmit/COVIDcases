@@ -336,7 +336,7 @@ for t in range(1, NUMBEROFDAYS):
 st.title('Positive COVID-tests in NL')
 
 disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
-               '<div class=\"infobox\"><h1>Disclaimer</h1><p>For illustration purpose only.</p>'
+               '<div class=\"infobox\"><h3>Disclaimer</h3><p>For illustration purpose only.</p>'
                '<p>Attention: these results are different from the official models'
                ' probably due to simplifications and different (secret) parameters.'
                '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>) '
