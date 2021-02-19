@@ -761,6 +761,7 @@ links = (
 '<h3>Other (SEIR) models</h3><ul>'
 '<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
 '<li><a href=\"https://www.covidsim.org" target=\"_blank\">COVID-19 Scenario Analysis Tool (Imperial College London)</a></li>'
+'<li><a href=\"http://www.covidsim.eu/" target=\"_blank\">CovidSIM/a></li>'
 '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
 '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
 '<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>'
