@@ -266,9 +266,9 @@ disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SEIR-graphs</h1>'
                     ' the story from Willemijn Coene about Hobbeland</a></p>'
 
                     
-                     '<p> See <a href=\"https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\"'
+                     '<p> See also <a href=\"https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\"'
                     ' target=\"_blank\">'
-                    'for my illustrative and simple model about the Netherlands</a>. </p>'
+                    'my illustrative and simple model about the Netherlands</a>. </p>'
 
 
                     
