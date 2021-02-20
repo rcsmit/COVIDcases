@@ -55,7 +55,7 @@ NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 100)
 global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 
-Rstart = st.sidebar.slider('R-number first variant', 0.1, 10.0, 2.5)
+Rstart = st.sidebar.slider('R-number R0', 0.1, 10.0, 2.5)
 
 
 incubationtime = (st.sidebar.slider('Incubatietijd (1/alfa)', 1, 30, 3))
@@ -65,7 +65,7 @@ infectioustime = (st.sidebar.slider('Average days infectious (1/gamma)', 1, 30, 
 
 
 
-totalpopulation_ = (st.sidebar.text_input('Total population', 10_000_000))
+totalpopulation_ = (st.sidebar.text_input('Total population (N)', 10_000_000))
 
 try:
     totalpopulation = int(totalpopulation_)
