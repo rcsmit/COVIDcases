@@ -19,6 +19,8 @@ from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 _lock = RendererAgg.lock
 from scipy.integrate import odeint
+import pandas as pd
+
 
 # VARIABLES
 # startdate in mm/dd/yyyy
@@ -399,15 +401,16 @@ def configgraph(titlex):
     plt.gcf().autofmt_xdate()
     plt.gca().set_title(titlex , fontsize=10)
 
+
+
+
+
 # POS TESTS /day ################################
 with _lock:
     fig1, ax = plt.subplots()
     plt.plot(x, positivetests1, label=label1,  linestyle='--')
     plt.plot(x, positivetests2, label=label2,  linestyle='--')
     plt.plot(x, positivetests12, label='Total')
-    positivetests1 = []
-    positivetests2 = []
-    positivetest12 = []
     
     # Add X and y Label and limits
     plt.ylabel('positive tests per day')
@@ -454,6 +457,47 @@ with _lock:
     configgraph(titlex)
 
     st.pyplot(fig1d)
+
+
+####### SHOW TOTAL  CASES PER WEEK
+# inspired by https://twitter.com/steeph/status/1363865443467952128
+output = pd.DataFrame(
+    {'date': x,
+     'First_variant': positivetests1,
+     'Second_variant': positivetests2
+    })
+#st.write(output)
+
+
+output['date'] =  pd.to_datetime(output['date'],  unit='D',
+               origin=pd.Timestamp('1970-01-01'))
+# output['week_number_of_year'] = output['date'].dt.week
+# output['year'] = output['date'].dt.year
+# output["weeknr"] = output["year"].astype(str) + ' ' + output["week_number_of_year"].astype(str)
+# output['weekday'] = output['date'].dt.strftime('%U')
+#output["weeknr"] = output['date'].dt.year.astype(str) + ' - ' +  output['date'].dt.isocalendar().week.astype(str)
+output["weeknr"] =  output['date'].dt.isocalendar().week
+     
+
+output = output.groupby("weeknr").sum()
+
+
+with st.beta_expander("Show bargraph per week - Attention - doesn't display well when there are two years involved and/or the weeks aren't complete. Weeks are Monday until Sunday"):
+    fig1x = plt.figure()
+    output.plot()
+    plt.legend(loc='best')
+    #st.pyplot(fig1x)
+    #st.write(fig1x)
+    titlex="Number of casees per week"
+    configgraph(titlex)
+
+    st.bar_chart(output)
+    
+
+positivetests1 = []
+positivetests2 = []
+positivetest12 = []
+   
 
 # Show cummulative cases
 if showcummulative:
@@ -562,179 +606,183 @@ hospital = []
 ic = []
 ################################################
 if showSIR:
+
+    with st.beta_expander("Show classical SIR-graphs"):
    
-    # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
 
-    # Total population, N.
-    #N = int(input("Total population, N "))
-    #if N == 0 :
-    N = int(totalpopulation)
-    
-    # Initial number of infected and recovered individuals, I0 and R0.
-    I0, R0 = int(numberofcasesdayz), totalimmunedayzero
-    # Everyone else, S0, is susceptible to infection initially.
-    S0 = N - I0 -  R0
-    C0 = I0
-    days = NUMBEROFDAYS
 
-    # Contact rate, beta, and mean recovery rate, gamma, (in 1/days).
-    #beta, gamma = 0.2, 1./10
-    ##beta = float(input("Contact rate - beta [0-1] "))
-    #gamma = 1/int(input("Mean recovery rate in days - 1/gamma  "))
+        # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
 
-    # Gamma is 1/serial interval
-    # https://wwwnc.cdc.gov/eid/article/26/6/20-0357_article
-
-    gamma = 1./Tg_
-    Rstart = Rnew2_
-    #beta = Rstart*gamma
-    beta = Rstart*gamma/(S0/N)
-    #beta, gamma = 0.2, 1./20
-
-    # reproductionrate = beta / gamma
-
-    # β describes the effective contact rate of the disease: 
-    # an infected individual comes into contact with βN other 
-    # individuals per unit time (of which the fraction that are
-    # susceptible to contracting the disease is S/N).
-    # 1/gamma is recovery rate in days 
-
-    # A grid of time points (in days)
-    t = np.linspace(0, days, days)
-
-    # The SIR model differential equations.
-    # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
-    def deriv(y, t, N, beta, gamma):
-        S, I, C, R = y
-        dSdt = -beta * S * I / N   # aantal zieke mensen x aantal gezonde mensen x beta
-        dIdt = beta * S * I / N - gamma * I
-        dCdt = beta * S * I / N 
-        dRdt = gamma * I
+        # Total population, N.
+        #N = int(input("Total population, N "))
+        #if N == 0 :
+        N = int(totalpopulation)
         
-        #print (dIdt)
+        # Initial number of infected and recovered individuals, I0 and R0.
+        I0, R0 = int(numberofcasesdayz), totalimmunedayzero
+        # Everyone else, S0, is susceptible to infection initially.
+        S0 = N - I0 -  R0
+        C0 = I0
+        days = NUMBEROFDAYS
 
-        # (n2/n1)^(Tg/t) 
-        return dSdt, dIdt, dRdt, dCdt
+        # Contact rate, beta, and mean recovery rate, gamma, (in 1/days).
+        #beta, gamma = 0.2, 1./10
+        ##beta = float(input("Contact rate - beta [0-1] "))
+        #gamma = 1/int(input("Mean recovery rate in days - 1/gamma  "))
 
-    # Initial conditions vector
-    y0 = S0, I0, C0, R0
-    # Integrate the SIR equations over the time grid, t.
-    ret = odeint(deriv, y0, t, args=(N, beta, gamma))
-    S, I, C, R  = ret.T
+        # Gamma is 1/serial interval
+        # https://wwwnc.cdc.gov/eid/article/26/6/20-0357_article
 
+        gamma = 1./Tg_
+        Rstart = Rnew2_
+        #beta = Rstart*gamma
+        beta = Rstart*gamma/(S0/N)
+        #beta, gamma = 0.2, 1./20
 
-    Tg = Tg_
-    d = 1
-    repr=[]
-    repr.append(Rstart)
-    repr_c=[]
-    repr_i=[]
-    repr_c.append(None)
-    repr_i.append(None)
-    t = np.linspace(0, days, days)
-    #print (I)
-    Cnew=[]
-    #Cnew.append(int(numberofcasesdayz))
-    Cnew.append(None)
-    for time in range(1,days):
-        Cnew.append(C[time]-C[time-1])
-       
-        #if Cnew[time-1] == None:
-        if time == 1: 
-            repr_ = None
-            repr_c_ = None
-            repr_i_ = None
-        else:
-            #repr_= (C[time]/C[time-1])**(Tg/d) 
-            repr_= (Cnew[time]/Cnew[time-1])**(Tg/d) 
-            repr_c_= (C[time]/C[time-1])**(Tg/d) 
-            repr_i_= (I[time]/I[time-1])**(Tg/d) 
-        #repr_= (I[time]/I[time-1])    
-        repr.append(repr_)
-        repr_c.append(repr_c_)
-        repr_i.append(repr_i_)
+        # reproductionrate = beta / gamma
 
-    disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SIR-graphs</h1>'
-                     '<p>These graphs are based on classical SIR models.'
-                     ' See <a href=\"https://web.stanford.edu/~jhj1/teachingdocs/Jones-on-R0.pdf\"'
-                     ' target=\"_blank\">'
-                     'here</a> for an explanation. '
-                     'It is based on the number of immune peope at the start   ' +str(totalimmunedayzero)+ ' and '
-                     'the population size</p>'
-                     '<p>Beta : ' + str(round(beta,4)) + ' / Gamma : ' + str(gamma) + ' / R<sub>0</sub> : '+ str(Rstart) + '</p>'
-                     '</div>'
-        )
+        # β describes the effective contact rate of the disease: 
+        # an infected individual comes into contact with βN other 
+        # individuals per unit time (of which the fraction that are
+        # susceptible to contracting the disease is S/N).
+        # 1/gamma is recovery rate in days 
 
-    st.markdown(disclaimerSIR, unsafe_allow_html=True)
-   
-    # Plot the data on three separate curves for S(t), I(t) and R(t)
-    fig2a = plt.figure(facecolor='w')
-    #ax = fig2a.add_subplot(111, facecolor='#dddddd', axisbelow=True)
-    ax = fig2a.add_subplot(111, axisbelow=True)
-    ax.plot(x, S, 'b', alpha=0.5, lw=2, label='Susceptible')
-    ax.plot(x, I, 'r', alpha=0.5, lw=2, label='Infected')
-    ax.plot(x, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
-    ax.plot(x, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
-    #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
-    ax.set_xlabel('Time (days)')
-    ax.set_ylabel('Number')
-    #ax.set_ylim(0,1.2)
-    ax.yaxis.set_tick_params(length=0)
-    ax.xaxis.set_tick_params(length=0)
-    #ax.grid(b=True, which='major', c='w', lw=2, ls='-')
-    #legend = ax.legend()
-    #legend.get_frame().set_alpha(0.5)
-    #for spine in ('top', 'right', 'bottom', 'left'):
-    #    ax.spines[spine].set_visible(False)
-    titlex = 'SIR based on cases first day'
-    configgraph(titlex)
-    plt.show()
-    st.pyplot(fig2a)
+        # A grid of time points (in days)
+        t = np.linspace(0, days, days)
+
+        # The SIR model differential equations.
+        # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
+        def deriv(y, t, N, beta, gamma):
+            S, I, C, R = y
+            dSdt = -beta * S * I / N   # aantal zieke mensen x aantal gezonde mensen x beta
+            dIdt = beta * S * I / N - gamma * I
+            dCdt = beta * S * I / N 
+            dRdt = gamma * I
+            
+            #print (dIdt)
+
+            # (n2/n1)^(Tg/t) 
+            return dSdt, dIdt, dRdt, dCdt
+
+        # Initial conditions vector
+        y0 = S0, I0, C0, R0
+        # Integrate the SIR equations over the time grid, t.
+        ret = odeint(deriv, y0, t, args=(N, beta, gamma))
+        S, I, C, R  = ret.T
 
 
-    # New cases
-    fig2c = plt.figure(facecolor='w')
-    ax = fig2c.add_subplot(111,  axisbelow=True)
-    #ax.plot(t, C, 'green', alpha=0.5, lw=2, label='Cases')
-    ax.plot(x, Cnew, 'y', alpha=0.5, lw=2, label='New Cases')
-    #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
-    ax.set_xlabel('Time (days)')
-    ax.set_ylabel('Number')
-    #ax.set_ylim(0,1.2)
-    ax.yaxis.set_tick_params(length=0)
-    ax.xaxis.set_tick_params(length=0)
-    # ax.grid(b=True, which='major', c='w', lw=2, ls='-')
-    # legend = ax.legend()
-    # legend.get_frame().set_alpha(0.5)
-    # for spine in ('top', 'right', 'bottom', 'left'):
-    #     ax.spines[spine].set_visible(False)
-    titlex = 'New cases'
-    configgraph(titlex)
-    plt.show()
-    st.pyplot(fig2c)
+        Tg = Tg_
+        d = 1
+        repr=[]
+        repr.append(Rstart)
+        repr_c=[]
+        repr_i=[]
+        repr_c.append(None)
+        repr_i.append(None)
+        t = np.linspace(0, days, days)
+        #print (I)
+        Cnew=[]
+        #Cnew.append(int(numberofcasesdayz))
+        Cnew.append(None)
+        for time in range(1,days):
+            Cnew.append(C[time]-C[time-1])
+        
+            #if Cnew[time-1] == None:
+            if time == 1: 
+                repr_ = None
+                repr_c_ = None
+                repr_i_ = None
+            else:
+                #repr_= (C[time]/C[time-1])**(Tg/d) 
+                repr_= (Cnew[time]/Cnew[time-1])**(Tg/d) 
+                repr_c_= (C[time]/C[time-1])**(Tg/d) 
+                repr_i_= (I[time]/I[time-1])**(Tg/d) 
+            #repr_= (I[time]/I[time-1])    
+            repr.append(repr_)
+            repr_c.append(repr_c_)
+            repr_i.append(repr_i_)
 
-    # Gliding R number
-    fig2b = plt.figure(facecolor='w')
-    ax = fig2b.add_subplot(111,  axisbelow=True)
-    ax.plot(x, repr, 'b', alpha=0.5, lw=2, label='R getal_ based on Cnew')
-    #ax.plot(t, repr_i, 'b', alpha=0.5, lw=2, label='R getal based on I')
-    #ax.plot(t, repr_c, 'g', alpha=0.5, lw=2, label='R getal based on C')
-    ax.set_xlabel('Time (days)')
-    ax.set_ylabel('R getal')
-    #ax.set_ylim(0,2)
-    ax.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-    # ax.grid(b=True, which='major', c='w', lw=2, ls='-')
-    # legend = ax.legend()
-    titlex = "Gliding R-number"
-    configgraph(titlex)
-    plt.show()
-    st.pyplot(fig2b)
+        disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SIR-graphs</h1>'
+                        '<p>These graphs are based on classical SIR models.'
+                        ' See <a href=\"https://web.stanford.edu/~jhj1/teachingdocs/Jones-on-R0.pdf\"'
+                        ' target=\"_blank\">'
+                        'here</a> for an explanation. '
+                        'It is based on the number of immune peope at the start   ' +str(totalimmunedayzero)+ ' and '
+                        'the population size</p>'
+                        '<p>Beta : ' + str(round(beta,4)) + ' / Gamma : ' + str(gamma) + ' / R<sub>0</sub> : '+ str(Rstart) + '</p>'
+                        '</div>'
+            )
+
+        st.markdown(disclaimerSIR, unsafe_allow_html=True)
     
-    st.write  ("attack rate growth model : " +        str(round(100*((recovered[days-1])/N),2))+ " %")
-    st.write  ("attack rate classical SIR model : " + str(round(100*((C[days-1])        /N),2))+ " %")
-    st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
-    st.write ("Attack rate = final size of the epidemic (FSE) ")
-    repr=[]
+        # Plot the data on three separate curves for S(t), I(t) and R(t)
+        fig2a = plt.figure(facecolor='w')
+        #ax = fig2a.add_subplot(111, facecolor='#dddddd', axisbelow=True)
+        ax = fig2a.add_subplot(111, axisbelow=True)
+        ax.plot(x, S, 'b', alpha=0.5, lw=2, label='Susceptible')
+        ax.plot(x, I, 'r', alpha=0.5, lw=2, label='Infected')
+        ax.plot(x, Cnew, 'yellow', alpha=0.5, lw=2, label='New Cases')
+        ax.plot(x, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
+        #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
+        ax.set_xlabel('Time (days)')
+        ax.set_ylabel('Number')
+        #ax.set_ylim(0,1.2)
+        ax.yaxis.set_tick_params(length=0)
+        ax.xaxis.set_tick_params(length=0)
+        #ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+        #legend = ax.legend()
+        #legend.get_frame().set_alpha(0.5)
+        #for spine in ('top', 'right', 'bottom', 'left'):
+        #    ax.spines[spine].set_visible(False)
+        titlex = 'SIR based on cases first day'
+        configgraph(titlex)
+        plt.show()
+        st.pyplot(fig2a)
+
+
+        # New cases
+        fig2c = plt.figure(facecolor='w')
+        ax = fig2c.add_subplot(111,  axisbelow=True)
+        #ax.plot(t, C, 'green', alpha=0.5, lw=2, label='Cases')
+        ax.plot(x, Cnew, 'y', alpha=0.5, lw=2, label='New Cases')
+        #ax.plot(t, repr, 'yellow', alpha=0.5, lw=2, label='R getal')
+        ax.set_xlabel('Time (days)')
+        ax.set_ylabel('Number')
+        #ax.set_ylim(0,1.2)
+        ax.yaxis.set_tick_params(length=0)
+        ax.xaxis.set_tick_params(length=0)
+        # ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+        # legend = ax.legend()
+        # legend.get_frame().set_alpha(0.5)
+        # for spine in ('top', 'right', 'bottom', 'left'):
+        #     ax.spines[spine].set_visible(False)
+        titlex = 'New cases'
+        configgraph(titlex)
+        plt.show()
+        st.pyplot(fig2c)
+
+        # Gliding R number
+        fig2b = plt.figure(facecolor='w')
+        ax = fig2b.add_subplot(111,  axisbelow=True)
+        ax.plot(x, repr, 'b', alpha=0.5, lw=2, label='R getal_ based on Cnew')
+        #ax.plot(t, repr_i, 'b', alpha=0.5, lw=2, label='R getal based on I')
+        #ax.plot(t, repr_c, 'g', alpha=0.5, lw=2, label='R getal based on C')
+        ax.set_xlabel('Time (days)')
+        ax.set_ylabel('R getal')
+        #ax.set_ylim(0,2)
+        ax.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+        # ax.grid(b=True, which='major', c='w', lw=2, ls='-')
+        # legend = ax.legend()
+        titlex = "Gliding R-number"
+        configgraph(titlex)
+        plt.show()
+        st.pyplot(fig2b)
+        
+        st.write  ("attack rate growth model : " +        str(round(100*((recovered[days-1])/N),2))+ " %")
+        st.write  ("attack rate classical SIR model : " + str(round(100*((C[days-1])        /N),2))+ " %")
+        st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
+        st.write ("Attack rate = final size of the epidemic (FSE) ")
+        repr=[]
 
 #####################################################
 
