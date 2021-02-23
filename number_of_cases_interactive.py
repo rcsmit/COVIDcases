@@ -351,7 +351,7 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                
                
                '<img src=/"https://i.imgur.com/QEXWTkN.png"/ border=0></a></p>'
-               </div>')
+               '</div>')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
