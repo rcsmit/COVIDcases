@@ -346,7 +346,11 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                 '</p><p>Forward-looking projections are estimates of what <em>might</em> occur. '
                 'They are not predictions of what <em>will</em> occur. Actual results may vary substantially. </p>'
                  '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
-              'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
+              'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>'
+              
+              '<p>'
+              '<script type=/"text/javascript/" src=/"https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js/" data-name=/"bmc-button/" data-slug=/"rcsmit/" data-color=/"#FFDD00/" data-emoji=/"/" data-font=/"Lato/" data-text=/"Buy me a coffee/" data-outline-color=/"#000000/" data-font-color=/"#000000/" data-coffee-color=/"#ffffff/" ></script>'
+              '</p>')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
