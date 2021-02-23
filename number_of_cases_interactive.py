@@ -349,8 +349,8 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
               'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>'
               
               '<p>'
-              '<script type=/"text/javascript/" src=/"https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js/" data-name=/"bmc-button/" data-slug=/"rcsmit/" data-color=/"#FFDD00/" data-emoji=/"/" data-font=/"Lato/" data-text=/"Buy me a coffee/" data-outline-color=/"#000000/" data-font-color=/"#000000/" data-coffee-color=/"#ffffff/" ></script>'
-              '</p>')
+               <a href=\"https://www.buymeacoffee.com/rcsmit\" target=\"_blank\"><img src=/"https://yepcheck.com/printbak/buymeacoffee.png"/></a>  '
+               '</p>')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
