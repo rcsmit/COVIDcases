@@ -349,7 +349,7 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
               'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>'
               
               '<p>'
-              ' <a href=\"https://www.buymeacoffee.com/rcsmit\" target=\"_blank\"><img src=/"https://yepcheck.com/printbak/buymeacoffee.png"/></a>  '
+              '<center><a href=\"https://www.buymeacoffee.com/rcsmit\" target=\"_blank\"><img src=/"https://www.yepcheck.com/printbak/buymeacoffee.png"/></a> </center> '
                '</p>')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
