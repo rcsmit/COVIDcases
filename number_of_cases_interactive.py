@@ -346,7 +346,12 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                 '</p><p>Forward-looking projections are estimates of what <em>might</em> occur. '
                 'They are not predictions of what <em>will</em> occur. Actual results may vary substantially. </p>'
                  '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
-              'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
+              'At the bottom of the page are some links to more advanced (SEIR) models.</p>
+               '<p align=/"center/"><a href=\"https://www.buymeacoffee.com/rcsmit\" target=\"_blank\">'
+               
+               
+               '<img src=/"https://i.imgur.com/QEXWTkN.png"/ border=0></a></p>'
+               </div>')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
