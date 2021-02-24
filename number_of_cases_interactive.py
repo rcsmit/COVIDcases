@@ -37,7 +37,7 @@ st.sidebar.title('Parameters')
 numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
 
 st.markdown("<hr>", unsafe_allow_html=True)
-a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/29/2021")
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"02/05/2021")
 
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
@@ -49,13 +49,13 @@ NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
 global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 
-Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.84)
-Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
+Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.89)
+Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.13)
 correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
 Rnew1_= round(Rnew_1_ * correction,2)
 Rnew2_= round(Rnew_2_ * correction,2)
 
-percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 43.0)/100)
+percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 50.0)/100)
 
 Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
