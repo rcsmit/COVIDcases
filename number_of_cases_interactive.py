@@ -57,7 +57,7 @@ Rnew2_= round(Rnew_2_ * correction,2)
 
 percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 50.0)/100)
 
-Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
+Tg = st.sidebar.slider('Generation time', 1.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
 
