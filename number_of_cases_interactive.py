@@ -49,7 +49,7 @@ NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
 global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 
-Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.02)
+Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 1.02)
 Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.26)
 correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
 Rnew1_= round(Rnew_1_ * correction,2)
