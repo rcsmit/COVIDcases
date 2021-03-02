@@ -34,10 +34,10 @@ b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
-numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4569)
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,3375)
 
 st.markdown("<hr>", unsafe_allow_html=True)
-a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"03/02/2021")
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"02/12/2021")
 
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
