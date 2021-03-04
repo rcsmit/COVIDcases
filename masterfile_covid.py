@@ -18,6 +18,7 @@
 # corrigeren vd merge functie 
 
 # 3 maart
+# added restrictions (file van @HK_nien, MIT-licence)
 # downloaden en mergen hospital admission
 # downloaden en mergen r-getal RIVM
 # alles omgezet in functies
@@ -50,8 +51,7 @@ import urllib.request
 from pathlib import Path
 
 from inspect import currentframe, getframeinfo
-global log 
-log = False
+
 # R-numbers from 'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json'
 # Google mobilty from https://www.google.com/covid19/mobility/?hl=nl
 # Apple mobility from https://covid19.apple.com/mobility
@@ -91,13 +91,12 @@ def download_mobR():
     
     return df_mobR
 def download_hospital_admissions():
-    download = False
     if download == True :
         # Code by Han-Kwang Nienhuys - MIT License
         url='https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv'
         #url="https://lcps.nu/wp-content/uploads/covid-19.csv"
         fpath = Path('covid19_seir_models\COVID-19_ziekenhuisopnames.csv')
-        print(f'Getting new daily case statistics file...')
+        print(f'Getting new daily case statistics file ziekenhuisopnames. ..')
         with urllib.request.urlopen(url) as response:
             data_bytes = response.read()
             fpath.write_bytes(data_bytes)
@@ -128,7 +127,7 @@ def download_hospital_admissions():
     return df_hospital
 def download_lcps():
 
-    download = False
+    
     if download == True :
         # Code by Han-Kwang Nienhuys - MIT License
         url='https://lcps.nu/wp-content/uploads/covid-19.csv'
@@ -166,8 +165,9 @@ def download_lcps():
 
 def download_reproductiegetal():
     #https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json
-    download = True
+    
     if download == True:
+        print ("Download reproductiegetal-file")
         df_reprogetal = pd.read_json (r'covid19_seir_models\COVID-19_reproductiegetal.json')
         # url = 'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json'
         
@@ -182,12 +182,16 @@ def download_reproductiegetal():
                     delimiter=',',
                     #delimiter=',',
                     low_memory=False)
+
+                    
+    df_reprogetal['Date']=pd.to_datetime(df_reprogetal['Date'], format="%Y-%m-%d")
+    
     print (df_reprogetal.dtypes)
     return df_reprogetal
 
     
 def download_testen():
-    download = False
+   
     if download == True :
         # Code by Han-Kwang Nienhuys - MIT License
         url='https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv'
@@ -574,7 +578,8 @@ def graph_week(dfweek):
     plt.show()
 def main():
     
-
+    global download 
+    download = False
     
     df, dfweek, werkdagen, weekend_ = get_data()
     
