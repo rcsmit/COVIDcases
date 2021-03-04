@@ -64,7 +64,7 @@ def download_mobR():
 
 
     df_mobR = pd.read_csv(
-                    r'covid19_seir_models\mobilityR.csv',
+                    r'covid19_seir_models\mobility.csv',
                     delimiter=';',
                     low_memory=False
                 )
@@ -76,7 +76,7 @@ def download_mobR():
 
     # SMOOTH ROLLING AVERAGES
     # 7 days average
-    WDW = 3
+    
     df_mobR['Rt_avg_SMA'] =df_mobR.iloc[:,9].rolling(window=WDW).mean()
     # df['retail_and_recreation_SMA'] = df.iloc[:,2].rolling(window=WDW).mean()
     # df['grocery_and_pharmacy_SMA'] = df.iloc[:,3].rolling(window=WDW).mean()
@@ -90,6 +90,7 @@ def download_mobR():
     # #df['apple_walking_SMA'] = df.iloc[:,14].rolling(window=WDW).mean()
     
     return df_mobR
+
 def download_hospital_admissions():
     if download == True :
         # Code by Han-Kwang Nienhuys - MIT License
@@ -119,14 +120,13 @@ def download_hospital_admissions():
     #                         archive_name='out.csv')  
     # df_hospital.to_csv('outhospital.csv', index=False,
     #         compression=compression_opts)
-    WDW2 = 7
+    
     #print (df_hospital)
-    df_hospital['hosp_adm_notif_SMA'] = df_hospital.iloc[:,2].rolling(window=WDW2).mean()
-    df_hospital['hosp_admission_SMA'] = df_hospital.iloc[:,3].rolling(window=WDW2).mean()
-    df_hospital['hosp_admission_savgol'] = df_hospital['Hospital_admission'].transform(lambda x: savgol_filter(x, 7,2))
+    
     return df_hospital
-def download_lcps():
 
+def download_lcps():
+    """Download data from LCPS"""
     
     if download == True :
         # Code by Han-Kwang Nienhuys - MIT License
@@ -146,21 +146,19 @@ def download_lcps():
                     low_memory=False
                     
                 )
-    print (df_lcps)
-    print (df_lcps.dtypes)
+    # print (df_lcps)
+    # print (df_lcps.dtypes)
     # Datum,IC_Bedden_COVID,IC_Bedden_Non_COVID,Kliniek_Bedden,IC_Nieuwe_Opnames_COVID,Kliniek_Nieuwe_Opnames_COVID
     # datum is 2020-02-27
     df_lcps['Datum']=pd.to_datetime(df_lcps['Datum'], format="%d-%m-%Y")
-
+ 
     #df_lcps = df_lcps.groupby(["Datum"], sort=True).sum().reset_index()
 
     # compression_opts = dict(method=None,
     #                         archive_name='out.csv')  
     # df_hospital.to_csv('outhospital.csv', index=False,
     #         compression=compression_opts)
-    WDW2 = 7
-    print (df_lcps)
-    print (df_lcps.dtypes)
+    
     return df_lcps
 
 def download_reproductiegetal():
@@ -186,9 +184,8 @@ def download_reproductiegetal():
                     
     df_reprogetal['Date']=pd.to_datetime(df_reprogetal['Date'], format="%Y-%m-%d")
     
-    print (df_reprogetal.dtypes)
+    #print (df_reprogetal.dtypes)
     return df_reprogetal
-
     
 def download_testen():
    
@@ -205,7 +202,7 @@ def download_testen():
         #url="https://lcps.nu/wp-content/uploads/covid-19.csv"
 
         fpath = Path('covid19_seir_models\COVID-19_aantallen_gemeente_per_dag.csv')
-        print(f'Getting new daily case statistics file...')
+        print(f'Getting new daily case statistics file - testen - ...')
         with urllib.request.urlopen(url) as response:
             data_bytes = response.read()
             fpath.write_bytes(data_bytes)
@@ -222,6 +219,54 @@ def download_testen():
     df_testen = df_testen.groupby(["Date_of_publication"], sort=True).sum().reset_index()
 
     return df_testen
+###################################################################
+def get_data():
+
+    df_hospital = download_hospital_admissions()
+    #slidingRdf = walkingR(df_hospital, "Hospital_admission")
+    df_lcps = download_lcps()
+    df_mobR = download_mobR()  
+    df_testen = download_testen()
+    df_reprogetal = download_reproductiegetal()
+
+    
+    df = pd.merge(df_mobR, df_hospital, how='outer', left_on = 'date', right_on="Date_of_statistics")
+    df.loc[df["date"].isnull(),'date'] = df["Date_of_statistics"] 
+    df = pd.merge(df, df_lcps, how='outer', left_on = 'date', right_on="Datum")
+    df.loc[df["date"].isnull(),'date'] = df["Datum"] 
+    #df = pd.merge(df, slidingRdf, how='outer', left_on = 'date', right_on="date_sR", left_index=True )
+    
+    df = pd.merge(df, df_testen, how='outer', left_on = 'date', right_on="Date_of_publication", left_index=True )
+    df = pd.merge(df, df_reprogetal, how='outer', left_on = 'date', right_on="Date", left_index=True )
+    
+    
+    df = df.sort_values(by=['date'])
+    df = splitupweekweekend(df)
+    # last_manipulations(df, what_to_drop, show_from, show_until,drop_last):
+    # df, werkdagen, weekend_ = last_manipulations(df, None, None, '2021-1-1', None)
+    df = last_manipulations(df, None, '2021-1-1', None, None)
+    #df = move_column(name, 5)
+    #dfweek = agg_week(df)
+    #print (df)
+    #print (df.dtypes)
+    save_df(df, "algemeen")
+    
+    #return df, dfweek, werkdagen, weekend_
+    return df
+###################################################
+def add_SMA(df,columns):
+    
+    if type(columns) == list:
+        columns_=columns
+    else:
+        columns_=[columns]
+
+    for c in columns_:
+        new_column = c + '_SMA_' + str(WDW2)
+        
+        df[new_column] = df.iloc[:,df.columns.get_loc(c)].rolling(window=WDW2).mean()
+    return df
+
 def splitupweekweekend(df):
     # SPLIT UP IN WEEKDAY AND WEEKEND
     # https://stackoverflow.com/posts/56336718/revisions
@@ -236,42 +281,41 @@ def splitupweekweekend(df):
     # df = df[(np.abs(stats.zscore(df['transit_stations'])) < 3)]
     # df = df[(np.abs(stats.zscore(df['workplaces'])) < 3)]
     # df = df[(np.abs(stats.zscore(df['grocery_and_pharmacy'])) < 3)]    
-    
-
-    
-    
-def walkingR(df):
+        
+def add_walkingR(df, base):
     #print(df)
-    # Calculate walking R from hosp admission
+    # Calculate walking R from a certain base
+    df = add_SMA(df,base)
+
+    column_name = 'R_value_from_'+ base 
+    column_name_SMA = 'R_value_from_'+ base + '_SMA' + str(WDW2)
+    
+    savgol = base + '_savgol'
+    #df[SMA1] = df.iloc[:,df.columns.get_loc(base)].rolling(window=WDW2).mean()
+    df[savgol] = df[base].transform(lambda x: savgol_filter(x, 7,2))
+
     slidingRdf= pd.DataFrame({'date_sR': [],
-            'Rvalue_from_hosp_adm_SMA': [],
-            'Rvalue_from_hosp_adm_notif_SMA': []})
+            column_name: []})
     Tg = 4
     d= 7
     for i in range(0, len(df)):
-        if df.iloc[i]['hosp_admission_SMA'] != None:
+        if df.iloc[i][base] != None:
             date_ = pd.to_datetime(df.iloc[i]['Date_of_statistics'], format="%Y-%m-%d")
             date_ = df.iloc[i]['Date_of_statistics']
-            
-            slidingR_= round(((df.iloc[i]['hosp_admission_SMA']/df.iloc[i-d]['hosp_admission_SMA'])**(Tg/d) ),2)  
-            slidingRnotif_= round(((df.iloc[i]['hosp_adm_notif_SMA']/df.iloc[i-d]['hosp_adm_notif_SMA'])**(Tg/d) ),2)  
-            
+            if df.iloc[i-d][base] != 0 or df.iloc[i-d][base] !=None:
+                slidingR_= round(((df.iloc[i][base]/df.iloc[i-d][base])**(Tg/d) ),2)  
+            else:
+                slidingR_ = None
             slidingRdf=slidingRdf.append({'date_sR':date_,
-            
-            'Rvalue_from_hosp_adm_SMA':slidingR_,
-            'Rvalue_from_hosp_adm_notif_SMA':slidingRnotif_
-            },ignore_index=True)
+            column_name : slidingR_ },ignore_index=True)
 
-
-
-    slidingRdf['Rt_hosp_adm_SMA_SMA'] = round(slidingRdf.iloc[:,1].rolling(window=7).mean(),2)
-    slidingRdf['Rt_hosp_adm_notif_SMA_SMA'] = round(slidingRdf.iloc[:,2].rolling(window=7).mean(),2)
+    slidingRdf[column_name_SMA] = round(slidingRdf.iloc[:,1].rolling(window=WDW).mean(),2)
     
-
-
-    df = df.reset_index()
-    slidingRdf = slidingRdf.reset_index()
-    return slidingRdf
+    df = pd.merge(df, slidingRdf, how='outer', left_on = 'date', right_on="date_sR", left_index=True )
+    R_SMA = column_name_SMA
+    #df = df.reset_index()
+    #slidingRdf = slidingRdf.reset_index()
+    return df, R_SMA
 
 def agg_week(df):
 
@@ -294,99 +338,60 @@ def agg_week(df):
     #         df.iloc[i]['week_alt']=df.iloc[i]["yearnr"].astype(str) + '-' + df.iloc[i]["weeknr"].astype(str)
 
     return dfweek
-def last_manipulations(df):
-    
-    # compression_opts = dict(method=None,
-    #                         archive_name='outweek.csv')  
-    # dfweek.to_csv('outweek2.csv', index=False,
-    #         compression=compression_opts)
 
-
-    # compression_opts = dict(method=None,
-    #                         archive_name='outalles.csv')  
-    # df.to_csv('outalles.csv', index=False,
-    #         compression=compression_opts)
-
-
-    # remove unneccessary columns
-    #df = df.drop(columns=['retail_and_recreation'],axis=1)
-    #df = df.drop(columns=['grocery_and_pharmacy'],axis=1)
-    df = df.drop(columns=['parks'],axis=1)
-    #df = df.drop(columns=['transit_stations'],axis=1)
-    #df = df.drop(columns=['workplaces'],axis=1)
-    df = df.drop(columns=['residential'],axis=1)
-    # df = df.drop(columns=['Rt_low'],axis=1)
-    # df = df.drop(columns=['Rt_up'],axis=1)
-    # df = df.drop(columns=['apple_driving'],axis=1)
-    # df = df.drop(columns=['apple_transit'],axis=1)
-    # df = df.drop(columns=['apple_walking'],axis=1)
-    df = df.drop(columns=['Version'],axis=1)
-
-    # Two different dataframes for workdays/weekend
-    werkdagen = df.loc[(df['weekend'] == 0)] 
-    weekend_ = df.loc[(df['weekend'] == 1) ]
-    df = df.drop(columns=['WEEKDAY'],axis=1)
-    df = df.drop(columns=['weekend'],axis=1)
-    werkdagen = werkdagen.drop(columns=['WEEKDAY'],axis=1)
-    werkdagen = werkdagen.drop(columns=['weekend'],axis=1)
-    weekend_ = weekend_.drop(columns=['WEEKDAY'],axis=1)
-    weekend_ = weekend_.drop(columns=['weekend'],axis=1)
-
-
+def move_column(column,days):
     # #move Rt r days, because a maybe change has effect after r days
     # Tested - Conclusion : It has no effect
-    # for r in range(0,8,2):
-    #     name = "Rt_moved" + str(r)
-    #     df[name] = df['Rt_avg_SMA'].shift(r)
-    r=10
-    name = "Rt_moved" + str(r)
-    df[name] = df['Rt_avg_SMA'].shift(r)
+    if r_move != None:
+        r=days
+        new_column = column + "_moved_" + str(r)
+        df[new_column] = df[column].shift(r)
 
-    mask = (df['date'] > '2020-12-31') & (df['date'] <= '2021-6-1')
+def drop_columns(what_to_drop):
+    
+    if what_to_drop != None:
+        print ("dropping " + what_to_drop)
+        for d in what_to_drop:
+            df = df.drop(columns=['d'],axis=1)
+
+def last_manipulations(df, what_to_drop, show_from, show_until,drop_last):
+    print ("Doing some last minute manipulations")
+    drop_columns(what_to_drop) 
+
+    # Two different dataframes for workdays/weekend
+
+    # werkdagen = df.loc[(df['weekend'] == 0)] 
+    # weekend_ = df.loc[(df['weekend'] == 1) ]
+    # df = df.drop(columns=['WEEKDAY'],axis=1)
+    # df = df.drop(columns=['weekend'],axis=1)
+    # werkdagen = werkdagen.drop(columns=['WEEKDAY'],axis=1)
+    # werkdagen = werkdagen.drop(columns=['weekend'],axis=1)
+    # weekend_ = weekend_.drop(columns=['WEEKDAY'],axis=1)
+    # weekend_ = weekend_.drop(columns=['weekend'],axis=1)
+       
+    if show_from == None:
+        show_from = '2020-1-1'
+
+    if show_until == None:
+        show_until = '2030-1-1'
+    mask = (df['date'] >= show_from) & (df['date'] <= show_until)
     df = (df.loc[mask])
 
     df = df.reset_index()
-    #df = df[:-2] #drop last row
+    if drop_last != None:
+        df = df[:drop_last] #drop last row
     print (df)
 
-    return df, werkdagen, weekend_
+    # return df, werkdagen, weekend_
+    return df
+
 def save_df(df,name):
     name_ = name+'.csv'
     compression_opts = dict(method=None,
                             archive_name=name_)  
     df.to_csv(name_, index=False,
             compression=compression_opts)
-def get_data():
-
-    df_hospital = download_hospital_admissions()
-    slidingRdf = walkingR(df_hospital)
-    df_lcps = download_lcps()
-    df_mobR = download_mobR()  
-    df_testen = download_testen()
-    df_reprogetal = download_reproductiegetal()
-
-    
-    df = pd.merge(df_mobR, df_hospital, how='outer', left_on = 'date', right_on="Date_of_statistics")
-    df.loc[df["date"].isnull(),'date'] = df["Date_of_statistics"] 
-    df = pd.merge(df, df_lcps, how='outer', left_on = 'date', right_on="Datum")
-    df.loc[df["date"].isnull(),'date'] = df["Datum"] 
-    df = pd.merge(df, slidingRdf, how='outer', left_on = 'date', right_on="date_sR", left_index=True )
-    
-    df = pd.merge(df, df_testen, how='outer', left_on = 'date', right_on="Date_of_publication", left_index=True )
-    df = pd.merge(df, df_reprogetal, how='outer', left_on = 'date', right_on="Date", left_index=True )
-    
-    
-    df = df.sort_values(by=['date'])
-    df = splitupweekweekend(df)
-
-    df, werkdagen, weekend_ = last_manipulations(df)
-
-    dfweek = agg_week(df)
-    print (df)
-    print (df.dtypes)
-    save_df(df, "algemeen")
-    
-    return df, dfweek, werkdagen, weekend_
+##########################################################
 def correlation_matrix(df, werkdagen, weekend_):
     print("x")
     # CALCULATE CORRELATION
@@ -411,44 +416,54 @@ def correlation_matrix(df, werkdagen, weekend_):
 
     sn.regplot(y="Rt_avg_x", x="Hospital_admission_x", data=df)
     plt.show()
-def graph_day(df):
 
+def graph_day(df, what_to_show_l, what_to_show_r, title,t):
+    if type(what_to_show_l) == list:
+        what_to_show_l_=what_to_show_l
+    else:
+        what_to_show_l_=[what_to_show_l]
+   
     # SHOW A GRAPH IN TIME / DAY
     fig1x = plt.figure()
     ax = fig1x.add_subplot(111)
-    #print(df["Rt_hosp_adm_SMA_SMA"])
-    #plt.title('Transit_stations compared to gliding Rt-number for the Netherlands')
-    #plt.title('Hospital admissions (smoothed)/  sliding R hosp adm (smoothed')
-    
-    #df["hosp_admission_SMA"].plot(label="hospital admission SMA")
+   
+    for a in what_to_show_l_:   
+        if type(a) == list:
+            a_=a
+        else:
+            a_=[a] 
+            for b in a_:
+                print (b)
+                if t == "mixed":
+                    df, R_SMA = add_walkingR(df, b)
+                    ax3=df[R_SMA].plot(secondary_y=True, color ='r', label=R_SMA)
+                    ax3.set_ylabel('Rt')
+                    print (df.dtypes)
+                    c = str(b)+ "_SMA_" + str(WDW2)
+                    if "SMA" in b:
+                        df[b].plot(label=b, color = 'orange')        # sma
+                    else:
+                        df[b].plot.bar(label=b)     # number of cases
+                        df[c].plot(label=c, color = 'g')         # SMA
+                else:
+                    #df, R_SMA = add_walkingR(df, b)
+                    df[b].plot(label=b)
+                    #ax3=df[R_SMA].plot(secondary_y=True, label=R_SMA)
+                    #ax3.set_ylabel('Rt')
 
-    #df["hosp_admission_SMA"].plot(color="blue", label="hospital admission SMA")
-    #df["hosp_admission_savgol"].plot(color = "red", label="hospital admission Savgol")
-    df["IC_Nieuwe_Opnames_COVID"].plot(color= "yellow", label="IC admissionX")
-    df["Hospital_admission_x"].plot(color= "purple", label="Hospital admission")
-    #df["transit_stations_SMA"].plot(label="Transit_stations_SMA")
-    #df["apple_driving_SMA"].plot(label="Apple driving smoothened")
-    ax3=df["Rt_avg_x"].plot(secondary_y=True, label="Gliding Rt RIVM")
-    #ax3=df["Rt_moved10"].plot(secondary_y=True, label="Gliding Rt RIVM Moved 10 days")
-
-
-    #ax3=df["Rt_hosp_adm_SMA_SMA"].plot(secondary_y=True, color = 'r', label="Gliding Rt from hospadm")
-    #ax3=df["Rt_hosp_adm_notif_SMA_SMA"].plot(secondary_y=True, color = 'g', label="Gliding Rt from hospadm notif")
-
-
-
-    ax3.set_ylabel('Rt')
     ax.set_ylabel('Numbers')
     ax.xaxis.grid(True, which='minor')
     ax.xaxis.set_major_locator(MultipleLocator(1))
-    #ax.xaxis.set_major_formatter()
+
+
+    if what_to_show_r != None:
+        for a in what_to_show_r:
+            ax3=df[a].plot(secondary_y=True, label=a)
+            ax3.set_ylabel('Rt')
 
     # layout of the x-axis
-
-    
     ax.xaxis.grid(True, which='minor')
     ax.xaxis.set_major_locator(MultipleLocator(1))
-   
     ax.set_xticklabels(df["date"].dt.date,fontsize=6, rotation=45)
     xticks = ax.xaxis.get_major_ticks()
 
@@ -457,24 +472,17 @@ def graph_day(df):
             tick.label1.set_visible(False)
     plt.xticks()
     plt.legend(loc='best')
-
-
-    
-    
-
     plt.xlabel('date')
     
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
 
-     #Add a Legend
+    #Add a Legend
     fontP = FontProperties()
     fontP.set_size('xx-small')
     plt.legend(  loc='best', prop=fontP)
-    titlex = "____"
-    plt.title(titlex , fontsize=10)
 
-    #ax.xaxis.set_major_formatter()
+    plt.title(title , fontsize=10)
 
     # everything in legend
     # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
@@ -485,28 +493,24 @@ def graph_day(df):
             labels.append(l)
 
     plt.legend(handles,labels)
-
-    titlex = "Hospital admissions (unedited/smoothed/Savgol)"
-
-    
     # configgraph(titlex)
     plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+    add_restrictions(df,ax)
+    plt.show()
 
-
-
+def add_restrictions(df,ax):
     # Add restrictions
     # From Han-Kwang Nienhuys - MIT-licence
     
     df_restrictions = pd.read_csv(
                     r'covid19_seir_models\restrictions.csv',
                     delimiter=',',
-                    low_memory=False
-                    
-            )
-    a = ((df["date"].dt.date.min()))
-    #print (a)
-    # b_ ="2021-01-22"
-    # #b = datetime.today().strftime('%m/%d/%Y')
+                    low_memory=False)
+
+    
+    a = (min(df['date'].tolist())).date()
+    #a = ((df["date_sR"].dt.date.min()))  # werkt niet, blijkbaar NaN values
+   
     ymin, ymax = ax.get_ylim()
     y_lab = ymin
     for i in range(0, len(df_restrictions)):    
@@ -514,15 +518,11 @@ def graph_day(df):
         d__ = dt.datetime.strptime(d_,'%Y-%m-%d').date()  # to dateday
 
         diff = (d__ - a)
-        #print (diff)
+        
         if diff.days >0 :
-            #print (diff.days)
             ax.text(diff.days, y_lab, f'  {df_restrictions.iloc[i]["Description"]}', rotation=90, fontsize=6,horizontalalignment='center')
             plt.axvline(x=diff.days, color='yellow', alpha=.3,linestyle='--')
-    
-
-    plt.show()
-   
+      
 def graph_week(dfweek):
         
     # SHOW A GRAPH IN TIME / WEEK
@@ -576,16 +576,49 @@ def graph_week(dfweek):
     plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
 
     plt.show()
+
+def show_me_graph(df,columnlist,t):
+    if type(columnlist) == list:
+        columnlist_=columnlist
+    else:
+        columnlist_=[columnlist]
+    if t == "line":
+        
+        what_to_show_l = columnlist
+        what_to_show_r = None
+        title = "Aantal gevallen"
+        graph_day(df, what_to_show_l,what_to_show_r , title, t)
+    else:
+        for c in columnlist:
+            what_to_show_l= ([c])
+                    
+            what_to_show_r = None
+            title = c
+            graph_day(df, what_to_show_l,what_to_show_r , title, t)
+
+###################################################################       
+
 def main():
     
     global download 
+    global WDW 
+    global WDW2 
     download = False
+    WDW = 7
+    WDW2 = 7
     
-    df, dfweek, werkdagen, weekend_ = get_data()
-    
+    #df, dfweek, werkdagen, weekend_ = get_data()
+
+    df = get_data()
+    print (df.dtypes)
+    #columnlist = ["IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID"]
+    #show_me_graph(df,columnlist,"mixed")
     #correlation_matrix(df,werkdagen, weekend_)
-    graph_day(df)
     #graph_week(dfweek)
+                           # RIVM,                 gemeentes             ,LCPS
+    columnlist2= ["Hospital_admission_x", "Hospital_admission_y", "Kliniek_Nieuwe_Opnames_COVID"]
+    #show_me_graph(df,columnlist2,"line")
+    show_me_graph(df,["Total_reported","Kliniek_Nieuwe_Opnames_COVID","IC_Nieuwe_Opnames_COVID"], "mixed")
 
 main()
 
