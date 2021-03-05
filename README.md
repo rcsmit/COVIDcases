@@ -21,7 +21,7 @@ change *download = True*. Maybe change some directory names
 * **plot.py** - plotting the number of cases, going from R0 to a list of R-values
 * **sliding_r-number.py** - integrated in number_of_cases_interactive.py
 
-### Installing
+## Installing
 Just download or copy paste. Do not forget the required files
 ## Built With
 * Python
