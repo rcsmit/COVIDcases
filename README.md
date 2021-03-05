@@ -4,7 +4,7 @@ Various files with models and graphs concerning COVID-19
 
 ## Interesting files/scripts
 * **number_of_cases_interactive.py** - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity
-*  [Open in Streamlit](https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py)
+[Open in Streamlit](https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py)
 
 * **masterfile_covid.py** - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs. To download the newest data, 
 change *download = True*. Maybe change some directory names
