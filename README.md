@@ -24,23 +24,19 @@ change *download = True*. Maybe change some directory names
 ### Installing
 Just download or copy paste. Do not forget the required files
 ## Built With
-
-* [Streamlit](http://www.streamlit.io/) - Streamlit
 * Python
-
+* [Streamlit](http://www.streamlit.io/) - Streamlit
 
 ## Tutorial
-
 See explanation how to make interactive graphs with Streamlit here 
 https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
 
-
 ## Acknowledgments
 * Thanks to [Han-Kwang Nienhuys](https://twitter.com/hk_nien) for his help on several topics and some code snippets (MIT-licensed)
 
-## Coontact
+## Contact
 * [Twitter @rcsmit](https://twitter.com/rcsmit)
 
