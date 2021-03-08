@@ -34,6 +34,17 @@
 
 #6 maart
 # last row in bar-graph was omitted due to ["date of statistics"] instead of ["date"] in addwalkingR
+# Bug wit an reset.index() somewhere. Took a long time to find out
+# Tried to first calculate SMA and R, and then cut of FROM/UNTIL. Doesnt
+# work. Took also a huge amount of time. Reversed everything afterwards
+
+# 7 maart
+# weekgraph function with parameters
+
+# 8 maart
+# find columns with max correlation
+# find the timelag between twee columns
+
 
 # I used iloc.  Iterating through pandas objects is generally slow.
 # In many cases, iterating manually over the rows is not needed and
@@ -86,6 +97,8 @@ def download_mob_r():
 
 def download_hospital_admissions():
     """  _ _ _ """
+    # THIS ARE THE SAME NUMBERS AS ON THE DASHBOARD
+
     if download :
         # Code by Han-Kwang Nienhuys - MIT License
         url='https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv'
@@ -117,7 +130,7 @@ def download_hospital_admissions():
     #         compression=compression_opts)
 
     #print (df_hospital)
-
+    save_df(df_hospital,"ziekenhuisopnames_RIVM")
     return df_hospital
 
 def download_lcps():
@@ -159,7 +172,7 @@ def download_lcps():
 def download_reproductiegetal():
     """  _ _ _ """
     #https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json
-
+    
     if download == True:
         print ("Download reproductiegetal-file")
         #df_reprogetal = pd.read_json (r'covid19_seir_models\input\COVID-19_reproductiegetal.json')
@@ -181,10 +194,14 @@ def download_reproductiegetal():
 
     df_reprogetal['Date']=pd.to_datetime(df_reprogetal['Date'], format="%Y-%m-%d")
 
-    #print (df_reprogetal.dtypes)
+    # als er nog geen reprogetal berekend is, neem dan het gemiddeld van low en up
+    # vanaf half juni is dit altijd het geval geweest (0,990 en 1,000)
+    df_reprogetal.loc[df_reprogetal["Rt_avg"].isnull(),'Rt_avg'] = round(((df_reprogetal["Rt_low"] + df_reprogetal["Rt_up"])/2),2)
+    
+    print (df_reprogetal)
     return df_reprogetal
 
-def download_testen():
+def download_gemeente_per_dag():
     """  _ _ _ """
 
     if download :
@@ -200,23 +217,59 @@ def download_testen():
         #url="https://lcps.nu/wp-content/uploads/covid-19.csv"
 
         fpath = Path('covid19_seir_models\input\COVID-19_aantallen_gemeente_per_dag.csv')
+        print(f'Getting new daily case statistics file - aantallen-gemeente-per-dag - ...')
+        with urllib.request.urlopen(url) as response:
+            data_bytes = response.read()
+            fpath.write_bytes(data_bytes)
+            print(f'Wrote {fpath} .')
+
+    df_gemeente_per_dag = pd.read_csv(
+                    r'covid19_seir_models\input\COVID-19_aantallen_gemeente_per_dag.csv',
+                    delimiter=';',
+                    #delimiter=',',
+                    low_memory=False)
+
+    df_gemeente_per_dag['Date_of_publication'] = df_gemeente_per_dag['Date_of_publication'].astype('datetime64[D]')
+
+    df_gemeente_per_dag = df_gemeente_per_dag.groupby(['Date_of_publication'] , sort=True).sum().reset_index()
+    save_df(df_gemeente_per_dag,"COVID-19_aantallen_per_dag")
+    return df_gemeente_per_dag
+
+def download_uitgevoerde_testen():
+    """  _ _ _ """
+    # Version;Date_of_report;Date_of_statistics;Security_region_code;
+    # Security_region_name;Tested_with_result;Tested_positive
+
+    if download :
+        # Code by Han-Kwang Nienhuys - MIT License
+        url='https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv'
+
+        
+        fpath = Path('covid19_seir_models\input\COVID-19_uitgevoerde_testen.csv')
         print(f'Getting new daily case statistics file - testen - ...')
         with urllib.request.urlopen(url) as response:
             data_bytes = response.read()
             fpath.write_bytes(data_bytes)
             print(f'Wrote {fpath} .')
 
-    df_testen = pd.read_csv(
-                    r'covid19_seir_models\input\COVID-19_aantallen_gemeente_per_dag.csv',
+    df_uitgevoerde_testen = pd.read_csv(
+                    r'covid19_seir_models\input\COVID-19_uitgevoerde_testen.csv',
                     delimiter=';',
                     #delimiter=',',
                     low_memory=False)
 
-    df_testen['Date_of_publication'] = df_testen['Date_of_publication'].astype('datetime64[D]')
+    #df_uitgevoerde_testen['Date_of_publication'] = df_uitgevoerde_testen['Date_of_publication'].astype('datetime64[D]')
+    df_uitgevoerde_testen['Date_of_statistics'] = df_uitgevoerde_testen['Date_of_statistics'].astype('datetime64[D]')
 
-    df_testen = df_testen.groupby(['Date_of_publication'] , sort=True).sum().reset_index()
-    save_df(df_testen,"COVID-19_aantallen_per_dag")
-    return df_testen
+    df_uitgevoerde_testen = df_uitgevoerde_testen.groupby(['Date_of_statistics'] , sort=True).sum().reset_index()
+    df_uitgevoerde_testen['Percentage_positive'] = round((df_uitgevoerde_testen['Tested_positive'] / 
+                                                  df_uitgevoerde_testen['Tested_with_result'] * 100),2 )
+
+
+    
+
+    save_df(df_uitgevoerde_testen,"COVID-19_uitgevoerde_testen")
+    return df_uitgevoerde_testen
 ###################################################################
 def get_data():
     """  _ _ _ """
@@ -225,37 +278,32 @@ def get_data():
     #sliding_r_df = walkingR(df_hospital, "Hospital_admission")
     df_lcps = download_lcps()
     df_mob_r = download_mob_r()
-    df_testen = download_testen()
+    df_gemeente_per_dag = download_gemeente_per_dag()
     df_reprogetal = download_reproductiegetal()
+    df_uitgevoerde_testen = download_uitgevoerde_testen()
 
-
-    df = pd.merge(df_mob_r, df_hospital, how='outer', left_on = 'date',
+    type_of_join = "outer"
+    df = pd.merge(df_mob_r, df_hospital, how=type_of_join, left_on = 'date',
                     right_on="Date_of_statistics")
-    df.loc[df['date'] .isnull(),'date'] = df['Date_of_statistics']
-    df = pd.merge(df, df_lcps, how='inner', left_on = 'date', right_on="Datum")
-    df.loc[df['date'] .isnull(),'date'] = df['Datum']
-    #df = pd.merge(df, sliding_r_df, how='outer', left_on = 'date', right_on="date_sR", left_index=True )
+    #df = df_hospital
+    df.loc[df['date'].isnull(),'date'] = df['Date_of_statistics']
+    df = pd.merge(df, df_lcps, how=type_of_join, left_on = 'date', right_on="Datum")
+    df.loc[df['date'].isnull(),'date'] = df['Datum']
+    #df = pd.merge(df, sliding_r_df, how=type_of_join, left_on = 'date', right_on="date_sR", left_index=True )
 
-    df = pd.merge(df, df_testen, how='outer', left_on = 'date', right_on="Date_of_publication",
+    df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'date', right_on="Date_of_publication",
                     left_index=True )
-    df = pd.merge(df, df_reprogetal, how='outer', left_on = 'date', right_on="Date",
+
+    df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'date', right_on="Date",
+                    left_index=True )
+    df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'date', right_on="Date_of_statistics",
                     left_index=True )
 
 
     df = df.sort_values(by=['date'])
     df = splitupweekweekend(df)
-    # last_manipulations(df, what_to_drop, show_from, show_until,drop_last):
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
-
-    # prepare an aggregated weektable
-    # df, new_column = add_sma(df,['Rt_avg'])  #added for the weekgraph, can be omitted
-    # dfweek = agg_week(df)
-    # for debug purposes
-    # save_df(df, "algemeen")
-
-    #print ("=== AFTER GET DATA ==== ")
-    #print (df.dtypes)
-
+    df.set_index('date')
 
     return df, werkdagen, weekend_
 
@@ -277,66 +325,71 @@ def splitupweekweekend(df):
     # df = df[(np.abs(stats.zscore(df['workplaces'])) < 3)]
     # df = df[(np.abs(stats.zscore(df['grocery_and_pharmacy'])) < 3)]
 
-def add_walking_r(df, base, how_to_smooth):
+def add_walking_r(df, smoothed_columns, how_to_smooth):
     """  _ _ _ """
     #print(df)
     # Calculate walking R from a certain base
-
-    column_name_R = 'R_value_from_'+ base
-
-    if how_to_smooth == "savgol":
-        df, new_column = add_savgol(df,[base])
-        column_name_r_sma = 'R_value_from_'+ base + '_savgol_' + str(WDW2)
-    else:
-        df, new_column = add_sma(df,[base])
-        column_name_r_sma = 'R_value_from_'+ base + '_SMA_' + str(WDW2)
-
-    base2= new_column
-
-    #df[SMA1] = df.iloc[:,df.columns.get_loc(base)].rolling(window=WDW2).mean()
+    column_list_r_smoothened = []
+    for base in smoothed_columns:
+        column_name_R = 'R_value_from_'+ base
 
 
-    sliding_r_df= pd.DataFrame({'date_sR': [],
-            column_name_R: []})
-    tg = 4
-    d= 1
+        #df, new_column = smooth_columnlist(df,[base],how_to_smooth)
+        column_name_r_smoothened = 'R_value_from_'+ base + '_'+ how_to_smooth + '_' + str(WDW3)
+        #df[SMA1] = df.iloc[:,df.columns.get_loc(base)].rolling(window=WDW2).mean()
 
-    for i in range(0, len(df)):
-        if df.iloc[i][base] != None:
-            date_ = pd.to_datetime(df.iloc[i]['date'], format="%Y-%m-%d")
-            date_ = df.iloc[i]['date']
-            if df.iloc[i-d][base2] != 0 or df.iloc[i-d][base2] is not None:
-                slidingR_= round(((df.iloc[i][base2]/df.iloc[i-d][base2])**(tg/d) ),2)
-            else:
-                slidingR_ = None
-            sliding_r_df=sliding_r_df.append({'date_sR':date_,
-            column_name_R : slidingR_ },ignore_index=True)
 
-    # je zou deze nog kunnen smoothen, maar levert een extra vertraging in de resultaten op,
-    # dus wdw=1
-    sliding_r_df[column_name_r_sma] = round(sliding_r_df.iloc[:,1].rolling(window=WDW3).mean(),2)
+        sliding_r_df= pd.DataFrame({'date_sR': [],
+                column_name_R: []})
+        tg = 4
+        d= 1
 
-    # WHY DOES IT CHANGE MY DF[base]. Inner = ok / outer = ERR
-    # when having this error "posx and posy should be finite values"
-    df = pd.merge(df, sliding_r_df, how='inner', left_on = 'date', right_on="date_sR",
-                    left_index=True )
 
-    R_SMA = column_name_r_sma
-    #df = df.reset_index()
-    #sliding_r_df = sliding_r_df.reset_index()
-    return df, R_SMA
+        for i in range(0, len(df)):
+            if df.iloc[i][base] != None:
+                date_ = pd.to_datetime(df.iloc[i]['date'], format="%Y-%m-%d")
+                date_ = df.iloc[i]['date']
+                if df.iloc[i-d][base] != 0 or df.iloc[i-d][base] is not None:
+                    slidingR_= round(((df.iloc[i][base]/df.iloc[i-d][base])**(tg/d) ),2)
+                else:
+                    slidingR_ = None
+                sliding_r_df=sliding_r_df.append({'date_sR':date_,
+                column_name_R : slidingR_ },ignore_index=True)
+        new_column_smoothened = base
+
+        # je zou deze nog kunnen smoothen, maar levert een extra vertraging in de resultaten op,
+        # dus wdw=1
+        sliding_r_df[column_name_r_smoothened] = round(sliding_r_df.iloc[:,1].rolling(window=WDW3).mean(),2)
+
+        # df = df.reset_index()
+        # df.set_index('date')
+
+        sliding_r_df = sliding_r_df.reset_index()
+
+        # WHY DOES IT CHANGE MY DF[base]. Inner = ok / outer = ERR
+        # when having this error "posx and posy should be finite values"
+        df = pd.merge(df, sliding_r_df, how='outer', left_on = 'date', right_on="date_sR",
+                        left_index=True )
+        column_list_r_smoothened.append(column_name_r_smoothened)
+        #R_SMA = column_name_r_smoothened
+        # df = df.reset_index()
+        # df.set_index('date')
+
+        sliding_r_df = sliding_r_df.reset_index()
+        #save_df(df,"lastchrismas")
+    return df, column_list_r_smoothened
 
 def agg_week(df, how):
     """  _ _ _ """
 
-    df.loc[df['date'] .isnull(),'date'] = df['Date_of_statistics']
+    #df.loc[df['date'].isnull(),'date'] = df['Date_of_statistics']
 
     df['weeknr']  =  df['date'].dt.isocalendar().week
     df['yearnr']  =  df['date'].dt.isocalendar().year
 
     df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
                          df['date'].dt.isocalendar().week.astype(str))
-    how = "mean"
+    #how = "mean"
     if how == "mean":
         dfweek = df.groupby('weekalt', sort=False).mean()
     elif how == "sum" :
@@ -344,7 +397,7 @@ def agg_week(df, how):
     else:
         print ("error agg_week()")
         exit()
-    return dfweek
+    return df, dfweek
 
 def move_column(df, column,days):
     """  _ _ _ """
@@ -353,7 +406,7 @@ def move_column(df, column,days):
     r=days
     new_column = column + "_moved_" + str(r)
     df[new_column] = df[column].shift(r)
-    print ("Name moved column : " + new_column)
+    #print ("Name moved column : " + new_column)
     return df, new_column
 
 def drop_columns(what_to_drop):
@@ -364,6 +417,7 @@ def drop_columns(what_to_drop):
         for d in what_to_drop:
             df = df.drop(columns=['d'],axis=1)
 def select_period(df, show_from, show_until):
+
     if show_from == None:
         show_from = '2020-1-1'
 
@@ -372,7 +426,7 @@ def select_period(df, show_from, show_until):
     mask = (df['date'] >= show_from) & (df['date'] <= show_until)
     df = (df.loc[mask])
 
-    #df = df.reset_index()
+    df = df.reset_index()
 
     return df
 
@@ -383,7 +437,7 @@ def last_manipulations(df, what_to_drop, drop_last):
 
     #
     # select_period(df, FROM, UNTIL)
-
+    df = select_period(df, FROM, UNTIL)
 
     # Two different dataframes for workdays/weekend
 
@@ -401,6 +455,12 @@ def last_manipulations(df, what_to_drop, drop_last):
         df = df[:drop_last] #drop last row(s)
     #print ("=== AFTER LAST MANIPULATIONS ==== ")
     #print (df.dtypes)
+
+    df['weeknr']  =  df['date'].dt.isocalendar().week
+    df['yearnr']  =  df['date'].dt.isocalendar().year
+
+    df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
+                         df['date'].dt.isocalendar().week.astype(str))
 
     return df, werkdagen, weekend_
     #return df
@@ -420,10 +480,10 @@ def correlation_matrix(df, werkdagen, weekend_):
     print("x")
     # CALCULATE CORRELATION
 
-    # corrMatrix = df.corr()
-    # sn.heatmap(corrMatrix, annot=True, annot_kws={"fontsize":7})
-    # plt.title("ALL DAYS", fontsize =20)
-    # plt.show()
+    corrMatrix = df.corr()
+    sn.heatmap(corrMatrix, annot=True, annot_kws={"fontsize":7})
+    plt.title("ALL DAYS", fontsize =20)
+    plt.show()
 
 
     # corrMatrix = werkdagen.corr()
@@ -442,12 +502,14 @@ def correlation_matrix(df, werkdagen, weekend_):
     #plt.show()
 
 def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
+    # print (df)
     """  _ _ _ """
     if type(what_to_show_l) == list:
         what_to_show_l_=what_to_show_l
     else:
         what_to_show_l_=[what_to_show_l]
     aantal = len(what_to_show_l_)
+
     # SHOW A GRAPH IN TIME / DAY
     fig1x = plt.figure()
     ax = fig1x.add_subplot(111)
@@ -462,31 +524,38 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     COLOR_weekend = "#e49273" # dark salmon 7
     prusian_blue = "#1D2D44" # 8
 
-    color_list = [ operamauve,green_pigment, bittersweet, minion_yellow, COLOR_weekday, mariagold,falu_red,  COLOR_weekend]
-    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
-    mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=color_list)
+    color_list = [ operamauve, bittersweet, minion_yellow, COLOR_weekday, mariagold,falu_red,'y',  COLOR_weekend ,green_pigment]
+    #plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
+    #mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=color_list)
     n = 0  # counter to walk through the colors-list
 
 
+    df, columnlist_sm_l = smooth_columnlist(df,what_to_show_l_,how_to_smooth)
+    # df, R_smooth = add_walking_r(df, columnlist, how_to_smooth)
+    for b in what_to_show_l_:
+        # if type(a) == list:
+        #     a_=a
+        # else:
+        #     a_=[a]
+            
+            # PROBEERSEL OM WEEK GEMIDDELDES MEE TE KUNNEN PLOTTEN IN DE DAGELIJKSE GRAFIEK
 
-    for a in what_to_show_l_:
-        if type(a) == list:
-            a_=a
-        else:
-            a_=[a]
-
-        for b in a_:
+            # dfweek_ = df.groupby('weekalt', sort=False).mean().reset_index()
+            # save_df(dfweek_,"whatisdftemp1")
+            # w = b + "_week"
+            # print ("============="+ w)
+            # df_temp = dfweek_[["weekalt",b ]]
+            # df_temp = df_temp(columns={b: w})
+            
+            # print (df_temp.dtypes)
+            # #df_temp is suddenly a table with all the rows
+            # print (df_temp)
+            # save_df(df_temp,"whatisdftemp2")
+            
+        
+        # for b in a_:
             n +=1
             if t == "bar":
-
-                df, R_smooth = add_walking_r(df, b, how_to_smooth)
-                c = str(b)+ "_"+ how_to_smooth + "_" + str(WDW2)
-
-                #x= 4+ (WDW2+WDW3)*-1 # 4 days correction factor, dont know why
-                x=0
-                df, new_column = move_column(df,R_smooth,x)
-                ax3=df[new_column].plot(secondary_y=True,color=falu_red,  label=R_smooth)
-                ax3.set_ylabel('Rt')
 
                 # if b == "Total_reported":
                 #     z = df[b].index
@@ -515,22 +584,54 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 elif firstday == 6:
                     color_x = [COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend]
                 #color_x = ["white", "red", "yellow", "blue", "purple", "green", "black"]
-                ax = df[b].plot.bar(label=b, color = color_x)     # number of cases
-                ax = df[c].plot(label=c, color = color_list[3],linewidth=.8)         # SMA
-                #ax3=df[R_SMA].plot(secondary_y=True, label=R_SMA,color=falu_red, linewidth=.8)
+
+                # MAYBE WE CAN LEAVE THIS OUT HERE
+                df, columnlist = smooth_columnlist(df,[b],how_to_smooth)
+                df, R_smooth = add_walking_r(df, columnlist, how_to_smooth)
+
+                df.set_index('date')
+
+                #df, new_column_smoothened, column_name_r_smoothened
+                #c = str(b)+ "_"+ how_to_smooth + "_" + str(WDW2)
+
+                #x= 4+ (WDW2+WDW3)*-1 # 4 days correction factor, dont know why
+                #x=0
+                #df, new_column = move_column(df,R_smooth,x)
+
+
+                #df_temp = select_period(df, FROM, UNTIL)
+                #df_temp.set_index('date')
+                df_temp = df
+                #print(df_temp.dtypes)
+                #c = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
+                
+                ax = df_temp[b].plot.bar(label=b, color = color_x)     # number of cases
+                for c_smooth in columnlist:
+                    # print (c_smooth)
+                    # print (df[c_smooth])
+                    ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1)         # SMA
+                
+                ax3=df["Rt_avg"].plot(secondary_y=True, label="Rt RIVM",color=bittersweet, linewidth=1.2)
+                for R in R_smooth:
+                    #move R 10 dagen
+                    df, Rn = move_column(df,R,-10)
+                    ax3=df[Rn].plot(secondary_y=True, label=R,color=falu_red, linewidth=1.2)
+                ax3.set_ylabel('Rt')
 
                 left, right = ax.get_xlim()
                 ax.set_xlim(left - 0.5, right + 0.5)
+                #ax3.set_ylim(0.6,1.5)
             elif t== "line":
                 #df, R_SMA = add_walking_r(df, b, "SMA")
-                new_column = b + "_" + how_to_smooth + "_" + str(WDW2)
-                df, columnlist = smooth_columnlist(df,[b],how_to_smooth)
-                df_temp = select_period(df, FROM, UNTIL)
+               
+                
+                #df_temp = select_period(df, FROM, UNTIL)
+                df_temp = df
                 #print (df_temp)
                 #df_temp = df
-                for b_ in columnlist:
-                    df_temp[b_].plot(label=b_, color = color_list[n], linestyle='dotted', linewidth=.8)
-                df_temp[b].plot(label=b, color = color_list[n],linewidth=.8)
+                b_ = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
+                df_temp[b_].plot(label=b, color = color_list[n], linewidth=.8) # label = b_ for uitgebreid label
+                df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.4,linewidth=.8)
             else:
                 print ("ERROR in graph_day")
 
@@ -545,20 +646,22 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         for a in what_to_show_r:
             x -=1
             lbl = a + " (right ax)"
-            new_column = a + "_" + how_to_smooth + "_" + str(WDW2)
+            #lbl2 = a + "_" + how_to_smooth + "_" + str(WDW2)
+
             df, columnlist = smooth_columnlist(df,[a],how_to_smooth)
             df_temp = select_period(df, FROM, UNTIL)
             #df_temp = df
-            for b_ in columnlist:
-                df_temp[b_].plot(secondary_y=True, label=b_, color = color_list[x], linestyle='dotted', linewidth=.8)
-            ax3=df_temp[a].plot(secondary_y=True, linestyle='--', color = color_list[x], linewidth=.8, label=lbl)
+            for b_ in columnlist: #smoothed
+                lbl2 = b_ + " (right ax)" 
+                ax3 = df_temp[b_].plot(secondary_y=True, label=lbl, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
+            pass # ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, '_nolegend_')
             ax3.set_ylabel('_')
 
     # layout of the x-axis
     ax.xaxis.grid(True, which='minor')
     ax.xaxis.set_major_locator(MultipleLocator(1))
-    ax.set_xticks(df_temp['date'] .index)
-    ax.set_xticklabels(df_temp['date'] .dt.date,fontsize=6, rotation=90)
+    ax.set_xticks(df_temp['date'].index)
+    ax.set_xticklabels(df_temp['date'].dt.date,fontsize=6, rotation=90)
     # ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=5))
     # ax.xaxis.set_major_locator(ticker.MultipleLocator(base=10))
     xticks = ax.xaxis.get_major_ticks()
@@ -610,7 +713,7 @@ def add_restrictions(df,ax):
 
 
     a = (min(df['date'].tolist())).date()
-    #a = ((df['date_sR'] .dt.date.min()))  # werkt niet, blijkbaar NaN values
+    #a = ((df['date_sR'].dt.date.min()))  # werkt niet, blijkbaar NaN values
 
     ymin, ymax = ax.get_ylim()
     y_lab = ymin
@@ -626,26 +729,31 @@ def add_restrictions(df,ax):
             #plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
 
 
-def graph_week(df, what_to_show_l, how):
+def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     """  _ _ _ """
     #save_df(dfweek,"weektabel")
     # SHOW A GRAPH IN TIME / WEEK
-    dfweek = agg_week(df, how)
-
+    df_l, dfweek_l = agg_week(df, how_l)
+    if what_to_show_r != None:
+        df_r, dfweek_r = agg_week (df, how_r)
     for show_l in what_to_show_l:
 
         fig1x = plt.figure()
         ax = fig1x.add_subplot(111)
-        ax.set_xticks(dfweek['weeknr'])
-        ax.set_xticklabels(dfweek['weeknr'] ,fontsize=6, rotation=45)
-        #plt.title('Transit_stations compared to gliding Rt-number for the Netherlands')
+        ax.set_xticks(dfweek_l['weeknr'])
+        ax.set_xticklabels(dfweek_l['weeknr'] ,fontsize=6, rotation=45)
+        label_l = show_l+ " ("+ how_l + ")"
+        dfweek_l[show_l].plot.bar(label=label_l)
 
-        dfweek[show_l] .plot.bar(label=show_l)
-        #df['Hospital_admission'] .plot.bar(label="hospital admission")
+        if what_to_show_r != None:
+            for what_to_show_r_ in what_to_show_r:
+                label_r = what_to_show_r_+ " ("+ how_r + ")"
+                ax3=dfweek_r[what_to_show_r_].plot(secondary_y=True, color = 'r', label=label_r)
+            
         #ax3=dfweek['Rt_avg_SMA_7'] .plot(secondary_y=True, color = 'r', label="Rt_avg_SMA_7")
 
         #ax3.set_ylabel('Rt')
-        ax.set_ylabel('Numbers')
+        #ax.set_ylabel('Numbers')
 
         plt.xlabel('week')
 
@@ -656,8 +764,8 @@ def graph_week(df, what_to_show_l, how):
         fontP = FontProperties()
         fontP.set_size('xx-small')
         plt.legend(  loc='best', prop=fontP)
-        titlex = "Weekly numbers - " + show_l + "(" + how  + ")"
-        plt.title(titlex , fontsize=10)
+        #titlex = "Weekly numbers - " + show_l + "(" + how  + ")"
+        #plt.title(titlex , fontsize=10)
 
         ax.xaxis.grid(True, which='minor')
         ax.xaxis.set_major_locator(MultipleLocator(1))
@@ -683,12 +791,12 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
 
     if t == "line":
 
-        title = "Aantal gevallen"
+        title = (f"{what_to_show_l} - {what_to_show_r}")
         graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
     elif t == "bar":
         for c in what_to_show_l:
             what_to_show_l= (c)
-            what_to_show_r = None
+            what_to_show_r = what_to_show_r 
             title = c
             graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
     else:
@@ -699,23 +807,89 @@ def smooth_columnlist(df,columnlist_,t):
     """  _ _ _ """
     c_smoothen = []
     wdw_savgol = 7
-
+    #print (columnlist_)
     for c in columnlist_:
+        print (c)
         if t=='SMA':
             new_column = c + '_SMA_' + str(WDW2)
             print ('Generating ' + new_column+ '...')
             df[new_column] = df.iloc[:,df.columns.get_loc(c)].rolling(window=WDW2).mean()
+
         elif t=='savgol':
-            new_column = c + '_savgol_' + str(w)
-            print ('Generating ' + savgol_column + '...')
+            new_column = c + '_savgol_' + str(wdw_savgol)
+            print ('Generating ' + new_column + '...')
             df[new_column] = df[c].transform(lambda x: savgol_filter(x, wdw_savgol,2))
         else:
             print ("ERROR in smooth_columnlist")
             exit()
     c_smoothen.append(new_column)
+    #save_df (df, "aftersmoothen")
     return df, c_smoothen
 
 ###################################################################
+def find_correlations(df):
+    al_gehad = []
+    paar = []
+    column_list = list(df.columns)
+    # print (column_list)
+
+    for i in column_list:
+        for j in column_list:
+            #paar = [j, i]
+            paar = str(i)+str(j)
+            if (paar not in al_gehad):
+                if i == j:
+                    pass
+                else:
+                    try:
+                        c = round(df[i].corr(df[j]),3)
+                        if c > 0.8:
+                            print (f"{i} - {j} - {str(c)}")
+                            
+                    except:
+                        pass
+            else:
+                #print ("algehad")
+                pass
+            al_gehad.append(str(j)+str(i))
+            #print ("toegevoegd" )
+            #print (paar)
+    #print (al_gehad)
+                 # first # second
+def find_lag_time(df, what_happens_first,what_happens_second ,r1,r2):
+    b = what_happens_first 
+    a = what_happens_second 
+    x = []
+    y = []
+    max = 0
+    max_column = None
+    for n in range (r1,(r2+1)):
+        df,m  = move_column(df,b,n)
+        c = round(df[m].corr(df[a]),3)
+        if c > max :
+            max =c
+            max_column = m
+            m_days = n
+        #print (f"{a} - {m} - {str(c)}")
+        x.append(n)
+        y.append(c)
+    title = (f"Correlation between : {a} - {b} ")
+    title2 = (f" {a} - b - moved {m_days} days ")
+    
+    
+    fig1x = plt.figure()
+    ax = fig1x.add_subplot(111)
+    plt.xlabel('shift in days')
+    plt.plot(x, y)
+    plt.axvline(x=0, color='yellow', alpha=.6,linestyle='--')
+    # Add a grid
+    plt.grid(alpha=.4,linestyle='--')
+    plt.title(title , fontsize=10)
+    plt.show()
+    graph_daily(df,[a],[b], "SMA","line")
+    graph_daily(df,[a],[max_column], "SMA","line")
+    # if the optimum is negative, the second one is that x days later
+
 def init():
     """  _ _ _ """
 
@@ -729,11 +903,12 @@ def init():
 
     # GLOBAL SETTINGS
     download = False
+    # De open data worden om 15.15 uur gepubliceerd
 
-    WDW2 = 7 # for all values except R values
-    WDW3 = 7 # for R values in add_walking_r
+    WDW2 = 5 # for all values except R values
+    WDW3 = 3 # for R values in add_walking_r
     FROM = '2021-1-1'
-    UNTIL = '2022-1-1'
+    UNTIL = '2025-5-1'
     # attention, minimum period between FROM and UNTIL = wdw days!
 
 
@@ -742,6 +917,17 @@ def main():
     init()
     # LET'S GET AND PREPARE THE DATA
     df, werkdagen, weekend_ = get_data()
+    what_to_show_day_r = None
+    what_to_show_week_r = None
+    # COLUMNS
+    # index,country_region_code,date,retail_and_recreation,grocery_and_pharmacy,parks,
+    # transit_stations,workplaces,residential,apple_driving,apple_transit,apple_walking,
+    # Date_of_statistics_x,Version_x,Hospital_admission_notification,Hospital_admission_x,
+    # Datum,IC_Bedden_COVID,IC_Bedden_Non_COVID,Kliniek_Bedden,IC_Nieuwe_Opnames_COVID,
+    # Kliniek_Nieuwe_Opnames_COVID,Date_of_publication,Total_reported,Hospital_admission_y,
+    # Deceased,Date,Rt_low,Rt_avg,Rt_up,population,version,Date_of_statistics_y,Version_y,
+    # Tested_with_result,Tested_positive,Percentage_positive,WEEKDAY
+
     # WHAT YOU CAN DO :
     # show correlation matrixes - no options
     # correlation_matrix(df,werkdagen, weekend_)
@@ -765,30 +951,48 @@ def main():
 
 
 
-                       # RIVM,                 gemeentes             ,LCPS
-    #columnlist2= ['Hospital_admission_x", "Hospital_admission_y", "Kliniek_Nieuwe_Opnames_COVID']
+                       # RIVM [USE THIS],                 gemeentes             ,LCPS
+    #columnlist2= ["Hospital_admission_x", "Hospital_admission_y", "Kliniek_Nieuwe_Opnames_COVID"]
 
     # DAILY STATISTICS ################
-    #columnlist1= ['Total_reported']
-    columnlist1= ['Kliniek_Nieuwe_Opnames_COVID','Total_reported']
+    columnlist1= ['Total_reported']
+    #columnlist1= ['Kliniek_Nieuwe_Opnames_COVID','Total_reported']
 
+    # save_df(df,"thisisallfolks")
 
+    # FILL HERE WHAT YOU WANT TO SEE // PARAMETERS
+    what_to_show_day_l = ["Total_reported" ,"Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID","Kliniek_Bedden","IC_Bedden_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
+    #what_to_show_day_l = ["Total_reported", "Tested_with_result"]
+    #what_to_show_day_l = ["transit_stations"]
+    
+    #what_to_show_day_l =["Kliniek_Bedden","Total_reported"]
+    #what_to_show_day_l = ["Kliniek_Nieuwe_Opnames_COVID"]
+    #what_to_show_day_l= ["Hospital_admission_x"]
+    #what_to_show_day_r =["Total_reported" ] # shown n seperate graphs if it's bar
+    what_to_show_day_l = ["Total_reported"] #""Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
 
-    # FILL HERE WHAT YOU WANT TO SEE
-    #what_to_show_day_l = ["Kliniek_Nieuwe_Opnames_COVID","Kliniek_Bedden","IC_Bedden_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
-    what_to_show_day_l =["Kliniek_Bedden"]
-    what_to_show_day_r = ["Total_reported"]
+    #what_to_show_day_r = ["Percentage_positive"] # always a line. 
+    what_to_show_day_r = ["Rt_avg"]
+    #what_to_show_day_r = None
     how_to_smoothen = "SMA"         # "SMA" or "savgol"
-    how_to_display = "line"          # "line" (all in 1 linegraph) or "bar" (different bargraphs)
+    how_to_display = "bar"          # "line" (all in 1 linegraph) or "bar" (different bargraphs)
+    
+    #what_to_show_week_l = ["Hospital_admission_x"]
+    #what_to_show_week_l = ["Total_reported" ,"Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID","Kliniek_Bedden","IC_Bedden_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
+    
+    how_to_agg_l = "sum"
+    what_to_show_week_r = ["Percentage_positive"]
+    how_to_agg_r = "mean"
 
-    what_to_show_week = ["Kliniek_Bedden"]
-    how_to_agg = "mean"
-
-
+    if how_to_display == "bar":
+        what_to_show_day_r = None
+    
     graph_daily(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
 
     # show a weekgraph, options have to put in the function self, no options her (for now)
-    # graph_week(df, what_to_show_week , how_to_agg)
+    #graph_week(df, what_to_show_week_l , how_to_agg_l, what_to_show_week_r , how_to_agg_r)
+    #find_correlations(df)
+    #find_lag_time(df,"transit_stations","Rt_avg", 0,10)
 
 main()
 
