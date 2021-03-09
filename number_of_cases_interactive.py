@@ -34,10 +34,10 @@ b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
-numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,3375)
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
 
 st.markdown("<hr>", unsafe_allow_html=True)
-a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"02/12/2021")
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/29/2021")
 
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
@@ -49,15 +49,15 @@ NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
 global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 
-Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 1.02)
-Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.26)
+Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.84)
+Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
 correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
 Rnew1_= round(Rnew_1_ * correction,2)
 Rnew2_= round(Rnew_2_ * correction,2)
 
-percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 50.0)/100)
+percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 43.0)/100)
 
-Tg = st.sidebar.slider('Generation time', 1.0, 11.0, 4.0)
+Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
 global Tg_
 Tg_=Tg
 
@@ -84,7 +84,7 @@ if showcummulative or showSIR:
 
 
 if showcummulative or showSIR or showimmunization:
-    totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 3_000_000))
+    totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 2_500_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
     
     testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 5.0, 2.5)
@@ -126,6 +126,19 @@ vaccination = st.sidebar.checkbox("Vaccination")
 if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 730, 365)
 
+ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,558)
+hospital_dayzero = st.sidebar.number_input('Aantal ziekenhuis dag 0',None,None,1447)
+ic_days_stay = st.sidebar.number_input('Aantal dagen op IC',None,None,13)
+hospital_days_stay = st.sidebar.number_input('Aantal dagen in ziekenhuis',None,None,21)
+from_test_to_ic =  st.sidebar.number_input('Aantal dagen test -> IC',None,None,5)
+from_test_to_hospital = st.sidebar.number_input('Aantal dagen test -> ziekenhuis',None,None,5)
+percentage_test_ic = st.sidebar.number_input('Percentage test/IC',None,None,0.7)
+percentage_test_hospital = st.sidebar.number_input('Percentage test/ziekenhuis',None,None,4)
+
+
+
+
+
 # I wanted to link the classical SIR model of Kermack & McKendrik but the R_0 in that 
 # model isnt the same as the R_0 = beta / gamma from that model.
 # See https://www.reddit.com/r/epidemiology/comments/lfk83s/real_r0_at_the_start_not_the_same_as_given_r0/
@@ -164,6 +177,8 @@ totalimmune=[]
 hospital = []
 infected = []
 ic  = []
+ic_cumm = []
+hospital_cumm = []
 #if vaccination:
 ry1x = []
 ry2x = []
@@ -201,6 +216,8 @@ immeratio_.append(1)
 
 hospital.append(None)
 ic.append(None)
+ic_cumm.append(ic_dayzero)
+hospital_cumm.append(hospital_dayzero)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
 if showimmunization:
     totalimmune.append(totalimmunedayzero)
@@ -326,14 +343,45 @@ for t in range(1, NUMBEROFDAYS):
     ry1x.append(ry1)
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
-    if t>=7:
-        hospital.append(positivetests12[t-7]*0.04)
+    if t>=from_test_to_hospital:
+        hospital.append(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
     else:
         hospital.append(None)
-    if t>=7:
-        ic.append(positivetests12[t-7]*0.008)
+    if t>=from_test_to_ic:
+        ic.append(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
     else:
         ic.append(None)
+
+    delta_hospital = 0
+    delta_ic = 0
+
+    if t < hospital_days_stay:
+        delta_hospital += -1 * (hospital_dayzero / hospital_days_stay) 
+    else:
+        hospital_temp = hospital[t-hospital_days_stay] 
+        if hospital_temp == None:
+            hospital_temp = 0
+        delta_hospital += -1 * hospital_temp      
+    if t> from_test_to_hospital:
+        delta_hospital +=(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
+
+    if t < ic_days_stay:
+        delta_ic += -1 * (ic_dayzero / ic_days_stay) 
+    else:
+        ic_temp = ic[t-ic_days_stay] 
+        if ic_temp == None:
+            ic_temp = 0
+        delta_ic += -1 * ic_temp    
+    if t> from_test_to_ic:
+        delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+
+                            
+
+
+    hospital_cumm.append(hospital_cumm[t-1]+delta_hospital)
+    ic_cumm.append(ic_cumm[t-1]+delta_ic)
+
+
 
 st.title('Positive COVID-tests in NL')
 
@@ -346,14 +394,7 @@ disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px
                 '</p><p>Forward-looking projections are estimates of what <em>might</em> occur. '
                 'They are not predictions of what <em>will</em> occur. Actual results may vary substantially. </p>'
                  '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
-              'At the bottom of the page are some links to more advanced (SEIR) models.</p>')
-              
-              
-buymeacoffee= ('<p align=/"center/"><a href=\"https://www.buymeacoffee.com/rcsmit\" target=\"_blank\">'
-               
-               
-               '<img src=/"https://i.imgur.com/QEXWTkN.png"/ border=0></a></p>'
-               '</div>')
+              'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
 
 st.markdown(disclaimernew,  unsafe_allow_html=True)
 if showimmunization:
@@ -407,10 +448,6 @@ def configgraph(titlex):
     plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
     plt.gcf().autofmt_xdate()
     plt.gca().set_title(titlex , fontsize=10)
-
-
-
-
 
 # POS TESTS /day ################################
 with _lock:
@@ -601,9 +638,9 @@ with _lock:
     plt.axhline(y=12, color='yellow', alpha=.6,linestyle='--')
     plt.axhline(y=40, color='orange', alpha=.6,linestyle='--')
     plt.axhline(y=80, color='red', alpha=.6,linestyle='--')
-   
+    # https://twitter.com/YorickB/status/1369253144014782466/photo/1
     # Add a title
-    titlex = ('Ziekenhuis (4%) en IC (0.8%) opnames per day,\n7 dgn vertraging')
+    titlex = ('Ziekenhuis ('+str(percentage_test_hospital)+ ' %) en IC ('+str(percentage_test_ic)+' %) opnames per day,\n7 dgn vertraging')
     configgraph(titlex)
     st.pyplot(fig1g)
 
@@ -612,6 +649,37 @@ ry2x = []
 hospital = []
 ic = []
 ################################################
+
+# Ziekenhuis bezetting
+with _lock:
+    fig1g, ax = plt.subplots()
+    plt.plot(x, hospital_cumm, label='Ziekenhuis bezetting per dag')
+    plt.plot(x, ic_cumm, label='IC bezetting per dag')
+    # Add X and y Label and limits
+
+    plt.ylabel('Ziekenhuis- en IC-bezetting per day')
+    plt.ylim(bottom = 0)
+    plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
+    plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
+    plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
+    plt.axhline(y=1500, color='red', alpha=.6,linestyle='--')
+   
+    # Add a title
+    titlex = (f'Ziekenhuis ({percentage_test_hospital}%) en IC ({percentage_test_ic}%) bezetting per day,ZEER vereenvoudigd')
+    configgraph(titlex) 
+    st.pyplot(fig1g)
+    st.write(f"Value for hospital occupation t=21   : {int((hospital_cumm[21]))}")
+    st.write(f"Value for hospital occupation t=35   : {int((hospital_cumm[35]))}")
+    st.write(f"Maximum value for hospital occupation : {int(max(hospital_cumm))}")
+
+    st.write(f"Value for IC occupation t=21         : {int((ic_cumm[21]))}")
+    st.write(f"Value for IC occupation t=35         : {int((ic_cumm[35]))}")
+    st.write(f"Maximum value for IC occupation       : {int(max(ic_cumm))}")
+ry1x = []
+ry2x = []
+hospital_cumm = []
+ic_cumm = []
+#########################
 if showSIR:
 
     with st.beta_expander("Show classical SIR-graphs"):
