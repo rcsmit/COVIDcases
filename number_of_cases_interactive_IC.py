@@ -73,7 +73,7 @@ turning = st.sidebar.checkbox("Turning point")
 
 if turning:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
-    newrnumber = st.sidebar.slider('New R-number (1.0 = no change)', 0.0, 3.0, 0.9)
+    newrnumber = st.sidebar.slider('New R-number', 0.0, 3.0, 0.9)
     #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
     turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', b)
     turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
