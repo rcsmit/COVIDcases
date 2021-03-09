@@ -34,10 +34,10 @@ b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Parameters')
-numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,1428)
 
 st.markdown("<hr>", unsafe_allow_html=True)
-a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"03/09/2021")
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/01/2021")
 
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
@@ -50,13 +50,10 @@ global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 
 
-Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
+Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.00)
 correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
 
 
-Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
-global Tg_
-Tg_=Tg
 
 # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
 showcummulative =  True
@@ -69,14 +66,13 @@ showimmunization =  True
 
 
 
-turning = st.sidebar.checkbox("Turning point")
+turning = st.sidebar.checkbox("Turning point", True)
 
 if turning:
-    #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
-    newrnumber = st.sidebar.slider('New R-number', 0.0, 3.0, 0.9)
-    #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
-    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', b)
-    turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 10)
+   
+    newrnumber = st.sidebar.slider('New R-number', 0.0, 3.0, 1.5)
+    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', "01/10/2021")
+    turningdays = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 3)
     try:
         starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date()
     except:
@@ -89,9 +85,31 @@ if turning:
         st.error("Turning point cannot be before startdate")
         st.stop()
     turningpoint =  abs((d2 - d1).days)
+
+    turning_2 = st.sidebar.checkbox("Second Turning point", True)
+
+if turning_2:
+    #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
+    newrnumber2 = st.sidebar.slider('New R-number', 0.0, 3.0, 0.9)
+    #turning_2point = st.sidebar.slider('Startday turning_2', 1, 365, 30)
+    turning_2pointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', "02/02/2021")
+    turning_2days = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 3, key="test")
+    try:
+        starty = dt.datetime.strptime(turning_2pointdate,'%m/%d/%Y').date()
+    except:
+        st.error("Please make sure that the date is in format mm/dd/yyyy")
+        st.stop()
+
+
+    d3 = datetime.strptime(turning_2pointdate,'%m/%d/%Y')
+    if d3<d2:
+        st.error("Second Turning point cannot be before First turning point")
+        st.stop()
+    turning_2point =  abs((d3 - d1).days)
+
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.write('IC')
-ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,558)
+ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,200)
 ic_days_stay = st.sidebar.number_input('Aantal dagen op IC',None,None,13)
 from_test_to_ic =  st.sidebar.number_input('Aantal dagen test -> IC',None,None,5)
 percentage_test_ic = st.sidebar.number_input('Percentage test/IC',None,None,0.7)
@@ -106,6 +124,11 @@ st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
 
 st.sidebar.write ("No need to touch this")
+
+Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
+global Tg_
+Tg_=Tg
+
 if showcummulative or showSIR or showimmunization:
     totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 2_500_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
@@ -225,7 +248,8 @@ hospital_cumm.append(hospital_dayzero)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
 if showimmunization:
     totalimmune.append(totalimmunedayzero)
-
+ry1__ = 1
+ry2__ = 0
 for t in range(1, NUMBEROFDAYS):
     if showimmunization:
         immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
@@ -236,25 +260,33 @@ for t in range(1, NUMBEROFDAYS):
         ry1_ = ry1x[0]
         ry2_ = ry2x[0]
 
-    if turning:
-        changefactor = newrnumber / Rnew_2_
-        if (t>=(turningpoint) and t<(turningpoint+turningdays)):
-            if turningdays==0: 
-                ry1__ = ry1_  * changefactor
-                ry2__ = ry2_  * changefactor
+    if turning or turning2:
+        r1 = ry2_
+        r2 = newrnumber 
+        r3 = newrnumber2 
+
+        tp = turningpoint
+        tptd = turningpoint + turningdays
+        tp2 = turning_2point
+        tptd2 = turning_2point + turning_2days
+        if t<tp:
+            ry2__ = r1
+        if (t>=(tp) and t<(tptd)):
+            if turningdays==0:   
+                ry2__ = r2
             else:
-                fraction =  (1-((t-(turningpoint))/turningdays))                
-                ry1__ =(ry1_  * changefactor) + ((ry1_ -(ry1_  * changefactor))*fraction)
-                ry2__ =(ry2_  * changefactor) + ((ry2_ -(ry2_  * changefactor))*fraction)
-        elif t>=(turningpoint+turningdays):
-            ry1__ = ry1_  * changefactor
-            ry2__ = ry2_  * changefactor
-        else:
-            ry1__ = ry1_
-            ry2__ = ry2_
-    else:
-        ry1__ = ry1_
-        ry2__ = ry2_
+                fraction =  (1-((t-tp)/(tptd-tp)))                
+                ry2__ = r2 + ((r1 - r2)*fraction)
+        if (t>=tptd) and t<=tp2:
+            ry2__ = r2
+        if t> tp2 and t<= tptd2:
+            if turning_2days == 0 :
+                ry2__ = r3
+            else:
+                fraction2 =( 1 - ((t-tp2)/(tptd2-tp2)))
+                ry2__ = r1 +  ((r2 - r3)*fraction2)
+        if t>=tptd2: 
+                ry2__ = r3
 
     if vaccination:
         if t>7:
@@ -488,11 +520,9 @@ with _lock:
     st.write(f"Value for hospital occupation t=35   : {int((hospital_cumm[35]))}")
     st.write(f"Maximum value for hospital occupation : {int(max(hospital_cumm))}")
 
-   
-ry1x = []
-ry2x = []
-hospital_cumm = []
-ic_cumm = []
+
+ 
+
 #########################
 # Ziekenhuis opnames
 with _lock:
@@ -514,8 +544,7 @@ with _lock:
     configgraph(titlex)
     st.pyplot(fig1g)
 
-ry1x = []
-ry2x = []
+
 hospital = []
 ic = []
 
@@ -545,6 +574,28 @@ with _lock:
     st.pyplot(fig1)
 
     
+# Show the R number in time
+with _lock:
+    fig1f, ax = plt.subplots()
+    plt.plot(x, ry2x, label='New variant',  linestyle='--')
+
+    walkingR = []
+
+    # Add X and y Label and limits
+    plt.ylabel('R-number')
+    #plt.ylim(bottom = 0)
+
+    # Add a title
+    titlex = ('R number in time.\n')
+    plt.title(titlex , fontsize=10)
+    configgraph(titlex)
+    plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+    getsecondax()
+    #secax = ax.secondary_yaxis('right', functions=(r2th,th2r))
+    #secax.set_ylabel('Thalf')
+    st.pyplot(fig1f)
+
+
 
 positivetests1 = []
 positivetests2 = []
