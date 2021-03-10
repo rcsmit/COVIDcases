@@ -277,6 +277,11 @@ if showimmunization:
 #ry1__ = 5
 ry1__ = 999
 fractionlist = []
+weerbeteric = []
+weerbeterhospital = []
+for xyx in range(0, NUMBEROFDAYS):
+    weerbeteric.append(0)
+    weerbeterhospital.append(0)
 for t in range(1, NUMBEROFDAYS):
     
     if not turning:
@@ -434,17 +439,6 @@ for t in range(1, NUMBEROFDAYS):
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
 
-    if t>=from_test_to_hospital:
-        hospital.append(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
-    else:
-        hospital.append(None)
-    if t>=from_test_to_ic:
-        ic.append(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
-    else:
-        ic.append(None)
-
-    delta_hospital = 0
-    delta_ic = 0
 
     # # ERAF
     # if t < hospital_days_stay:
@@ -466,7 +460,18 @@ for t in range(1, NUMBEROFDAYS):
 
     # else:
     #    delta_hospital +=(positivetests12[t-from_test_to_ic]*(percentage_test_hospital/100))
-        
+    if t>=from_test_to_hospital:
+        hospital.append(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
+    else:
+        hospital.append(None)
+    if t>=from_test_to_ic:
+        ic.append(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+    else:
+        ic.append(None)
+
+    delta_hospital = 0
+    delta_ic = 0
+   
                          
     
     if t < hospital_days_stay:
@@ -475,10 +480,17 @@ for t in range(1, NUMBEROFDAYS):
         hospital_temp = hospital[t-hospital_days_stay] 
         if hospital_temp == None:
             hospital_temp = 0
-        delta_hospital += -1 * hospital_temp      
+        delta_hospital += -1 * hospital_temp    
+    delta_hospital -= weerbeterhospital[t]
     if t> from_test_to_hospital:
         delta_hospital +=(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
-
+    else:
+        xy = (t-from_test_to_hospital) * -1
+        delta_hospital +=(terugk[xy]*(percentage_test_hospital/100)) 
+        temphos     =(terugk[xy]*(percentage_test_hospital/100))  # wanneer worden ddeze mensen weer beter
+        weerbeterhospital[xy + hospital_days_stay] = temphos
+    
+    #-------------------------------------
     if t < ic_days_stay:
         delta_ic += -1 * (ic_dayzero / ic_days_stay)
         xy = (t-ic_days_stay) * -1
@@ -488,8 +500,19 @@ for t in range(1, NUMBEROFDAYS):
         if ic_temp == None:
             ic_temp = 0
         delta_ic += -1 * ic_temp    
+
+    delta_ic -= weerbeteric[t]
     if t> from_test_to_ic:
         delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+    else:
+        xy = (t-from_test_to_ic) * -1
+        delta_ic +=(terugk[xy]*(percentage_test_ic/100)) 
+        temp      =(terugk[xy]*(percentage_test_ic/100))  # wanneer worden ddeze mensen weer beter
+        weerbeteric[xy + ic_days_stay] = temp
+
+
+        #print (str(xy) + " "+ str(delta_ic))
+
 
  
 
@@ -506,10 +529,7 @@ for t in range(1, NUMBEROFDAYS):
     #     delta_ic += -1 * ic_temp  
 
     # if t< from_test_to_ic:
-    #     xy = (t-from_test_to_ic) * -1
-    #     delta_ic +=(terugk[xy]*(percentage_test_ic/100))
-    #     #print (str(xy) + " "+ str(delta_ic))
-
+   
     # else:
     #     delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
 
@@ -522,7 +542,7 @@ for t in range(1, NUMBEROFDAYS):
 
 
 st.title('IC-bezetting in NL')
-
+#print(weerbeter)
 
 
 def th2r(rz):
