@@ -91,8 +91,8 @@ if turning:
     newrnumber2 = st.sidebar.slider('New R-number 2', 0.0, 3.0, 0.9)
     #turning_2point = st.sidebar.slider('Startday turning_2', 1, 365, 30)
     turning_2pointdate = st.sidebar.text_input('Turning point date 2 (mm/dd/yyyy)', "02/02/2021")
-    small = ("Set date in 2030 if turning point if not needed</font")
-    st.sidebar.markdown(small,  unsafe_allow_html=True)
+    small = ("Set date in 2030 if turning point if not needed")
+    st.sidebar.write(small)
     turning_2days = st.sidebar.slider('Number of days needed to reach new R values 2', 1, 90, 3, key="test")
     try:
         starty = dt.datetime.strptime(turning_2pointdate,'%m/%d/%Y').date()
@@ -683,7 +683,7 @@ tekst = (
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
     '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
     'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
-    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive_IC.py\" target=\"_blank\">github.com/rcsmit</a><br>'
+    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\" target=\"_blank\">github.com/rcsmit</a><br>'
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
     'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst.<br>'
     'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a>.</div>')
