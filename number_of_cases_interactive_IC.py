@@ -50,9 +50,9 @@ global numberofdays_
 numberofdays_ = NUMBEROFDAYS
 
 
-Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.00)
-correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
-
+Rnew_2_ = st.sidebar.slider('R-number', 0.1, 6.0, 1.00)
+#correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
+correction = 1
 
 
 # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
@@ -67,6 +67,7 @@ showimmunization =  True
 
 
 turning = st.sidebar.checkbox("Turning point", True)
+turning_2 = False
 
 if turning:
    
@@ -86,13 +87,11 @@ if turning:
         st.stop()
     turningpoint =  abs((d2 - d1).days)
 
-    turning_2 = st.sidebar.checkbox("Second Turning point", True)
-
-if turning_2:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
     newrnumber2 = st.sidebar.slider('New R-number', 0.0, 3.0, 0.9)
     #turning_2point = st.sidebar.slider('Startday turning_2', 1, 365, 30)
     turning_2pointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy)', "02/02/2021")
+    st.sidebar.write("Set date in 2030 if turning point is not needed")
     turning_2days = st.sidebar.slider('Number of days needed to reach new R values', 1, 90, 3, key="test")
     try:
         starty = dt.datetime.strptime(turning_2pointdate,'%m/%d/%Y').date()
@@ -248,54 +247,82 @@ hospital_cumm.append(hospital_dayzero)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
 if showimmunization:
     totalimmune.append(totalimmunedayzero)
-ry1__ = 1
-ry2__ = 0
+#ry1 = 5
+#ry1__ = 5
+ry1__ = 999
+fractionlist = []
 for t in range(1, NUMBEROFDAYS):
-    if showimmunization:
-        immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
-        ry1_ = ry1x[0]*(immeratio**lambdaa)
-        ry2_ = ry2x[0]*(immeratio**lambdaa)
-        immeratio_.append(immeratio)
-    else:
-        ry1_ = ry1x[0]
-        ry2_ = ry2x[0]
+    
+    if not turning:
+        if showimmunization:
+            immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
+            ry1_ = ry1x[0]*(immeratio**lambdaa)
+            ry2_ = ry2x[0]*(immeratio**lambdaa)
+            immeratio_.append(immeratio)
+            
+            r1 = ry2_
+            ry2__ = ry2_
+        else:
+            ry1_ = ry1x[0]
+            ry2_ = ry2x[0]
+            pass
 
-    if turning or turning2:
-        r1 = ry2_
+    if turning :
+        r1 = ry2x[0]
         r2 = newrnumber 
-        r3 = newrnumber2 
-
         tp = turningpoint
         tptd = turningpoint + turningdays
+        ry2__ = ry2x[0]
+
         tp2 = turning_2point
         tptd2 = turning_2point + turning_2days
-        if t<tp:
-            ry2__ = r1
-        if (t>=(tp) and t<(tptd)):
+        
+        r3 = newrnumber2 
+        if t<=tp:
+            immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
+            ry2__ = ry2x[0]*immeratio
+            pass
+        if ((t>tp) and t<=(tptd)):
             if turningdays==0:   
                 ry2__ = r2
             else:
-                fraction =  (1-((t-tp)/(tptd-tp)))                
-                ry2__ = r2 + ((r1 - r2)*fraction)
-        if (t>=tptd) and t<=tp2:
-            ry2__ = r2
+                fraction =  (((t-tp)/turningdays)) 
+                                 
+                ry2__ = ry2x[tp] + ((r2 -ry2x[tp] )*fraction)
+                fractionlist.append(fraction)
+        
+        if (t>tptd) and t<=tp2:
+            if totalimmune[tptd] > totalpopulation  or totalpopulation == totalimmune[tptd]:
+                    immeratio = 0.0001
+            else:
+                immeratio = (1-( (totalimmune[t-1]-totalimmune[tptd])/(totalpopulation-totalimmune[tptd])))
+                ry2__ = ry2x[tptd]*(immeratio**lambdaa)
+
         if t> tp2 and t<= tptd2:
             if turning_2days == 0 :
                 ry2__ = r3
             else:
-                fraction2 =( 1 - ((t-tp2)/(tptd2-tp2)))
-                ry2__ = r1 +  ((r2 - r3)*fraction2)
-        if t>=tptd2: 
-                ry2__ = r3
-
+                fraction2 =  (((t-tp2)/turning_2days)) 
+                ry2__ = ry2x[tp2] + ((r3 -ry2x[tp2] )*fraction2)
+                
+        if t>tptd2: 
+                if totalimmune[tptd2] > totalpopulation  or totalpopulation == totalimmune[tptd2]:
+                    immeratio = 0.0001
+                else:
+                    immeratio = (1-( (totalimmune[t-1]-totalimmune[tptd2])/(totalpopulation-totalimmune[tptd2])))
+                ry2__ = ry2x[tptd2]*(immeratio**lambdaa)
+        immeratio_.append(immeratio)
+        
+      
+    
     if vaccination:
         if t>7:
             if t<(VACTIME+7) :
-                ry1 = ry1__ * ((1-((t-7)/(VACTIME))))
+         
                 ry2 = ry2__ * ((1-((t-7)/(VACTIME))))
             else:
                 # vaccination is done, everybody is immune
-                ry1 = ry1__ * 0.0000001
+               
                 ry2 = ry2__ * 0.0000001
         else:
             # it takes 7 days before vaccination works
@@ -317,7 +344,7 @@ for t in range(1, NUMBEROFDAYS):
 
     thalf1 = Tg * math.log(0.5) / math.log(ry1)
     thalf2 = Tg * math.log(0.5) / math.log(ry2)
-
+    
     pt1 = (positivetests1[t-1] * (0.5**(1/thalf1)))
     pt2 = (positivetests2[t-1] * (0.5**(1/thalf2)))
     positivetests1.append(pt1)
@@ -420,7 +447,7 @@ for t in range(1, NUMBEROFDAYS):
 
 
 
-st.title('Positive COVID-tests in NL')
+st.title('IC-bezetting in NL')
 
 
 
@@ -452,6 +479,13 @@ def configgraph(titlex):
     plt.xlim(x[0], x[-1])
     todaylabel = "Today ("+ b + ")"
     plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
+    if turning:
+        plt.axvline(x=x[0]+tp, color='orange', alpha=.6,linestyle='--',label = "First turningpoint")
+        plt.axvline(x=x[0]+tptd, color='orange', alpha=.4,linestyle='--',label = "First turningpoint")
+  
+        plt.axvline(x=x[0]+tp2, color='orange', alpha=.6,linestyle='--',label = "Second turningpoint")
+        plt.axvline(x=x[0]+tptd2, color='orange', alpha=.6,linestyle='--',label = "Second turningpoint")
+    
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
 
@@ -496,60 +530,60 @@ with _lock:
     st.write(f"Maximum value for IC occupation       : {int(max(ic_cumm))}")
 
 
- # Ziekenhuis bezetting
-with _lock:
-    fig1h, ax = plt.subplots()
-    plt.plot(x, hospital_cumm, label='Ziekenhuis bezetting per dag')
-    # Add X and y Label and limits
+#  # Ziekenhuis bezetting
+# with _lock:
+#     fig1h, ax = plt.subplots()
+#     plt.plot(x, hospital_cumm, label='Ziekenhuis bezetting per dag')
+#     # Add X and y Label and limits
 
-    plt.ylabel('Ziekenhuisbezetting per day')
-    plt.ylim(bottom = 0)
-    # plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
-    # plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
-    # plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
-    # plt.axhline(y=1500, color='red', alpha=.6,linestyle='--')
+#     plt.ylabel('Ziekenhuisbezetting per day')
+#     plt.ylim(bottom = 0)
+#     # plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
+#     # plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
+#     # plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
+#     # plt.axhline(y=1500, color='red', alpha=.6,linestyle='--')
     
-    plt.axvline(x=21, color='yellow', alpha=.4,linestyle='--')
-    plt.axvline(x=35, color='yellow', alpha=.4,linestyle='--')
+#     plt.axvline(x=21, color='yellow', alpha=.4,linestyle='--')
+#     plt.axvline(x=35, color='yellow', alpha=.4,linestyle='--')
 
-    # Add a title
-    titlex = (f'Ziekenhuis ({percentage_test_hospital}%)  bezetting per day, R={Rnew_2_ }, start={hospital_dayzero}')
-    configgraph(titlex) 
-    st.pyplot(fig1h)
-    st.write(f"Value for hospital occupation t=21   : {int((hospital_cumm[21]))}")
-    st.write(f"Value for hospital occupation t=35   : {int((hospital_cumm[35]))}")
-    st.write(f"Maximum value for hospital occupation : {int(max(hospital_cumm))}")
+#     # Add a title
+#     titlex = (f'Ziekenhuis ({percentage_test_hospital}%)  bezetting per day, R={Rnew_2_ }, start={hospital_dayzero}')
+#     configgraph(titlex) 
+#     st.pyplot(fig1h)
+#     st.write(f"Value for hospital occupation t=21   : {int((hospital_cumm[21]))}")
+#     st.write(f"Value for hospital occupation t=35   : {int((hospital_cumm[35]))}")
+#     st.write(f"Maximum value for hospital occupation : {int(max(hospital_cumm))}")
 
 
  
 
-#########################
-# Ziekenhuis opnames
-with _lock:
-    fig1g, ax = plt.subplots()
-    plt.plot(x, hospital, label='Ziekenhuis per dag')
-    plt.plot(x, ic, label='IC per dag')
-    # Add X and y Label and limits
+# # #########################
+# # # Ziekenhuis opnames
+# # with _lock:
+#     fig1g, ax = plt.subplots()
+#     plt.plot(x, hospital, label='Ziekenhuis per dag')
+#     plt.plot(x, ic, label='IC per dag')
+#     # Add X and y Label and limits
 
-    plt.ylabel('Ziekenhuis- en IC-opnames per day')
-    plt.ylim(bottom = 0)
-    plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
-    plt.axhline(y=12, color='yellow', alpha=.6,linestyle='--')
-    plt.axhline(y=40, color='orange', alpha=.6,linestyle='--')
-    plt.axhline(y=80, color='red', alpha=.6,linestyle='--')
+#     plt.ylabel('Ziekenhuis- en IC-opnames per day')
+#     plt.ylim(bottom = 0)
+#     plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+#     plt.axhline(y=12, color='yellow', alpha=.6,linestyle='--')
+#     plt.axhline(y=40, color='orange', alpha=.6,linestyle='--')
+#     plt.axhline(y=80, color='red', alpha=.6,linestyle='--')
     
-    # https://twitter.com/YorickB/status/1369253144014782466/photo/1
-    # Add a title
-    titlex = ('Ziekenhuis ('+str(percentage_test_hospital)+ ' %) en IC ('+str(percentage_test_ic)+' %) opnames per day,\n7 dgn vertraging')
-    configgraph(titlex)
-    st.pyplot(fig1g)
+#     # https://twitter.com/YorickB/status/1369253144014782466/photo/1
+#     # Add a title
+#     titlex = ('Ziekenhuis ('+str(percentage_test_hospital)+ ' %) en IC ('+str(percentage_test_ic)+' %) opnames per day,\n7 dgn vertraging')
+#     configgraph(titlex)
+#     st.pyplot(fig1g)
 
 
-hospital = []
-ic = []
+# hospital = []
+# ic = []
 
 
-# POS TESTS /day ################################
+# # POS TESTS /day ################################
 with _lock:
     fig1, ax = plt.subplots()
     #plt.plot(x, positivetests1, label=label1,  linestyle='--')
@@ -595,7 +629,23 @@ with _lock:
     #secax.set_ylabel('Thalf')
     st.pyplot(fig1f)
 
+with _lock:
+    fig1i, ax = plt.subplots()
+    plt.plot(x, suspectible, label='Suspectible',  linestyle='--')
+    plt.plot(x, infected, label='Infected',  linestyle='--')
+    plt.plot(x, recovered, label='Recovered',  linestyle='--')
+    infected = []
 
+    # Add  y Label and limits
+    plt.ylabel('No of cases')
+    plt.ylim(bottom = 0)
+
+    # Add a title
+    titlex = ('Suspectible - Infected - Recovered.\nBased on positive tests.\n'
+                '(test/immunityfactor is taken in account)')
+    configgraph(titlex)
+    
+    st.pyplot(fig1i)
 
 positivetests1 = []
 positivetests2 = []
