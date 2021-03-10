@@ -590,8 +590,8 @@ with _lock:
     plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
     plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
     plt.axhline(y=1500, color='red', alpha=.6,linestyle='--')
-    plt.fill_between(x, 750, 1299, color='##FFB1B4')
-    plt.fill_between(x, 1300, 10000, color='##FE8081', label='IC Overbelast')
+    plt.fill_between(x, 750, 1299, color='#FFB1B4')
+    plt.fill_between(x, 1300, 10000, color='#FE8081', label='IC Overbelast')
   
     plt.axvline(x=21, color='yellow', alpha=.4,linestyle='--')
     plt.axvline(x=35, color='yellow', alpha=.4,linestyle='--')
