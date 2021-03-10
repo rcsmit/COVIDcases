@@ -115,12 +115,20 @@ from_test_to_ic =  st.sidebar.number_input('Aantal dagen test -> IC',None,None,5
 percentage_test_ic = st.sidebar.number_input('Percentage test/IC',None,None,0.7)
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
-st.sidebar.write('HOSPITAL')
-hospital_dayzero = st.sidebar.number_input('Aantal ziekenhuis dag 0',None,None,1447)
-hospital_days_stay = st.sidebar.number_input('Aantal dagen in ziekenhuis',None,None,21)
-from_test_to_hospital = st.sidebar.number_input('Aantal dagen test -> ziekenhuis',None,None,5)
-percentage_test_hospital = st.sidebar.number_input('Percentage test/ziekenhuis',None,None,4)
-st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+show_hospital = st.sidebar.checkbox("Hospital", False)
+if show_hospital:
+    st.sidebar.write('HOSPITAL')
+    hospital_dayzero = st.sidebar.number_input('Aantal ziekenhuis dag 0',None,None,1447)
+    hospital_days_stay = st.sidebar.number_input('Aantal dagen in ziekenhuis',None,None,21)
+    from_test_to_hospital = st.sidebar.number_input('Aantal dagen test -> ziekenhuis',None,None,5)
+    percentage_test_hospital = st.sidebar.number_input('Percentage test/ziekenhuis',None,None,4)
+    st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+else:
+    hospital_dayzero = 1447
+    hospital_days_stay = 21
+    from_test_to_hospital = 5
+    percentage_test_hospital = 4
+    
 
 
 st.sidebar.write ("No need to touch this")
@@ -209,6 +217,23 @@ hospital_cumm = []
 #if vaccination:
 ry1x = []
 ry2x = []
+
+terugk= []
+ry2 = Rnew2_
+terugk.append(numberofpositivetests)
+
+ # prevent an [divide by zero]-error
+
+if ry2 == 1:
+    ry2 = 1.000001
+if ry2 <= 0:
+    ry2 = 0.000001
+for t in range (1, numberofdays_):
+
+    thalf2 = Tg * math.log(0.5) / math.log(ry2)
+    pt2 = (terugk[t-1] * (0.5**(-1/thalf2)))
+
+    terugk.append((pt2))
 
 suspectible =[]
 recovered = []
@@ -408,6 +433,7 @@ for t in range(1, NUMBEROFDAYS):
     ry1x.append(ry1)
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
+
     if t>=from_test_to_hospital:
         hospital.append(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
     else:
@@ -420,6 +446,29 @@ for t in range(1, NUMBEROFDAYS):
     delta_hospital = 0
     delta_ic = 0
 
+    # # ERAF
+    # if t < hospital_days_stay:
+    #     delta_hospital -= -1 * (hospital_dayzero / hospital_days_stay) 
+    #     xy = (t-hospital_days_stay) * -1
+    #     delta_hospital -=(terugk[xy]*(percentage_test_hospital/100))
+    # else:
+    #     hospital_temp = hospital[t-hospital_days_stay] 
+    #     if hospital_temp == None:
+    #         hospital_temp = 0
+    #     delta_hospital += -1 * hospital_temp 
+    #     #print (delta_hospital)
+
+    # # ERBIJ  
+    # if t< from_test_to_hospital:
+    #     xy = (t-from_test_to_hospital) * -1
+    #     delta_hospital +=(terugk[xy]*(percentage_test_hospital/100))
+    #     #print (str(xy) + " "+ str(delta_ic))
+
+    # else:
+    #    delta_hospital +=(positivetests12[t-from_test_to_ic]*(percentage_test_hospital/100))
+        
+                         
+    
     if t < hospital_days_stay:
         delta_hospital += -1 * (hospital_dayzero / hospital_days_stay) 
     else:
@@ -431,7 +480,9 @@ for t in range(1, NUMBEROFDAYS):
         delta_hospital +=(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
 
     if t < ic_days_stay:
-        delta_ic += -1 * (ic_dayzero / ic_days_stay) 
+        delta_ic += -1 * (ic_dayzero / ic_days_stay)
+        xy = (t-ic_days_stay) * -1
+       
     else:
         ic_temp = ic[t-ic_days_stay] 
         if ic_temp == None:
@@ -439,6 +490,28 @@ for t in range(1, NUMBEROFDAYS):
         delta_ic += -1 * ic_temp    
     if t> from_test_to_ic:
         delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+
+ 
+
+
+    # if t < ic_days_stay:
+    #     #delta_ic += -1 * (ic_dayzero / ic_days_stay) 
+    #     xy = (t-ic_days_stay) * -1
+    #     delta_ic -=(terugk[xy]*(percentage_test_ic/100))
+    #     #print (str(xy) + " "+ str(delta_ic)) 
+    # else:
+    #     ic_temp = ic[t-ic_days_stay] 
+    #     if ic_temp == None:
+    #         ic_temp = 0
+    #     delta_ic += -1 * ic_temp  
+
+    # if t< from_test_to_ic:
+    #     xy = (t-from_test_to_ic) * -1
+    #     delta_ic +=(terugk[xy]*(percentage_test_ic/100))
+    #     #print (str(xy) + " "+ str(delta_ic))
+
+    # else:
+    #     delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
 
                             
 
@@ -532,28 +605,29 @@ with _lock:
 
 
 #  # Ziekenhuis bezetting
-# with _lock:
-#     fig1h, ax = plt.subplots()
-#     plt.plot(x, hospital_cumm, label='Ziekenhuis bezetting per dag')
-#     # Add X and y Label and limits
+if show_hospital:
+    with _lock:
+        fig1h, ax = plt.subplots()
+        plt.plot(x, hospital_cumm, label='Ziekenhuis bezetting per dag')
+        # Add X and y Label and limits
 
-#     plt.ylabel('Ziekenhuisbezetting per day')
-#     plt.ylim(bottom = 0)
-#     # plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
-#     # plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
-#     # plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
-#     # plt.axhline(y=1500, color='red', alpha=.6,linestyle='--')
-    
-#     plt.axvline(x=21, color='yellow', alpha=.4,linestyle='--')
-#     plt.axvline(x=35, color='yellow', alpha=.4,linestyle='--')
+        plt.ylabel('Ziekenhuisbezetting per day')
+        plt.ylim(bottom = 0)
+        # plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
+        # plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
+        # plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
+        # plt.axhline(y=1500, color='red', alpha=.6,linestyle='--')
+        
+        plt.axvline(x=21, color='yellow', alpha=.4,linestyle='--')
+        plt.axvline(x=35, color='yellow', alpha=.4,linestyle='--')
 
-#     # Add a title
-#     titlex = (f'Ziekenhuis ({percentage_test_hospital}%)  bezetting per day, R={Rnew_2_ }, start={hospital_dayzero}')
-#     configgraph(titlex) 
-#     st.pyplot(fig1h)
-#     st.write(f"Value for hospital occupation t=21   : {int((hospital_cumm[21]))}")
-#     st.write(f"Value for hospital occupation t=35   : {int((hospital_cumm[35]))}")
-#     st.write(f"Maximum value for hospital occupation : {int(max(hospital_cumm))}")
+        # Add a title
+        titlex = (f'Ziekenhuis ({percentage_test_hospital}%)  bezetting per day, R={Rnew_2_ }, start={hospital_dayzero}')
+        configgraph(titlex) 
+        st.pyplot(fig1h)
+        st.write(f"Value for hospital occupation t=21   : {int((hospital_cumm[21]))}")
+        st.write(f"Value for hospital occupation t=35   : {int((hospital_cumm[35]))}")
+        st.write(f"Maximum value for hospital occupation : {int(max(hospital_cumm))}")
 
 
  
