@@ -596,7 +596,7 @@ with _lock:
     #plt.plot(x, erbijmoved, label='IC erbijmoved')
     # Add X and y Label and limits
 
-    plt.ylabel('Ziekenhuis- en IC-bezetting per day')
+    plt.ylabel('IC-bezetting per day')
     plt.ylim(bottom = 0)
     #plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
     #plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
@@ -661,11 +661,11 @@ if show_hospital:
 # # # Ziekenhuis opnames
 with _lock:
     fig1g, ax = plt.subplots()
-    plt.plot(x, hospital, label='Ziekenhuis per dag')
+    #plt.plot(x, hospital, label='Ziekenhuis per dag')
     plt.plot(x, ic_opnames, label='IC per dag')
     # Add X and y Label and limits
 
-    plt.ylabel('Ziekenhuis- en IC-opnames per day')
+    plt.ylabel('IC-opnames per day')
     plt.ylim(bottom = 0)
     plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
     plt.axhline(y=12, color='yellow', alpha=.6,linestyle='--')
@@ -674,7 +674,7 @@ with _lock:
     
     # https://twitter.com/YorickB/status/1369253144014782466/photo/1
     # Add a title
-    titlex = ('Ziekenhuis ('+str(percentage_test_hospital)+ ' %) en IC ('+str(percentage_test_ic)+' %) opnames per day,\n7 dgn vertraging')
+    titlex = ('IC ('+str(percentage_test_ic)+' %) opnames per day')
     configgraph(titlex)
     st.pyplot(fig1g)
 
