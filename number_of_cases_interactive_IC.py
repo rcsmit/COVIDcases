@@ -35,7 +35,7 @@ b = datetime.today().strftime('%m/%d/%Y')
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
 st.sidebar.title('Key Parameters')
 numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
-newrnumber = st.sidebar.slider('New R-number 1', 0.0, 3.0, 1.5)
+newrnumber = st.sidebar.slider('New R-number 1', 0.0, 3.0, 1.1)
 ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,500)
 
 
