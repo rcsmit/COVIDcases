@@ -33,11 +33,15 @@ DATE_FORMAT = "%m/%d/%Y"
 b = datetime.today().strftime('%m/%d/%Y')
 
 #values 01/13/2021, according to https://www.bddataplan.nl/corona/
-st.sidebar.title('Parameters')
-numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,1428)
+st.sidebar.title('Key Parameters')
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
+newrnumber = st.sidebar.slider('New R-number 1', 0.0, 3.0, 1.5)
+ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,500)
 
-st.markdown("<hr>", unsafe_allow_html=True)
-a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/01/2021")
+
+st.sidebar.markdown("<br><br><br><hr>", unsafe_allow_html=True)
+st.sidebar.title('Parameters')
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"03/10/2021")
 
 try:
     startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
@@ -71,8 +75,8 @@ turning_2 = False
 
 if turning:
    
-    newrnumber = st.sidebar.slider('New R-number 1', 0.0, 3.0, 1.5)
-    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy) 1', "01/10/2021")
+    
+    turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy) 1', "03/15/2021")
     turningdays = st.sidebar.slider('Number of days needed to reach new R values 1', 1, 90, 3)
     try:
         starty = dt.datetime.strptime(turningpointdate,'%m/%d/%Y').date()
@@ -90,7 +94,7 @@ if turning:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
     newrnumber2 = st.sidebar.slider('New R-number 2', 0.0, 3.0, 0.9)
     #turning_2point = st.sidebar.slider('Startday turning_2', 1, 365, 30)
-    turning_2pointdate = st.sidebar.text_input('Turning point date 2 (mm/dd/yyyy)', "02/02/2021")
+    turning_2pointdate = st.sidebar.text_input('Turning point date 2 (mm/dd/yyyy)', "02/02/2025")
     small = ("Set date in 2030 if turning point if not needed")
     st.sidebar.write(small)
     turning_2days = st.sidebar.slider('Number of days needed to reach new R values 2', 1, 90, 3, key="test")
@@ -109,16 +113,15 @@ if turning:
 
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.write('IC')
-ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,200)
+
 ic_days_stay = st.sidebar.number_input('Aantal dagen op IC',None,None,13)
 from_test_to_ic =  st.sidebar.number_input('Aantal dagen test -> IC',None,None,5)
 percentage_test_ic = st.sidebar.number_input('Percentage test/IC',None,None,0.7)
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
-show_hospital = st.sidebar.checkbox("Hospital", False)
+show_hospital = False # st.sidebar.checkbox("Hospital", False)
 if show_hospital:
     st.sidebar.write('HOSPITAL')
-    hospital_dayzero = st.sidebar.number_input('Aantal ziekenhuis dag 0',None,None,1447)
     hospital_days_stay = st.sidebar.number_input('Aantal dagen in ziekenhuis',None,None,21)
     from_test_to_hospital = st.sidebar.number_input('Aantal dagen test -> ziekenhuis',None,None,5)
     percentage_test_hospital = st.sidebar.number_input('Percentage test/ziekenhuis',None,None,4)
@@ -211,7 +214,7 @@ actualR=[]
 totalimmune=[]
 hospital = []
 infected = []
-ic  = []
+ic_opnames  = []
 ic_cumm = []
 hospital_cumm = []
 #if vaccination:
@@ -234,6 +237,13 @@ for t in range (1, numberofdays_):
     pt2 = (terugk[t-1] * (0.5**(-1/thalf2)))
 
     terugk.append((pt2))
+#print (terugk)
+pss_ = 0
+for pss in range (0,30):
+   # st.write(f"{str(terugk[pss])} - {str(terugk[pss]*0.7/100)} ")
+    pss_ += terugk[pss]
+#st.write ("--"+ str(pss_) )
+blabla2 = (pss_ *0.7/100)
 
 suspectible =[]
 recovered = []
@@ -246,7 +256,7 @@ if turning == False:
 else:
     #label1= 'First variant'
     label2= '_'
-
+blabla=0
 # START CALCULATING --------------------------------------------------------------------
 positivetests1.append (numberofpositivetests1)
 positivetests2.append (numberofpositivetests2)
@@ -267,7 +277,7 @@ immeratio_=[]
 immeratio_.append(1)
 
 hospital.append(None)
-ic.append(None)
+ic_opnames.append(terugk[(-1*from_test_to_ic+1)] * percentage_test_ic / 100)
 ic_cumm.append(ic_dayzero)
 hospital_cumm.append(hospital_dayzero)
 walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
@@ -277,13 +287,23 @@ if showimmunization:
 #ry1__ = 5
 ry1__ = 999
 fractionlist = []
-weerbeteric = []
-weerbeterhospital = []
-for xyx in range(0, NUMBEROFDAYS):
-    weerbeteric.append(0)
-    weerbeterhospital.append(0)
+lijstje = []
+erbij_=[]
+eraf_=[]
+erbij_.append(ic_dayzero)
+eraf_.append(0)
+for t in range(0, NUMBEROFDAYS):
+    lijstje.append(0)
+#print (lijstje)
+
+
+
+
 for t in range(1, NUMBEROFDAYS):
-    
+    erbij = 0
+    eraf = 0   
+    delta_hospital = 0
+    delta_ic = 0 
     if not turning:
         if showimmunization:
             immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
@@ -439,40 +459,13 @@ for t in range(1, NUMBEROFDAYS):
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
 
-
-    # # ERAF
-    # if t < hospital_days_stay:
-    #     delta_hospital -= -1 * (hospital_dayzero / hospital_days_stay) 
-    #     xy = (t-hospital_days_stay) * -1
-    #     delta_hospital -=(terugk[xy]*(percentage_test_hospital/100))
-    # else:
-    #     hospital_temp = hospital[t-hospital_days_stay] 
-    #     if hospital_temp == None:
-    #         hospital_temp = 0
-    #     delta_hospital += -1 * hospital_temp 
-    #     #print (delta_hospital)
-
-    # # ERBIJ  
-    # if t< from_test_to_hospital:
-    #     xy = (t-from_test_to_hospital) * -1
-    #     delta_hospital +=(terugk[xy]*(percentage_test_hospital/100))
-    #     #print (str(xy) + " "+ str(delta_ic))
-
-    # else:
-    #    delta_hospital +=(positivetests12[t-from_test_to_ic]*(percentage_test_hospital/100))
     if t>=from_test_to_hospital:
         hospital.append(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
     else:
         hospital.append(None)
-    if t>=from_test_to_ic:
-        ic.append(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
-    else:
-        ic.append(None)
+    
+    
 
-    delta_hospital = 0
-    delta_ic = 0
-   
-                         
     
     if t < hospital_days_stay:
         delta_hospital += -1 * (hospital_dayzero / hospital_days_stay) 
@@ -481,68 +474,63 @@ for t in range(1, NUMBEROFDAYS):
         if hospital_temp == None:
             hospital_temp = 0
         delta_hospital += -1 * hospital_temp    
-    delta_hospital -= weerbeterhospital[t]
+          
     if t> from_test_to_hospital:
         delta_hospital +=(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
+
+   # ERAF
+    if t <= ic_days_stay:
+        delta_ic += -1 * (ic_dayzero / ic_days_stay) 
+        # xy = (t-ic_days_stay) * -1
+        # delta_ic -=(terugk[xy]*(percentage_test_ic/100)) 
+        # eraf =+ (terugk[xy]*(percentage_test_ic/100))
+        eraf =   (ic_dayzero / ic_days_stay) 
+        blabla +=delta_ic
+        #print (delta_ic) 
+        #print (str(xy) + " "+ str(delta_ic)) 
     else:
-        xy = (t-from_test_to_hospital) * -1
-        delta_hospital +=(terugk[xy]*(percentage_test_hospital/100)) 
-        temphos     =(terugk[xy]*(percentage_test_hospital/100))  # wanneer worden ddeze mensen weer beter
-        weerbeterhospital[xy + hospital_days_stay] = temphos
-    
-    #-------------------------------------
-    if t < ic_days_stay:
-        delta_ic += -1 * (ic_dayzero / ic_days_stay)
-        xy = (t-ic_days_stay) * -1
-       
-    else:
-        ic_temp = ic[t-ic_days_stay] 
+        ic_temp = ic_opnames[t-ic_days_stay] 
         if ic_temp == None:
             ic_temp = 0
-        delta_ic += -1 * ic_temp    
+        delta_ic += -1 * ic_temp  
+        eraf += ic_temp  
 
-    delta_ic -= weerbeteric[t]
-    if t> from_test_to_ic:
-        delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+    #delta_ic -=lijstje[t]
+    # ERBIJ
+
+    if t>from_test_to_ic:
+        ic_opnames.append(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+        delta_ic +=      (positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+        erbij +=         (positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
+      
     else:
-        xy = (t-from_test_to_ic) * -1
-        delta_ic +=(terugk[xy]*(percentage_test_ic/100)) 
-        temp      =(terugk[xy]*(percentage_test_ic/100))  # wanneer worden ddeze mensen weer beter
-        weerbeteric[xy + ic_days_stay] = temp
+        #ic_opnames.append(None)
+        xy = 1+((t-ic_days_stay) * -1)
+        ic_opnames.append(terugk[xy]*(percentage_test_ic/100))
+        delta_ic +=      (terugk[xy]*(percentage_test_ic/100)) 
+        erbij +=         (terugk[xy]*(percentage_test_ic/100)) 
+        #erbij += (terugk[xy]*(percentage_test_ic/100)) 
+        
+    
 
-
-        #print (str(xy) + " "+ str(delta_ic))
-
-
- 
-
-
-    # if t < ic_days_stay:
-    #     #delta_ic += -1 * (ic_dayzero / ic_days_stay) 
-    #     xy = (t-ic_days_stay) * -1
-    #     delta_ic -=(terugk[xy]*(percentage_test_ic/100))
-    #     #print (str(xy) + " "+ str(delta_ic)) 
-    # else:
-    #     ic_temp = ic[t-ic_days_stay] 
-    #     if ic_temp == None:
-    #         ic_temp = 0
-    #     delta_ic += -1 * ic_temp  
-
-    # if t< from_test_to_ic:
-   
-    # else:
-    #     delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
-
-                            
-
+                 
+    erbij_.append(erbij)
+    eraf_.append(eraf)
 
     hospital_cumm.append(hospital_cumm[t-1]+delta_hospital)
     ic_cumm.append(ic_cumm[t-1]+delta_ic)
 
+erbijmoved = []
+# for xxx in range(0,NUMBEROFDAYS-5):
+#     if xxx<13:
+#         erbijmoved.append(None)
+#     else:
+#         erbijmoved.append(erbij_[xxx+5])
 
-
-st.title('IC-bezetting in NL')
-#print(weerbeter)
+# print (ic_cumm)
+#print (ic_cumm)
+st.title('IC-bezetting in NL - NOT VALIDATED')
+#st.write (f"Attention. In the days before there were {int(blabla2)} persons admitted (related to the R-number), but the IC had alaready {ic_dayzero} persons. This causes the graph not ending at 0.")
 
 
 def th2r(rz):
@@ -574,11 +562,12 @@ def configgraph(titlex):
     todaylabel = "Today ("+ b + ")"
     plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
     if turning:
-        plt.axvline(x=x[0]+tp, color='orange', alpha=.6,linestyle='--',label = "First turningpoint")
-        plt.axvline(x=x[0]+tptd, color='orange', alpha=.4,linestyle='--',label = "First turningpoint")
+        pass
+        #plt.axvline(x=x[0]+tp, color='orange', alpha=.6,linestyle='--',label = "First turningpoint")
+        #plt.axvline(x=x[0]+tptd, color='orange', alpha=.4,linestyle='--',label = "First turningpoint")
   
-        plt.axvline(x=x[0]+tp2, color='orange', alpha=.6,linestyle='--',label = "Second turningpoint")
-        plt.axvline(x=x[0]+tptd2, color='orange', alpha=.6,linestyle='--',label = "Second turningpoint")
+        #plt.axvline(x=x[0]+tp2, color='orange', alpha=.6,linestyle='--',label = "Second turningpoint")
+        #plt.axvline(x=x[0]+tptd2, color='orange', alpha=.6,linestyle='--',label = "Second turningpoint")
     
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
@@ -602,30 +591,44 @@ with _lock:
     fig1g, ax = plt.subplots()
   
     plt.plot(x, ic_cumm, label='IC bezetting per dag')
+    #plt.plot(x, erbij_, label='IC erbij')
+    #plt.plot(x, eraf_, label='IC eraf')
+    #plt.plot(x, erbijmoved, label='IC erbijmoved')
     # Add X and y Label and limits
 
     plt.ylabel('Ziekenhuis- en IC-bezetting per day')
     plt.ylim(bottom = 0)
-    plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
-    plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
-    plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
-    plt.axhline(y=1500, color='red', alpha=.6,linestyle='--')
-    plt.fill_between(x, 750, 1299, color='#FFB1B4')
-    plt.fill_between(x, 1300, 10000, color='#FE8081', label='IC Overbelast')
-  
-    plt.axvline(x=21, color='yellow', alpha=.4,linestyle='--')
-    plt.axvline(x=35, color='yellow', alpha=.4,linestyle='--')
+    #plt.axhline(y=1300, color='blue', alpha=.6,linestyle='--' )
+    #plt.axhline(y=750, color='yellow', alpha=.6,linestyle='--')
+    #plt.axhline(y=1000, color='orange', alpha=.6,linestyle='--')
+    plt.axhline(y=1700, color='red', alpha=.6,linestyle='--')
+    plt.fill_between(x, 750, 1349, color='#FFB1B4', label='Uitstellen reg. zorg') #1000 normale capaciteit 1350 =+35%
+    plt.fill_between(x, 1350, 1699, color='#FE8081', label='IC Overbelast')
+    plt.fill_between(x, 1700, 10000, color='#B25A5A', label='Code zwart')
+    # plt.axvline(x=x[0]+21, color='yellow', alpha=.4,linestyle='--')
+    # plt.axvline(x=x[0]+35, color='yellow', alpha=.4,linestyle='--')
+
 
     # Add a title
     titlex = (f'IC ({percentage_test_ic}%) bezetting per day, R={Rnew_2_ }, start={ic_dayzero}')
     configgraph(titlex) 
     st.pyplot(fig1g)
- 
+try:
     st.write(f"Value for IC occupation t=21         : {int((ic_cumm[21]))}")
     st.write(f"Value for IC occupation t=35         : {int((ic_cumm[35]))}")
     st.write(f"Maximum value for IC occupation       : {int(max(ic_cumm))}")
-
-
+    
+except:
+    pass
+# st.write("ERBIJ")
+# st.write(erbij_)
+# st.write(f"erbij :  {sum(erbij_)}")
+# st.write("ERAF")
+# st.write( eraf_)
+# st.write(f"eraf : { sum(eraf_)}")
+# st.write(f"VERSCHIL :  { sum(erbij_)-sum(eraf_)}")
+# st.write("IC BEZETTING")
+# st.write(ic_cumm)
 #  # Ziekenhuis bezetting
 if show_hospital:
     with _lock:
@@ -656,28 +659,28 @@ if show_hospital:
 
 # # #########################
 # # # Ziekenhuis opnames
-# # with _lock:
-#     fig1g, ax = plt.subplots()
-#     plt.plot(x, hospital, label='Ziekenhuis per dag')
-#     plt.plot(x, ic, label='IC per dag')
-#     # Add X and y Label and limits
+with _lock:
+    fig1g, ax = plt.subplots()
+    plt.plot(x, hospital, label='Ziekenhuis per dag')
+    plt.plot(x, ic_opnames, label='IC per dag')
+    # Add X and y Label and limits
 
-#     plt.ylabel('Ziekenhuis- en IC-opnames per day')
-#     plt.ylim(bottom = 0)
-#     plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
-#     plt.axhline(y=12, color='yellow', alpha=.6,linestyle='--')
-#     plt.axhline(y=40, color='orange', alpha=.6,linestyle='--')
-#     plt.axhline(y=80, color='red', alpha=.6,linestyle='--')
+    plt.ylabel('Ziekenhuis- en IC-opnames per day')
+    plt.ylim(bottom = 0)
+    plt.axhline(y=0, color='green', alpha=.6,linestyle='--' )
+    plt.axhline(y=12, color='yellow', alpha=.6,linestyle='--')
+    plt.axhline(y=40, color='orange', alpha=.6,linestyle='--')
+    plt.axhline(y=80, color='red', alpha=.6,linestyle='--')
     
-#     # https://twitter.com/YorickB/status/1369253144014782466/photo/1
-#     # Add a title
-#     titlex = ('Ziekenhuis ('+str(percentage_test_hospital)+ ' %) en IC ('+str(percentage_test_ic)+' %) opnames per day,\n7 dgn vertraging')
-#     configgraph(titlex)
-#     st.pyplot(fig1g)
+    # https://twitter.com/YorickB/status/1369253144014782466/photo/1
+    # Add a title
+    titlex = ('Ziekenhuis ('+str(percentage_test_hospital)+ ' %) en IC ('+str(percentage_test_ic)+' %) opnames per day,\n7 dgn vertraging')
+    configgraph(titlex)
+    st.pyplot(fig1g)
 
 
 # hospital = []
-# ic = []
+# ic_opnames = []
 
 
 # # POS TESTS /day ################################
