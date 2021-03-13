@@ -44,7 +44,13 @@
 # 8 maart
 # find columns with max correlation
 # find the timelag between twee columns
+# added a second way to calculate and display R
 
+# 9-11 maart: Grafieken van Dissel : bezetting bedden vs R
+
+# 12 maart
+# Genormeerde grafiek (max = 1 of begin = 100)
+# Various Tg vd de R-number-curves
 
 # I used iloc.  Iterating through pandas objects is generally slow.
 # In many cases, iterating manually over the rows is not needed and
@@ -58,14 +64,15 @@ import matplotlib as mpl
 import matplotlib.dates as mdates
 import seaborn as sn
 from scipy import stats
-from datetime import datetime
 import datetime as dt
+from datetime import datetime, timedelta
+
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
 import matplotlib.ticker as ticker
-
+import math
 _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 
@@ -130,7 +137,7 @@ def download_hospital_admissions():
     #         compression=compression_opts)
 
     #print (df_hospital)
-    save_df(df_hospital,"ziekenhuisopnames_RIVM")
+    #save_df(df_hospital,"ziekenhuisopnames_RIVM")
     return df_hospital
 
 def download_lcps():
@@ -172,7 +179,7 @@ def download_lcps():
 def download_reproductiegetal():
     """  _ _ _ """
     #https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json
-    
+
     if download == True:
         print ("Download reproductiegetal-file")
         #df_reprogetal = pd.read_json (r'covid19_seir_models\input\COVID-19_reproductiegetal.json')
@@ -196,9 +203,10 @@ def download_reproductiegetal():
 
     # als er nog geen reprogetal berekend is, neem dan het gemiddeld van low en up
     # vanaf half juni is dit altijd het geval geweest (0,990 en 1,000)
-    df_reprogetal.loc[df_reprogetal["Rt_avg"].isnull(),'Rt_avg'] = round(((df_reprogetal["Rt_low"] + df_reprogetal["Rt_up"])/2),2)
-    
-    print (df_reprogetal)
+
+    #df_reprogetal.loc[df_reprogetal["Rt_avg"].isnull(),'Rt_avg'] = round(((df_reprogetal["Rt_low"] + df_reprogetal["Rt_up"])/2),2)
+
+    #print (df_reprogetal)
     return df_reprogetal
 
 def download_gemeente_per_dag():
@@ -232,7 +240,7 @@ def download_gemeente_per_dag():
     df_gemeente_per_dag['Date_of_publication'] = df_gemeente_per_dag['Date_of_publication'].astype('datetime64[D]')
 
     df_gemeente_per_dag = df_gemeente_per_dag.groupby(['Date_of_publication'] , sort=True).sum().reset_index()
-    save_df(df_gemeente_per_dag,"COVID-19_aantallen_per_dag")
+    #save_df(df_gemeente_per_dag,"COVID-19_aantallen_per_dag")
     return df_gemeente_per_dag
 
 def download_uitgevoerde_testen():
@@ -244,7 +252,7 @@ def download_uitgevoerde_testen():
         # Code by Han-Kwang Nienhuys - MIT License
         url='https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv'
 
-        
+
         fpath = Path('covid19_seir_models\input\COVID-19_uitgevoerde_testen.csv')
         print(f'Getting new daily case statistics file - testen - ...')
         with urllib.request.urlopen(url) as response:
@@ -262,13 +270,10 @@ def download_uitgevoerde_testen():
     df_uitgevoerde_testen['Date_of_statistics'] = df_uitgevoerde_testen['Date_of_statistics'].astype('datetime64[D]')
 
     df_uitgevoerde_testen = df_uitgevoerde_testen.groupby(['Date_of_statistics'] , sort=True).sum().reset_index()
-    df_uitgevoerde_testen['Percentage_positive'] = round((df_uitgevoerde_testen['Tested_positive'] / 
+    df_uitgevoerde_testen['Percentage_positive'] = round((df_uitgevoerde_testen['Tested_positive'] /
                                                   df_uitgevoerde_testen['Tested_with_result'] * 100),2 )
 
-
-    
-
-    save_df(df_uitgevoerde_testen,"COVID-19_uitgevoerde_testen")
+    #save_df(df_uitgevoerde_testen,"COVID-19_uitgevoerde_testen")
     return df_uitgevoerde_testen
 ###################################################################
 def get_data():
@@ -308,7 +313,72 @@ def get_data():
     return df, werkdagen, weekend_
 
 ###################################################
+def calculate_cases(df):
+    column = df["date"]
+    b_= column.max().date()
+    #fr = '2021-1-10' #doesnt work
+    fr = FROM
+    a_ = dt.datetime.strptime(fr,'%Y-%m-%d').date()
 
+    #b_ = dt.datetime.strptime(UNTIL,'%Y-%m-%d').date()
+    datediff = ( abs((a_ - b_).days))+1+30
+    f = 1
+    ry1 = 0.8 * f
+    ry2 = 1.15 * f
+    total_cases_0 = 7500
+    sec_variant = 10
+    population = 17_500_000
+    immune_day_zero = 2_500_000
+
+    suspectible_0 = population - immune_day_zero
+    cumm_cases = 0
+
+    cases_1 = ((100-sec_variant)/100)* total_cases_0
+    cases_2 = (sec_variant/100)* total_cases_0
+    temp_1 = cases_1
+    temp_2 = cases_2
+    r_temp_1 = ry1
+    r_temp_2 = ry2
+
+    immeratio = 1
+    df_calculated = pd.DataFrame({'date_calc': a_,
+                'variant_1': cases_1,'variant_2' :cases_2, 'variant_12' : int(cases_1+cases_2)}, index=[0])
+    Tg = 4
+
+    #print (df_calculated.dtypes)
+    #a_ = dt.datetime.strptime(a,'%m/%d/%Y').date()
+    column = df["date"]
+    max_value = column. max()
+
+    for day in range (1, datediff):
+
+
+        thalf1 = Tg * math.log(0.5) / math.log(immeratio*ry1)
+        thalf2 = Tg * math.log(0.5) / math.log(immeratio*ry2)
+        day = a_ + timedelta(days=day)
+        pt1 = (temp_1 * (0.5**(1/thalf1)))
+        pt2 = (temp_2* (0.5**(1/thalf2)))
+        day_ = day.strftime("%Y-%m-%d") # FROM object TO string
+        day__ =  dt.datetime.strptime(day_,'%Y-%m-%d') # from string to daytime
+
+
+        df_calculated =df_calculated .append({'date_calc':day_,
+                'variant_1'  : int(pt1),
+                'variant_2' : int(pt2) , 'variant_12' : int(pt1+pt2) },ignore_index=True)
+
+        temp_1 = pt1
+        temp_2 = pt2
+
+        cumm_cases += pt1 + pt2
+        immeratio = (1-(cumm_cases/suspectible_0 ))
+
+    df_calculated['date_calc'] = pd.to_datetime( df_calculated['date_calc'])
+
+    df = pd.merge(df, df_calculated, how='outer', left_on = 'date', right_on="date_calc",
+                        left_index=True )
+    print (df.dtypes)
+    df.loc[df['date'].isnull(),'date'] = df['date_calc']
+    return df, ry1, ry2
 
 def splitupweekweekend(df):
     """  _ _ _ """
@@ -325,59 +395,70 @@ def splitupweekweekend(df):
     # df = df[(np.abs(stats.zscore(df['workplaces'])) < 3)]
     # df = df[(np.abs(stats.zscore(df['grocery_and_pharmacy'])) < 3)]
 
-def add_walking_r(df, smoothed_columns, how_to_smooth):
+def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     """  _ _ _ """
     #print(df)
-    # Calculate walking R from a certain base
+    # Calculate walking R from a certain base. Included a second methode to calculate R
+    # de rekenstappen: (1) n=lopend gemiddelde over 7 dagen; (2) Rt=exp(Tc*d(ln(n))/dt)
+    # met Tc=4 dagen, (3) data opschuiven met rapportagevertraging (10 d) + vertraging
+    # lopend gemiddelde (3 d).
+    # https://twitter.com/hk_nien/status/1320671955796844546
     column_list_r_smoothened = []
+    column_list_r_sec_smoothened = []
     for base in smoothed_columns:
-        column_name_R = 'R_value_from_'+ base
-
+        column_name_R = 'R_value_from_'+ base +'_tg'+str(tg)
+        column_name_R_sec = 'R_value_(hk)_from_'+ base
 
         #df, new_column = smooth_columnlist(df,[base],how_to_smooth)
-        column_name_r_smoothened = 'R_value_from_'+ base + '_'+ how_to_smooth + '_' + str(WDW3)
+        column_name_r_smoothened = 'R_value_from_'+ base +'_tg'+str(tg) + '_'+ how_to_smooth + '_' + str(WDW3)
+        column_name_r_sec_smoothened = 'R_value_sec_from_'+ base +'_tg'+str(tg) + '_'+ how_to_smooth + '_' + str(WDW3)
         #df[SMA1] = df.iloc[:,df.columns.get_loc(base)].rolling(window=WDW2).mean()
 
 
         sliding_r_df= pd.DataFrame({'date_sR': [],
-                column_name_R: []})
-        tg = 4
+                column_name_R: [],column_name_R_sec: []})
+
         d= 1
-
-
+        d2=2
+        r_sec = []
         for i in range(0, len(df)):
             if df.iloc[i][base] != None:
                 date_ = pd.to_datetime(df.iloc[i]['date'], format="%Y-%m-%d")
                 date_ = df.iloc[i]['date']
                 if df.iloc[i-d][base] != 0 or df.iloc[i-d][base] is not None:
                     slidingR_= round(((df.iloc[i][base]/df.iloc[i-d][base])**(tg/d) ),2)
+                    slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
                 else:
                     slidingR_ = None
+                    slidingR_sec = None
                 sliding_r_df=sliding_r_df.append({'date_sR':date_,
-                column_name_R : slidingR_ },ignore_index=True)
-        new_column_smoothened = base
+                column_name_R    : slidingR_,
+                column_name_R_sec : slidingR_sec },ignore_index=True)
+
 
         # je zou deze nog kunnen smoothen, maar levert een extra vertraging in de resultaten op,
         # dus wdw=1
         sliding_r_df[column_name_r_smoothened] = round(sliding_r_df.iloc[:,1].rolling(window=WDW3).mean(),2)
+        sliding_r_df[column_name_r_sec_smoothened] = round(sliding_r_df.iloc[:,2].rolling(window=WDW3).mean(),2)
 
         # df = df.reset_index()
         # df.set_index('date')
 
         sliding_r_df = sliding_r_df.reset_index()
-
+        #save_df(sliding_r_df ,"hadhkgelijk")
         # WHY DOES IT CHANGE MY DF[base]. Inner = ok / outer = ERR
         # when having this error "posx and posy should be finite values"
         df = pd.merge(df, sliding_r_df, how='outer', left_on = 'date', right_on="date_sR",
                         left_index=True )
         column_list_r_smoothened.append(column_name_r_smoothened)
+        column_list_r_sec_smoothened.append(column_name_r_sec_smoothened)
         #R_SMA = column_name_r_smoothened
         # df = df.reset_index()
         # df.set_index('date')
 
         sliding_r_df = sliding_r_df.reset_index()
         #save_df(df,"lastchrismas")
-    return df, column_list_r_smoothened
+    return df, column_list_r_smoothened, column_list_r_sec_smoothened
 
 def agg_week(df, how):
     """  _ _ _ """
@@ -404,6 +485,7 @@ def move_column(df, column,days):
     # #move Rt r days, because a maybe change has effect after r days
     # Tested - Conclusion : It has no effect
     r=days
+    print (column)
     new_column = column + "_moved_" + str(r)
     df[new_column] = df[column].shift(r)
     #print ("Name moved column : " + new_column)
@@ -500,9 +582,37 @@ def correlation_matrix(df, werkdagen, weekend_):
 
     #sn.regplot(y="Rt_avg", x="Kliniek_Nieuwe_Opnames_COVID", data=df)
     #plt.show()
+def normeren(df, what_to_norm):
+    """ In : columlijst
+    Bewerking : max = 1
+    Out : columlijst met genormeerde kolommen """
+    #print(df.dtypes)
+    normed_columns = []
+
+    for column in what_to_norm:
+        maxvalue = (df[column].max())
+        firstvalue = df[column].iloc[0]/100
+        name = (f"{column}_normed")
+
+        for i in range(0,len(df)):
+            df.loc[i, name] = df.loc[i,column]/firstvalue
+        normed_columns.append(name)
+        print (f"{name} generated")
+    return df, normed_columns
+
+def graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display):
+    """ IN : df, de kolommen die genormeerd moeten worden
+    ACTION : de grafieken met de genormeerde kolommen tonen """
+    df, normed_columns = normeren(df, what_to_show_day_l)
+    graph_daily(df,normed_columns, what_to_show_day_r, how_to_smoothen, how_to_display)
 
 def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     # print (df)
+
+    show_variant = False  # show lines coming from the growth formula
+    if show_variant == True:
+        df, ry1, ry2 = calculate_cases(df)
+    #print (df.dtypes)
     """  _ _ _ """
     if type(what_to_show_l) == list:
         what_to_show_l_=what_to_show_l
@@ -524,7 +634,15 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     COLOR_weekend = "#e49273" # dark salmon 7
     prusian_blue = "#1D2D44" # 8
 
-    color_list = [ operamauve, bittersweet, minion_yellow, COLOR_weekday, mariagold,falu_red,'y',  COLOR_weekend ,green_pigment]
+
+
+    #{"May Green":"4E9148","Red Orange Color Wheel":"F05225","Midnight Green Eagle Green":"024754",
+    # "Bright Yellow Crayola":"FBAA27","Black Coffee":"302823","Pumpkin":"F07826","Verdigris":"02A6A8"}
+
+
+    color_list =["#02A6A8","#4E9148","#F05225","#024754","#FBAA27","#302823","#F07826"]
+
+    #color_list = [ operamauve, bittersweet, minion_yellow, COLOR_weekday, mariagold,falu_red,'y',  COLOR_weekend ,green_pigment]
     #plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
     #mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=color_list)
     n = 0  # counter to walk through the colors-list
@@ -533,107 +651,137 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     df, columnlist_sm_l = smooth_columnlist(df,what_to_show_l_,how_to_smooth)
     # df, R_smooth = add_walking_r(df, columnlist, how_to_smooth)
     for b in what_to_show_l_:
-        # if type(a) == list:
-        #     a_=a
-        # else:
-        #     a_=[a]
-            
-            # PROBEERSEL OM WEEK GEMIDDELDES MEE TE KUNNEN PLOTTEN IN DE DAGELIJKSE GRAFIEK
+    # if type(a) == list:
+    #     a_=a
+    # else:
+    #     a_=[a]
 
-            # dfweek_ = df.groupby('weekalt', sort=False).mean().reset_index()
-            # save_df(dfweek_,"whatisdftemp1")
-            # w = b + "_week"
-            # print ("============="+ w)
-            # df_temp = dfweek_[["weekalt",b ]]
-            # df_temp = df_temp(columns={b: w})
-            
-            # print (df_temp.dtypes)
-            # #df_temp is suddenly a table with all the rows
-            # print (df_temp)
-            # save_df(df_temp,"whatisdftemp2")
-            
-        
-        # for b in a_:
-            n +=1
-            if t == "bar":
+        # PROBEERSEL OM WEEK GEMIDDELDES MEE TE KUNNEN PLOTTEN IN DE DAGELIJKSE GRAFIEK
 
-                # if b == "Total_reported":
-                #     z = df[b].index
+        # dfweek_ = df.groupby('weekalt', sort=False).mean().reset_index()
+        # save_df(dfweek_,"whatisdftemp1")
+        # w = b + "_week"
+        # print ("============="+ w)
+        # df_temp = dfweek_[["weekalt",b ]]
+        # df_temp = df_temp(columns={b: w})
 
-                #     plt.fill_between(z, 0, 875, color='#f392bd',  label='waakzaam')
-                #     plt.fill_between(z, 876, 2500, color='#db5b94',  label='zorgelijk')
-                #     plt.fill_between(z, 2501, 6250, color='#bc2165',  label='ernstig')
-                #     plt.fill_between(z, 6251, 10000, color='#68032f', label='zeer ernstig')
-                #     plt.fill_between(z, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
-                #print(df.iloc[0]['date'])
-
-                # weekends have a different color
-                firstday = df.iloc[0]['WEEKDAY']  # monday = 0
-                if  firstday == 0:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend]
-                elif firstday == 1:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday]
-                elif firstday == 2:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday]
-                elif firstday == 3:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday]
-                elif firstday == 4:
-                    color_x = [COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday]
-                elif firstday == 5:
-                    color_x = [COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday]
-                elif firstday == 6:
-                    color_x = [COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend]
-                #color_x = ["white", "red", "yellow", "blue", "purple", "green", "black"]
-
-                # MAYBE WE CAN LEAVE THIS OUT HERE
-                df, columnlist = smooth_columnlist(df,[b],how_to_smooth)
-                df, R_smooth = add_walking_r(df, columnlist, how_to_smooth)
-
-                df.set_index('date')
-
-                #df, new_column_smoothened, column_name_r_smoothened
-                #c = str(b)+ "_"+ how_to_smooth + "_" + str(WDW2)
-
-                #x= 4+ (WDW2+WDW3)*-1 # 4 days correction factor, dont know why
-                #x=0
-                #df, new_column = move_column(df,R_smooth,x)
+        # print (df_temp.dtypes)
+        # #df_temp is suddenly a table with all the rows
+        # print (df_temp)
+        # save_df(df_temp,"whatisdftemp2")
 
 
-                #df_temp = select_period(df, FROM, UNTIL)
-                #df_temp.set_index('date')
-                df_temp = df
-                #print(df_temp.dtypes)
-                #c = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
-                
-                ax = df_temp[b].plot.bar(label=b, color = color_x)     # number of cases
-                for c_smooth in columnlist:
-                    # print (c_smooth)
-                    # print (df[c_smooth])
-                    ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1)         # SMA
-                
-                ax3=df["Rt_avg"].plot(secondary_y=True, label="Rt RIVM",color=bittersweet, linewidth=1.2)
+
+
+        if t == "bar":
+
+            # if b == "Total_reported":
+            #     z = df[b].index
+
+            #     plt.fill_between(z, 0, 875, color='#f392bd',  label='waakzaam')
+            #     plt.fill_between(z, 876, 2500, color='#db5b94',  label='zorgelijk')
+            #     plt.fill_between(z, 2501, 6250, color='#bc2165',  label='ernstig')
+            #     plt.fill_between(z, 6251, 10000, color='#68032f', label='zeer ernstig')
+            #     plt.fill_between(z, 10000, 20000, color='grey', alpha=0.3, label='zeer zeer ernstig')
+            #print(df.iloc[0]['date'])
+
+            # weekends have a different color
+            firstday = df.iloc[0]['WEEKDAY']  # monday = 0
+            if  firstday == 0:
+                color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend]
+            elif firstday == 1:
+                color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday]
+            elif firstday == 2:
+                color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday]
+            elif firstday == 3:
+                color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday]
+            elif firstday == 4:
+                color_x = [COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday]
+            elif firstday == 5:
+                color_x = [COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday]
+            elif firstday == 6:
+                color_x = [COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend]
+            #color_x = ["white", "red", "yellow", "blue", "purple", "green", "black"]
+
+            # MAYBE WE CAN LEAVE THIS OUT HERE
+            df, columnlist = smooth_columnlist(df,[b],how_to_smooth)
+
+            df.set_index('date')
+
+
+            #x= 4+ (WDW2+WDW3)*-1 # 4 days correction factor, dont know why
+            #x=0
+            #df, new_column = move_column(df,R_smooth,x)
+            df_temp = df
+            ax = df_temp[b].plot.bar(label=b, color = color_x, alpha=.6)     # number of cases
+            for c_smooth in columnlist:
+                # print (c_smooth)
+                # print (df[c_smooth])
+                ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1)         # SMA
+
+
+            #df_temp = select_period(df, FROM, UNTIL)
+            #df_temp.set_index('date')
+
+            #print(df_temp.dtypes)
+            #c = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
+
+            ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
+            tgs = [3.5,4,5]
+            teller=0
+            for TG in tgs:
+
+                df, R_smooth, R_smooth_sec = add_walking_r(df, columnlist, how_to_smooth,TG)
+
+
+
                 for R in R_smooth:
-                    #move R 10 dagen
-                    df, Rn = move_column(df,R,-10)
-                    ax3=df[Rn].plot(secondary_y=True, label=R,color=falu_red, linewidth=1.2)
-                ax3.set_ylabel('Rt')
+                    # correctie R waarde, moet naar links ivm 2x smoothen
+                    df, Rn = move_column(df,R,MOVE_WR)
+                    if teller == 1 :
+                        ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=falu_red, linewidth=1.2)
+                    else:
+                        ax3=df[Rn].plot(secondary_y=True,label='_nolegend_', linestyle='dotted',color=falu_red, linewidth=0.8)
+                    teller += 1
 
-                left, right = ax.get_xlim()
-                ax.set_xlim(left - 0.5, right + 0.5)
-                #ax3.set_ylim(0.6,1.5)
-            elif t== "line":
-                #df, R_SMA = add_walking_r(df, b, "SMA")
-               
-                
-                #df_temp = select_period(df, FROM, UNTIL)
-                df_temp = df
-                #print (df_temp)
-                #df_temp = df
-                b_ = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
-                df_temp[b_].plot(label=b, color = color_list[n], linewidth=.8) # label = b_ for uitgebreid label
-                df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.4,linewidth=.8)
-            else:
-                print ("ERROR in graph_day")
+                for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
+                    # correctie R waarde, moet naar links ivm 2x smoothen
+                    df, Rn = move_column(df,R,MOVE_WR)
+                    #ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
+
+            #ax3.fill_between(x, y1, y2)
+
+            ax3.set_ylabel('Rt')
+
+            left, right = ax.get_xlim()
+            ax.set_xlim(left - 0.5, right + 0.5)
+            #ax3.set_ylim(0.6,1.5)
+
+        elif t== "line":
+            #df, R_SMA = add_walking_r(df, b, "SMA")
+
+            #df_temp = select_period(df, FROM, UNTIL)
+            df_temp = df
+            #print (df_temp)
+            #df_temp = df
+            b_ = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
+            df_temp[b_].plot(label=b, color = color_list[n], linewidth=1.1) # label = b_ for uitgebreid label
+            df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.8,linewidth=.8)
+        else:
+            print ("ERROR in graph_day")
+        n +=1
+    if show_variant == True:
+        l1 = (f"R = {ry1}")
+        l2 = (f"R = {ry2}")
+        ax = df["variant_1"].plot(label=l1, color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
+        ax = df["variant_2"].plot(label=l2, color = color_list[5],linestyle='dotted',linewidth=1, alpha=1)
+        ax = df["variant_12"].plot(label='TOTAL', color = color_list[6],linestyle='--',linewidth=1, alpha=1)
+
+    df["testvshospital"] = (df["Hospital_admission_x"]/df["Total_reported"]*100)
+    df["testvsIC"] = (df["IC_Nieuwe_Opnames_COVID"]/df["Total_reported"]*100)
+    #print (df["testvsIC"])
+    #save_df(df, "testvsIC")
+    #ax3 = df["testvsIC"].plot(label="testvic", color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
 
     ax.set_ylabel('Numbers')
     ax.xaxis.grid(True, which='minor')
@@ -652,7 +800,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
             df_temp = select_period(df, FROM, UNTIL)
             #df_temp = df
             for b_ in columnlist: #smoothed
-                lbl2 = b_ + " (right ax)" 
+                lbl2 = b_ + " (right ax)"
                 ax3 = df_temp[b_].plot(secondary_y=True, label=lbl, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
             pass # ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, '_nolegend_')
             ax3.set_ylabel('_')
@@ -749,7 +897,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
             for what_to_show_r_ in what_to_show_r:
                 label_r = what_to_show_r_+ " ("+ how_r + ")"
                 ax3=dfweek_r[what_to_show_r_].plot(secondary_y=True, color = 'r', label=label_r)
-            
+
         #ax3=dfweek['Rt_avg_SMA_7'] .plot(secondary_y=True, color = 'r', label="Rt_avg_SMA_7")
 
         #ax3.set_ylabel('Rt')
@@ -790,13 +938,33 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
     """  _ _ _ """
 
     if t == "line":
+        tl =""
+        tr=""
+        i=0
+        j=0
+        if what_to_show_l is not None:
+            for l in what_to_show_l:
+                if i != len(what_to_show_l) - 1:
+                    tl += l + " / "
+                    i+=1
+                else:
+                    tl += l
+        if what_to_show_r is not None:
+            tl += " - "
+            for r in what_to_show_r:
+                if j != len(what_to_show_r) - 1:
+                    tl += r + " / "
+                    j+=1
+                else:
+                    tl += r
+        tl = tl.replace("_", " ")
 
-        title = (f"{what_to_show_l} - {what_to_show_r}")
+        title = (f"{tl}")
         graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
     elif t == "bar":
         for c in what_to_show_l:
             what_to_show_l= (c)
-            what_to_show_r = what_to_show_r 
+            what_to_show_r = what_to_show_r
             title = c
             graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
     else:
@@ -837,7 +1005,7 @@ def find_correlations(df):
         for j in column_list:
             #paar = [j, i]
             paar = str(i)+str(j)
-            if (paar not in al_gehad):
+            if paar not in al_gehad:
                 if i == j:
                     pass
                 else:
@@ -845,7 +1013,7 @@ def find_correlations(df):
                         c = round(df[i].corr(df[j]),3)
                         if c > 0.8:
                             print (f"{i} - {j} - {str(c)}")
-                            
+
                     except:
                         pass
             else:
@@ -857,8 +1025,8 @@ def find_correlations(df):
     #print (al_gehad)
                  # first # second
 def find_lag_time(df, what_happens_first,what_happens_second ,r1,r2):
-    b = what_happens_first 
-    a = what_happens_second 
+    b = what_happens_first
+    a = what_happens_second
     x = []
     y = []
     max = 0
@@ -875,8 +1043,8 @@ def find_lag_time(df, what_happens_first,what_happens_second ,r1,r2):
         y.append(c)
     title = (f"Correlation between : {a} - {b} ")
     title2 = (f" {a} - b - moved {m_days} days ")
-    
-    
+
+
     fig1x = plt.figure()
     ax = fig1x.add_subplot(111)
     plt.xlabel('shift in days')
@@ -899,15 +1067,16 @@ def init():
     global WDW3
     global FROM
     global UNTIL
-
+    global MOVE_WR
 
     # GLOBAL SETTINGS
     download = False
     # De open data worden om 15.15 uur gepubliceerd
 
-    WDW2 = 5 # for all values except R values
+    WDW2 = 7 # for all values except R values
     WDW3 = 3 # for R values in add_walking_r
-    FROM = '2021-1-1'
+    MOVE_WR = -10 # How many days the R value has to move to correct SMA
+    FROM = '2020-12-1'
     UNTIL = '2025-5-1'
     # attention, minimum period between FROM and UNTIL = wdw days!
 
@@ -961,33 +1130,38 @@ def main():
     # save_df(df,"thisisallfolks")
 
     # FILL HERE WHAT YOU WANT TO SEE // PARAMETERS
-    what_to_show_day_l = ["Total_reported" ,"Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID","Kliniek_Bedden","IC_Bedden_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
+    LCPS = ["Total_reported"]
+    #what_to_show_day_r = ["IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID"]
+    #what_to_show_day_l = ["Total_reported" ,"Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID",    "Kliniek_Bedden","IC_Bedden_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
     #what_to_show_day_l = ["Total_reported", "Tested_with_result"]
-    #what_to_show_day_l = ["transit_stations"]
-    
+    #what_to_show_day_l = LCPS
+
     #what_to_show_day_l =["Kliniek_Bedden","Total_reported"]
     #what_to_show_day_l = ["Kliniek_Nieuwe_Opnames_COVID"]
     #what_to_show_day_l= ["Hospital_admission_x"]
-    #what_to_show_day_r =["Total_reported" ] # shown n seperate graphs if it's bar
-    what_to_show_day_l = ["Total_reported"] #""Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
+    what_to_show_day_l =["Total_reported" ] # shown n seperate graphs if it's bar
+    #what_to_show_day_l = ["Total_reported", "IC_Nieuwe_Opnames_COVID"] #""Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
 
-    #what_to_show_day_r = ["Percentage_positive"] # always a line. 
-    what_to_show_day_r = ["Rt_avg"]
+    #what_to_show_day_r = ["Percentage_positive"] # always a line.
+    #what_to_show_day_r = ["Rt_avg"]
     #what_to_show_day_r = None
+    # Max 7 items
     how_to_smoothen = "SMA"         # "SMA" or "savgol"
     how_to_display = "bar"          # "line" (all in 1 linegraph) or "bar" (different bargraphs)
-    
+
     #what_to_show_week_l = ["Hospital_admission_x"]
     #what_to_show_week_l = ["Total_reported" ,"Hospital_admission_x","Kliniek_Nieuwe_Opnames_COVID","Kliniek_Bedden","IC_Bedden_COVID", "IC_Nieuwe_Opnames_COVID", "Deceased"]
-    
+
     how_to_agg_l = "sum"
     what_to_show_week_r = ["Percentage_positive"]
     how_to_agg_r = "mean"
 
     if how_to_display == "bar":
         what_to_show_day_r = None
-    
+
     graph_daily(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+    #graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+    #normeren(df, ["Total_reported"])
 
     # show a weekgraph, options have to put in the function self, no options her (for now)
     #graph_week(df, what_to_show_week_l , how_to_agg_l, what_to_show_week_r , how_to_agg_r)
