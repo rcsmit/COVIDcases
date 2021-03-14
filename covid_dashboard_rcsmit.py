@@ -489,12 +489,19 @@ def last_manipulations(df, what_to_drop, drop_last):
     #print ("=== AFTER LAST MANIPULATIONS ==== ")
     #print (df.dtypes)
 
-    df['weeknr']  =  df['date'].dt.isocalendar().week
-    df['yearnr']  =  df['date'].dt.isocalendar().year
+    # df['weeknr']  =  df['date'].dt.isocalendar().week
+    # df['yearnr']  =  df['date'].dt.isocalendar().year
 
 
-    df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
-                         df['date'].dt.isocalendar().week.astype(str))
+    # df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
+    #                      df['date'].dt.isocalendar().week.astype(str))
+
+    df['weeknr']  =  df['date'].dt.week
+    df['yearnr']  =  df['date'].dt.year
+
+
+    df['weekalt']   = (df['date'].dt.year.astype(str) + "-"+
+                         df['date'].dt.week.astype(str))
 
 
     return df, werkdagen, weekend_
