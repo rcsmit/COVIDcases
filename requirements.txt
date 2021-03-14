@@ -1,8 +1,7 @@
-matplotlib
-matplotlib.pyplot
 scipy
-pandas
-numpy
+matplotlib==3.2.2
+numpy==1.18.1
+pandas==1.0.5
 seaborn
 datetime
 math
