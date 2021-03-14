@@ -420,8 +420,8 @@ def agg_week(df, how):
     df['weeknr']  =  df['date'].dt.week
     df['yearnr']  =  df['date'].dt.year
 
-    df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
-                         df['date'].dt.isocalendar().week.astype(str))
+    df['weekalt']   = (df['date'].dt.year.astype(str) + "-"+
+                         df['date'].dt.week.astype(str))
     #how = "mean"
     if how == "mean":
         dfweek = df.groupby('weekalt', sort=False).mean()
