@@ -1,4 +1,5 @@
 matplotlib
+matplotlib.pyplot
 scipy
 pandas
 numpy
