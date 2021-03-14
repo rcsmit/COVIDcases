@@ -592,6 +592,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     aantal = len(what_to_show_l_)
 
     # SHOW A GRAPH IN TIME / DAY
+    st.write(df)
     with _lock:
         fig1x = plt.figure()
         ax = fig1x.add_subplot(111)
@@ -786,7 +787,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 ax3.set_ylabel('_')
 
         # layout of the x-axis
-        ax.xaxis.grid(True, which='minor')
+        #ax.xaxis.grid(True, which='minor')
         ax.yaxis.grid(True, which='minor')
         ax.xaxis.set_major_locator(MultipleLocator(1))
         ax.set_xticks(df['date'].index)
