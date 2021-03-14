@@ -88,18 +88,7 @@ from inspect import currentframe, getframeinfo
 # # Merged in one file in Excel and saved to CSV
 # Hospitals from RIVM 'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv
 
-@st.cache()
-def download_mob_r():
-    """  _ _ _ """
-    df_mob_r = pd.read_csv(
-                    INPUT_DIR + 'mobility.csv',
-                    delimiter=';',
-                    low_memory=False
-                )
-    # datum is 16-2-2020
-    df_mob_r['date']=pd.to_datetime(df_mob_r['date'], format="%d-%m-%Y")
-    df_mob_r.set_index('date')
-    return df_mob_r
+
 @st.cache()
 def download_hospital_admissions():
     """  _ _ _ """
