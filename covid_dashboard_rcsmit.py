@@ -249,15 +249,14 @@ def get_data():
     #df.loc[df['date'].isnull(),'date'] = df['Datum']
     #df = pd.merge(df, sliding_r_df, how=type_of_join, left_on = 'date', right_on="date_sR", left_index=True )
 
-    df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'date', right_on="Date_of_publication",
-                    left_index=True )
-
-    df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'date', right_on="Date",
-                    left_index=True )
-    df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'date', right_on="Date_of_statistics",
-                    left_index=True )
-    df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'date', right_on="Date",
-                    left_index=True )
+    df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'date', right_on="Date_of_publication")
+          
+    df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'date', right_on="Date")
+               
+    df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'date', right_on="Date_of_statistics")
+            
+    df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'date', right_on="Date")
+                  
     df["date"]=df["Datum"]
 
     df = df.sort_values(by=['date'])
