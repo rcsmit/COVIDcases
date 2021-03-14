@@ -828,7 +828,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
         # configgraph(titlex)
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-        add_restrictions(df,ax)
+        #add_restrictions(df,ax)
         #plt.show()
         st.pyplot(fig1x)
 @st.cache()
