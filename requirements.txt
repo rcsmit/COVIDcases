@@ -2,12 +2,8 @@ matplotlib
 scipy
 pandas
 numpy
-matplotlib.pyplot
-matplotlib
-matplotlib.dates
 seaborn
 datetime
 math
-streamlit as st
 urllib
 pathlib
