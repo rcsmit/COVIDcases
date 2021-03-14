@@ -235,7 +235,7 @@ def get_data():
     df_hospital = download_hospital_admissions()
     #sliding_r_df = walkingR(df_hospital, "Hospital_admission")
     df_lcps = download_lcps()
-    
+
     df_gemeente_per_dag = download_gemeente_per_dag()
     df_reprogetal = download_reproductiegetal()
     df_uitgevoerde_testen = download_uitgevoerde_testen()
@@ -250,13 +250,13 @@ def get_data():
     #df = pd.merge(df, sliding_r_df, how=type_of_join, left_on = 'date', right_on="date_sR", left_index=True )
 
     df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'date', right_on="Date_of_publication")
-          
+
     df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'date', right_on="Date")
-               
+
     df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'date', right_on="Date_of_statistics")
-            
+
     df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'date', right_on="Date")
-                  
+
     df["date"]=df["Datum"]
 
     df = df.sort_values(by=['date'])
@@ -1095,7 +1095,8 @@ def init():
 def main():
     """  _ _ _ """
     init()
-    df, werkdagen, weekend_ = get_data()
+    df_getdata, werkdagen, weekend_ = get_data()
+    df = df_getdata.copy(deep=False)
     # LET'S GET AND PREPARE THE DATA
 
     # what_to_show_day_r = None
