@@ -42,10 +42,10 @@ def main():
     a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/29/2021")
 
     try:
-    startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
+        startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
     except:
-    st.error("Please make sure that the date is in format mm/dd/yyyy")
-    st.stop()
+        st.error("Please make sure that the date is in format mm/dd/yyyy")
+        st.stop()
 
     NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
     global numberofdays_
@@ -141,7 +141,7 @@ def main():
 
 
 
-    # I wanted to link the classical SIR model of Kermack & McKendrik but the R_0 in that 
+    # I wanted to link the classical SIR model of Kermack & McKendrik but the R_0 in that
     # model isnt the same as the R_0 = beta / gamma from that model.
     # See https://www.reddit.com/r/epidemiology/comments/lfk83s/real_r0_at_the_start_not_the_same_as_given_r0/
 
@@ -236,11 +236,11 @@ def main():
 
     if turning:
         if (t>=(turningpoint) and t<(turningpoint+turningdays)):
-            if turningdays==0: 
+            if turningdays==0:
                 ry1__ = ry1_  * changefactor
                 ry2__ = ry2_  * changefactor
             else:
-                fraction =  (1-((t-(turningpoint))/turningdays))                
+                fraction =  (1-((t-(turningpoint))/turningdays))
                 ry1__ =(ry1_  * changefactor) + ((ry1_ -(ry1_  * changefactor))*fraction)
                 ry2__ =(ry2_  * changefactor) + ((ry2_ -(ry2_  * changefactor))*fraction)
         elif t>=(turningpoint+turningdays):
@@ -271,7 +271,7 @@ def main():
         ry2 = ry2__
 
     # prevent an [divide by zero]-error
-    if ry1 == 1:    
+    if ry1 == 1:
         ry1 = 1.000001
     if ry2 == 1:
         ry2 = 1.000001
@@ -292,7 +292,7 @@ def main():
     # https://twitter.com/hk_nien/status/1350953807933558792
     # positivetests1a.append(positivetests1a[t-1] * (ry1**(1/Tg)))
     # positivetests2a.append(positivetests2a[t-1] * (ry2**(1/Tg)))
-    # positivetests12a.append(positivetests2a[t-1] * (ry2**(1/Tg))+ positivetests1[t-1] 
+    # positivetests12a.append(positivetests2a[t-1] * (ry2**(1/Tg))+ positivetests1[t-1]
     #                                              * (ry1**(1/Tg)))
 
     positivetests12.append(pt1+pt2)
@@ -301,7 +301,7 @@ def main():
         cpt1 = (cummulative1[t-1]+  pt1)
         cpt2 = (cummulative2[t-1]+  pt2 )
         cpt12 =  (cummulative12[t-1]+ pt1 + pt2)
-        
+
         if cpt1>=totalpopulation:
             cpt1 = totalpopulation
         if cpt2>=totalpopulation:
@@ -325,23 +325,23 @@ def main():
         totalimmune_ = totalimmune[t-1]+((pt1+pt2)*testimmunefactor)
         if totalimmune_>=totalpopulation:
             totalimmune_ = totalpopulation
-        totalimmune.append(totalimmune_)   
+        totalimmune.append(totalimmune_)
 
     if showcummulative:
         if t>averagedayssick:
             infected.append (infected[t-1]+(((pt1+pt2))*testimmunefactor) -
                                 (( positivetests1[t-averagedayssick]+ positivetests2[t-averagedayssick])*testimmunefactor )
-                                ) 
+                                )
             suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
-            recovered.append(recovered[t-1]+ 
+            recovered.append(recovered[t-1]+
                             (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])
-                                * testimmunefactor ) ) 
+                                * testimmunefactor ) )
         else:
-            infected.append ( infected[t-1]+((pt1+pt2)*testimmunefactor) - 
-                                (infected[0]/averagedayssick))  
+            infected.append ( infected[t-1]+((pt1+pt2)*testimmunefactor) -
+                                (infected[0]/averagedayssick))
             suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
             recovered.append(recovered[t-1]+  (infected[0]/averagedayssick))
-            
+
     ry1x.append(ry1)
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
@@ -358,26 +358,26 @@ def main():
     delta_ic = 0
 
     if t < hospital_days_stay:
-        delta_hospital += -1 * (hospital_dayzero / hospital_days_stay) 
+        delta_hospital += -1 * (hospital_dayzero / hospital_days_stay)
     else:
-        hospital_temp = hospital[t-hospital_days_stay] 
+        hospital_temp = hospital[t-hospital_days_stay]
         if hospital_temp == None:
             hospital_temp = 0
-        delta_hospital += -1 * hospital_temp      
+        delta_hospital += -1 * hospital_temp
     if t> from_test_to_hospital:
         delta_hospital +=(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
 
     if t < ic_days_stay:
-        delta_ic += -1 * (ic_dayzero / ic_days_stay) 
+        delta_ic += -1 * (ic_dayzero / ic_days_stay)
     else:
-        ic_temp = ic[t-ic_days_stay] 
+        ic_temp = ic[t-ic_days_stay]
         if ic_temp == None:
             ic_temp = 0
-        delta_ic += -1 * ic_temp    
+        delta_ic += -1 * ic_temp
     if t> from_test_to_ic:
         delta_ic +=(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
 
-                            
+
 
 
     hospital_cumm.append(hospital_cumm[t-1]+delta_hospital)
@@ -523,7 +523,7 @@ def main():
     # output['weekday'] = output['date'].dt.strftime('%U')
     #output["weeknr"] = output['date'].dt.year.astype(str) + ' - ' +  output['date'].dt.isocalendar().week.astype(str)
     output["weeknr"] =  output['date'].dt.isocalendar().week
-        
+
 
     output = output.groupby("weeknr").sum()
 
@@ -585,7 +585,7 @@ def main():
         titlex = ('Suspectible - Infected - Recovered.\nBased on positive tests.\n'
                     '(test/immunityfactor is taken in account)')
         configgraph(titlex)
-        
+
         st.pyplot(fig1i)
     # Show the percentage new variant
     with _lock:
@@ -668,7 +668,7 @@ def main():
 
     # Add a title
     titlex = (f'Ziekenhuis ({percentage_test_hospital}%) en IC ({percentage_test_ic}%) bezetting per day,ZEER vereenvoudigd')
-    configgraph(titlex) 
+    configgraph(titlex)
     st.pyplot(fig1g)
     st.write(f"Value for hospital occupation t=21   : {int((hospital_cumm[21]))}")
     st.write(f"Value for hospital occupation t=35   : {int((hospital_cumm[35]))}")
@@ -694,7 +694,7 @@ def main():
         #N = int(input("Total population, N "))
         #if N == 0 :
         N = int(totalpopulation)
-        
+
         # Initial number of infected and recovered individuals, I0 and R0.
         I0, R0 = int(numberofcasesdayz), totalimmunedayzero
         # Everyone else, S0, is susceptible to infection initially.
@@ -718,11 +718,11 @@ def main():
 
         # reproductionrate = beta / gamma
 
-        # β describes the effective contact rate of the disease: 
-        # an infected individual comes into contact with βN other 
+        # β describes the effective contact rate of the disease:
+        # an infected individual comes into contact with βN other
         # individuals per unit time (of which the fraction that are
         # susceptible to contracting the disease is S/N).
-        # 1/gamma is recovery rate in days 
+        # 1/gamma is recovery rate in days
 
         # A grid of time points (in days)
         t = np.linspace(0, days, days)
@@ -733,12 +733,12 @@ def main():
             S, I, C, R = y
             dSdt = -beta * S * I / N   # aantal zieke mensen x aantal gezonde mensen x beta
             dIdt = beta * S * I / N - gamma * I
-            dCdt = beta * S * I / N 
+            dCdt = beta * S * I / N
             dRdt = gamma * I
-            
+
             #print (dIdt)
 
-            # (n2/n1)^(Tg/t) 
+            # (n2/n1)^(Tg/t)
             return dSdt, dIdt, dRdt, dCdt
 
         # Initial conditions vector
@@ -763,18 +763,18 @@ def main():
         Cnew.append(None)
         for time in range(1,days):
             Cnew.append(C[time]-C[time-1])
-        
+
             #if Cnew[time-1] == None:
-            if time == 1: 
+            if time == 1:
                 repr_ = None
                 repr_c_ = None
                 repr_i_ = None
             else:
-                #repr_= (C[time]/C[time-1])**(Tg/d) 
-                repr_= (Cnew[time]/Cnew[time-1])**(Tg/d) 
-                repr_c_= (C[time]/C[time-1])**(Tg/d) 
-                repr_i_= (I[time]/I[time-1])**(Tg/d) 
-            #repr_= (I[time]/I[time-1])    
+                #repr_= (C[time]/C[time-1])**(Tg/d)
+                repr_= (Cnew[time]/Cnew[time-1])**(Tg/d)
+                repr_c_= (C[time]/C[time-1])**(Tg/d)
+                repr_i_= (I[time]/I[time-1])**(Tg/d)
+            #repr_= (I[time]/I[time-1])
             repr.append(repr_)
             repr_c.append(repr_c_)
             repr_i.append(repr_i_)
@@ -854,7 +854,7 @@ def main():
         configgraph(titlex)
         plt.show()
         st.pyplot(fig2b)
-        
+
         st.write  ("attack rate growth model : " +        str(round(100*((recovered[days-1])/N),2))+ " %")
         st.write  ("attack rate classical SIR model : " + str(round(100*((C[days-1])        /N),2))+ " %")
         st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
