@@ -417,8 +417,8 @@ def agg_week(df, how):
 
     #df.loc[df['date'].isnull(),'date'] = df['Date_of_statistics']
 
-    df['weeknr']  =  df['date'].dt.isocalendar().week
-    df['yearnr']  =  df['date'].dt.isocalendar().year
+    df['weeknr']  =  df['date'].dt.week
+    df['yearnr']  =  df['date'].dt.year
 
     df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
                          df['date'].dt.isocalendar().week.astype(str))
@@ -491,6 +491,7 @@ def last_manipulations(df, what_to_drop, drop_last):
 
     df['weeknr']  =  df['date'].dt.isocalendar().week
     df['yearnr']  =  df['date'].dt.isocalendar().year
+    
 
     df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
                          df['date'].dt.isocalendar().week.astype(str))
