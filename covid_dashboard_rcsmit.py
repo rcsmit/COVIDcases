@@ -466,36 +466,35 @@ def select_period(df, show_from, show_until):
 @st.cache()
 def last_manipulations(df, what_to_drop, drop_last):
     """  _ _ _ """
-    # print ("Doing some last minute manipulations")
-    # drop_columns(what_to_drop)
+    #print ("Doing some last minute manipulations")
+    drop_columns(what_to_drop)
 
-    # #
-    # # select_period(df, FROM, UNTIL)
-    # df = select_period(df, FROM, UNTIL)
+    #
+    # select_period(df, FROM, UNTIL)
+    df = select_period(df, FROM, UNTIL)
 
-    # # Two different dataframes for workdays/weekend
+    # Two different dataframes for workdays/weekend
 
-    # werkdagen = df.loc[(df['weekend'] == 0)]
-    # weekend_ = df.loc[(df['weekend'] == 1) ]
-    # #df = df.drop(columns=['WEEKDAY'],axis=1)
-    # df = df.drop(columns=['weekend'],axis=1)
-    # werkdagen = werkdagen.drop(columns=['WEEKDAY'],axis=1)
-    # werkdagen = werkdagen.drop(columns=['weekend'],axis=1)
-    # weekend_ = weekend_.drop(columns=['WEEKDAY'],axis=1)
-    # weekend_ = weekend_.drop(columns=['weekend'],axis=1)
+    werkdagen = df.loc[(df['weekend'] == 0)]
+    weekend_ = df.loc[(df['weekend'] == 1) ]
+    #df = df.drop(columns=['WEEKDAY'],axis=1)
+    df = df.drop(columns=['weekend'],axis=1)
+    werkdagen = werkdagen.drop(columns=['WEEKDAY'],axis=1)
+    werkdagen = werkdagen.drop(columns=['weekend'],axis=1)
+    weekend_ = weekend_.drop(columns=['WEEKDAY'],axis=1)
+    weekend_ = weekend_.drop(columns=['weekend'],axis=1)
 
-    # if drop_last != None:
-    #     df = df[:drop_last] #drop last row(s)
-    # #print ("=== AFTER LAST MANIPULATIONS ==== ")
-    # #print (df.dtypes)
+    if drop_last != None:
+        df = df[:drop_last] #drop last row(s)
+    #print ("=== AFTER LAST MANIPULATIONS ==== ")
+    #print (df.dtypes)
 
-    # df['weeknr']  =  df['date'].dt.isocalendar().week
-    # df['yearnr']  =  df['date'].dt.isocalendar().year
+    df['weeknr']  =  df['date'].dt.isocalendar().week
+    df['yearnr']  =  df['date'].dt.isocalendar().year
 
-    # df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
-    #                      df['date'].dt.isocalendar().week.astype(str))
-    werkdagen = df
-    weekend_ = df
+    df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
+                         df['date'].dt.isocalendar().week.astype(str))
+    
 
     return df, werkdagen, weekend_
     #return df
