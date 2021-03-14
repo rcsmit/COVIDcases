@@ -29,53 +29,51 @@ import pandas as pd
 # variable 12 = old + new
 # variablex = with vaccination
 
-@st.cache(suppress_st_warning=True)
-def main():
-    DATE_FORMAT = "%m/%d/%Y"
-    b = datetime.today().strftime('%m/%d/%Y')
+DATE_FORMAT = "%m/%d/%Y"
+b = datetime.today().strftime('%m/%d/%Y')
 
-    #values 01/13/2021, according to https://www.bddataplan.nl/corona/
-    st.sidebar.title('Parameters')
-    numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
+#values 01/13/2021, according to https://www.bddataplan.nl/corona/
+st.sidebar.title('Parameters')
+numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
 
-    st.markdown("<hr>", unsafe_allow_html=True)
-    a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/29/2021")
+st.markdown("<hr>", unsafe_allow_html=True)
+a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/29/2021")
 
-    try:
-        startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
-    except:
-        st.error("Please make sure that the date is in format mm/dd/yyyy")
-        st.stop()
+try:
+    startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
+except:
+    st.error("Please make sure that the date is in format mm/dd/yyyy")
+    st.stop()
 
-    NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
-    global numberofdays_
-    numberofdays_ = NUMBEROFDAYS
+NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 60)
+global numberofdays_
+numberofdays_ = NUMBEROFDAYS
 
-    Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.84)
-    Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
-    correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
-    Rnew1_= round(Rnew_1_ * correction,2)
-    Rnew2_= round(Rnew_2_ * correction,2)
+Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.84)
+Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
+correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
+Rnew1_= round(Rnew_1_ * correction,2)
+Rnew2_= round(Rnew_2_ * correction,2)
 
-    percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 43.0)/100)
+percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 43.0)/100)
 
-    Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
-    global Tg_
-    Tg_=Tg
+Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
+global Tg_
+Tg_=Tg
 
-    lambdaa = st.sidebar.slider('Lambda / heterogeneity', 1.0, 6.0, 1.0)
-    averagedayssick = (st.sidebar.slider('Average days infectious', 1, 30, 20))
-    # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
-    showcummulative = st.sidebar.checkbox("Show cummulative / SIR", True)
+lambdaa = st.sidebar.slider('Lambda / heterogeneity', 1.0, 6.0, 1.0)
+averagedayssick = (st.sidebar.slider('Average days infectious', 1, 30, 20))
+# https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
+showcummulative = st.sidebar.checkbox("Show cummulative / SIR", True)
 
 
 
-    showimmunization = st.sidebar.checkbox("Immunization", True)
+showimmunization = st.sidebar.checkbox("Immunization", True)
 
-    showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
-    #showSIR = False
+showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
+#showSIR = False
 
-    if showcummulative or showSIR:
+if showcummulative or showSIR:
     numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero', 130000))
 
     try:
@@ -85,7 +83,7 @@ def main():
         st.stop()
 
 
-    if showcummulative or showSIR or showimmunization:
+if showcummulative or showSIR or showimmunization:
     totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 2_500_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
 
@@ -102,9 +100,9 @@ def main():
         st.error("Please enter a number for the number of population")
         st.stop()
 
-    turning = st.sidebar.checkbox("Turning point")
+turning = st.sidebar.checkbox("Turning point")
 
-    if turning:
+if turning:
     #Rnew3 = st.sidebar.slider('R-number target British variant', 0.1, 2.0, 0.8)
     changefactor = st.sidebar.slider('Change factor (1.0 = no change)', 0.0, 3.0, 0.9)
     #turningpoint = st.sidebar.slider('Startday turning', 1, 365, 30)
@@ -123,108 +121,108 @@ def main():
         st.stop()
     turningpoint =  abs((d2 - d1).days)
 
-    vaccination = st.sidebar.checkbox("Vaccination")
+vaccination = st.sidebar.checkbox("Vaccination")
 
-    if vaccination:
+if vaccination:
     VACTIME = st.sidebar.slider('Number of days needed for vaccination', 1, 730, 365)
 
-    ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,558)
-    hospital_dayzero = st.sidebar.number_input('Aantal ziekenhuis dag 0',None,None,1447)
-    ic_days_stay = st.sidebar.number_input('Aantal dagen op IC',None,None,13)
-    hospital_days_stay = st.sidebar.number_input('Aantal dagen in ziekenhuis',None,None,21)
-    from_test_to_ic =  st.sidebar.number_input('Aantal dagen test -> IC',None,None,5)
-    from_test_to_hospital = st.sidebar.number_input('Aantal dagen test -> ziekenhuis',None,None,5)
-    percentage_test_ic = st.sidebar.number_input('Percentage test/IC',None,None,0.7)
-    percentage_test_hospital = st.sidebar.number_input('Percentage test/ziekenhuis',None,None,4)
+ic_dayzero = st.sidebar.number_input('Aantal IC dag 0',None,None,558)
+hospital_dayzero = st.sidebar.number_input('Aantal ziekenhuis dag 0',None,None,1447)
+ic_days_stay = st.sidebar.number_input('Aantal dagen op IC',None,None,13)
+hospital_days_stay = st.sidebar.number_input('Aantal dagen in ziekenhuis',None,None,21)
+from_test_to_ic =  st.sidebar.number_input('Aantal dagen test -> IC',None,None,5)
+from_test_to_hospital = st.sidebar.number_input('Aantal dagen test -> ziekenhuis',None,None,5)
+percentage_test_ic = st.sidebar.number_input('Percentage test/IC',None,None,0.7)
+percentage_test_hospital = st.sidebar.number_input('Percentage test/ziekenhuis',None,None,4)
 
 
 
 
 
-    # I wanted to link the classical SIR model of Kermack & McKendrik but the R_0 in that
-    # model isnt the same as the R_0 = beta / gamma from that model.
-    # See https://www.reddit.com/r/epidemiology/comments/lfk83s/real_r0_at_the_start_not_the_same_as_given_r0/
+# I wanted to link the classical SIR model of Kermack & McKendrik but the R_0 in that
+# model isnt the same as the R_0 = beta / gamma from that model.
+# See https://www.reddit.com/r/epidemiology/comments/lfk83s/real_r0_at_the_start_not_the_same_as_given_r0/
 
 
-    numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
-    numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
-    numberofpositivetests12 = numberofpositivetests
+numberofpositivetests1 = numberofpositivetests*(1-percentagenewversion)
+numberofpositivetests2 = numberofpositivetests*(percentagenewversion)
+numberofpositivetests12 = numberofpositivetests
 
-    # Some manipulation of the x-values (the dates)
-    then = startx + dt.timedelta(days=NUMBEROFDAYS)
-    x = mdates.drange(startx,then,dt.timedelta(days=1))
-    # x = dagnummer gerekend vanaf 1 januari 1970 (?)
-    # y = aantal gevallen
-    # z = dagnummer van 1 tot NUMBEROFDAYS
-    z  = np.array(range(NUMBEROFDAYS))
+# Some manipulation of the x-values (the dates)
+then = startx + dt.timedelta(days=NUMBEROFDAYS)
+x = mdates.drange(startx,then,dt.timedelta(days=1))
+# x = dagnummer gerekend vanaf 1 januari 1970 (?)
+# y = aantal gevallen
+# z = dagnummer van 1 tot NUMBEROFDAYS
+z  = np.array(range(NUMBEROFDAYS))
 
-    a_ = dt.datetime.strptime(a,'%m/%d/%Y').date()
-    b_ = dt.datetime.strptime(b,'%m/%d/%Y').date()
-    datediff = ( abs((a_ - b_).days))
+a_ = dt.datetime.strptime(a,'%m/%d/%Y').date()
+b_ = dt.datetime.strptime(b,'%m/%d/%Y').date()
+datediff = ( abs((a_ - b_).days))
 
-    # TODO:  Transform this in a multi dimensional list
+# TODO:  Transform this in a multi dimensional list
 
-    positivetests1 = []
-    positivetests2 = []
-    positivetests12 = []
-    positivetestsper100k = []
-    cummulative1 = []
-    cummulative2 = []
-    cummulative12 = []
-    #walkingcummulative = []
-    ratio=[]
-    walkingR=[]
-    actualR=[]
-    totalimmune=[]
-    hospital = []
-    infected = []
-    ic  = []
-    ic_cumm = []
-    hospital_cumm = []
-    #if vaccination:
-    ry1x = []
-    ry2x = []
+positivetests1 = []
+positivetests2 = []
+positivetests12 = []
+positivetestsper100k = []
+cummulative1 = []
+cummulative2 = []
+cummulative12 = []
+#walkingcummulative = []
+ratio=[]
+walkingR=[]
+actualR=[]
+totalimmune=[]
+hospital = []
+infected = []
+ic  = []
+ic_cumm = []
+hospital_cumm = []
+#if vaccination:
+ry1x = []
+ry2x = []
 
-    suspectible =[]
-    recovered = []
-    if showcummulative or showSIR or showimmunization:
+suspectible =[]
+recovered = []
+if showcummulative or showSIR or showimmunization:
     suspectible.append(totalpopulation -totalimmunedayzero)
     recovered.append(totalimmunedayzero )
-    if turning == False:
+if turning == False:
     label1= 'First variant (R='+ str(Rnew1_) + ')'
     label2= 'Second variant (R='+ str(Rnew2_) + ')'
-    else:
+else:
     label1= 'First variant'
     label2= 'Second variant'
 
-    # START CALCULATING --------------------------------------------------------------------
-    positivetests1.append (numberofpositivetests1)
-    positivetests2.append (numberofpositivetests2)
-    positivetests12.append (numberofpositivetests12)
-    positivetestsper100k.append ((numberofpositivetests12/25))
+# START CALCULATING --------------------------------------------------------------------
+positivetests1.append (numberofpositivetests1)
+positivetests2.append (numberofpositivetests2)
+positivetests12.append (numberofpositivetests12)
+positivetestsper100k.append ((numberofpositivetests12/25))
 
-    if showcummulative:
+if showcummulative:
     cummulative1.append(numberofcasesdayzero*(1-percentagenewversion))
     cummulative2.append(numberofcasesdayzero*(percentagenewversion))
     cummulative12.append(numberofcasesdayzero)
     infected.append(numberofcasesdayzero)
-    ratio.append(percentagenewversion*100 )
-    #walkingcummulative.append(1)
-    #if vaccination:
-    ry1x.append(Rnew1_)
-    ry2x.append(Rnew2_)
-    immeratio_=[]
-    immeratio_.append(1)
+ratio.append(percentagenewversion*100 )
+#walkingcummulative.append(1)
+#if vaccination:
+ry1x.append(Rnew1_)
+ry2x.append(Rnew2_)
+immeratio_=[]
+immeratio_.append(1)
 
-    hospital.append(None)
-    ic.append(None)
-    ic_cumm.append(ic_dayzero)
-    hospital_cumm.append(hospital_dayzero)
-    walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
-    if showimmunization:
+hospital.append(None)
+ic.append(None)
+ic_cumm.append(ic_dayzero)
+hospital_cumm.append(hospital_dayzero)
+walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
+if showimmunization:
     totalimmune.append(totalimmunedayzero)
 
-    for t in range(1, NUMBEROFDAYS):
+for t in range(1, NUMBEROFDAYS):
     if showimmunization:
         immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
         ry1_ = ry1x[0]*(immeratio**lambdaa)
@@ -330,15 +328,15 @@ def main():
     if showcummulative:
         if t>averagedayssick:
             infected.append (infected[t-1]+(((pt1+pt2))*testimmunefactor) -
-                                (( positivetests1[t-averagedayssick]+ positivetests2[t-averagedayssick])*testimmunefactor )
-                                )
+                               (( positivetests1[t-averagedayssick]+ positivetests2[t-averagedayssick])*testimmunefactor )
+                             )
             suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
             recovered.append(recovered[t-1]+
-                            (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])
-                                * testimmunefactor ) )
+                          (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])
+                               * testimmunefactor ) )
         else:
             infected.append ( infected[t-1]+((pt1+pt2)*testimmunefactor) -
-                                (infected[0]/averagedayssick))
+                              (infected[0]/averagedayssick))
             suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
             recovered.append(recovered[t-1]+  (infected[0]/averagedayssick))
 
@@ -385,39 +383,39 @@ def main():
 
 
 
-    st.title('Positive COVID-tests in NL')
+st.title('Positive COVID-tests in NL')
 
-    disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
-                '<div class=\"infobox\"><h3>Disclaimer</h3><p>For illustration purpose only.</p>'
-                '<p>Attention: these results are different from the official models'
-                ' probably due to simplifications and different (secret) parameters.'
-                '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>) '
+disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
+               '<div class=\"infobox\"><h3>Disclaimer</h3><p>For illustration purpose only.</p>'
+               '<p>Attention: these results are different from the official models'
+               ' probably due to simplifications and different (secret) parameters.'
+               '(<a href=\"https://archive.is/dqOjs\" target=\"_blank\">*</a>) '
                 'The default parameters on this site are the latest known parameters of the RIVM'
                 '</p><p>Forward-looking projections are estimates of what <em>might</em> occur. '
                 'They are not predictions of what <em>will</em> occur. Actual results may vary substantially. </p>'
-                    '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
-                'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
+                 '<p>The goal was/is to show the (big) influence of (small) changes in the R-number. '
+              'At the bottom of the page are some links to more advanced (SEIR) models.</p></div>')
 
-    st.markdown(disclaimernew,  unsafe_allow_html=True)
-    if showimmunization:
+st.markdown(disclaimernew,  unsafe_allow_html=True)
+if showimmunization:
     disclaimerimm = ('<div class=\"infobox\"><p>The flattening  is very indicational. It is based on the principe R<sub>t</sub> = R<sub>start</sub> x (Suspectible / Population)<sup>λ</sup>. '
             'A lot of factors are not taken into account.'
         'The number of test is multiplied by ' +str(testimmunefactor)+ ' to get an estimation of the number of immune persons</div>'
         )
 
     st.markdown(disclaimerimm, unsafe_allow_html=True)
-    #        'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
+#        'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
 
-    def th2r(rz):
+def th2r(rz):
     th = int( Tg_ * math.log(0.5) / math.log(rz))
     return th
 
-    def r2th(th):
+def r2th(th):
     r = int(10**((Tg_*mat.log(2))/th))
     # HK is using  r = 2**(Tg_/th)
     return r
 
-    def getsecondax():
+def getsecondax():
     # get second y axis
     # Door Han-Kwang Nienhuys - MIT License
     # https://github.com/han-kwang/covid19/blob/master/nlcovidstats.py
@@ -430,7 +428,7 @@ def main():
     ax2.set_ylim(*ax.get_ylim())
     ax2.set_ylabel('Halverings-/verdubbelingstijd (dagen)')
 
-    def configgraph(titlex):
+def configgraph(titlex):
     interval_ = int(numberofdays_ / 20)
     plt.xlabel('date')
     plt.xlim(x[0], x[-1])
@@ -451,8 +449,8 @@ def main():
     plt.gcf().autofmt_xdate()
     plt.gca().set_title(titlex , fontsize=10)
 
-    # POS TESTS /day ################################
-    with _lock:
+# POS TESTS /day ################################
+with _lock:
     fig1, ax = plt.subplots()
     plt.plot(x, positivetests1, label=label1,  linestyle='--')
     plt.plot(x, positivetests2, label=label2,  linestyle='--')
@@ -475,8 +473,8 @@ def main():
     configgraph(titlex)
     st.pyplot(fig1)
 
-    # # POS TESTS per 100k per week ################################
-    with _lock:
+# # POS TESTS per 100k per week ################################
+with _lock:
     fig1d, ax = plt.subplots()
     plt.plot(x, positivetestsper100k)
     positivetestsper100k = []
@@ -505,30 +503,30 @@ def main():
     st.pyplot(fig1d)
 
 
-    ####### SHOW TOTAL  CASES PER WEEK
-    # inspired by https://twitter.com/steeph/status/1363865443467952128
-    output = pd.DataFrame(
+####### SHOW TOTAL  CASES PER WEEK
+# inspired by https://twitter.com/steeph/status/1363865443467952128
+output = pd.DataFrame(
     {'date': x,
-        'First_variant': positivetests1,
-        'Second_variant': positivetests2
+     'First_variant': positivetests1,
+     'Second_variant': positivetests2
     })
-    #st.write(output)
+#st.write(output)
 
 
-    output['date'] =  pd.to_datetime(output['date'],  unit='D',
-                origin=pd.Timestamp('1970-01-01'))
-    # output['week_number_of_year'] = output['date'].dt.week
-    # output['year'] = output['date'].dt.year
-    # output["weeknr"] = output["year"].astype(str) + ' ' + output["week_number_of_year"].astype(str)
-    # output['weekday'] = output['date'].dt.strftime('%U')
-    #output["weeknr"] = output['date'].dt.year.astype(str) + ' - ' +  output['date'].dt.isocalendar().week.astype(str)
-    output["weeknr"] =  output['date'].dt.isocalendar().week
+output['date'] =  pd.to_datetime(output['date'],  unit='D',
+               origin=pd.Timestamp('1970-01-01'))
+# output['week_number_of_year'] = output['date'].dt.week
+# output['year'] = output['date'].dt.year
+# output["weeknr"] = output["year"].astype(str) + ' ' + output["week_number_of_year"].astype(str)
+# output['weekday'] = output['date'].dt.strftime('%U')
+#output["weeknr"] = output['date'].dt.year.astype(str) + ' - ' +  output['date'].dt.isocalendar().week.astype(str)
+output["weeknr"] =  output['date'].dt.isocalendar().week
 
 
-    output = output.groupby("weeknr").sum()
+output = output.groupby("weeknr").sum()
 
 
-    with st.beta_expander("Show bargraph per week - Attention - doesn't display well when there are two years involved and/or the weeks aren't complete. Weeks are Monday until Sunday"):
+with st.beta_expander("Show bargraph per week - Attention - doesn't display well when there are two years involved and/or the weeks aren't complete. Weeks are Monday until Sunday"):
     fig1x = plt.figure()
     output.plot()
     plt.legend(loc='best')
@@ -540,13 +538,13 @@ def main():
     st.bar_chart(output)
 
 
-    positivetests1 = []
-    positivetests2 = []
-    positivetest12 = []
+positivetests1 = []
+positivetests2 = []
+positivetest12 = []
 
 
-    # Show cummulative cases
-    if showcummulative:
+# Show cummulative cases
+if showcummulative:
     with _lock:
         fig1e, ax = plt.subplots()
         plt.plot(x,cummulative1, label='Cummulative pos. test first variant',  linestyle='--')
@@ -583,12 +581,12 @@ def main():
 
         # Add a title
         titlex = ('Suspectible - Infected - Recovered.\nBased on positive tests.\n'
-                    '(test/immunityfactor is taken in account)')
+                  '(test/immunityfactor is taken in account)')
         configgraph(titlex)
 
         st.pyplot(fig1i)
-    # Show the percentage new variant
-    with _lock:
+# Show the percentage new variant
+with _lock:
     fig1f, ax = plt.subplots()
     plt.plot(x, ratio, label='Ratio',  linestyle='--')
     ratio = []
@@ -604,8 +602,8 @@ def main():
     st.pyplot(fig1f)
 
 
-    # Show the R number in time
-    with _lock:
+# Show the R number in time
+with _lock:
     fig1f, ax = plt.subplots()
     plt.plot(x, walkingR, label='Combined R number in time',  linestyle='--')
     plt.plot(x, ry1x, label='Old variant',  linestyle='--')
@@ -627,8 +625,8 @@ def main():
     #secax.set_ylabel('Thalf')
     st.pyplot(fig1f)
 
-    # Ziekenhuis opnames
-    with _lock:
+# Ziekenhuis opnames
+with _lock:
     fig1g, ax = plt.subplots()
     plt.plot(x, hospital, label='Ziekenhuis per dag')
     plt.plot(x, ic, label='IC per dag')
@@ -646,14 +644,14 @@ def main():
     configgraph(titlex)
     st.pyplot(fig1g)
 
-    ry1x = []
-    ry2x = []
-    hospital = []
-    ic = []
-    ################################################
+ry1x = []
+ry2x = []
+hospital = []
+ic = []
+################################################
 
-    # Ziekenhuis bezetting
-    with _lock:
+# Ziekenhuis bezetting
+with _lock:
     fig1g, ax = plt.subplots()
     plt.plot(x, hospital_cumm, label='Ziekenhuis bezetting per dag')
     plt.plot(x, ic_cumm, label='IC bezetting per dag')
@@ -677,12 +675,12 @@ def main():
     st.write(f"Value for IC occupation t=21         : {int((ic_cumm[21]))}")
     st.write(f"Value for IC occupation t=35         : {int((ic_cumm[35]))}")
     st.write(f"Maximum value for IC occupation       : {int(max(ic_cumm))}")
-    ry1x = []
-    ry2x = []
-    hospital_cumm = []
-    ic_cumm = []
-    #########################
-    if showSIR:
+ry1x = []
+ry2x = []
+hospital_cumm = []
+ic_cumm = []
+#########################
+if showSIR:
 
     with st.beta_expander("Show classical SIR-graphs"):
 
@@ -861,9 +859,9 @@ def main():
         st.write ("Attack rate = final size of the epidemic (FSE) ")
         repr=[]
 
-    #####################################################
+#####################################################
 
-    tekst = (
+tekst = (
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
     '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
     'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
@@ -872,40 +870,40 @@ def main():
     'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst.<br>'
     'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a>.</div>')
 
-    links = (
-    '<h3>Useful dashboards</h3><ul>'
-    '<li><a href=\"https://allecijfers.nl/nieuws/statistieken-over-het-corona-virus-en-covid19/\" target=\"_blank\">Allecijfers.nl</a></li>'
-    '<li><a href=\"https://datagraver.com/corona\" target=\"_blank\">https://www.datagraver/corona/</a></li>'
-    '<li><a href=\"https://www.bddataplan.nl/corona\" target=\"_blank\">https://www.bddataplan.nl/corona/</a></li>'
-    '<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\" target=\"_blank\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
-    '<li><a href=\"https://coronadashboard.rijksoverheid.nl/\" target=\"_blank\">Rijksoverheid NL</a></li>'
-    '<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
-    '</ul>'
+links = (
+'<h3>Useful dashboards</h3><ul>'
+'<li><a href=\"https://allecijfers.nl/nieuws/statistieken-over-het-corona-virus-en-covid19/\" target=\"_blank\">Allecijfers.nl</a></li>'
+'<li><a href=\"https://datagraver.com/corona\" target=\"_blank\">https://www.datagraver/corona/</a></li>'
+'<li><a href=\"https://www.bddataplan.nl/corona\" target=\"_blank\">https://www.bddataplan.nl/corona/</a></li>'
+'<li><a href=\"https://renkulab.shinyapps.io/COVID-19-Epidemic-Forecasting/_w_ebc33de6/_w_dce98783/_w_0603a728/_w_5b59f69e/?tab=jhu_pred&country=France\" target=\"_blank\">Dashboard by  Institute of Global Health, Geneve, Swiss</a></li>'
+'<li><a href=\"https://coronadashboard.rijksoverheid.nl/\" target=\"_blank\">Rijksoverheid NL</a></li>'
+'<li><a href=\"https://www.corona-lokaal.nl/locatie/Nederland\" target=\"_blank\">Corona lokaal</a></li>'
+'</ul>'
 
 
-    '<h3>Other (SEIR) models</h3><ul>'
-    '<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
-    '<li><a href=\"https://www.covidsim.org" target=\"_blank\">COVID-19 Scenario Analysis Tool (Imperial College London)</a></li>'
-    '<li><a href=\"http://www.covidsim.eu/" target=\"_blank\">CovidSIM/a></li>'
-    '<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
-    '<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
-    '<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>'
-    '<li><a href=\"http://www.modelinginfectiousdiseases.org/\" target=\"_blank\">Code from the book Modeling Infectious Diseases in Humans and Animals '
-    '(Matt J. Keeling & Pejman Rohani)</a></li></ul>'
-    '<h3>Other sources/info</h3>'
-    '<ul><li><a href=\"https://archive.is/dqOjs\" target=\"_blank\">Waarom bierviltjesberekeningen over het virus niet werken</a></li>'
-    '<li><a href=\"https://www.scienceguide.nl/2020/03/modellen-geven-geen-absolute-zekerheid-maar-ze-zijn-ontontbeerlijk/\" target=\"_blank\">Modellen geven geen absolute zekerheid, maar ze zijn onontbeerlijk</a></li>'
-    '<li><a href=\"https://www.nature.com/articles/d41586-020-02009-ws\" target=\"_blank\">A guide to R — the pandemic’s misunderstood metric</a></li></ul>')
+'<h3>Other (SEIR) models</h3><ul>'
+'<li><a href=\"http://gabgoh.github.io/COVID/index.html\" target=\"_blank\">Epidemic Calculator </a></li>'
+'<li><a href=\"https://www.covidsim.org" target=\"_blank\">COVID-19 Scenario Analysis Tool (Imperial College London)</a></li>'
+'<li><a href=\"http://www.covidsim.eu/" target=\"_blank\">CovidSIM/a></li>'
+'<li><a href=\"https://covid19-scenarios.org/\" target=\"_blank\">Covid scenarios</a></li>'
+'<li><a href=\"https://share.streamlit.io/lcalmbach/pandemic-simulator/main/app.py\" target=\"_blank\">Pandemic simulator</a></li>'
+'<li><a href=\"https://penn-chime.phl.io/\" target=\"_blank\">Hospital impact model</a></li>'
+'<li><a href=\"http://www.modelinginfectiousdiseases.org/\" target=\"_blank\">Code from the book Modeling Infectious Diseases in Humans and Animals '
+'(Matt J. Keeling & Pejman Rohani)</a></li></ul>'
+'<h3>Other sources/info</h3>'
+'<ul><li><a href=\"https://archive.is/dqOjs\" target=\"_blank\">Waarom bierviltjesberekeningen over het virus niet werken</a></li>'
+'<li><a href=\"https://www.scienceguide.nl/2020/03/modellen-geven-geen-absolute-zekerheid-maar-ze-zijn-ontontbeerlijk/\" target=\"_blank\">Modellen geven geen absolute zekerheid, maar ze zijn onontbeerlijk</a></li>'
+'<li><a href=\"https://www.nature.com/articles/d41586-020-02009-ws\" target=\"_blank\">A guide to R — the pandemic’s misunderstood metric</a></li></ul>')
 
-    vaccinationdisclaimer = (
-    '<h3>Attention</h3>'
-    'The plot when having vaccination is very indicative and very simplified.'
-    ' It assumes an uniform(?) distribution of the vaccins over the population, '
-    ' that a person who had the vaccin can\'t be sick immediately, '
-    'that everybody takes the vaccin, the R is equal for everybody etc. etc.')
+vaccinationdisclaimer = (
+'<h3>Attention</h3>'
+'The plot when having vaccination is very indicative and very simplified.'
+' It assumes an uniform(?) distribution of the vaccins over the population, '
+' that a person who had the vaccin can\'t be sick immediately, '
+'that everybody takes the vaccin, the R is equal for everybody etc. etc.')
 
-    st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    #st.sidebar.info(tekst)
-    if vaccination:
+st.sidebar.markdown(tekst, unsafe_allow_html=True)
+#st.sidebar.info(tekst)
+if vaccination:
     st.markdown(vaccinationdisclaimer, unsafe_allow_html=True)
-    st.markdown(links, unsafe_allow_html=True)
+st.markdown(links, unsafe_allow_html=True)
