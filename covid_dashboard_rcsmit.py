@@ -249,13 +249,13 @@ def get_data():
     #df.loc[df['date'].isnull(),'date'] = df['Datum']
     #df = pd.merge(df, sliding_r_df, how=type_of_join, left_on = 'date', right_on="date_sR", left_index=True )
 
-    df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'date', right_on="Date_of_publication")
+    df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'Datum', right_on="Date_of_publication")
 
-    df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'date', right_on="Date")
+    df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'Datum', right_on="Date")
 
-    df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'date', right_on="Date_of_statistics")
+    df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'Datum', right_on="Date_of_statistics")
 
-    df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'date', right_on="Date")
+    df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'Datum', right_on="Date")
 
     df["date"]=df["Datum"]
 
@@ -491,11 +491,11 @@ def last_manipulations(df, what_to_drop, drop_last):
 
     df['weeknr']  =  df['date'].dt.isocalendar().week
     df['yearnr']  =  df['date'].dt.isocalendar().year
-    
+
 
     df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
                          df['date'].dt.isocalendar().week.astype(str))
-    
+
 
     return df, werkdagen, weekend_
     #return df
@@ -1095,7 +1095,7 @@ def init():
 
 def main():
     """  _ _ _ """
-    
+
     df_getdata, werkdagen, weekend_ = get_data()
     df = df_getdata.copy(deep=False)
     # LET'S GET AND PREPARE THE DATA
