@@ -235,7 +235,7 @@ def get_data():
     df_hospital = download_hospital_admissions()
     #sliding_r_df = walkingR(df_hospital, "Hospital_admission")
     df_lcps = download_lcps()
-    df_mob_r = download_mob_r()
+    
     df_gemeente_per_dag = download_gemeente_per_dag()
     df_reprogetal = download_reproductiegetal()
     df_uitgevoerde_testen = download_uitgevoerde_testen()
