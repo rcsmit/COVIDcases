@@ -1095,7 +1095,7 @@ def init():
 
 def main():
     """  _ _ _ """
-    init()
+    
     df_getdata, werkdagen, weekend_ = get_data()
     df = df_getdata.copy(deep=False)
     # LET'S GET AND PREPARE THE DATA
@@ -1232,6 +1232,7 @@ def main():
     'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> and others<br>.'
     'Restrictions by <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> (MIT-license).</div>')
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
+init()
 main()
 # https://www.medrxiv.org/content/10.1101/2020.05.06.20093039v3.full
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7729173/
