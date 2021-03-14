@@ -261,11 +261,10 @@ def get_data():
 
     df = df.sort_values(by=['date'])
     df = splitupweekweekend(df)
-    df, werkdagen, weekend_ = last_manipulations(df, None, None)
-    # df.set_index('date')
-    print(df)
 
-    return df, werkdagen, weekend_
+    # df.set_index('date')
+
+    return df #, werkdagen, weekend_
 
 ###################################################
 def calculate_cases(df):
@@ -451,27 +450,28 @@ def drop_columns(what_to_drop):
         for d in what_to_drop:
             df = df.drop(columns=['d'],axis=1)
 def select_period(df, show_from, show_until):
-
+    #st.write("PERIOD CHANGED" + str(show_from) + "-"+ str(show_until))
+    #st.write(show_from)
     if show_from == None:
         show_from = '2020-1-1'
 
     if show_until == None:
         show_until = '2030-1-1'
-    mask = (df['date'] >= show_from) & (df['date'] <= show_until)
+    # show_from_ = dt.datetime(show_from)
+    # show_until_ = dt.datetime.strptime(show_until,'%Y-%m-%d')
+    mask = (df['date'].dt.date >= show_from) & (df['date'].dt.date <= show_until)
     df = (df.loc[mask])
 
     df = df.reset_index()
 
     return df
-@st.cache()
+
 def last_manipulations(df, what_to_drop, drop_last):
     """  _ _ _ """
     #print ("Doing some last minute manipulations")
     drop_columns(what_to_drop)
 
     #
-    # select_period(df, FROM, UNTIL)
-    df = select_period(df, FROM, UNTIL)
 
     # Two different dataframes for workdays/weekend
 
@@ -599,7 +599,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     aantal = len(what_to_show_l_)
 
     # SHOW A GRAPH IN TIME / DAY
-    st.write(df)
+    #st.write(df)
+
     with _lock:
         fig1x = plt.figure()
         ax = fig1x.add_subplot(111)
@@ -737,8 +738,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
                     #ax3.set_ylabel('Rt')
 
-                left, right = ax.get_xlim()
-                ax.set_xlim(left - 0.5, right + 0.5)
+                #left, right = ax.get_xlim()
+                #ax.set_xlim(left - 0.5, right + 0.5)
                 #ax3.set_ylim(0.6,1.5)
 
             elif t== "line":
@@ -771,7 +772,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         #ax3 = df["testvsIC"].plot(label="testvic", color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
 
         #ax.set_ylabel('Numbers')
-        ax.xaxis.grid(True, which='minor')
+        ax.xaxis.grid(True, which='major')
         ax.xaxis.set_major_locator(MultipleLocator(1))
 
         if what_to_show_r != None:
@@ -784,7 +785,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 #lbl2 = a + "_" + how_to_smooth + "_" + str(WDW2)
 
                 df, columnlist = smooth_columnlist(df,[a],how_to_smooth)
-                df_temp = select_period(df, FROM, UNTIL)
+                #df_temp = select_period(df, FROM, UNTIL)
                 #df_temp = df
                 for b_ in columnlist:
                     #smoothed
@@ -795,7 +796,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
         # layout of the x-axis
         #ax.xaxis.grid(True, which='minor')
-        ax.yaxis.grid(True, which='minor')
+        ax.yaxis.grid(True, which='major')
         ax.xaxis.set_major_locator(MultipleLocator(1))
         ax.set_xticks(df['date'].index)
         ax.set_xticklabels(df['date'].dt.date,fontsize=6, rotation=90)
@@ -903,7 +904,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         #titlex = "Weekly numbers - " + show_l + "(" + how  + ")"
         #plt.title(titlex , fontsize=10)
 
-        ax.xaxis.grid(True, which='minor')
+        #ax.xaxis.grid(True, which='minor')
         ax.xaxis.set_major_locator(MultipleLocator(1))
         #ax.xaxis.set_major_formatter()
         # everything in legend
@@ -1080,8 +1081,7 @@ def init():
 
     global WDW2
     global WDW3
-    global FROM
-    global UNTIL
+
     global MOVE_WR
     global INPUT_DIR
     global OUTPUT_DIR
@@ -1096,15 +1096,19 @@ def init():
     WDW2 = 7 # for all values except R values
     WDW3 = 3 # for R values in add_walking_r
     MOVE_WR = -7 # Rapportagevertraging
-    FROM = '2020-1-1'
-    UNTIL = '2021-5-1'
+
     # # attention, minimum period between FROM and UNTIL = wdw days!
 
 def main():
     """  _ _ _ """
+    global UNTIL
+    # FROM = '2020-1-1'
+    # UNTIL = '2021-5-1'
 
-    df_getdata, werkdagen, weekend_ = get_data()
+    df_getdata = get_data()
     df = df_getdata.copy(deep=False)
+    df, werkdagen, weekend_ = last_manipulations(df, None, None)
+
     # LET'S GET AND PREPARE THE DATA
 
     # what_to_show_day_r = None
@@ -1166,7 +1170,7 @@ def main():
     except:
         st.error("Please make sure that the enddate is in format yyyy-mm-dd")
         st.stop()
-
+    df = select_period(df, FROM, UNTIL)
     st.markdown("<hr>", unsafe_allow_html=True)
 
 
@@ -1198,10 +1202,11 @@ def main():
     # Max 7 items
     # how_to_smoothen = "SMA"         # "SMA" or "savgol"
     # how_to_display = "line"          # "line" (all in 1 linegraph) or "bar" (different bargraphs)
-    week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
-    if week_day == "week":
-        how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
-        how_to_agg_r = st.sidebar.selectbox('How to agg right (sum/mean)', ["sum", "mean"], index=0)
+    # week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
+    week_day = "day"
+    # if week_day == "week":
+    #     how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
+    #     how_to_agg_r = st.sidebar.selectbox('How to agg right (sum/mean)', ["sum", "mean"], index=0)
 
 
 
@@ -1220,7 +1225,7 @@ def main():
             #graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
             graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
     else:
-        streamlit.eror ("Choose what to show")
+        st.eror ("Choose what to show")
     # show a weekgraph, options have to put in the function self, no options her (for now)
 
     WDW2 = st.sidebar.slider('Window smoothing curves', 1, 14, 7)
