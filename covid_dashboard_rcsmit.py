@@ -840,8 +840,7 @@ def add_restrictions(df,ax):
     # Add restrictions
     # From Han-Kwang Nienhuys - MIT-licence
 
-    df_restrictions = pd.read_csv(
-                    INPUT_DIR + 'restrictions.csv',
+    df_restrictions = pd.read_csv(restrictions.csv',
                     delimiter=',',
                     low_memory=False)
 
