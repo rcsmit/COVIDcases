@@ -1179,7 +1179,7 @@ def main():
             st.error ("CHoose something")
             st.stop()
     if how_to_display == "bar":
-        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (one possible)',lijst, ["IC_Bedden_COVID"]  )
+        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (one possible)',lijst, index=7  )
         if what_to_show_day_l == None:
             st.error ("Choose something")
         what_to_show_day_r = None
