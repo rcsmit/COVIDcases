@@ -1090,7 +1090,7 @@ def init():
     WDW3 = 3 # for R values in add_walking_r
     MOVE_WR = -7 # Rapportagevertraging
     FROM = '2020-1-1'
-    UNTIL = '2025-5-1'
+    UNTIL = '2021-5-1'
     # # attention, minimum period between FROM and UNTIL = wdw days!
 
 def main():
