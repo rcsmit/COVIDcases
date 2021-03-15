@@ -916,7 +916,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
 
     if type(what_to_show_l) == list:
             what_to_show_l = what_to_show_l
-        else:
+    else:
             what_to_show_l=[what_to_show_l]
 
     for show_l in what_to_show_l:
