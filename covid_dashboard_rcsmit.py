@@ -452,14 +452,20 @@ def agg_week(df, how):
         st.stop()
     return df, dfweek
 
-def move_column(df, column,days):
+def move_column(df, column_,days):
     """  _ _ _ """
     # #move Rt r days, because a maybe change has effect after r days
     # Tested - Conclusion : It has no effect
     r=days
-    print (column)
-    new_column = column + "_moved_" + str(r)
-    df[new_column] = df[column].shift(r)
+    if type(column_) == list:
+        column_=column_
+    else:
+        column_=[column_]
+
+    for column in column_:
+        #print (column)
+        new_column = column + "_moved_" + str(r)
+        df[new_column] = df[column].shift(r)
     #print ("Name moved column : " + new_column)
     return df, new_column
 
@@ -611,9 +617,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         st.warning ("Choose something")
         st.stop()
 
-    if what_to_show_r is not None:
-        if len( what_to_show_l) ==1 and len( what_to_show_r)==1:
-            correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
 
     # print (df)
 
@@ -823,10 +826,10 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 df, columnlist = smooth_columnlist(df,[a],how_to_smooth)
                 #df_temp = select_period(df, FROM, UNTIL)
                 #df_temp = df
-                for b_ in columnlist:
+                for c_ in columnlist:
                     #smoothed
                     lbl2 = a + " (right ax)"
-                    ax3 = df_temp[b_].plot(secondary_y=True, label=lbl2, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
+                    ax3 = df_temp[c_].plot(secondary_y=True, label=lbl2, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
                 ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, alpha=.7, label='_nolegend_')
                 ax3.set_ylabel('_')
 
@@ -839,6 +842,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         # ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=5))
         # ax.xaxis.set_major_locator(ticker.MultipleLocator(base=10))
         xticks = ax.xaxis.get_major_ticks()
+
+        if what_to_show_r is not None:
+            if len( what_to_show_l) ==1 and len( what_to_show_r)==1:
+                correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
+                correlation_sm= find_correlation_pair(df, b_, c_)
 
         for i,tick in enumerate(xticks):
             if i%10 != 0:
@@ -854,7 +862,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         plt.grid(alpha=.4,linestyle='--')
         if what_to_show_r is not None:
             if len( what_to_show_l) ==1 and len( what_to_show_r)==1:
-                title = (f"{title} \nCorrelation = {correlation}")
+                title = (f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}")
         plt.title(title , fontsize=10)
 
         # everything in legend
@@ -875,7 +883,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
         # configgraph(titlex)
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-        #add_restrictions(df,ax)
+        add_restrictions(df,ax)
         #plt.show()
         st.pyplot(fig1x)
 
@@ -884,7 +892,7 @@ def add_restrictions(df,ax):
     # Add restrictions
     # From Han-Kwang Nienhuys - MIT-licence
 
-    df_restrictions = pd.read_csv('https://github.com/rcsmit/COVIDcases/blob/main/restrictions.csv',
+    df_restrictions = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv',
                     delimiter=',',
                     low_memory=False)
 
@@ -1060,6 +1068,7 @@ def find_correlations(df):
     column_list = list(df.columns)
     # print (column_list)
 
+
     for i in column_list:
         for j in column_list:
             #paar = [j, i]
@@ -1087,7 +1096,14 @@ def find_correlations(df):
 def find_correlation_pair(df, first, second):
     al_gehad = []
     paar = []
-
+    if type(first) == list:
+            first = first
+    else:
+            first = [first]
+    if type(second) == list:
+            second = second
+    else:
+            second = [second]
     for i in first:
         for j in second:
             c = round(df[i].corr(df[j]),3)
@@ -1252,13 +1268,13 @@ def main():
     global MOVE_WR
 
     #print (lijst)
-    if how_to_display is not "bar":
+    if how_to_display != "bar":
         what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
         what_to_show_day_r = st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst)
         if what_to_show_day_l == None:
             st.error ("CHoose something")
             st.stop()
-
+        move_right = st.sidebar.slider('Move curves at right axis (days)', -14, 14, 0)
     showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=5  )
@@ -1294,6 +1310,8 @@ def main():
     if what_to_show_day_l is not None:
 
         if week_day == "day"  :
+            if move_right != 0 and  len(what_to_show_day_r) != 0:
+                df, what_to_show_day_r = move_column(df, what_to_show_day_r,move_right  )
             if how_to_display == "line":
                 graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
             elif how_to_display == "linemax":
@@ -1356,7 +1374,9 @@ def main():
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
     '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
     'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/covid_dashboard_rcsmit.py\" target=\"_blank\">github.com/rcsmit</a><br>'
-    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>')
+    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
+    'Restrictions by <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> (MIT-license).</div>')
+
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
     st.write(f"\nData last updated : {str(UPDATETIME)}")
@@ -1366,4 +1386,4 @@ main()
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7729173/
 
 # 'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> and others<br>.'
-#    'Restrictions by <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> (MIT-license).</div>')#
+#
