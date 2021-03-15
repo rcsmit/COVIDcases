@@ -432,13 +432,20 @@ def agg_week(df, how):
     df['weeknr']  =  df['date'].dt.week
     df['yearnr']  =  df['date'].dt.year
 
+
+
     df['weekalt']   = (df['date'].dt.year.astype(str) + "-"+
                          df['date'].dt.week.astype(str))
+
+    for i in range(0,len (df)):
+        if df.iloc[i]['weekalt'] == "2021-53":
+            df.iloc[i]['weekalt'] = "2020-53"
+
     #how = "mean"
     if how == "mean":
-        dfweek = df.groupby('weekalt', sort=False).mean()
+        dfweek = df.groupby(['weeknr', 'yearnr', 'weekalt'], sort=False).mean().reset_index()
     elif how == "sum" :
-        dfweek = df.groupby('weekalt', sort=False).sum()
+        dfweek = df.groupby(['weeknr', 'yearnr', 'weekalt'], sort=False).sum().reset_index()
     else:
         print ("error agg_week()")
         st.stop()
@@ -797,6 +804,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         ax.xaxis.set_major_locator(MultipleLocator(1))
 
         if what_to_show_r != None:
+            if type(what_to_show_r) == list:
+                what_to_show_r=what_to_show_r
+            else:
+                what_to_show_r=[what_to_show_r]
+
             n = len (color_list)
 
             x = n
@@ -894,14 +906,18 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     #save_df(dfweek,"weektabel")
     # SHOW A GRAPH IN TIME / WEEK
     df_l, dfweek_l = agg_week(df, how_l)
+    #st.write(df_l)
+    #st.write(FROM)
+    if str(FROM) is not '2021-01-01':
+        st.info("To match the weeknumbers on the ax with the real weeknumbers, please set the startdate at 2021-1-1")
     if what_to_show_r != None:
         df_r, dfweek_r = agg_week (df, how_r)
     for show_l in what_to_show_l:
 
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
+        fig1y = plt.figure()
+        ax = fig1y.add_subplot(111)
         ax.set_xticks(dfweek_l['weeknr'])
-        ax.set_xticklabels(dfweek_l['weeknr'] ,fontsize=6, rotation=45)
+        ax.set_xticklabels(dfweek_l['weekalt'] ,fontsize=6, rotation=45)
         label_l = show_l+ " ("+ how_l + ")"
         dfweek_l[show_l].plot.bar(label=label_l)
 
@@ -915,7 +931,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         #ax3.set_ylabel('Rt')
         #ax.set_ylabel('Numbers')
 
-        plt.xlabel('week')
+
 
         # Add a grid
         plt.grid(alpha=.4,linestyle='--')
@@ -933,17 +949,17 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         # everything in legend
         # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
         handles,labels = [],[]
-        for ax in fig1x.axes:
+        for ax in fig1y.axes:
             for h,l in zip(*ax.get_legend_handles_labels()):
                 handles.append(h)
                 labels.append(l)
 
         plt.legend(handles,labels)
-
+        plt.xlabel('Week counted from '+ str(FROM))
         # configgraph(titlex)
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-
-        plt.show()
+        st.pyplot(fig1y)
+        #plt.show()
 
 def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
     """  _ _ _ """
@@ -970,6 +986,10 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
                 else:
                     tl += l
         if what_to_show_r is not None:
+            if type(what_to_show_r) == list:
+                what_to_show_r=what_to_show_r
+            else:
+                what_to_show_r=[what_to_show_r]
             tl += " - "
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
@@ -1207,13 +1227,14 @@ def main():
 
     df = select_period(df, FROM, UNTIL)
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+    week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
 
     how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
     #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
         'IC_Nieuwe_Opnames_COVID', 'Kliniek_Nieuwe_Opnames_COVID',
-        'Hospital_admission_notification', 'Hospital_admission_x',
-        'Total_reported', 'Hospital_admission_y', 'Deceased',
+
+        'Total_reported', 'Deceased',
         'Rt_avg',
         'Tested_with_result', 'Tested_positive', 'Percentage_positive',
         'prev_avg']
@@ -1231,10 +1252,13 @@ def main():
 
     showR = False
     if how_to_display == "bar":
-        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (one possible)',lijst, index=7  )
+        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=7  )
         if what_to_show_day_l == None:
             st.error ("Choose something")
-        what_to_show_day_r = None
+        if showR == False:
+            what_to_show_day_r = None
+            pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
+
         showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
 
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
@@ -1242,16 +1266,15 @@ def main():
     if showR == True:
         #st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]
         WDW3 =  st.sidebar.slider('Window smoothing R-number', 1, 14, 7)
-        MOVE_WR = st.sidebar.slider('Move the R-curve', -20, 10, -10)
+        MOVE_WR = st.sidebar.slider('Move the R-curve', -20, 10, -8)
     else:
         showR = False
 
 
-      # week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
-    week_day = "day"
-    # if week_day == "week":
-    #     how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
-    #     how_to_agg_r = st.sidebar.selectbox('How to agg right (sum/mean)', ["sum", "mean"], index=0)
+    #week_day = "day"
+    if week_day == "week":
+        how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
+        how_to_agg_r = st.sidebar.selectbox('How to agg right (sum/mean)', ["sum", "mean"], index=0)
 
 
 
@@ -1276,8 +1299,13 @@ def main():
                 graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
 
         else:
-            #graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
-            graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
+            if showR == True:
+                if what_to_show_day_r != None:
+                    st.alert ("On the right axis the R number will shown")
+                graph_week(df, what_to_show_day_l , how_to_agg_l, None , how_to_agg_r)
+            else:
+                graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
+
     else:
         st.error ("Choose what to show")
     # show a weekgraph, options have to put in the function self, no options her (for now)
@@ -1285,12 +1313,42 @@ def main():
 
     #find_correlations(df)
     #find_lag_time(df,"transit_stations","Rt_avg", 0,10)
+
+
+    toelichting = ('<h3>Toelichting bij de keuzevelden</h3>'
+    '<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten '
+     '<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden '
+     '<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden '
+       '<br><i>IC_Nieuwe_Opnames_COVID</i> - Nieuwe opnames op de IC '
+        '<br><i>Kliniek_Nieuwe_Opnames_COVID</i> - Nieuwe opnames in de ziekenhuizen '
+
+       '<br><i>Hospital_admission_x</i> -Ziekenhuisopnames '
+       '<br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) '
+
+         '<br><i>Deceased</i> - Totaal overledenen '
+       '<br><i>Rt_avg</i> - Rt-getal berekend door RIVM'
+       '<br><i>Tested_with_result</i> - Totaal aantal testen bij GGD '
+       '<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD '
+       '<br><i>Percentage_positive</i> - Percentage positief getest bij de GGD '
+       '<br><i>prev_avg</i> - Aantal besmettelijke mensen.'
+       '<h3>Toelichting bij de opties</h3>'
+       '<h2>What to plot</h2>'
+       '<i>Line</i> - Line graph'
+       '<i>Linemax</i> - Indexed line grap. Maximum value is 100'
+       '<i>Linefirst</i> - Indexed line graph. First value is 100'
+       '<i>Bar</i> - Bar graph for the left axis, line graph for the right ax'
+        '<h2>How to smooth</h2>'
+       '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
+       '<h3>Datasource</h3>'
+       'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. For the moment the data will be updated manually')
+    #  #  '<i>Hospital_admission_notification 'Hospital_admission_x', 'Hospital_admission_y 'Hospital_admission_notification', weggelaten!
+
     tekst = (
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
     '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
     'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/covid_dashboard_rcsmit.py\" target=\"_blank\">github.com/rcsmit</a><br>'
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>')
-
+    st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
 init()
 main()
