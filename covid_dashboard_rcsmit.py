@@ -571,17 +571,19 @@ def normeren(df, what_to_norm):
     normed_columns = []
 
     for column in what_to_norm:
+        #print(df[column])
         maxvalue = (df[column].max())/100
-        firstvalue = df[column].iloc[0]/100
+        firstvalue = df[column].iloc[int(WDW2/2)]/100
         name = (f"{column}_normed")
-
+        #st.write (firstvalue)
+        #st.write (column)
         for i in range(0,len(df)):
             if how_to_norm == "max":
 
                 df.loc[i, name] = df.loc[i,column]/maxvalue
             else:
-                df.name.loc[~df.name.isnull()].iloc[0]
-                #df.loc[i, name] = df.loc[i,column]/firstvalue
+                #df.name.loc[~df.name.isnull()].iloc[0]
+                df.loc[i, name] = df.loc[i,column]/firstvalue
         normed_columns.append(name)
         print (f"{name} generated")
     return df, normed_columns
@@ -1236,8 +1238,8 @@ def main():
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
     week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
 
-    how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
-    #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
+    #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
+    how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
         'IC_Nieuwe_Opnames_COVID', 'Kliniek_Nieuwe_Opnames_COVID',
 
@@ -1341,8 +1343,8 @@ def main():
        '<h2>Toelichting bij de opties</h2>'
        '<h3>What to plot</h3>'
        '<i>Line</i> - Line graph'
-       '<br><i>Linemax</i> - Indexed line grap. Maximum value is 100'
-       '<br><i>Linefirst</i> - Indexed line graph. First value is 100 - NOT YET'
+       '<br><i>Linemax</i> - Indexed line grap. Maximum (smoothed) value is 100'
+       '<br><i>Linefirst</i> - Indexed line graph. First (smoothed) value is 100'
        '<br><i>Bar</i> - Bar graph for the left axis, line graph for the right ax'
         '<h3>How to smooth</h3>'
        '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
