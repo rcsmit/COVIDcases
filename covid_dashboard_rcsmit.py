@@ -1322,7 +1322,7 @@ def main():
     #find_lag_time(df,"transit_stations","Rt_avg", 0,10)
 
 
-    toelichting = ('<h3>Toelichting bij de keuzevelden</h3>'
+    toelichting = ('<h2>Toelichting bij de keuzevelden</h2>'
     '<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten '
      '<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden '
      '<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden '
@@ -1332,22 +1332,22 @@ def main():
        '<br><i>Hospital_admission_x</i> -Ziekenhuisopnames '
        '<br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) '
 
-         '<br><i>Deceased</i> - Totaal overledenen '
+       '<br><i>Deceased</i> - Totaal overledenen '
        '<br><i>Rt_avg</i> - Rt-getal berekend door RIVM'
        '<br><i>Tested_with_result</i> - Totaal aantal testen bij GGD '
        '<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD '
        '<br><i>Percentage_positive</i> - Percentage positief getest bij de GGD '
        '<br><i>prev_avg</i> - Aantal besmettelijke mensen.'
-       '<h3>Toelichting bij de opties</h3>'
-       '<h2>What to plot</h2>'
+       '<h2>Toelichting bij de opties</h2>'
+       '<h3>What to plot</h3>'
        '<i>Line</i> - Line graph'
-       '<i>Linemax</i> - Indexed line grap. Maximum value is 100'
-       '<i>Linefirst</i> - Indexed line graph. First value is 100'
-       '<i>Bar</i> - Bar graph for the left axis, line graph for the right ax'
-        '<h2>How to smooth</h2>'
+       '<br><i>Linemax</i> - Indexed line grap. Maximum value is 100'
+       '<br><i>Linefirst</i> - Indexed line graph. First value is 100 - NOT YET'
+       '<br><i>Bar</i> - Bar graph for the left axis, line graph for the right ax'
+        '<h3>How to smooth</h3>'
        '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
-       '<h3>Datasource</h3>'
-       'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. For the moment the data will be updated manually')
+       '<h2>Datasource</h2>'
+       'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. For the moment the data is be updated every 24h')
     #  #  '<i>Hospital_admission_notification 'Hospital_admission_x', 'Hospital_admission_y 'Hospital_admission_notification', weggelaten!
 
     tekst = (
