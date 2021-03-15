@@ -1134,8 +1134,8 @@ def main():
     df = df_getdata.copy(deep=False)
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
     st.title("Interactive Corona Dashboard")
-    #st.header("Header")
-    #st.subheader("Subheader")
+    st.header("Under construction")
+    st.subheader("Please send feedback to @rcsmit")
 
     # LET'S GET AND PREPARE THE DATA
 
