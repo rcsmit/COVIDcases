@@ -1199,7 +1199,7 @@ def main():
         st.error("Please make sure that the enddate is in format yyyy-mm-dd")
         st.stop()
 
-    if until_ == "2030-01-01":
+    if until_ == "2023-08-23":
         st.sidebar.write("Clear cache")
         caching.clear_cache()
         until_ = "2021-01-01"
