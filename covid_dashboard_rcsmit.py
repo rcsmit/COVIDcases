@@ -52,6 +52,19 @@
 # Genormeerde grafiek (max = 1 of begin = 100)
 # Various Tg vd de R-number-curves
 
+#14 maart
+# Streamlit :)
+
+
+# TO DO
+# weekgrafieken
+#  Series.dt.isocalendar().week
+# first value genormeerde grafiek
+# bredere grafiek
+# leegmaken vd cache
+# kiezen welke R je wilt in de bargraph
+# waarde dropdown anders dan zichtbaar
+
 # I used iloc.  Iterating through pandas objects is generally slow.
 # In many cases, iterating manually over the rows is not needed and
 # can be avoided with one of the following approaches:
@@ -79,7 +92,7 @@ import streamlit as st
 import urllib
 import urllib.request
 from pathlib import Path
-
+from streamlit import caching
 from inspect import currentframe, getframeinfo
 
 # R-numbers from 'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json'
@@ -1120,6 +1133,9 @@ def main():
     df_getdata = get_data()
     df = df_getdata.copy(deep=False)
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
+    st.title("Interactive Corona Dashboard")
+    #st.header("Header")
+    #st.subheader("Subheader")
 
     # LET'S GET AND PREPARE THE DATA
 
@@ -1182,8 +1198,15 @@ def main():
     except:
         st.error("Please make sure that the enddate is in format yyyy-mm-dd")
         st.stop()
+
+    if until_ == "2030-01-01":
+        st.sidebar.write("Clear cache")
+        caching.clear_cache()
+        until_ = "2021-01-01"
+        st.sidebar.write("Change the date!")
+
     df = select_period(df, FROM, UNTIL)
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
     how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
     #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
