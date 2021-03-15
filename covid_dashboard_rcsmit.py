@@ -226,7 +226,7 @@ def download_csv_file(url, csv,delimiter_):
 
             else:
                 print ("Error in URL")
-                exit()
+                st.stop()
         return df_temp
 @st.cache()
 def get_data():
@@ -428,7 +428,7 @@ def agg_week(df, how):
         dfweek = df.groupby('weekalt', sort=False).sum()
     else:
         print ("error agg_week()")
-        exit()
+        st.stop()
     return df, dfweek
 
 def move_column(df, column,days):
@@ -555,7 +555,11 @@ def normeren(df, what_to_norm):
         name = (f"{column}_normed")
 
         for i in range(0,len(df)):
-            df.loc[i, name] = df.loc[i,column]/maxvalue
+            if how_to_norm == "max":
+
+                df.loc[i, name] = df.loc[i,column]/maxvalue
+            else:
+                df.loc[i, name] = df.loc[i,column]/firstvalue
         normed_columns.append(name)
         print (f"{name} generated")
     return df, normed_columns
@@ -563,9 +567,11 @@ def normeren(df, what_to_norm):
 def graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display):
     """ IN : df, de kolommen die genormeerd moeten worden
     ACTION : de grafieken met de genormeerde kolommen tonen """
-    if what_to_show_l is None:
+
+    if what_to_show_day_l is None:
         st.warning ("Choose something")
         st.stop()
+
     df, smoothed_columns_l = smooth_columnlist(df,what_to_show_day_l,how_to_smoothen)
     df, normed_columns_l = normeren(df, smoothed_columns_l )
 
@@ -697,7 +703,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
                 #print(df_temp.dtypes)
                 #c = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
-                showR=False
+
                 if showR :
                     ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
                     ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
@@ -742,7 +748,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 #ax.set_xlim(left - 0.5, right + 0.5)
                 #ax3.set_ylim(0.6,1.5)
 
-            elif t== "line":
+            #elif t== "line":
+            else:
                 #df, R_SMA = add_walking_r(df, b, "SMA")
 
                 #df_temp = select_period(df, FROM, UNTIL)
@@ -755,8 +762,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 b_ = str(b)+ "_"+how_to_smooth_
                 df_temp[b_].plot(label=b, color = color_list[n], linewidth=1.1) # label = b_ for uitgebreid label
                 df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.7,linewidth=.8)
-            else:
-                print ("ERROR in graph_day")
+            # else:
+            #     print ("ERROR in graph_day")
             n +=1
         if show_variant == True:
             l1 = (f"R = {ry1}")
@@ -811,7 +818,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
         fontP = FontProperties()
         fontP.set_size('xx-small')
-        plt.legend( bbox_to_anchor=(1.05, 1), loc=2,fontsize=6, prop=fontP)
+
         plt.xlabel('date')
 
         # Add a grid
@@ -833,6 +840,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         #ax.set_xlim(153,500)
         #ax.set_xlim(pd.to_datetime(FROM), pd.to_datetime(UNTIL))
         plt.legend(handles,labels)
+        #ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.4)) #here is the magic
+        #plt.legend( bbox_to_anchor=(0.5, -0.4), loc=2,fontsize=6, prop=fontP)
         ax.text(1, 1.1, 'Created by: Rene Smit — @rcsmit',
                 transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
         # configgraph(titlex)
@@ -840,7 +849,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         #add_restrictions(df,ax)
         #plt.show()
         st.pyplot(fig1x)
-@st.cache()
+
 def add_restrictions(df,ax):
     """  _ _ _ """
     # Add restrictions
@@ -924,8 +933,17 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
 
 def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
     """  _ _ _ """
-
-    if t == "line":
+    if t == "bar":
+        if type(what_to_show_l) == list:
+            what_to_show_l=what_to_show_l
+        else:
+            what_to_show_l=[what_to_show_l]
+        for c in what_to_show_l:
+            what_to_show_l= (c)
+            what_to_show_r = what_to_show_r
+            title = c
+            graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
+    else:
         tl =""
         tr=""
         i=0
@@ -949,19 +967,10 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
 
         title = (f"{tl}")
         graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
-    elif t == "bar":
-        if type(what_to_show_l) == list:
-            what_to_show_l=what_to_show_l
-        else:
-            what_to_show_l=[what_to_show_l]
-        for c in what_to_show_l:
-            what_to_show_l= (c)
-            what_to_show_r = what_to_show_r
-            title = c
-            graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
-    else:
-        print ("ERROR IN graph_daily")
-        exit()
+
+    # else:
+    #     print ("ERROR IN graph_daily")
+    #     st.stop()
 
 def smooth_columnlist(df,columnlist,t):
     """  _ _ _ """
@@ -996,7 +1005,7 @@ def smooth_columnlist(df,columnlist,t):
                 print ('Added ' + new_column + '...~')
             else:
                 print ("ERROR in smooth_columnlist")
-                exit()
+                st.stop()
             c_smoothen.append(new_column)
         #save_df (df, "aftersmoothen")
     return df, c_smoothen
@@ -1079,10 +1088,7 @@ def init():
 
     global download
 
-    global WDW2
-    global WDW3
 
-    global MOVE_WR
     global INPUT_DIR
     global OUTPUT_DIR
 
@@ -1093,15 +1099,20 @@ def init():
     download = True
     # De open data worden om 15.15 uur gepubliceerd
 
-    WDW2 = 7 # for all values except R values
-    WDW3 = 3 # for R values in add_walking_r
-    MOVE_WR = -7 # Rapportagevertraging
+    #WDW2 = 7 # for all values except R values
+    #WDW3 = 3 # for R values in add_walking_r
+    #MOVE_WR = -7 # Rapportagevertraging
 
     # # attention, minimum period between FROM and UNTIL = wdw days!
 
 def main():
     """  _ _ _ """
+    global FROM
     global UNTIL
+    global WDW2
+    global WDW3
+
+    global MOVE_WR
     # FROM = '2020-1-1'
     # UNTIL = '2021-5-1'
 
@@ -1174,7 +1185,7 @@ def main():
     st.markdown("<hr>", unsafe_allow_html=True)
 
 
-    how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "bar"], index=0)
+    how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
         'IC_Nieuwe_Opnames_COVID', 'Kliniek_Nieuwe_Opnames_COVID',
         'Hospital_admission_notification', 'Hospital_admission_x',
@@ -1182,27 +1193,36 @@ def main():
         'Rt_avg',
         'Tested_with_result', 'Tested_positive', 'Percentage_positive',
         'prev_avg']
+    global showR
+    global WDW3
+    global MOVE_WR
 
     #print (lijst)
-    if how_to_display == "line":
+    if how_to_display is not "bar":
         what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
         what_to_show_day_r = st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst)
         if what_to_show_day_l == None:
             st.error ("CHoose something")
             st.stop()
+
+    showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (one possible)',lijst, index=7  )
         if what_to_show_day_l == None:
             st.error ("Choose something")
         what_to_show_day_r = None
+        showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
 
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
-    #what_to_show_day_l =[ "IC_Nieuwe_Opnames_COVID"]
-    #what_to_show_day_r= ["Hospital_admission_x"]
-    # Max 7 items
-    # how_to_smoothen = "SMA"         # "SMA" or "savgol"
-    # how_to_display = "line"          # "line" (all in 1 linegraph) or "bar" (different bargraphs)
-    # week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
+    WDW2 = st.sidebar.slider('Window smoothing curves (days)', 1, 14, 7)
+    if showR == True:
+        WDW3 =  st.sidebar.slider('Window smoothing R-number', 1, 14, 7)
+        MOVE_WR = st.sidebar.slider('Move the R-curve', -20, 10, -10)
+    else:
+        showR = False
+
+
+      # week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
     week_day = "day"
     # if week_day == "week":
     #     how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
@@ -1210,28 +1230,33 @@ def main():
 
 
 
-
-
-    #what_to_show_week_l = ["Hospital_admission_x"]
-    #what_to_show_week_r = ["Tested_with_result"]
-
+    global how_to_norm
     #how_to_agg_l = "sum"
     #how_to_agg_r = "mean"
 
     if what_to_show_day_l is not None:
-        if week_day == "day" and  what_to_show_day_l is not None :
-            graph_daily(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+
+        if week_day == "day"  :
+            if how_to_display == "line":
+                graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+            elif how_to_display == "linemax":
+                how_to_norm = "max"
+                print(how_to_norm)
+                graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+            elif how_to_display == "linefirst":
+                how_to_norm = "first"
+                print(how_to_norm)
+                graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+            elif how_to_display == "bar":
+                graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+
         else:
             #graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
             graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
     else:
-        st.eror ("Choose what to show")
+        st.error ("Choose what to show")
     # show a weekgraph, options have to put in the function self, no options her (for now)
 
-    WDW2 = st.sidebar.slider('Window smoothing curves', 1, 14, 7)
-    if how_to_display == "bar":
-        WDW3 =  st.sidebar.slider('Window smoothing R-number', 1, 14, 7)
-        MOVE_WR = st.sidebar.slider('Move the R-curve', -20, 10, -10)
 
     #find_correlations(df)
     #find_lag_time(df,"transit_stations","Rt_avg", 0,10)
