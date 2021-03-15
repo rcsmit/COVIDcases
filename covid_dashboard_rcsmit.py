@@ -723,7 +723,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 for c_smooth in columnlist:
                     # print (c_smooth)
                     # print (df[c_smooth])
-                    ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1)         # SMA
+                    ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
                 #df_temp = select_period(df, FROM, UNTIL)
                 #df_temp.set_index('date')
@@ -734,7 +734,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 if showR :
                     ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
                     ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
-                                color=green_pigment, alpha=0.3, label='_nolegend_')
+                                color=green_pigment, alpha=0.2, label='_nolegend_')
                     tgs = [3.5,4,5]
 
                     #print(df['Rt_low'].index)
@@ -776,7 +776,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 #ax3.set_ylim(0.6,1.5)
 
             #elif t== "line":
-            else:
+            else: # t = line
+
+
                 #df, R_SMA = add_walking_r(df, b, "SMA")
 
                 #df_temp = select_period(df, FROM, UNTIL)
@@ -806,8 +808,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         #ax3 = df["testvsIC"].plot(label="testvic", color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
 
         #ax.set_ylabel('Numbers')
-        ax.xaxis.grid(True, which='major')
-        ax.xaxis.set_major_locator(MultipleLocator(1))
 
         if what_to_show_r != None:
             if type(what_to_show_r) == list:
@@ -832,10 +832,17 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                     ax3 = df_temp[c_].plot(secondary_y=True, label=lbl2, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
                 ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, alpha=.7, label='_nolegend_')
                 ax3.set_ylabel('_')
+        if t != "bar":
+            ax.xaxis.grid(True, which='major')
+            ax.yaxis.grid(True, which='major')
+            plt.grid(alpha=.2,linestyle='--')
+
+        #ax.xaxis.grid(True, which='major')
+        ax.xaxis.set_major_locator(MultipleLocator(1))
 
         # layout of the x-axis
         #ax.xaxis.grid(True, which='minor')
-        ax.yaxis.grid(True, which='major')
+        #ax.yaxis.grid(True, which='major')
         ax.xaxis.set_major_locator(MultipleLocator(1))
         ax.set_xticks(df['date'].index)
         ax.set_xticklabels(df['date'].dt.date,fontsize=6, rotation=90)
@@ -859,7 +866,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         plt.xlabel('date')
 
         # Add a grid
-        plt.grid(alpha=.4,linestyle='--')
+        #plt.grid(alpha=.2,linestyle='--')
         if what_to_show_r is not None:
             if len( what_to_show_l) ==1 and len( what_to_show_r)==1:
                 title = (f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}")
@@ -936,7 +943,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         ax.set_xticks(dfweek_l['weeknr'])
         ax.set_xticklabels(dfweek_l['weekalt'] ,fontsize=6, rotation=45)
         label_l = show_l+ " ("+ how_l + ")"
-        dfweek_l[show_l].plot.bar(label=label_l)
+        dfweek_l[show_l].plot.bar(label=label_l, color="#F05225")
 
         if what_to_show_r != None:
             for what_to_show_r_ in what_to_show_r:
@@ -951,7 +958,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
 
 
         # Add a grid
-        plt.grid(alpha=.4,linestyle='--')
+        plt.grid(alpha=.2,linestyle='--')
 
         #Add a Legend
         fontP = FontProperties()
@@ -1135,7 +1142,7 @@ def find_lag_time(df, what_happens_first,what_happens_second ,r1,r2):
     plt.plot(x, y)
     plt.axvline(x=0, color='yellow', alpha=.6,linestyle='--')
     # Add a grid
-    plt.grid(alpha=.4,linestyle='--')
+    plt.grid(alpha=.2,linestyle='--')
     plt.title(title , fontsize=10)
     plt.show()
     graph_daily(df,[a],[b], "SMA","line")
@@ -1253,9 +1260,11 @@ def main():
     df = select_period(df, FROM, UNTIL)
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
     week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
-
+    if week_day != "week":
     #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
-    how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
+        how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
+    else:
+        how_to_display = "bar"
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
         'IC_Nieuwe_Opnames_COVID', 'Kliniek_Nieuwe_Opnames_COVID',
 
@@ -1280,13 +1289,16 @@ def main():
     showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=5  )
+        showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
         if what_to_show_day_l == None:
             st.error ("Choose something")
         if showR == False:
+            what_to_show_day_r =  st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst, ["Total_reported"])
+        else:
             what_to_show_day_r = None
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
 
-        showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
+
 
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
     WDW2 = st.sidebar.slider('Window smoothing curves (days)', 1, 14, 7)
