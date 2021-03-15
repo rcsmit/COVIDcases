@@ -61,7 +61,7 @@
 #  Series.dt.isocalendar().week
 # first value genormeerde grafiek
 # bredere grafiek
-# leegmaken vd cache
+# leegmaken vd cache DONE
 # kiezen welke R je wilt in de bargraph
 # waarde dropdown anders dan zichtbaar
 
@@ -509,12 +509,12 @@ def last_manipulations(df, what_to_drop, drop_last):
     # df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
     #                      df['date'].dt.isocalendar().week.astype(str))
 
-    df['weeknr']  =  df['date'].dt.isocalendar().week
-    df['yearnr']  =  df['date'].dt.isocalendar().year
+    df['weeknr']  =  df['date'].dt.week
+    df['yearnr']  =  df['date'].dt.year
 
 
-    df['weekalt']   = (df['date'].dt.isocalendar().year.astype(str) + "-"+
-                         df['date'].dt.isocalendar().week.astype(str))
+    df['weekalt']   = (df['date'].dt.year.astype(str) + "-"+
+                         df['date'].dt.week.astype(str))
 
 
     return df, werkdagen, weekend_
@@ -1240,6 +1240,7 @@ def main():
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
     WDW2 = st.sidebar.slider('Window smoothing curves (days)', 1, 14, 7)
     if showR == True:
+        #st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]
         WDW3 =  st.sidebar.slider('Window smoothing R-number', 1, 14, 7)
         MOVE_WR = st.sidebar.slider('Move the R-curve', -20, 10, -10)
     else:
