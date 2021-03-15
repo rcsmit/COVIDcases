@@ -402,8 +402,8 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
 
         # je zou deze nog kunnen smoothen, maar levert een extra vertraging in de resultaten op,
         # dus wdw=1
-        sliding_r_df[column_name_r_smoothened] = round(sliding_r_df.iloc[:,1].rolling(window=WDW3).mean(),2)
-        sliding_r_df[column_name_r_sec_smoothened] = round(sliding_r_df.iloc[:,2].rolling(window=WDW3).mean(),2)
+        sliding_r_df[column_name_r_smoothened] = round(sliding_r_df.iloc[:,1].rolling(window=WDW3,  center=True).mean(),2)
+        sliding_r_df[column_name_r_sec_smoothened] = round(sliding_r_df.iloc[:,2].rolling(window=WDW3,  center=True).mean(),2)
 
         # df = df.reset_index()
         # df.set_index('date')
