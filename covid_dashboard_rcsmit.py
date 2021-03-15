@@ -559,7 +559,8 @@ def normeren(df, what_to_norm):
 
                 df.loc[i, name] = df.loc[i,column]/maxvalue
             else:
-                df.loc[i, name] = df.loc[i,column]/firstvalue
+                df.name.loc[~df.name.isnull()].iloc[0]
+                #df.loc[i, name] = df.loc[i,column]/firstvalue
         normed_columns.append(name)
         print (f"{name} generated")
     return df, normed_columns
@@ -1184,8 +1185,8 @@ def main():
     df = select_period(df, FROM, UNTIL)
     st.markdown("<hr>", unsafe_allow_html=True)
 
-
-    how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
+    how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
+    #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
         'IC_Nieuwe_Opnames_COVID', 'Kliniek_Nieuwe_Opnames_COVID',
         'Hospital_admission_notification', 'Hospital_admission_x',
@@ -1264,12 +1265,13 @@ def main():
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
     '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
     'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/covid_dashboard_rcsmit.py\" target=\"_blank\">github.com/rcsmit</a><br>'
-    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
-    'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst.<br>'
-    'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> and others<br>.'
-    'Restrictions by <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> (MIT-license).</div>')
+    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>')
+
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
 init()
 main()
 # https://www.medrxiv.org/content/10.1101/2020.05.06.20093039v3.full
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7729173/
+
+# 'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> and others<br>.'
+#    'Restrictions by <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> (MIT-license).</div>')#
