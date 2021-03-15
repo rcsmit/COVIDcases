@@ -1275,6 +1275,8 @@ def main():
             st.error ("CHoose something")
             st.stop()
         move_right = st.sidebar.slider('Move curves at right axis (days)', -14, 14, 0)
+    else:
+        move_right = 0
     showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=5  )
