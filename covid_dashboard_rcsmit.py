@@ -276,7 +276,8 @@ def get_data():
     df = splitupweekweekend(df)
 
     # df.set_index('date')
-
+    global UPDATETIME
+    UPDATETIME = datetime.now()
     return df #, werkdagen, weekend_
 
 ###################################################
@@ -912,6 +913,12 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         st.info("To match the weeknumbers on the ax with the real weeknumbers, please set the startdate at 2021-1-1")
     if what_to_show_r != None:
         df_r, dfweek_r = agg_week (df, how_r)
+
+    if type(what_to_show_l) == list:
+            what_to_show_l = what_to_show_l
+        else:
+            what_to_show_l=[what_to_show_l]
+
     for show_l in what_to_show_l:
 
         fig1y = plt.figure()
@@ -1252,7 +1259,7 @@ def main():
 
     showR = False
     if how_to_display == "bar":
-        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=7  )
+        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=5  )
         if what_to_show_day_l == None:
             st.error ("Choose something")
         if showR == False:
@@ -1350,6 +1357,7 @@ def main():
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>')
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
+    st.writedown(f"Data last updated : {str(UPDATETIME)}")
 init()
 main()
 # https://www.medrxiv.org/content/10.1101/2020.05.06.20093039v3.full
