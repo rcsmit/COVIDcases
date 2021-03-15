@@ -102,7 +102,7 @@ from inspect import currentframe, getframeinfo
 # Hospitals from RIVM 'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv
 
 
-@st.cache()
+@st.cache(ttl=60*60*24)
 def download_hospital_admissions():
     """  _ _ _ """
     # THIS ARE THE SAME NUMBERS AS ON THE DASHBOARD
@@ -121,7 +121,7 @@ def download_hospital_admissions():
     #save_df(df_hospital,"ziekenhuisopnames_RIVM")
     return df_hospital
 
-@st.cache()
+@st.cache(ttl=60*60*24)
 def download_lcps():
     """Download data from LCPS"""
 
@@ -137,7 +137,7 @@ def download_lcps():
     df_lcps['Datum']=pd.to_datetime(df_lcps['Datum'], format="%d-%m-%Y")
 
     return df_lcps
-@st.cache()
+@st.cache(ttl=60*60*24)
 def download_reproductiegetal():
     """  _ _ _ """
     #https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json
@@ -156,7 +156,7 @@ def download_reproductiegetal():
     #df_reprogetal.loc[df_reprogetal["Rt_avg"].isnull(),'Rt_avg'] = round(((df_reprogetal["Rt_low"] + df_reprogetal["Rt_up"])/2),2)
 
     return df_reprogetal
-@st.cache()
+@st.cache(ttl=60*60*24)
 def download_gemeente_per_dag():
     """  _ _ _ """
     # Code by Han-Kwang Nienhuys - MIT License
@@ -177,7 +177,7 @@ def download_gemeente_per_dag():
     df_gemeente_per_dag = df_gemeente_per_dag.groupby(['Date_of_publication'] , sort=True).sum().reset_index()
     #save_df(df_gemeente_per_dag,"COVID-19_aantallen_per_dag")
     return df_gemeente_per_dag
-@st.cache()
+@st.cache(ttl=60*60*24)
 def download_uitgevoerde_testen():
     """  _ _ _ """
     # Version;Date_of_report;Date_of_statistics;Security_region_code;
@@ -195,12 +195,12 @@ def download_uitgevoerde_testen():
 
     #save_df(df_uitgevoerde_testen,"COVID-19_uitgevoerde_testen")
     return df_uitgevoerde_testen
-@st.cache()
+@st.cache(ttl=60*60*24)
 def dowload_nice():
     url= 'https://stichting-nice.nl/covid-19/public/intake-count/'
     csv = INPUT_DIR + 'intake_count.csv'
     delimiter_=','
-@st.cache()
+@st.cache(ttl=60*60*24)
 def download_prevalentie():
     url = 'https://data.rivm.nl/covid-19/COVID-19_prevalentie.json'
     csv = INPUT_DIR + 'prevalentie.csv'
@@ -209,7 +209,7 @@ def download_prevalentie():
     df_prevalentie['Date'] = df_prevalentie['Date'].astype('datetime64[D]')
     return df_prevalentie
 ###################################################################
-@st.cache()
+@st.cache(ttl=60*60*24)
 def download_csv_file(url, csv,delimiter_):
     #df_temp = None
     print (f"Downloading {url}...")
@@ -241,7 +241,7 @@ def download_csv_file(url, csv,delimiter_):
                 print ("Error in URL")
                 st.stop()
         return df_temp
-@st.cache()
+@st.cache(ttl=60*60*24)
 def get_data():
     """  _ _ _ """
 
