@@ -1357,7 +1357,7 @@ def main():
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>')
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    st.writedown(f"Data last updated : {str(UPDATETIME)}")
+    st.write(f"Data last updated : {str(UPDATETIME)}")
 init()
 main()
 # https://www.medrxiv.org/content/10.1101/2020.05.06.20093039v3.full
