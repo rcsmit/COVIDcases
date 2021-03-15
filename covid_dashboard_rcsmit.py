@@ -278,7 +278,7 @@ def get_data():
     # df.set_index('date')
     global UPDATETIME
     UPDATETIME = datetime.now()
-    return df #, werkdagen, weekend_
+    return df, UPDATETIME #, werkdagen, weekend_
 
 ###################################################
 def calculate_cases(df):
@@ -1157,7 +1157,7 @@ def main():
     # FROM = '2020-1-1'
     # UNTIL = '2021-5-1'
 
-    df_getdata = get_data()
+    df_getdata, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
     st.title("Interactive Corona Dashboard")
@@ -1230,7 +1230,7 @@ def main():
         st.sidebar.write("Clear cache")
         caching.clear_cache()
         until_ = "2021-01-01"
-        st.sidebar.write("Change the date!")
+        st.sidebar.write("To start change a setting!\nChange the date afterwards!")
 
     df = select_period(df, FROM, UNTIL)
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
@@ -1357,7 +1357,7 @@ def main():
     'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>')
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    st.write(f"Data last updated : {str(UPDATETIME)}")
+    st.writedown(f"\nData last updated : {str(UPDATETIME)}")
 init()
 main()
 # https://www.medrxiv.org/content/10.1101/2020.05.06.20093039v3.full
