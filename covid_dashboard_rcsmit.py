@@ -1366,7 +1366,7 @@ def main():
 
         "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations", "workplaces",
         "residential", "apple_driving", "apple_transit", "apple_walking",
-        "temp_etmaal","temp_max","zonneschijnduur","globale_straling"      ]
+        "temp_etmaal","temp_max","Zonneschijnduur","Globale_straling"      ]
 
 
     global showR
