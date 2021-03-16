@@ -1,4 +1,4 @@
-date;retail_and_recreation;grocery_and_pharmacy;parks;transit_stations;workplaces;residential;country_region_code;apple_driving;apple_transit;apple_walking
+Date;retail_and_recreation;grocery_and_pharmacy;parks;transit_stations;workplaces;residential;country_region_code;apple_driving;apple_transit;apple_walking
 15-2-2020;1;1;11;3;0;0;NL;104.1;131.35;173.3
 16-2-2020;-10;-8;-31;-5;-3;2;NL;90.25;124.8;107.28
 17-2-2020;0;-1;8;-3;-5;1;NL;103.31;124.77;121.14
