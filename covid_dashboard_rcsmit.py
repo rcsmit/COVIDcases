@@ -1401,6 +1401,10 @@ def main():
 
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
     WDW2 = st.sidebar.slider('Window smoothing curves (days)', 1, 14, 7)
+    if how_to_smoothen== "savgol" and int(WDW2/2)==(WDW2/2):
+        st.write("test")
+        st.warning ("When using Savgol, the window has to be uneven")
+        st.stop()
     if showR == True:
         #st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]
         WDW3 =  st.sidebar.slider('Window smoothing R-number', 1, 14, 7)
@@ -1445,7 +1449,7 @@ def main():
         else:
             if showR == True:
                 if what_to_show_day_r != None:
-                    st.alert ("On the right axis the R number will shown")
+                    st.warning ("On the right axis the R number will shown")
                 graph_week(df, what_to_show_day_l , how_to_agg_l, None , how_to_agg_r)
             else:
                 graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
