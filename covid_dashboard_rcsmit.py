@@ -916,7 +916,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         a__ = (max(df_temp['date'].tolist())).date() - (min(df_temp['date'].tolist())).date()
         freq = int(a__.days/10)
         ax.xaxis.set_minor_locator(MultipleLocator())
-        ax.xaxis.set_major_locator(MultipleLocator(freq))
+        #ax.xaxis.set_major_locator(MultipleLocator(freq))
 
         # layout of the x-axis
         ax.xaxis.grid(True, which='major',alpha=.4,linestyle='--')
