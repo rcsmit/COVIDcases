@@ -1274,8 +1274,8 @@ def main():
     "Hospital_admission_y" : "Hospital_admission_GGD",
     "Kliniek_Nieuwe_Opnames_COVID" : "Hospital_admission_LCPS"}, inplace=True)
     st.title("Interactive Corona Dashboard")
-    st.header("Under construction")
-    st.subheader("Please send feedback to @rcsmit")
+    #st.header("")
+    st.subheader("Under construction - Please send feedback to @rcsmit")
 
     # LET'S GET AND PREPARE THE DATA
 
@@ -1402,7 +1402,6 @@ def main():
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
     WDW2 = st.sidebar.slider('Window smoothing curves (days)', 1, 14, 7)
     if how_to_smoothen== "savgol" and int(WDW2/2)==(WDW2/2):
-        st.write("test")
         st.warning ("When using Savgol, the window has to be uneven")
         st.stop()
     if showR == True:
