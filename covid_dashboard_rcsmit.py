@@ -898,67 +898,58 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm= find_correlation_pair(df, b_, c_)
 
-
-         #ax.xaxis.grid(True, which='major')
-        # ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=5))
-        # ax.xaxis.set_major_locator(ticker.MultipleLocator(base=10))
-
-
-        xticks = ax.xaxis.get_major_ticks()
-
-
-        ax.set_xticks(df_temp['date'].index)
-        ax.set_xticklabels(df_temp['date'].dt.date,fontsize=6, rotation=90)
-        # for i,tick in enumerate(xticks):
-        #    if i%10 != 0:
-        #        tick.label1.set_visible(True)
-        plt.xticks()
-        a__ = (max(df_temp['date'].tolist())).date() - (min(df_temp['date'].tolist())).date()
-        freq = int(a__.days/10)
-        ax.xaxis.set_minor_locator(MultipleLocator())
-        #ax.xaxis.set_major_locator(MultipleLocator(freq))
-
-        # layout of the x-axis
-        ax.xaxis.grid(True, which='major',alpha=.4,linestyle='--')
-        ax.yaxis.grid(True, which='major',alpha=.4,linestyle='--')
-
-        left, right = ax.get_xlim()
-        ax.set_xlim(left, right)
-        fontP = FontProperties()
-        fontP.set_size('xx-small')
-
-        plt.xlabel('date')
-
-        # Add a grid
-        #plt.grid(alpha=.4,linestyle='--')
         if what_to_show_r is not None:
             if len( what_to_show_l) ==1 and len( what_to_show_r)==1:
                 title = (f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}")
         plt.title(title , fontsize=10)
 
-        # everything in legend
-        # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
-        handles,labels = [],[]
-        for ax in fig1x.axes:
-            for h,l in zip(*ax.get_legend_handles_labels()):
-                handles.append(h)
-                labels.append(l)
-        #plt.xlim(FROM, UNTIL)
-        #ax.set_xlim([datetime.date(2021, 1, 26), datetime.date(2024, 2, 1)])
-        #ax.set_xlim(153,500)
-        #ax.set_xlim(pd.to_datetime(FROM), pd.to_datetime(UNTIL))
-        plt.legend(handles,labels)
-        #ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.4)) #here is the magic
-        #plt.legend( bbox_to_anchor=(0.5, -0.4), loc=2,fontsize=6, prop=fontP)
-        ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
-                transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
-        # configgraph(titlex)
-        plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-        add_restrictions(df,ax)
-        #plt.show()
-        #fig1x.tight_layout()
-        set_xmargin(ax, left=-0.04, right=-0.04)
-        st.pyplot(fig1x)
+    a__ = (max(df_temp['date'].tolist())).date() - (min(df_temp['date'].tolist())).date()
+    freq = int(a__.days/10)
+    #ax.xaxis.set_minor_locator(MultipleLocator())
+    ax.xaxis.set_major_locator(MultipleLocator(freq))
+
+    ax.set_xticks(df_temp['date'].index)
+    ax.set_xticklabels(df_temp['date'].dt.date,fontsize=6, rotation=90)
+    xticks = ax.xaxis.get_major_ticks()
+    for i,tick in enumerate(xticks):
+        if i%10 != 0:
+            tick.label1.set_visible(False)
+    plt.xticks()
+
+
+    # layout of the x-axis
+    ax.xaxis.grid(True, which='major',alpha=.4,linestyle='--')
+    ax.yaxis.grid(True, which='major',alpha=.4,linestyle='--')
+
+    left, right = ax.get_xlim()
+    ax.set_xlim(left, right)
+    fontP = FontProperties()
+    fontP.set_size('xx-small')
+
+    plt.xlabel('date')
+    # everything in legend
+    # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
+    handles,labels = [],[]
+    for ax in fig1x.axes:
+        for h,l in zip(*ax.get_legend_handles_labels()):
+            handles.append(h)
+            labels.append(l)
+    #plt.xlim(FROM, UNTIL)
+    #ax.set_xlim([datetime.date(2021, 1, 26), datetime.date(2024, 2, 1)])
+    #ax.set_xlim(153,500)
+    #ax.set_xlim(pd.to_datetime(FROM), pd.to_datetime(UNTIL))
+    plt.legend(handles,labels)
+    #ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.4)) #here is the magic
+    #plt.legend( bbox_to_anchor=(0.5, -0.4), loc=2,fontsize=6, prop=fontP)
+    ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
+            transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
+    # configgraph(titlex)
+    #plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+    add_restrictions(df,ax)
+    #plt.show()
+    #fig1x.tight_layout()
+    set_xmargin(ax, left=-0.04, right=-0.04)
+    st.pyplot(fig1x)
     #st.write(df)
 def set_xmargin(ax, left=0.0, right=0.3):
     ax.set_xmargin(0)
