@@ -1134,9 +1134,9 @@ def smooth_columnlist(df,columnlist,t):
                 df[new_column] = df.iloc[:,df.columns.get_loc(c)].rolling(window=WDW2,  center=True).mean()
 
             elif t=='savgol':
-                new_column = c + '_savgol_' + str(wdw_savgol)
+                new_column = c + '_savgol_' + str(WDW2)
                 print ('Generating ' + new_column + '...')
-                df[new_column] = df[c].transform(lambda x: savgol_filter(x, wdw_savgol,2))
+                df[new_column] = df[c].transform(lambda x: savgol_filter(x, WDW2,2))
             # elif t=="None": DOESNT WORK YET
             #     new_column = c + '_'+ '_None_' + str(WDW2)
             #     df[new_column] = df[c]
