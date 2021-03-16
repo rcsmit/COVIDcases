@@ -109,7 +109,7 @@ def download_hospital_admissions():
 
     url='https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv'
     #url="https://lcps.nu/wp-content/uploads/covid-19.csv"
-    csv = INPUT_DIR + 'COVID-19_ziekenhuisopnames.csv'
+    csv = 'COVID-19_ziekenhuisopnames'
     delimiter_ = ";"
 
     df_hospital = download_csv_file(url, csv,delimiter_)
@@ -126,7 +126,7 @@ def download_lcps():
     """Download data from LCPS"""
 
     url='https://lcps.nu/wp-content/uploads/covid-19.csv'
-    csv = INPUT_DIR + 'LCPS.csv'
+    csv = 'LCPS'
     delimiter_ = ','
 
     df_lcps = download_csv_file(url, csv,delimiter_)
@@ -143,7 +143,7 @@ def download_reproductiegetal():
     #https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json
 
     url = 'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json'
-    csv = 'covid19_seir_models\\input\\reprogetal.csv'
+    csv = 'reprogetal'
     delimiter_=','
 
     df_reprogetal = download_csv_file(url, csv, delimiter_)
@@ -167,7 +167,7 @@ def download_gemeente_per_dag():
     # van Stichting NICE
 
     url='https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv'
-    csv = INPUT_DIR + 'COVID-19_aantallen_gemeente_per_dag.csv'
+    csv = 'COVID-19_aantallen_gemeente_per_dag'
     delimiter_ =';'
 
     df_gemeente_per_dag = download_csv_file(url, csv, delimiter_)
@@ -184,7 +184,7 @@ def download_uitgevoerde_testen():
     # Security_region_name;Tested_with_result;Tested_positive
 
     url='https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv'
-    csv = INPUT_DIR + 'COVID-19_uitgevoerde_testen.csv'
+    csv ='COVID-19_uitgevoerde_testen'
     delimiter_ = ';'
     df_uitgevoerde_testen = download_csv_file(url, csv,delimiter_)
 
@@ -198,12 +198,12 @@ def download_uitgevoerde_testen():
 @st.cache(ttl=60*60*24)
 def dowload_nice():
     url= 'https://stichting-nice.nl/covid-19/public/intake-count/'
-    csv = INPUT_DIR + 'intake_count.csv'
+    csv =  'intake_count'
     delimiter_=','
 @st.cache(ttl=60*60*24)
 def download_prevalentie():
     url = 'https://data.rivm.nl/covid-19/COVID-19_prevalentie.json'
-    csv = INPUT_DIR + 'prevalentie.csv'
+    csv = 'prevalentie'
     delimiter_=','
     df_prevalentie = download_csv_file(url, csv,delimiter_)
     df_prevalentie['Date'] = df_prevalentie['Date'].astype('datetime64[D]')
@@ -240,6 +240,9 @@ def download_csv_file(url, csv,delimiter_):
             else:
                 print ("Error in URL")
                 st.stop()
+            df_temp = df_temp.drop_duplicates()
+            save_df(df_temp,csv)
+
         return df_temp
 @st.cache(ttl=60*60*24)
 def get_data():
@@ -256,6 +259,7 @@ def get_data():
     type_of_join = "outer"
     df = pd.merge(df_lcps, df_hospital, how=type_of_join, left_on = 'Datum',
                     right_on="Date_of_statistics")
+    #save_df(df,"1")
     #df = df_hospital
     df.loc[df['Datum'].isnull(),'date'] = df['Date_of_statistics']
 
@@ -263,18 +267,18 @@ def get_data():
     #df = pd.merge(df, sliding_r_df, how=type_of_join, left_on = 'date', right_on="date_sR", left_index=True )
 
     df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'Datum', right_on="Date_of_publication")
-
+    #save_df(df,"2")
     df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'Datum', right_on="Date")
-
+    #save_df(df,"3")
     df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'Datum', right_on="Date_of_statistics")
-
+    #save_df(df,"4")
     df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'Datum', right_on="Date")
-
+    #save_df(df,"5")
     df["date"]=df["Datum"]
-
+    #save_df(df,"6")
     df = df.sort_values(by=['date'])
     df = splitupweekweekend(df)
-
+    #save_df(df,"7")
     # df.set_index('date')
     global UPDATETIME
     UPDATETIME = datetime.now()
@@ -536,7 +540,8 @@ def last_manipulations(df, what_to_drop, drop_last):
 
 def save_df(df,name):
     """  _ _ _ """
-    name_ = OUTPUT_DIR + name+'.csv'
+    #name_ = OUTPUT_DIR + name+'.csv'
+    name_ =  OUTPUT_DIR + name+'.csv'
     compression_opts = dict(method=None,
                             archive_name=name_)
     df.to_csv(name_, index=False,
@@ -617,7 +622,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         st.warning ("Choose something")
         st.stop()
 
-
     # print (df)
 
     show_variant = False  # show lines coming from the growth formula
@@ -630,7 +634,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     else:
         what_to_show_l_=[what_to_show_l]
     aantal = len(what_to_show_l_)
-
+    #st.write(aantal)
     # SHOW A GRAPH IN TIME / DAY
     #st.write(df)
 
@@ -660,6 +664,23 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
         df, columnlist_sm_l = smooth_columnlist(df,what_to_show_l_,how_to_smooth)
         # df, R_smooth = add_walking_r(df, columnlist, how_to_smooth)
+        stackon=""
+        if len(what_to_show_l_)>1:
+            w = ["Datum"]
+            for s in what_to_show_l_:
+                w.append(s)
+            st.write(w)
+            df_stacked = df[w].copy()
+            df_stacked.set_index('Datum')
+
+
+            st.write(df_stacked)
+            if t == "bar":
+                #ax = df_stacked.plot.bar(stacked=True)
+                ax = df_stacked.plot(rot=0)
+                st.bar_chart(df_stacked)
+  #ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
+
         for b in what_to_show_l_:
         # if type(a) == list:
         #     a_=a
@@ -719,65 +740,67 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 #x=0
                 #df, new_column = move_column(df,R_smooth,x)
                 df_temp = df
-                ax = df_temp[b].plot.bar(label=b, color = color_x, alpha=.6)     # number of cases
-                for c_smooth in columnlist:
-                    # print (c_smooth)
-                    # print (df[c_smooth])
-                    ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
+                if len(what_to_show_l_)==1:
+                    #st.write(what_to_show_l)
+                    ax = df_temp[b].plot.bar(label=b, color = color_x, alpha=.6)     # number of cases
 
-                #df_temp = select_period(df, FROM, UNTIL)
-                #df_temp.set_index('date')
+                    for c_smooth in columnlist:
+                        # print (c_smooth)
+                        # print (df[c_smooth])
+                        ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
-                #print(df_temp.dtypes)
-                #c = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
+                    #df_temp = select_period(df, FROM, UNTIL)
+                    #df_temp.set_index('date')
 
-                if showR :
-                    ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
-                    ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
-                                color=green_pigment, alpha=0.2, label='_nolegend_')
-                    tgs = [3.5,4,5]
+                    #print(df_temp.dtypes)
+                    #c = str(b)+ "_"+how_to_smooth+ "_" + str(WDW2)
 
-                    #print(df['Rt_low'].index)
-                    teller=0
-                    dfmin = ""
-                    dfmax = ""
-                    for TG in tgs:
-                        df, R_smooth, R_smooth_sec = add_walking_r(df, columnlist, how_to_smooth,TG)
+                    if showR :
+                        ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
+                        ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
+                                    color=green_pigment, alpha=0.2, label='_nolegend_')
+                        tgs = [3.5,4,5]
 
-                        for R in R_smooth:
-                            # correctie R waarde, moet naar links ivm 2x smoothen
-                            df, Rn = move_column(df,R,MOVE_WR)
+                        #print(df['Rt_low'].index)
+                        teller=0
+                        dfmin = ""
+                        dfmax = ""
+                        for TG in tgs:
+                            df, R_smooth, R_smooth_sec = add_walking_r(df, columnlist, how_to_smooth,TG)
 
-                            if teller == 1 :
-                                ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=falu_red, linewidth=1.2)
-                            else:
-                                if teller == 0 :
-                                    #print ("-" + str(teller)+ "/ " + Rn)
-                                    dfmin = Rn
-                                if teller == 2 :
-                                    dfmax = Rn
-                                    #print ("-" + str(teller)+ "/ " + Rn)
-                                    print (dfmax)
-                                #ax3=df[Rn].plot(secondary_y=True,label='_nolegend_', linestyle='dotted',color=falu_red, linewidth=0.8)
-                            teller += 1
-                            #print ("TELLER" + str(teller))
-                        for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
-                            # correctie R waarde, moet naar links ivm 2x smoothen
-                            df, Rn = move_column(df,R,MOVE_WR)
-                            #ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
-                    ax3.fill_between(df['date'].index, df[dfmin], df[dfmax],  color=falu_red, alpha=0.3, label='_nolegend_')
+                            for R in R_smooth:
+                                # correctie R waarde, moet naar links ivm 2x smoothen
+                                df, Rn = move_column(df,R,MOVE_WR)
 
-                    #ax3.fill_between(x, y1, y2)
+                                if teller == 1 :
+                                    ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=falu_red, linewidth=1.2)
+                                else:
+                                    if teller == 0 :
+                                        #print ("-" + str(teller)+ "/ " + Rn)
+                                        dfmin = Rn
+                                    if teller == 2 :
+                                        dfmax = Rn
+                                        #print ("-" + str(teller)+ "/ " + Rn)
+                                        print (dfmax)
+                                    #ax3=df[Rn].plot(secondary_y=True,label='_nolegend_', linestyle='dotted',color=falu_red, linewidth=0.8)
+                                teller += 1
+                                #print ("TELLER" + str(teller))
+                            for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
+                                # correctie R waarde, moet naar links ivm 2x smoothen
+                                df, Rn = move_column(df,R,MOVE_WR)
+                                #ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
+                        ax3.fill_between(df['date'].index, df[dfmin], df[dfmax],  color=falu_red, alpha=0.3, label='_nolegend_')
 
-                    #ax3.set_ylabel('Rt')
+                        #ax3.fill_between(x, y1, y2)
+
+                        #ax3.set_ylabel('Rt')
 
                 #left, right = ax.get_xlim()
                 #ax.set_xlim(left - 0.5, right + 0.5)
                 #ax3.set_ylim(0.6,1.5)
 
-            #elif t== "line":
-            else: # t = line
 
+            else: # t = line
 
                 #df, R_SMA = add_walking_r(df, b, "SMA")
 
@@ -893,6 +916,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         add_restrictions(df,ax)
         #plt.show()
         st.pyplot(fig1x)
+    #st.write(df)
+
 
 def add_restrictions(df,ax):
     """  _ _ _ """
@@ -902,8 +927,12 @@ def add_restrictions(df,ax):
     df_restrictions = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv',
                     delimiter=',',
                     low_memory=False)
+    #df_restrictions =   select_period(df_restrictions, FROM, UNTIL)
+    #mask = (df_restrictions['Date'].date >= show_from) & (df_restrictions['Date'].date <= show_until)
+    #df_restrictions = (df_restrictions.loc[mask])
 
     a = (min(df['date'].tolist())).date()
+    b = (max(df['date'].tolist())).date()
     #a = ((df['date_sR'].dt.date.min()))  # werkt niet, blijkbaar NaN values
 
     ymin, ymax = ax.get_ylim()
@@ -913,8 +942,9 @@ def add_restrictions(df,ax):
         d__ = dt.datetime.strptime(d_,'%Y-%m-%d').date()  # to dateday
 
         diff = (d__ - a)
+        diff2 = (b - d__ )
 
-        if diff.days >0 :
+        if diff.days >0 and diff2.days >0:
             # no idea why diff.days-2
             ax.text((diff.days), y_lab, f'  {df_restrictions.iloc[i]["Description"] }', rotation=90, fontsize=4,horizontalalignment='center')
             #plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
@@ -992,11 +1022,12 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
             what_to_show_l=what_to_show_l
         else:
             what_to_show_l=[what_to_show_l]
+        title = ""
         for c in what_to_show_l:
-            what_to_show_l= (c)
-            what_to_show_r = what_to_show_r
-            title = c
-            graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
+
+        #    what_to_show_r = what_to_show_r
+            title += str(c) + " "
+        graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
     else:
         tl =""
         tr=""
@@ -1158,8 +1189,10 @@ def init():
     global INPUT_DIR
     global OUTPUT_DIR
 
-    INPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\'
+    # INPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\'
     OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\'
+    INPUT_DIR = ''
+    #OUTPUT_DIR = ''
 
     # GLOBAL SETTINGS
     download = True
@@ -1258,9 +1291,12 @@ def main():
         st.sidebar.write("To start change a setting!\nChange the date afterwards!")
 
     df = select_period(df, FROM, UNTIL)
+    #st.write(f"Before : {len(df)}")
+    df = df.drop_duplicates()
+    #st.write(f"After : {len(df)}")
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-    week_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
-    if week_day != "week":
+    week_or_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
+    if week_or_day != "week":
     #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
         how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
     else:
@@ -1289,6 +1325,8 @@ def main():
     showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=5  )
+        #what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
+
         showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
         if what_to_show_day_l == None:
             st.error ("Choose something")
@@ -1310,8 +1348,8 @@ def main():
         showR = False
 
 
-    #week_day = "day"
-    if week_day == "week":
+    #week_or_day = "day"
+    if week_or_day == "week":
         how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
         how_to_agg_r = st.sidebar.selectbox('How to agg right (sum/mean)', ["sum", "mean"], index=0)
 
@@ -1323,7 +1361,7 @@ def main():
 
     if what_to_show_day_l is not None:
 
-        if week_day == "day"  :
+        if week_or_day == "day"  :
             if move_right != 0 and  len(what_to_show_day_r) != 0:
                 df, what_to_show_day_r = move_column(df, what_to_show_day_r,move_right  )
             if how_to_display == "line":
@@ -1337,7 +1375,8 @@ def main():
                 print(how_to_norm)
                 graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
             elif how_to_display == "bar":
-                graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+                #st.write(what_to_show_day_l)
+                graph_daily        (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
 
         else:
             if showR == True:
@@ -1381,7 +1420,7 @@ def main():
         '<h3>How to smooth</h3>'
        '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
        '<h2>Datasource</h2>'
-       'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. For the moment the data is be updated every 24h')
+       'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached.<br>For the moment the data is be updated every 24h<br><br>')
     #  #  '<i>Hospital_admission_notification 'Hospital_admission_x', 'Hospital_admission_y 'Hospital_admission_notification', weggelaten!
 
     tekst = (
@@ -1393,7 +1432,9 @@ def main():
 
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    st.write(f"\nData last updated : {str(UPDATETIME)}")
+    now = UPDATETIME
+    UPDATETIME_ = now.strftime("%d/%m/%Y %H:%M:%S")
+    st.write(f"\n\n\nData last updated : {str(UPDATETIME_)}")
 init()
 main()
 # https://www.medrxiv.org/content/10.1101/2020.05.06.20093039v3.full
