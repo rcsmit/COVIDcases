@@ -1389,8 +1389,8 @@ def main():
         #what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
 
         showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
-        if what_to_show_day_l == None:
-            st.error ("Choose something")
+        if what_to_show_day_l == []:
+            st.error ("Choose something for the left-axis")
         if showR == False:
             what_to_show_day_r =  st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst, ["Total_reported"])
         else:
@@ -1419,6 +1419,9 @@ def main():
     global how_to_norm
     #how_to_agg_l = "sum"
     #how_to_agg_r = "mean"
+    if what_to_show_day_l == []:
+            st.error ("Choose something for the left-axis")
+            st.stop()
 
     if what_to_show_day_l is not None:
 
