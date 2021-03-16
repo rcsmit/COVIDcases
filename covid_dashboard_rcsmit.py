@@ -195,6 +195,8 @@ def download_uitgevoerde_testen():
 
     #save_df(df_uitgevoerde_testen,"COVID-19_uitgevoerde_testen")
     return df_uitgevoerde_testen
+
+
 @st.cache(ttl=60*60*24)
 def dowload_nice():
     url= 'https://stichting-nice.nl/covid-19/public/intake-count/'
@@ -208,6 +210,18 @@ def download_prevalentie():
     df_prevalentie = download_csv_file(url, csv,delimiter_)
     df_prevalentie['Date'] = df_prevalentie['Date'].astype('datetime64[D]')
     return df_prevalentie
+def download_mobility():
+    df_mobility = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv',
+
+                    delimiter=';',
+                    low_memory=False)
+
+    df_mobility['Date']=pd.to_datetime(df_mobility['Date'], format="%d-%m-%Y")
+
+    df_mobility.set_index('Date')
+
+    return df_mobility
+
 ###################################################################
 @st.cache(ttl=60*60*24)
 def download_csv_file(url, csv,delimiter_):
@@ -256,6 +270,7 @@ def get_data():
     df_reprogetal = download_reproductiegetal()
     df_uitgevoerde_testen = download_uitgevoerde_testen()
     df_prevalentie = download_prevalentie()
+    df_mobility = download_mobility()
     type_of_join = "outer"
     df = pd.merge(df_lcps, df_hospital, how=type_of_join, left_on = 'Datum',
                     right_on="Date_of_statistics")
@@ -267,13 +282,11 @@ def get_data():
     #df = pd.merge(df, sliding_r_df, how=type_of_join, left_on = 'date', right_on="date_sR", left_index=True )
 
     df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'Datum', right_on="Date_of_publication")
-    #save_df(df,"2")
     df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'Datum', right_on="Date")
-    #save_df(df,"3")
     df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'Datum', right_on="Date_of_statistics")
-    #save_df(df,"4")
     df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'Datum', right_on="Date")
-    #save_df(df,"5")
+    df = pd.merge(df, df_mobility, how=type_of_join, left_on = 'Datum', right_on="Date")
+
     df["date"]=df["Datum"]
     #save_df(df,"6")
     df = df.sort_values(by=['date'])
@@ -669,16 +682,16 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
             w = ["Datum"]
             for s in what_to_show_l_:
                 w.append(s)
-            st.write(w)
+            #st.write(w)
             df_stacked = df[w].copy()
             df_stacked.set_index('Datum')
 
 
-            st.write(df_stacked)
-            if t == "bar":
+            #st.write(df_stacked)
+            #if t == "bar":
                 #ax = df_stacked.plot.bar(stacked=True)
-                ax = df_stacked.plot(rot=0)
-                st.bar_chart(df_stacked)
+                #ax = df_stacked.plot(rot=0)
+                #st.bar_chart(df_stacked)
   #ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
         for b in what_to_show_l_:
@@ -813,7 +826,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                     how_to_smooth_ = how_to_smooth + "_" + str(WDW2)
                 b_ = str(b)+ "_"+how_to_smooth_
                 df_temp[b_].plot(label=b, color = color_list[n], linewidth=1.1) # label = b_ for uitgebreid label
-                df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.7,linewidth=.8)
+                df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.9,linewidth=.8)
             # else:
             #     print ("ERROR in graph_day")
             n +=1
@@ -853,43 +866,52 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                     #smoothed
                     lbl2 = a + " (right ax)"
                     ax3 = df_temp[c_].plot(secondary_y=True, label=lbl2, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
-                ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, alpha=.7, label='_nolegend_')
+                ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, alpha=.9, label='_nolegend_')
                 ax3.set_ylabel('_')
         if t != "bar":
-            ax.xaxis.grid(True, which='major')
-            ax.yaxis.grid(True, which='major')
-            plt.grid(alpha=.2,linestyle='--')
 
-        #ax.xaxis.grid(True, which='major')
-        ax.xaxis.set_major_locator(MultipleLocator(1))
+            pass
 
-        # layout of the x-axis
-        #ax.xaxis.grid(True, which='minor')
-        #ax.yaxis.grid(True, which='major')
-        ax.xaxis.set_major_locator(MultipleLocator(1))
-        ax.set_xticks(df['date'].index)
-        ax.set_xticklabels(df['date'].dt.date,fontsize=6, rotation=90)
-        # ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=5))
-        # ax.xaxis.set_major_locator(ticker.MultipleLocator(base=10))
-        xticks = ax.xaxis.get_major_ticks()
+
 
         if what_to_show_r is not None:
             if len( what_to_show_l) ==1 and len( what_to_show_r)==1:
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm= find_correlation_pair(df, b_, c_)
 
-        for i,tick in enumerate(xticks):
-            if i%10 != 0:
-                tick.label1.set_visible(False)
-        plt.xticks()
 
+         #ax.xaxis.grid(True, which='major')
+        # ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=5))
+        # ax.xaxis.set_major_locator(ticker.MultipleLocator(base=10))
+
+
+        xticks = ax.xaxis.get_major_ticks()
+
+
+        ax.set_xticks(df_temp['date'].index)
+        ax.set_xticklabels(df_temp['date'].dt.date,fontsize=6, rotation=90)
+        for i,tick in enumerate(xticks):
+           if i%10 != 0:
+               tick.label1.set_visible(True)
+        plt.xticks()
+        a__ = (max(df_temp['date'].tolist())).date() - (min(df_temp['date'].tolist())).date()
+        freq = int(a__.days/10)
+        ax.xaxis.set_minor_locator(MultipleLocator())
+        ax.xaxis.set_major_locator(MultipleLocator(freq))
+
+        # layout of the x-axis
+        ax.xaxis.grid(True, which='major',alpha=.4,linestyle='--')
+        ax.yaxis.grid(True, which='major',alpha=.4,linestyle='--')
+
+        left, right = ax.get_xlim()
+        ax.set_xlim(left, right)
         fontP = FontProperties()
         fontP.set_size('xx-small')
 
         plt.xlabel('date')
 
         # Add a grid
-        #plt.grid(alpha=.2,linestyle='--')
+        #plt.grid(alpha=.4,linestyle='--')
         if what_to_show_r is not None:
             if len( what_to_show_l) ==1 and len( what_to_show_r)==1:
                 title = (f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}")
@@ -909,14 +931,25 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         plt.legend(handles,labels)
         #ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.4)) #here is the magic
         #plt.legend( bbox_to_anchor=(0.5, -0.4), loc=2,fontsize=6, prop=fontP)
-        ax.text(1, 1.1, 'Created by: Rene Smit — @rcsmit',
+        ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
                 transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
         # configgraph(titlex)
         plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
         add_restrictions(df,ax)
         #plt.show()
+        #fig1x.tight_layout()
+        set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
     #st.write(df)
+def set_xmargin(ax, left=0.0, right=0.3):
+    ax.set_xmargin(0)
+    ax.autoscale_view()
+    lim = ax.get_xlim()
+    delta = np.diff(lim)
+    left = lim[0] - delta*left
+    right = lim[1] + delta*right
+    ax.set_xlim(left,right)
+
 
 
 def add_restrictions(df,ax):
@@ -1218,6 +1251,9 @@ def main():
     df_getdata, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
+    df.rename(columns={"Hospital_admission_x" : "Hospital_admission_RIVM",
+    "Hospital_admission_y" : "Hospital_admission_GGD",
+    "Kliniek_Nieuwe_Opnames_COVID" : "Hospital_admission_LCPS"}, inplace=True)
     st.title("Interactive Corona Dashboard")
     st.header("Under construction")
     st.subheader("Please send feedback to @rcsmit")
@@ -1302,12 +1338,17 @@ def main():
     else:
         how_to_display = "bar"
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
-        'IC_Nieuwe_Opnames_COVID', 'Kliniek_Nieuwe_Opnames_COVID',
-
+        'IC_Nieuwe_Opnames_COVID',"Hospital_admission_RIVM",
+"Hospital_admission_LCPS",  "Hospital_admission_GGD",
         'Total_reported', 'Deceased',
         'Rt_avg',
         'Tested_with_result', 'Tested_positive', 'Percentage_positive',
-        'prev_avg']
+        'prev_avg',
+
+        "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations", "workplaces",
+        "residential", "apple_driving", "apple_transit", "apple_walking"]
+
+
     global showR
     global WDW3
     global MOVE_WR
@@ -1396,13 +1437,15 @@ def main():
 
 
     toelichting = ('<h2>Toelichting bij de keuzevelden</h2>'
-    '<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten '
-     '<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden '
-     '<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden '
+    '<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten (LCPS)'
+     '<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden (LCPS) '
+     '<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden (LCPS)'
        '<br><i>IC_Nieuwe_Opnames_COVID</i> - Nieuwe opnames op de IC '
-        '<br><i>Kliniek_Nieuwe_Opnames_COVID</i> - Nieuwe opnames in de ziekenhuizen '
+        '<br><i>Hospital_admission_LCPS</i> - Nieuwe opnames in de ziekenhuizen LCPS. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting '
 
-       '<br><i>Hospital_admission_x</i> -Ziekenhuisopnames '
+        '<br>Hospital_admission_RIVM</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn.'
+        '<br><i>Hospital_admission_GGD</i> - Nieuwe opnames in de ziekenhuizen GGD, lager omdat niet alles vanuit GGD wordt doorgegeven '
+
        '<br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) '
 
        '<br><i>Deceased</i> - Totaal overledenen '
@@ -1411,6 +1454,9 @@ def main():
        '<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD '
        '<br><i>Percentage_positive</i> - Percentage positief getest bij de GGD '
        '<br><i>prev_avg</i> - Aantal besmettelijke mensen.'
+       '<br><i>retail_and_recreation, grocery_and_pharmacy, parks, transit_stations, workplaces, '
+        'residential</i> - Mobiliteitsdata van Google'
+        '<br><i>apple_driving, apple_transit, apple_walking</i> - Mobiliteitsdata van Apple'
        '<h2>Toelichting bij de opties</h2>'
        '<h3>What to plot</h3>'
        '<i>Line</i> - Line graph'
@@ -1420,8 +1466,9 @@ def main():
         '<h3>How to smooth</h3>'
        '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
        '<h2>Datasource</h2>'
-       'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached.<br>For the moment the data is be updated every 24h<br><br>')
-    #  #  '<i>Hospital_admission_notification 'Hospital_admission_x', 'Hospital_admission_y 'Hospital_admission_notification', weggelaten!
+       'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. '
+       ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
+       'For the moment the data is be updated automatically every 24h. The Google and Apple data will be updated manually at a lower frequency.<br><br>')
 
     tekst = (
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
