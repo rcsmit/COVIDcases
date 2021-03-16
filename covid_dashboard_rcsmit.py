@@ -909,9 +909,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
         ax.set_xticks(df_temp['date'].index)
         ax.set_xticklabels(df_temp['date'].dt.date,fontsize=6, rotation=90)
-        for i,tick in enumerate(xticks):
-           if i%10 != 0:
-               tick.label1.set_visible(True)
+        # for i,tick in enumerate(xticks):
+        #    if i%10 != 0:
+        #        tick.label1.set_visible(True)
         plt.xticks()
         a__ = (max(df_temp['date'].tolist())).date() - (min(df_temp['date'].tolist())).date()
         freq = int(a__.days/10)
