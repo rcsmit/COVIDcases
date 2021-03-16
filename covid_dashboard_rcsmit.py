@@ -210,6 +210,8 @@ def download_prevalentie():
     df_prevalentie = download_csv_file(url, csv,delimiter_)
     df_prevalentie['Date'] = df_prevalentie['Date'].astype('datetime64[D]')
     return df_prevalentie
+
+@st.cache(ttl=60*60*24)
 def download_mobility():
     df_mobility = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv',
 
@@ -221,6 +223,20 @@ def download_mobility():
     df_mobility.set_index('Date')
 
     return df_mobility
+
+@st.cache(ttl=60*60*24)
+def download_knmi():
+    df_knmi = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv',
+
+                    delimiter=';',
+                    low_memory=False)
+
+    df_knmi['Datum']=pd.to_datetime(df_knmi['Datum'], format="%d-%m-%Y")
+    df_knmi['temp_etmaal'] = df_knmi['temp_etmaal']  / 10
+    df_knmi['temp_max'] = df_knmi['temp_max']  / 10
+    df_knmi.set_index('Datum')
+
+    return df_knmi
 
 ###################################################################
 @st.cache(ttl=60*60*24)
@@ -271,6 +287,8 @@ def get_data():
     df_uitgevoerde_testen = download_uitgevoerde_testen()
     df_prevalentie = download_prevalentie()
     df_mobility = download_mobility()
+    df_knmi = download_knmi()
+
     type_of_join = "outer"
     df = pd.merge(df_lcps, df_hospital, how=type_of_join, left_on = 'Datum',
                     right_on="Date_of_statistics")
@@ -286,6 +304,7 @@ def get_data():
     df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'Datum', right_on="Date_of_statistics")
     df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'Datum', right_on="Date")
     df = pd.merge(df, df_mobility, how=type_of_join, left_on = 'Datum', right_on="Date")
+    df = pd.merge(df, df_knmi, how=type_of_join, left_on = 'Datum', right_on="Datum")
 
     df["date"]=df["Datum"]
     #save_df(df,"6")
@@ -1321,10 +1340,10 @@ def main():
         st.stop()
 
     if until_ == "2023-08-23":
-        st.sidebar.write("Clear cache")
-        caching.clear_cache()
-        until_ = "2021-01-01"
-        st.sidebar.write("To start change a setting!\nChange the date afterwards!")
+        st.sidebar.error("Do you really, really, wanna do this?")
+        if st.sidebar.button("Yes I'm ready to rumble"):
+            caching.clear_cache()
+            until_ = "2021-01-01"
 
     df = select_period(df, FROM, UNTIL)
     #st.write(f"Before : {len(df)}")
@@ -1339,14 +1358,15 @@ def main():
         how_to_display = "bar"
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
         'IC_Nieuwe_Opnames_COVID',"Hospital_admission_RIVM",
-"Hospital_admission_LCPS",  "Hospital_admission_GGD",
+        "Hospital_admission_LCPS",  "Hospital_admission_GGD",
         'Total_reported', 'Deceased',
         'Rt_avg',
         'Tested_with_result', 'Tested_positive', 'Percentage_positive',
         'prev_avg',
 
         "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations", "workplaces",
-        "residential", "apple_driving", "apple_transit", "apple_walking"]
+        "residential", "apple_driving", "apple_transit", "apple_walking",
+        "temp_etmaal","temp_max","zonneschijnduur","globale_straling"      ]
 
 
     global showR
@@ -1441,12 +1461,12 @@ def main():
      '<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden (LCPS) '
      '<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden (LCPS)'
        '<br><i>IC_Nieuwe_Opnames_COVID</i> - Nieuwe opnames op de IC '
-        '<br><i>Hospital_admission_LCPS</i> - Nieuwe opnames in de ziekenhuizen LCPS. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting '
+        '<br><br><i>Hospital_admission_LCPS</i> - Nieuwe opnames in de ziekenhuizen LCPS. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting '
 
         '<br>Hospital_admission_RIVM</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn.'
         '<br><i>Hospital_admission_GGD</i> - Nieuwe opnames in de ziekenhuizen GGD, lager omdat niet alles vanuit GGD wordt doorgegeven '
 
-       '<br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) '
+       '<br><br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) '
 
        '<br><i>Deceased</i> - Totaal overledenen '
        '<br><i>Rt_avg</i> - Rt-getal berekend door RIVM'
@@ -1454,9 +1474,14 @@ def main():
        '<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD '
        '<br><i>Percentage_positive</i> - Percentage positief getest bij de GGD '
        '<br><i>prev_avg</i> - Aantal besmettelijke mensen.'
-       '<br><i>retail_and_recreation, grocery_and_pharmacy, parks, transit_stations, workplaces, '
+       '<br><br><i>retail_and_recreation, grocery_and_pharmacy, parks, transit_stations, workplaces, '
         'residential</i> - Mobiliteitsdata van Google'
         '<br><i>apple_driving, apple_transit, apple_walking</i> - Mobiliteitsdata van Apple'
+        '<br><br><i>temp_etmaal</i> - Etmaalgemiddelde temperatuur (in graden Celsius)'
+       '<br><br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)'
+        '<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling (-1 voor minder dan 0.05 uur)'
+          '<br><i>Globale straling</i> - Globale straling in (in J//cm2) '
+
        '<h2>Toelichting bij de opties</h2>'
        '<h3>What to plot</h3>'
        '<i>Line</i> - Line graph'
@@ -1468,7 +1493,8 @@ def main():
        '<h2>Datasource</h2>'
        'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. '
        ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
-       'For the moment the data is be updated automatically every 24h. The Google and Apple data will be updated manually at a lower frequency.<br><br>')
+       'For the moment most of the data is be updated automatically every 24h.'
+       ' The KNMI, Google and Apple data will be updated manually at a lower frequency.<br><br>')
 
     tekst = (
     '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
