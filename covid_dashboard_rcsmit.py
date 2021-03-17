@@ -1358,7 +1358,7 @@ def main():
     if week_or_day == "day" and how_to_display == "bar":
         firstday = df.iloc[0]['WEEKDAY']  # monday = 0
         dagenvdweek = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        showonedaylabel = 'Show one day (0 = ' + dagenvandeweek[firstday] + ')'
+        showonedaylabel = 'Show one day (0 = ' + dagenvdweek[firstday] + ')'
         showoneday = st.sidebar.selectbox('Show one day',[True, False], index=0)
         if showoneday:
             showday= st.sidebar.selectbox('Show which day',lijst_x, index=0  )
