@@ -513,29 +513,29 @@ output = pd.DataFrame(
 #st.write(output)
 
 
-output['date'] =  pd.to_datetime(output['date'],  unit='D',
-               origin=pd.Timestamp('1970-01-01'))
-# output['week_number_of_year'] = output['date'].dt.week
-# output['year'] = output['date'].dt.year
-# output["weeknr"] = output["year"].astype(str) + ' ' + output["week_number_of_year"].astype(str)
-# output['weekday'] = output['date'].dt.strftime('%U')
-#output["weeknr"] = output['date'].dt.year.astype(str) + ' - ' +  output['date'].dt.isocalendar().week.astype(str)
-output["weeknr"] =  output['date'].dt.isocalendar().week
+# output['date'] =  pd.to_datetime(output['date'],  unit='D',
+#                origin=pd.Timestamp('1970-01-01'))
+# # output['week_number_of_year'] = output['date'].dt.week
+# # output['year'] = output['date'].dt.year
+# # output["weeknr"] = output["year"].astype(str) + ' ' + output["week_number_of_year"].astype(str)
+# # output['weekday'] = output['date'].dt.strftime('%U')
+# #output["weeknr"] = output['date'].dt.year.astype(str) + ' - ' +  output['date'].dt.isocalendar().week.astype(str)
+# output["weeknr"] =  output['date'].dt.isocalendar().week
 
 
-output = output.groupby("weeknr").sum()
+# output = output.groupby("weeknr").sum()
 
 
-with st.beta_expander("Show bargraph per week - Attention - doesn't display well when there are two years involved and/or the weeks aren't complete. Weeks are Monday until Sunday"):
-    fig1x = plt.figure()
-    output.plot()
-    plt.legend(loc='best')
-    #st.pyplot(fig1x)
-    #st.write(fig1x)
-    titlex="Number of casees per week"
-    configgraph(titlex)
+# with st.beta_expander("Show bargraph per week - Attention - doesn't display well when there are two years involved and/or the weeks aren't complete. Weeks are Monday until Sunday"):
+#     fig1x = plt.figure()
+#     output.plot()
+#     plt.legend(loc='best')
+#     #st.pyplot(fig1x)
+#     #st.write(fig1x)
+#     titlex="Number of casees per week"
+#     configgraph(titlex)
 
-    st.bar_chart(output)
+#     st.bar_chart(output)
 
 
 positivetests1 = []
