@@ -1211,6 +1211,7 @@ def main():
     global WDW2
     global WDW3
     global showoneday
+    global showday
     global MOVE_WR
     # FROM = '2020-1-1'
     # UNTIL = '2021-5-1'
