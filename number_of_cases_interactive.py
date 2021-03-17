@@ -907,3 +907,12 @@ st.sidebar.markdown(tekst, unsafe_allow_html=True)
 if vaccination:
     st.markdown(vaccinationdisclaimer, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
+                
+st.markdown('<hr>', unsafe_allow_html=True)
+
+st.image('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/buymeacoffee.png')
+
+st.markdown('<a href=\"https://www.buymeacoffee.com/rcsmit" target=\"_blank\">If you are happy with this dashboard, you can buy me a coffee</a>', unsafe_allow_html=True)
+
+st.markdown('<br><br><a href=\"https://www.linkedin.com/in/rcsmit" target=\"_blank\">Contact me for custom dashboards and infographics</a>', unsafe_allow_html=True)
+
