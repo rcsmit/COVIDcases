@@ -255,22 +255,24 @@ def extra_bewerkingen(df):
     return df
 
 ###################################################
-def calculate_cases(df):
+def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
     column = df["date"]
     b_= column.max().date()
-    #fr = '2021-1-10' #doesnt work
-    fr = FROM
-    a_ = dt.datetime.strptime(fr,'%Y-%m-%d').date()
+    # #fr = '2021-1-10' #doesnt work
+    # fr = FROM
+    # a_ = dt.datetime.strptime(fr,'%Y-%m-%d').date()
+
+    a_ = FROM
 
     #b_ = dt.datetime.strptime(UNTIL,'%Y-%m-%d').date()
-    datediff = ( abs((a_ - b_).days))+1+30
-    f = 1
-    ry1 = 0.8 * f
-    ry2 = 1.15 * f
-    total_cases_0 = 7500
-    sec_variant = 10
+    datediff = ( abs((a_ - b_).days))+1+extra_days
+    # f = 1
+    # ry1 = 0.8 * f
+    # ry2 = 1.15 * f
+    # total_cases_0 = 7500
+    # sec_variant = 10
     population = 17_500_000
-    immune_day_zero = 2_500_000
+    immune_day_zero = 4_000_000
 
     suspectible_0 = population - immune_day_zero
     cumm_cases = 0
@@ -310,7 +312,8 @@ def calculate_cases(df):
         temp_2 = pt2
 
         cumm_cases += pt1 + pt2
-        immeratio = (1-(cumm_cases/suspectible_0 ))
+        cumm_cases_corr = cumm_cases * 2.5
+        immeratio = (1-(cumm_cases_corr/suspectible_0 ))
 
     df_calculated['date_calc'] = pd.to_datetime( df_calculated['date_calc'])
 
@@ -318,7 +321,7 @@ def calculate_cases(df):
                         left_index=True )
     print (df.dtypes)
     df.loc[df['date'].isnull(),'date'] = df['date_calc']
-    return df, ry1, ry2
+    return df
 
 def splitupweekweekend(df):
     """  _ _ _ """
@@ -594,9 +597,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
     # print (df)
 
-    show_variant = False  # show lines coming from the growth formula
-    if show_variant == True:
-        df, ry1, ry2 = calculate_cases(df)
+    # if show_variant == True:
+    #     df, ry1, ry2 = calculate_cases(df)
     #print (df.dtypes)
     """  _ _ _ """
     if type(what_to_show_l) == list:
@@ -651,7 +653,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 #ax = df_stacked.plot.bar(stacked=True)
                 #ax = df_stacked.plot(rot=0)
                 #st.bar_chart(df_stacked)
-  #ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
+         #ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
         for b in what_to_show_l_:
         # if type(a) == list:
@@ -806,20 +808,15 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
             # else:
             #     print ("ERROR in graph_day")
             n +=1
-        if show_variant == True:
+        if show_scenario == True:
+            df = calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days)
+            print (df.dtypes)
             l1 = (f"R = {ry1}")
             l2 = (f"R = {ry2}")
             ax = df["variant_1"].plot(label=l1, color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
             ax = df["variant_2"].plot(label=l2, color = color_list[5],linestyle='dotted',linewidth=1, alpha=1)
             ax = df["variant_12"].plot(label='TOTAL', color = color_list[6],linestyle='--',linewidth=1, alpha=1)
 
-        #df["testvshospital"] = (df["Hospital_admission_x"]/df["Total_reported"]*100)
-        #df["testvsIC"] = (df["IC_Nieuwe_Opnames_COVID"]/df["Total_reported"]*100)
-        #print (df["testvsIC"])
-        #save_df(df, "testvsIC")
-        #ax3 = df["testvsIC"].plot(label="testvic", color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
-
-        #ax.set_ylabel('Numbers')
 
         if what_to_show_r != None:
             if type(what_to_show_r) == list:
@@ -1323,7 +1320,7 @@ def main():
         'prev_avg',
         "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations", "workplaces",
         "residential", "apple_driving", "apple_transit", "apple_walking",
-        "temp_etmaal","temp_max","Zonneschijnduur","Globale_straling","RNA_per_ml",
+        "temp_etmaal","temp_max","zonneschijnduur","globale_straling","specific_humidity","neerslag","RNA_per_ml",
    "RNA_flow_per_100000" , 'RNA_per_reported'     ]
     #print (lijst)
     if how_to_display != "bar":
@@ -1373,8 +1370,24 @@ def main():
         how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
         how_to_agg_r = st.sidebar.selectbox('How to agg right (sum/mean)', ["sum", "mean"], index=0)
 
+    global show_scenario
 
+    show_scenario = st.sidebar.selectbox('Show Scenario',[True, False], index=1)
+    if show_scenario:
 
+        global Rnew1_, Rnew2_
+        global ry1, ry2,  total_cases_0, sec_variant,extra_days
+
+        total_cases_0 = st.sidebar.number_input('Total number of positive tests',None,None,8000)
+
+        Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.84)
+        Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
+        f = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
+        ry1 = round(Rnew_1_ * f,2)
+        ry2 = round(Rnew_2_ * f,2)
+        sec_variant = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 43.0))
+        extra_days = st.sidebar.slider('Extra days', 0, 60, 0)
+        #calculate_cases(df, Rnew1_, Rnew2_, correction, numberofpositivetests, percentagenewversion)
     global how_to_norm
     #how_to_agg_l = "sum"
     #how_to_agg_r = "mean"
@@ -1443,6 +1456,8 @@ def main():
        '<br><br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)'
         '<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling (-1 voor minder dan 0.05 uur)'
         '<br><i>Globale straling</i> - Globale straling in (in J//cm2) '
+        '<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) '
+        '<br><i>Specific Humidity</i> -  - Specific Humidity'
         '<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020'
         '<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020'
        '<h2>Toelichting bij de opties</h2>'
