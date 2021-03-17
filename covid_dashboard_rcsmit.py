@@ -65,7 +65,7 @@
 # kiezen welke R je wilt in de bargraph
 # waarde dropdown anders dan zichtbaar
 
-#16 maart 
+#16 maart
 
 
 # I used iloc.  Iterating through pandas objects is generally slow.
@@ -140,12 +140,12 @@ def get_data():
         'groupby'    :None},
 
         # ERROR IN THIS FILE
-        # {'url'     :'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopname.csv',
-        # 'name'       :'COVID-19_ziekenhuisopname',
-        # 'delimiter'  :';',
-        # 'key'        : 'Date_of_statistics',     #] = df_hospital['Date_of_statistics'].astype('datetime64[D]')
-        # 'dateformat' : '%Y-%m-%d',                       # 'dateformat'
-        # 'groupby'    : 'Date_of_statistics'},
+        {'url'     :'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv',
+        'name'       :'COVID-19_ziekenhuisopname',
+        'delimiter'  :';',
+        'key'        : 'Date_of_statistics',     #] = df_hospital['Date_of_statistics'].astype('datetime64[D]')
+        'dateformat' : '%Y-%m-%d',                       # 'dateformat'
+        'groupby'    : 'Date_of_statistics'},
 
 
 
@@ -189,8 +189,16 @@ def get_data():
         'delimiter'  :';',
         'key'        : 'Datum',
         'dateformat' : '%d-%m-%Y',
-        'groupby'    :None}
+        'groupby'    :None},
+
+        {'url'       :'https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json',
+        'name'       :'rioolwater',
+        'delimiter'  :',',
+        'key'        :'Date_measurement',
+        'dateformat' : '%Y-%m-%d',
+        'groupby'    :'Date_measurement'}
         ]
+
     type_of_join="outer"
     d=0
     #st.write(data[d]['url'], data[d]['name'],data[d]['delimiter'])
@@ -242,6 +250,8 @@ def extra_bewerkingen(df):
 
     df['temp_etmaal'] = df['temp_etmaal']  / 10
     df['temp_max'] = df['temp_max']  / 10
+    df['RNA_per_reported'] = round(((df['RNA_flow_per_100000']/1e15)/df[ 'Total_reported']* 100),2 )
+    print (df.dtypes)
     return df
 
 ###################################################
@@ -623,15 +633,17 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         n = 0  # counter to walk through the colors-list
 
         df, columnlist_sm_l = smooth_columnlist(df,what_to_show_l_,how_to_smooth)
+        print (df)
         # df, R_smooth = add_walking_r(df, columnlist, how_to_smooth)
-        stackon=""
-        if len(what_to_show_l_)>1:
-            w = ["Datum"]
-            for s in what_to_show_l_:
-                w.append(s)
-            #st.write(w)
-            df_stacked = df[w].copy()
-            df_stacked.set_index('Datum')
+        # stackon=""
+        # if len(what_to_show_l_)>1:
+        #     w = ["Datum"]
+        #     for s in what_to_show_l_:
+        #         w.append(s)
+        #     #st.write(w)
+        #     df_stacked = df[w].copy()
+        #     #print (df_stacked.dtypes)
+        #     #df_stacked.set_index('Datum')
 
 
             #st.write(df_stacked)
@@ -690,7 +702,24 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 elif firstday == 6:
                     color_x = [COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend]
                 #color_x = ["white", "red", "yellow", "blue", "purple", "green", "black"]
-
+                white = "#eeeeee"
+                if showoneday:
+                    if showday == 6:
+                        color_x = [white, white, white, white, white,white, bittersweet]
+                    elif  showday == 5:
+                        color_x = [white, white, white, white, white, bittersweet, white]
+                    elif showday == 4:
+                        color_x = [white, white, white, white, bittersweet, white, white]
+                    elif showday == 3:
+                        color_x = [white, white, white, bittersweet, white, white, white]
+                    elif showday == 2:
+                        color_x = [white, white, bittersweet, white, white, white, white]
+                    elif showday == 1:
+                        color_x = [white, bittersweet, white, white, white, white, white]
+                    elif showday == 0:
+                        color_x = [bittersweet, white, white, white, white, white, white]
+                # if showoneday = True:
+                #     color_x = [bittersweet, white, white,white, white, white, white]
                 # MAYBE WE CAN LEAVE THIS OUT HERE
                 df, columnlist = smooth_columnlist(df,[b],how_to_smooth)
 
@@ -812,8 +841,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                 for c_ in columnlist:
                     #smoothed
                     lbl2 = a + " (right ax)"
-                    ax3 = df_temp[c_].plot(secondary_y=True, label=lbl2, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
-                ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, alpha=.9, label='_nolegend_')
+                    ax3 = df_temp[c_].plot(secondary_y=True, label=lbl2, color = color_list[x], linestyle='--', linewidth=1.1) #abel = lbl2 voor uitgebreid label
+                ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=1, alpha=.9, label='_nolegend_')
                 ax3.set_ylabel('_')
         if t != "bar":
 
@@ -897,8 +926,10 @@ def add_restrictions(df,ax):
     # From Han-Kwang Nienhuys - MIT-licence
 
     df_restrictions = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv',
+                    comment='#',
                     delimiter=',',
-                    low_memory=False)
+                    low_memory=False,
+                    )
     #df_restrictions =   select_period(df_restrictions, FROM, UNTIL)
     #mask = (df_restrictions['Date'].date >= show_from) & (df_restrictions['Date'].date <= show_until)
     #df_restrictions = (df_restrictions.loc[mask])
@@ -1272,10 +1303,17 @@ def main():
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
     week_or_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
     if week_or_day != "week":
-    #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "bar"], index=0)
-        how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "linemax", "linefirst", "bar"], index=0)
+    #how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "line_scaled_to_peak", "bar"], index=0)
+        how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "line_scaled_to_peak", "line_first_is_100", "bar"], index=0)
     else:
         how_to_display = "bar"
+
+
+
+    global showR
+    global WDW3
+    global MOVE_WR
+    global lijst   # Lijst in de pull down menu's voor de assen
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
         'IC_Nieuwe_Opnames_COVID',"Hospital_admission_RIVM",
         "Hospital_admission_LCPS",  "Hospital_admission_GGD",
@@ -1283,16 +1321,10 @@ def main():
         'Rt_avg',
         'Tested_with_result', 'Tested_positive', 'Percentage_positive',
         'prev_avg',
-
         "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations", "workplaces",
         "residential", "apple_driving", "apple_transit", "apple_walking",
-        "temp_etmaal","temp_max","Zonneschijnduur","Globale_straling"      ]
-
-
-    global showR
-    global WDW3
-    global MOVE_WR
-
+        "temp_etmaal","temp_max","Zonneschijnduur","Globale_straling","RNA_per_ml",
+   "RNA_flow_per_100000" , 'RNA_per_reported'     ]
     #print (lijst)
     if how_to_display != "bar":
         what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
@@ -1301,6 +1333,7 @@ def main():
             st.error ("CHoose something")
             st.stop()
         move_right = st.sidebar.slider('Move curves at right axis (days)', -14, 14, 0)
+
     else:
         move_right = 0
     showR = False
@@ -1316,7 +1349,10 @@ def main():
         else:
             what_to_show_day_r = None
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
-
+        lijst_x = [0,1,2,3,4,5,6]
+        showoneday = st.sidebar.selectbox('Show one day',[True, False], index=0)
+        if showoneday:
+            showday= st.sidebar.selectbox('Show which day',lijst_x, index=0  )
 
 
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
@@ -1353,11 +1389,11 @@ def main():
                 df, what_to_show_day_r = move_column(df, what_to_show_day_r,move_right  )
             if how_to_display == "line":
                 graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
-            elif how_to_display == "linemax":
+            elif how_to_display == "line_scaled_to_peak":
                 how_to_norm = "max"
                 print(how_to_norm)
                 graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
-            elif how_to_display == "linefirst":
+            elif how_to_display == "line_first_is_100":
                 how_to_norm = "first"
                 print(how_to_norm)
                 graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
@@ -1406,8 +1442,9 @@ def main():
         '<br><br><i>temp_etmaal</i> - Etmaalgemiddelde temperatuur (in graden Celsius)'
        '<br><br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)'
         '<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling (-1 voor minder dan 0.05 uur)'
-          '<br><i>Globale straling</i> - Globale straling in (in J//cm2) '
-
+        '<br><i>Globale straling</i> - Globale straling in (in J//cm2) '
+        '<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020'
+        '<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020'
        '<h2>Toelichting bij de opties</h2>'
        '<h3>What to plot</h3>'
        '<i>Line</i> - Line graph'
