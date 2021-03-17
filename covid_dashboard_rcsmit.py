@@ -1355,7 +1355,7 @@ def main():
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
         lijst_x = [0,1,2,3,4,5,6]
         if week_or_day != "week":
-            
+
             showoneday = st.sidebar.selectbox('Show one day',[True, False], index=0)
             if showoneday:
                 showday= st.sidebar.selectbox('Show which day',lijst_x, index=0  )
@@ -1488,7 +1488,7 @@ def main():
        '<h3>Show Scenario</h3>'
        'You are able to calculate a scenario based on two R-numbers, their ratio, a correction factor (to put in effect measures) and add extra days. Works only with [total reported].'
        'You can calculate scenarios with more options and graphs at my other webapp <a href=\'https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\' target=\'_blank\'>https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py</a>'
-       '<h2>Show specific weekday</h2>
+       '<h2>Show specific weekday</h2>'
        'When you choose [bar] and [week], you can choose one specific weekday to compare them more easily'
        '<h2>Datasource</h2>'
        'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. '
