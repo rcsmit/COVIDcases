@@ -56,7 +56,7 @@
 # Streamlit :)
 
 
-# TO DO
+#15 maart
 # weekgrafieken
 #  Series.dt.isocalendar().week
 # first value genormeerde grafiek
@@ -64,6 +64,9 @@
 # leegmaken vd cache DONE
 # kiezen welke R je wilt in de bargraph
 # waarde dropdown anders dan zichtbaar
+
+#16 maart 
+
 
 # I used iloc.  Iterating through pandas objects is generally slow.
 # In many cases, iterating manually over the rows is not needed and
@@ -101,220 +104,145 @@ from inspect import currentframe, getframeinfo
 # # Merged in one file in Excel and saved to CSV
 # Hospitals from RIVM 'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv
 
-
-@st.cache(ttl=60*60*24)
-def download_hospital_admissions():
-    """  _ _ _ """
-    # THIS ARE THE SAME NUMBERS AS ON THE DASHBOARD
-
-    url='https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv'
-    #url="https://lcps.nu/wp-content/uploads/covid-19.csv"
-    csv = 'COVID-19_ziekenhuisopnames'
-    delimiter_ = ";"
-
-    df_hospital = download_csv_file(url, csv,delimiter_)
-    # datum is 2020-02-27
-    df_hospital['Date_of_statistics'] = df_hospital['Date_of_statistics'].astype('datetime64[D]')
-
-    df_hospital = df_hospital.groupby(['Date_of_statistics'] , sort=True).sum().reset_index()
-
-    #save_df(df_hospital,"ziekenhuisopnames_RIVM")
-    return df_hospital
-
-@st.cache(ttl=60*60*24)
-def download_lcps():
-    """Download data from LCPS"""
-
-    url='https://lcps.nu/wp-content/uploads/covid-19.csv'
-    csv = 'LCPS'
-    delimiter_ = ','
-
-    df_lcps = download_csv_file(url, csv,delimiter_)
-
-    # Datum,IC_Bedden_COVID,IC_Bedden_Non_COVID,Kliniek_Bedden,IC_Nieuwe_Opnames_COVID,
-    # Kliniek_Nieuwe_Opnames_COVID
-    # datumformat  is 2020-02-27
-    df_lcps['Datum']=pd.to_datetime(df_lcps['Datum'], format="%d-%m-%Y")
-
-    return df_lcps
-@st.cache(ttl=60*60*24)
-def download_reproductiegetal():
-    """  _ _ _ """
-    #https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json
-
-    url = 'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json'
-    csv = 'reprogetal'
-    delimiter_=','
-
-    df_reprogetal = download_csv_file(url, csv, delimiter_)
-    print (df_reprogetal)
-    df_reprogetal['Date']=pd.to_datetime(df_reprogetal['Date'], format="%Y-%m-%d")
-
-    # als er nog geen reprogetal berekend is, neem dan het gemiddeld van low en up
-    # vanaf half juni is dit altijd het geval geweest (0,990 en 1,000)
-
-    #df_reprogetal.loc[df_reprogetal["Rt_avg"].isnull(),'Rt_avg'] = round(((df_reprogetal["Rt_low"] + df_reprogetal["Rt_up"])/2),2)
-
-    return df_reprogetal
-@st.cache(ttl=60*60*24)
-def download_gemeente_per_dag():
-    """  _ _ _ """
-    # Code by Han-Kwang Nienhuys - MIT License
-    # Het werkelijke aantal COVID-19 patiënten opgenomen in het ziekenhuis is hoger dan
-    # het aantal opgenomen patiënten gemeld in de surveillance, omdat de GGD niet altijd op
-    # de hoogte is van ziekenhuisopname als deze na melding plaatsvindt.
-    # Daarom benoemt het RIVM sinds 6 oktober actief de geregistreerde ziekenhuisopnames
-    # van Stichting NICE
-
-    url='https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv'
-    csv = 'COVID-19_aantallen_gemeente_per_dag'
-    delimiter_ =';'
-
-    df_gemeente_per_dag = download_csv_file(url, csv, delimiter_)
-
-    df_gemeente_per_dag['Date_of_publication'] = df_gemeente_per_dag['Date_of_publication'].astype('datetime64[D]')
-
-    df_gemeente_per_dag = df_gemeente_per_dag.groupby(['Date_of_publication'] , sort=True).sum().reset_index()
-    #save_df(df_gemeente_per_dag,"COVID-19_aantallen_per_dag")
-    return df_gemeente_per_dag
-@st.cache(ttl=60*60*24)
-def download_uitgevoerde_testen():
-    """  _ _ _ """
-    # Version;Date_of_report;Date_of_statistics;Security_region_code;
-    # Security_region_name;Tested_with_result;Tested_positive
-
-    url='https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv'
-    csv ='COVID-19_uitgevoerde_testen'
-    delimiter_ = ';'
-    df_uitgevoerde_testen = download_csv_file(url, csv,delimiter_)
-
-    df_uitgevoerde_testen['Date_of_statistics'] = df_uitgevoerde_testen['Date_of_statistics'].astype('datetime64[D]')
-    df_uitgevoerde_testen = df_uitgevoerde_testen.groupby(['Date_of_statistics'] , sort=True).sum().reset_index()
-    df_uitgevoerde_testen['Percentage_positive'] = round((df_uitgevoerde_testen['Tested_positive'] /
-                                                  df_uitgevoerde_testen['Tested_with_result'] * 100),2 )
-
-    #save_df(df_uitgevoerde_testen,"COVID-19_uitgevoerde_testen")
-    return df_uitgevoerde_testen
-
-
-@st.cache(ttl=60*60*24)
-def dowload_nice():
-    url= 'https://stichting-nice.nl/covid-19/public/intake-count/'
-    csv =  'intake_count'
-    delimiter_=','
-@st.cache(ttl=60*60*24)
-def download_prevalentie():
-    url = 'https://data.rivm.nl/covid-19/COVID-19_prevalentie.json'
-    csv = 'prevalentie'
-    delimiter_=','
-    df_prevalentie = download_csv_file(url, csv,delimiter_)
-    df_prevalentie['Date'] = df_prevalentie['Date'].astype('datetime64[D]')
-    return df_prevalentie
-
-@st.cache(ttl=60*60*24)
-def download_mobility():
-    df_mobility = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv',
-
-                    delimiter=';',
-                    low_memory=False)
-
-    df_mobility['Date']=pd.to_datetime(df_mobility['Date'], format="%d-%m-%Y")
-
-    df_mobility.set_index('Date')
-
-    return df_mobility
-
-@st.cache(ttl=60*60*24)
-def download_knmi():
-    df_knmi = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv',
-
-                    delimiter=';',
-                    low_memory=False)
-
-    df_knmi['Datum']=pd.to_datetime(df_knmi['Datum'], format="%d-%m-%Y")
-    df_knmi['temp_etmaal'] = df_knmi['temp_etmaal']  / 10
-    df_knmi['temp_max'] = df_knmi['temp_max']  / 10
-    df_knmi.set_index('Datum')
-
-    return df_knmi
-
 ###################################################################
 @st.cache(ttl=60*60*24)
 def download_csv_file(url, csv,delimiter_):
     #df_temp = None
     print (f"Downloading {url}...")
+    download= True
     with st.spinner(f'Wait for it...{url}'):
         if download :
             if url[-3:]=='csv' :
-
-                # fpath = Path(str(csv))
-                # # Code by Han-Kwang Nienhuys - MIT License
-                # print(f'Getting new daily case statistics file - {url} - ...')
-                # with urllib.request.urlopen(url) as response:
-                #     data_bytes = response.read()
-                #     fpath.write_bytes(data_bytes)
-                #     print(f'Wrote {fpath} .')
-
                 df_temp = pd.read_csv(url,
                         delimiter=delimiter_,
                         low_memory=False)
             elif url[-4:]=='json':
                 print (f"Download {url}")
                 df_temp = pd.read_json (url)
-
-                # compression_opts = dict(method=None,
-                #                     archive_name=csv)
-                # df_json.to_csv(csv, index=False,
-                #     compression=compression_opts)
-
             else:
                 print ("Error in URL")
                 st.stop()
             df_temp = df_temp.drop_duplicates()
+            df_temp = df_temp.replace({pd.np.nan: None})
             save_df(df_temp,csv)
-
         return df_temp
+
 @st.cache(ttl=60*60*24)
 def get_data():
     """  _ _ _ """
+    data =  [
 
-    df_hospital = download_hospital_admissions()
-    #sliding_r_df = walkingR(df_hospital, "Hospital_admission")
-    df_lcps = download_lcps()
+        {'url'       :'https://lcps.nu/wp-content/uploads/covid-19.csv',
+        'name'       :'LCPS',
+        'delimiter'  :',',
+        'key'        : 'Datum',
+        'dateformat' :'%d-%m-%Y',
+        'groupby'    :None},
 
-    df_gemeente_per_dag = download_gemeente_per_dag()
-    df_reprogetal = download_reproductiegetal()
-    df_uitgevoerde_testen = download_uitgevoerde_testen()
-    df_prevalentie = download_prevalentie()
-    df_mobility = download_mobility()
-    df_knmi = download_knmi()
+        # ERROR IN THIS FILE
+        # {'url'     :'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopname.csv',
+        # 'name'       :'COVID-19_ziekenhuisopname',
+        # 'delimiter'  :';',
+        # 'key'        : 'Date_of_statistics',     #] = df_hospital['Date_of_statistics'].astype('datetime64[D]')
+        # 'dateformat' : '%Y-%m-%d',                       # 'dateformat'
+        # 'groupby'    : 'Date_of_statistics'},
 
-    type_of_join = "outer"
-    df = pd.merge(df_lcps, df_hospital, how=type_of_join, left_on = 'Datum',
-                    right_on="Date_of_statistics")
-    #save_df(df,"1")
-    #df = df_hospital
-    df.loc[df['Datum'].isnull(),'date'] = df['Date_of_statistics']
 
-    #df.loc[df['date'].isnull(),'date'] = df['Datum']
-    #df = pd.merge(df, sliding_r_df, how=type_of_join, left_on = 'date', right_on="date_sR", left_index=True )
 
-    df = pd.merge(df, df_gemeente_per_dag, how=type_of_join, left_on = 'Datum', right_on="Date_of_publication")
-    df = pd.merge(df, df_reprogetal, how=type_of_join, left_on = 'Datum', right_on="Date")
-    df = pd.merge(df, df_uitgevoerde_testen, how=type_of_join, left_on = 'Datum', right_on="Date_of_statistics")
-    df = pd.merge(df, df_prevalentie, how=type_of_join, left_on = 'Datum', right_on="Date")
-    df = pd.merge(df, df_mobility, how=type_of_join, left_on = 'Datum', right_on="Date")
-    df = pd.merge(df, df_knmi, how=type_of_join, left_on = 'Datum', right_on="Datum")
+        {'url'       :'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json',
+        'name'       :'reprogetal',
+        'delimiter'  :',',
+        'key'        : 'Date',
+        'dateformat' :'%Y-%m-%d',
+        'groupby'    :None},
 
-    df["date"]=df["Datum"]
-    #save_df(df,"6")
-    df = df.sort_values(by=['date'])
-    df = splitupweekweekend(df)
-    #save_df(df,"7")
-    # df.set_index('date')
+        {'url'       :'https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv',
+        'name'       :'COVID-19_aantallen_gemeente_per_dag',
+        'delimiter'  :';',
+        'key'        :  'Date_of_publication',  #.astype('datetime64[D]')
+        'dateformat' :'%Y-%m-%d',
+        'groupby'    :'Date_of_publication'},     #] , sort=True).sum().reset_index()
+
+        {'url'       :'https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv',
+        'name'       :'COVID-19_uitgevoerde_testen',
+        'delimiter'  :';',
+        'key'        : 'Date_of_statistics', #] = df_uitgevoerde_testen['Date_of_statistics'].astype('datetime64[D]')
+        'dateformat' : '%Y-%m-%d',
+        'groupby'    :'Date_of_statistics'}, #] , sort=True).sum().reset_index()
+
+        {'url'       :'https://data.rivm.nl/covid-19/COVID-19_prevalentie.json',
+        'name'       :'prevalentie',
+        'delimiter'  :',',
+        'key'        : 'Date',   #] = df_prevalentie['Date'].astype('datetime64[D]')
+        'dateformat' : '%Y-%m-%d',
+        'groupby'    :None},
+
+        {'url'       :'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv',
+        'name'       :'mobility',
+        'delimiter'  : ';',
+        'key'        : 'Date',
+        'dateformat' : '%d-%m-%Y',
+        'groupby'    :None},
+
+        {'url'       :'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv',
+        'name'       :'knmi',
+        'delimiter'  :';',
+        'key'        : 'Datum',
+        'dateformat' : '%d-%m-%Y',
+        'groupby'    :None}
+        ]
+    type_of_join="outer"
+    d=0
+    #st.write(data[d]['url'], data[d]['name'],data[d]['delimiter'])
+    df_temp_x = download_csv_file(data[d]['url'], data[d]['name'],data[d]['delimiter'])
+    df_temp_x = df_temp_x.replace({pd.np.nan: None})
+    #st.write(df_temp_x)
+
+    df_temp_x[data[d]['key']]=pd.to_datetime(df_temp_x[data[d]['key']], format=data[d]['dateformat'])
+    #st.write(df_temp_x.dtypes)
+    firstkey = data[d]['key']
+    df_temp = df_temp_x
+
+    if data[d]['groupby'] != None:
+        df_temp_x = df_temp_x.groupby([data[d]['key']] , sort=True).sum().reset_index()
+    for d in range (1,len(data)):
+       # st.write(data[d]['url'], data[d]['name'],data[d]['delimiter'])
+        df_temp_x = download_csv_file(data[d]['url'], data[d]['name'],data[d]['delimiter'])
+        df_temp_x = df_temp_x.replace({pd.np.nan: None})
+        #st.write(df_temp_x)
+        oldkey = data[d]['key']
+        newkey = "key"+ str(d)
+        df_temp_x = df_temp_x.rename(columns = {oldkey: newkey})
+        df_temp_x[newkey]=pd.to_datetime(df_temp_x[newkey], format=data[d]['dateformat'])
+       # st.write(df_temp_x.dtypes)
+        if data[d]['groupby'] != None:
+            df_temp_x = df_temp_x.groupby([newkey] , sort=True).sum().reset_index()
+        #df_temp_x = df_temp_x.replace({pd.np.nan: None})
+        df_temp = pd.merge(df_temp, df_temp_x, how=type_of_join, left_on = firstkey, right_on=newkey)
+        #df_temp_x = df_temp_x.replace({pd.np.nan: None})
+        df_temp.loc[df_temp[firstkey].isnull(),firstkey] = df_temp[newkey]
+        df_temp = df_temp.sort_values(by=firstkey)
+
+        #st.write(df_temp)
+        save_df(df_temp,"waaromowaarom")
+    df_temp = df_temp.rename(columns = {firstkey: "date"})  #the tool is build around "date"
+
+
     global UPDATETIME
     UPDATETIME = datetime.now()
+    df = splitupweekweekend(df_temp)
+    df = extra_bewerkingen(df)
     return df, UPDATETIME #, werkdagen, weekend_
+
+def extra_bewerkingen(df):
+
+    df['Percentage_positive'] = round((df['Tested_positive'] /
+                                                df['Tested_with_result'] * 100),2 )
+
+
+    df['temp_etmaal'] = df['temp_etmaal']  / 10
+    df['temp_max'] = df['temp_max']  / 10
+    return df
 
 ###################################################
 def calculate_cases(df):
@@ -948,7 +876,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     add_restrictions(df,ax)
     #plt.show()
     #fig1x.tight_layout()
-    set_xmargin(ax, left=-0.04, right=-0.04)
+    if t == "line":
+        set_xmargin(ax, left=-0.04, right=-0.04)
     st.pyplot(fig1x)
     #st.write(df)
 def set_xmargin(ax, left=0.0, right=0.3):
