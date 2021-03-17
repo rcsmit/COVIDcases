@@ -1287,6 +1287,13 @@ def main():
         st.error("Please make sure that the enddate is in format yyyy-mm-dd")
         st.stop()
 
+       # a_ = dt.datetime.strptime(fr,'%Y-%m-%d').date()
+
+    if FROM >= UNTIL :
+        st.warning("Make sure that the end date is not before the start date")
+        st.stop()
+
+
     if until_ == "2023-08-23":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
@@ -1438,7 +1445,7 @@ def main():
        '<br><i>IC_Nieuwe_Opnames_COVID</i> - Nieuwe opnames op de IC '
         '<br><br><i>Hospital_admission_LCPS</i> - Nieuwe opnames in de ziekenhuizen LCPS. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting '
 
-        '<br>Hospital_admission_RIVM</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn.'
+        '<br><i>Hospital_admission_RIVM</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn.'
         '<br><i>Hospital_admission_GGD</i> - Nieuwe opnames in de ziekenhuizen GGD, lager omdat niet alles vanuit GGD wordt doorgegeven '
 
        '<br><br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) '
@@ -1453,11 +1460,11 @@ def main():
         'residential</i> - Mobiliteitsdata van Google'
         '<br><i>apple_driving, apple_transit, apple_walking</i> - Mobiliteitsdata van Apple'
         '<br><br><i>temp_etmaal</i> - Etmaalgemiddelde temperatuur (in graden Celsius)'
-       '<br><br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)'
-        '<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling (-1 voor minder dan 0.05 uur)'
+       '<br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)'
+        '<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling'
         '<br><i>Globale straling</i> - Globale straling in (in J//cm2) '
         '<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) '
-        '<br><i>Specific Humidity</i> -  - Specific Humidity'
+        '<br><i>Specific Humidity</i> -  - Specific Humidity in (g/kg)'
         '<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020'
         '<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020'
        '<h2>Toelichting bij de opties</h2>'
@@ -1468,6 +1475,14 @@ def main():
        '<br><i>Bar</i> - Bar graph for the left axis, line graph for the right ax'
         '<h3>How to smooth</h3>'
        '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
+       '<h3>Correlation</h3>'
+       'If you have chosen one field on the left side and one for the right side, correlation of the fields are shown. Attention: <i>correlation is not causation</i>!'
+
+       '<h3>Move curves at right axis (days)</h3>'
+       'You can move the curves at the right ax to see possible cause-effect relations.'
+       '<h3>Show Scenario</h3>'
+       'You are able to calculate a scenario based on two R-numbers, their ratio, a correction factor (to put in effect measures) and add extra days. Works only with [total reported].'
+       'You can calculate scenarios with more options and graphs at my other webapp <a href=\'https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\' target=\'_blank\'>https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py</a>'
        '<h2>Datasource</h2>'
        'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. '
        ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
@@ -1486,6 +1501,14 @@ def main():
     now = UPDATETIME
     UPDATETIME_ = now.strftime("%d/%m/%Y %H:%M:%S")
     st.write(f"\n\n\nData last updated : {str(UPDATETIME_)}")
+    st.markdown('<hr>', unsafe_allow_html=True)
+
+    st.image('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/buymeacoffee.png')
+
+    st.markdown('<a href=\"https://www.buymeacoffee.com/rcsmit" target=\"_blank\">If you are happy with this dashboard, you can buy me a coffee</a>', unsafe_allow_html=True)
+
+    st.markdown('<br><br><a href=\"https://www.linkedin.com/in/rcsmit" target=\"_blank\">Contact me for custom dashboards and infographics</a>', unsafe_allow_html=True)
+
 init()
 main()
 # https://www.medrxiv.org/content/10.1101/2020.05.06.20093039v3.full
