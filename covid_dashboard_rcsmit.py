@@ -1210,7 +1210,7 @@ def main():
     global UNTIL
     global WDW2
     global WDW3
-
+    global showoneday
     global MOVE_WR
     # FROM = '2020-1-1'
     # UNTIL = '2021-5-1'
@@ -1334,7 +1334,7 @@ def main():
         what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
         what_to_show_day_r = st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst)
         if what_to_show_day_l == None:
-            st.error ("CHoose something")
+            st.warning ("Choose something")
             st.stop()
         move_right = st.sidebar.slider('Move curves at right axis (days)', -14, 14, 0)
 
@@ -1354,10 +1354,14 @@ def main():
             what_to_show_day_r = None
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
         lijst_x = [0,1,2,3,4,5,6]
-        showoneday = st.sidebar.selectbox('Show one day',[True, False], index=0)
-        if showoneday:
-            showday= st.sidebar.selectbox('Show which day',lijst_x, index=0  )
-
+        if week_or_day != "week":
+            
+            showoneday = st.sidebar.selectbox('Show one day',[True, False], index=0)
+            if showoneday:
+                showday= st.sidebar.selectbox('Show which day',lijst_x, index=0  )
+        else:
+            showoneday = False
+            showday = 0
 
     how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
     WDW2 = st.sidebar.slider('Window smoothing curves (days)', 1, 14, 7)
@@ -1475,6 +1479,7 @@ def main():
        '<br><i>Bar</i> - Bar graph for the left axis, line graph for the right ax'
         '<h3>How to smooth</h3>'
        '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
+       '<h2>Hidden features</h2>'
        '<h3>Correlation</h3>'
        'If you have chosen one field on the left side and one for the right side, correlation of the fields are shown. Attention: <i>correlation is not causation</i>!'
 
@@ -1483,6 +1488,8 @@ def main():
        '<h3>Show Scenario</h3>'
        'You are able to calculate a scenario based on two R-numbers, their ratio, a correction factor (to put in effect measures) and add extra days. Works only with [total reported].'
        'You can calculate scenarios with more options and graphs at my other webapp <a href=\'https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\' target=\'_blank\'>https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py</a>'
+       '<h2>Show specific weekday</h2>
+       'When you choose [bar] and [week], you can choose one specific weekday to compare them more easily'
        '<h2>Datasource</h2>'
        'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. '
        ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
