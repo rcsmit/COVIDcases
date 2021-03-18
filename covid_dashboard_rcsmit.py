@@ -8,6 +8,7 @@ from scipy import stats
 import datetime as dt
 from datetime import datetime, timedelta
 
+import json
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
@@ -25,116 +26,161 @@ from inspect import currentframe, getframeinfo
 
 ###################################################################
 @st.cache(ttl=60*60*24)
-def download_csv_file(url, csv,delimiter_):
+def download_data_file(url, filename,delimiter_, fileformat):
+    """   Download the external datafiles
+    IN :  url : the url
+          filename : the filename (without extension) to export the file
+          delimiter : delimiter
+          fileformat : fileformat
+    OUT : df_temp : the dataframe
+         """
+
     #df_temp = None
     download= True
     with st.spinner(f'Downloading...{url}'):
-        if download :
+        if download : #download from the internet
             url = url
-        else:
-            if url[-4:]=='json':
-                url = INPUT_DIR + csv + ".json"
+        else:         # download from the local drive
+            if fileformat =='json':
+                url = INPUT_DIR + filename + ".json"
             else:
-                url = INPUT_DIR + csv + ".csv"
-        if url[-3:]=='csv' :
+                url = INPUT_DIR + filename + ".csv"
+
+        if fileformat =='csv' :
             df_temp = pd.read_csv(url,
                     delimiter=delimiter_,
                     low_memory=False)
-        elif url[-4:]=='json':
+        elif fileformat =='json':
             df_temp = pd.read_json (url)
+            print (df_temp)
+        elif fileformat =='json_x':   # workaround for NICE IC data
+            with urllib.request.urlopen(url) as url_x:
+                datajson = json.loads(url_x.read().decode())
+                for a in datajson:
+                    df_temp = pd.json_normalize(a)
         else:
-            st.error("Error in URL")
+            st.error("Error in fileformat")
             st.stop()
         df_temp = df_temp.drop_duplicates()
         #df_temp = df_temp.replace({pd.np.nan: None})  Let it to test
-        save_df(df_temp,csv)
+        save_df(df_temp,filename)
         return df_temp
 
 @st.cache(ttl=60*60*24)
 def get_data():
-    """  _ _ _ """
-    with st.spinner(f'GETTING AL DATA ...'):
+    """  Get the data from various sources
+    In : -
+    Out : df        : dataframe
+         UPDATETIME : Date and time from the last update """
+    with st.spinner(f'GETTING ALL DATA ...'):
         # #CONFIG
         data =  [
-            {'url'       :'https://lcps.nu/wp-content/uploads/covid-19.csv',
-            'name'       :'LCPS',
-            'delimiter'  :',',
+            {'url'       : 'https://lcps.nu/wp-content/uploads/covid-19.csv',
+            'name'       : 'LCPS',
+            'delimiter'  : ',',
             'key'        : 'Datum',
-            'dateformat' :'%d-%m-%Y',
-            'groupby'    :None},
+            'dateformat' : '%d-%m-%Y',
+            'groupby'    : None,
+            'fileformat' : 'csv'},
 
-            {'url'     :'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv',
-            'name'       :'COVID-19_ziekenhuisopname',
-            'delimiter'  :';',
+            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv',
+            'name'       : 'COVID-19_ziekenhuisopname',
+            'delimiter'  : ';',
             'key'        : 'Date_of_statistics',
             'dateformat' : '%Y-%m-%d',
-            'groupby'    : 'Date_of_statistics'},
+            'groupby'    : 'Date_of_statistics',
+            'fileformat' : 'csv'},
 
-            {'url'       :'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json',
-            'name'       :'reprogetal',
-            'delimiter'  :',',
+            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json',
+            'name'       : 'reprogetal',
+            'delimiter'  : ',',
             'key'        : 'Date',
-            'dateformat' :'%Y-%m-%d',
-            'groupby'    :None},
+            'dateformat' : '%Y-%m-%d',
+            'groupby'    : None,
+            'fileformat' : 'json'},
 
-            {'url'       :'https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv',
-            'name'       :'COVID-19_aantallen_gemeente_per_dag',
-            'delimiter'  :';',
-            'key'        :  'Date_of_publication',
-            'dateformat' :'%Y-%m-%d',
-            'groupby'    :'Date_of_publication'},
+            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv',
+            'name'       : 'COVID-19_aantallen_gemeente_per_dag',
+            'delimiter'  : ';',
+            'key'        : 'Date_of_publication',
+            'dateformat' : '%Y-%m-%d',
+            'groupby'    : 'Date_of_publication',
+            'fileformat' : 'csv'},
 
-            {'url'       :'https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv',
-            'name'       :'COVID-19_uitgevoerde_testen',
-            'delimiter'  :';',
+            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv',
+            'name'       : 'COVID-19_uitgevoerde_testen',
+            'delimiter'  : ';',
             'key'        : 'Date_of_statistics',
             'dateformat' : '%Y-%m-%d',
-            'groupby'    :'Date_of_statistics'},
+            'groupby'    : 'Date_of_statistics',
+            'fileformat' : 'csv'},
 
-            {'url'       :'https://data.rivm.nl/covid-19/COVID-19_prevalentie.json',
-            'name'       :'prevalentie',
-            'delimiter'  :',',
+            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_prevalentie.json',
+            'name'       : 'prevalentie',
+            'delimiter'  : ',',
             'key'        : 'Date',
             'dateformat' : '%Y-%m-%d',
-            'groupby'    :None},
+            'groupby'    : None,
+            'fileformat' : 'json'},
 
-            {'url'       :'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv',
-            'name'       :'mobility',
+            {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv',
+            'name'       : 'mobility',
             'delimiter'  : ';',
             'key'        : 'Date',
             'dateformat' : '%d-%m-%Y',
-            'groupby'    :None},
+            'groupby'    : None,
+            'fileformat' : 'csv'},
 
-            {'url'       :'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv',
-            'name'       :'knmi',
-            'delimiter'  :';',
+            {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv',
+            'name'       : 'knmi',
+            'delimiter'  : ';',
             'key'        : 'Datum',
             'dateformat' : '%d-%m-%Y',
-            'groupby'    :None},
+            'groupby'    : None,
+            'fileformat' : 'csv'},
 
-            {'url'       :'https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json',
-            'name'       :'rioolwater',
-            'delimiter'  :',',
-            'key'        :'Date_measurement',
+            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json',
+            'name'       : 'rioolwater',
+            'delimiter'  : ',',
+            'key'        : 'Date_measurement',
             'dateformat' : '%Y-%m-%d',
-            'groupby'    :'Date_measurement'}
+            'groupby'    : 'Date_measurement',
+            'fileformat' : 'json'},
+
+             {'url'      : 'https://stichting-nice.nl/covid-19/public/new-intake/',
+            'name'       : 'IC_opnames_LCPS',
+            'delimiter'  : ',',
+            'key'        : 'date',
+            'dateformat' : '%Y-%m-%d',
+            'groupby'    : 'date',
+            'fileformat' : 'json_x'}
+            # {'url'       : 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\download_NICE.json',
+            # 'name'       : 'IC_opnames_LCPS',
+            # 'delimiter'  : ',',
+            # 'key'        : 'date',
+            # 'dateformat' : '%Y-%m-%d',
+            # 'groupby'    : 'date',
+            # 'fileformat' : 'json_y'}
             ]
 
         type_of_join="outer"
         d=0
 
         # Read first datafile
-        df_temp_x = download_csv_file(data[d]['url'], data[d]['name'],data[d]['delimiter'])
+        df_temp_x = download_data_file(data[d]['url'], data[d]['name'],data[d]['delimiter'], data[d]['fileformat'])
         #df_temp_x = df_temp_x.replace({pd.np.nan: None})
         df_temp_x[data[d]['key']]=pd.to_datetime(df_temp_x[data[d]['key']], format=data[d]['dateformat'])
         firstkey = data[d]['key']
-        df_temp = df_temp_x
+
         if data[d]['groupby'] != None:
             df_temp_x = df_temp_x.groupby([data[d]['key']] , sort=True).sum().reset_index()
-
+        else:
+            df_temp_x = df_temp_x.sort_values(by=firstkey)
+        df_temp = df_temp_x   # df_temp is the base to which the other databases are merged to
         # Read the other files
+
         for d in range (1,len(data)):
-            df_temp_x = download_csv_file(data[d]['url'], data[d]['name'],data[d]['delimiter'])
+            df_temp_x = download_data_file(data[d]['url'], data[d]['name'],data[d]['delimiter'], data[d]['fileformat'])
             #df_temp_x = df_temp_x.replace({pd.np.nan: None})
             oldkey = data[d]['key']
             newkey = "key"+ str(d)
@@ -148,28 +194,41 @@ def get_data():
         #the tool is build around "date"
         df_temp = df_temp.rename(columns = {firstkey: "date"})
 
-        global UPDATETIME
+
         UPDATETIME = datetime.now()
         df = splitupweekweekend(df_temp)
-        df = extra_bewerkingen(df)
+        df = extra_calculations(df)
         return df, UPDATETIME
 
-def extra_bewerkingen(df):
+def extra_calculations(df):
+    """   Extra calculations
+    IN  : df
+    OUT : df with extra columns """
+
     df['Percentage_positive'] = round((df['Tested_positive'] /
                                                 df['Tested_with_result'] * 100),2 )
     df['temp_etmaal'] = df['temp_etmaal']  / 10
     df['temp_max'] = df['temp_max']  / 10
     df['RNA_per_reported'] = round(((df['RNA_flow_per_100000']/1e15)/df[ 'Total_reported']* 100),2 )
+
     return df
 
 ###################################################
 def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
+    """   Add an curve to the graph with a predicted growth model
+    IN :  ry1, ry2      : R numbers of two variants
+          total_cases_0 : Number of cases on the start date
+          sec_variant   : Fraction of the second variant in % (0-100)
+          extra_days    : Extra days to plot after the end date
+    OUT : df            : dataframe with extra columns (coming from df_calculated)"""
+
     column = df["date"]
     b_= column.max().date()
     a_ = FROM
     datediff = ( abs((a_ - b_).days))+1+extra_days
     population = 17_500_000
     immune_day_zero = 4_000_000
+    Tg = 4
 
     suspectible_0 = population - immune_day_zero
     cumm_cases = 0
@@ -184,7 +243,7 @@ def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
     immeratio = 1
     df_calculated = pd.DataFrame({'date_calc': a_,
                 'variant_1': cases_1,'variant_2' :cases_2, 'variant_12' : int(cases_1+cases_2)}, index=[0])
-    Tg = 4
+
     column = df["date"]
     max_value = column. max()
 
@@ -217,7 +276,9 @@ def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
     return df
 
 def splitupweekweekend(df):
-    """  _ _ _ """
+    """ SPLIT UP IN WEEKDAY AND WEEKEND
+    IN  : df
+    OUT : df """
     # SPLIT UP IN WEEKDAY AND WEEKEND
     # https://stackoverflow.com/posts/56336718/revisions
     df['WEEKDAY'] = pd.to_datetime(df['date']).dt.dayofweek  # monday = 0, sunday = 6
@@ -706,7 +767,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     # SHOW A GRAPH IN TIME / WEEK
     df_l, dfweek_l = agg_week(df, how_l)
 
-    if str(FROM) is not '2021-01-01':
+    if str(FROM) != '2021-01-01':
         st.info("To match the weeknumbers on the ax with the real weeknumbers, please set the startdate at 2021-1-1")
     if what_to_show_r != None:
         df_r, dfweek_r = agg_week (df, how_r)
@@ -830,12 +891,13 @@ def smooth_columnlist(df,columnlist,t):
     return df, c_smoothen
 
 ###################################################################
-def find_correlations(df):
+def find_correlations(df, treshold, fields):
     al_gehad = []
     paar = []
-    column_list = list(df.columns)
+    #column_list = list(df.columns)
+    column_list = fields
     # print (column_list)
-
+    st.header ("Found correlations in the data :")
     for i in column_list:
         for j in column_list:
             #paar = [j, i]
@@ -846,8 +908,8 @@ def find_correlations(df):
                 else:
                     try:
                         c = round(df[i].corr(df[j]),3)
-                        if c > 0.8:
-                            print (f"{i} - {j} - {str(c)}")
+                        if c >= treshold or c <= (treshold*-1):
+                            st.write (f"{i} - {j} - {str(c)}")
 
                     except:
                         pass
@@ -928,42 +990,39 @@ def main():
     global showday
     global MOVE_WR
     global showR
-    global WDW3
-    global MOVE_WR
     global lijst   # Lijst in de pull down menu's voor de assen
     global show_scenario
     global how_to_norm
+    global Rnew1_, Rnew2_
+    global ry1, ry2,  total_cases_0, sec_variant,extra_days
 
 
     df_getdata, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
     # #CONFIG
-    df.rename(columns={"Hospital_admission_x" : "Hospital_admission_RIVM",
-    "Hospital_admission_y" : "Hospital_admission_GGD",
-    "Kliniek_Nieuwe_Opnames_COVID" : "Hospital_admission_LCPS"}, inplace=True)
+    df.rename(columns={"Hospital_admission_x"   : "Hospital_admission_RIVM",
+            "Hospital_admission_y"              : "Hospital_admission_GGD",
+            "Kliniek_Nieuwe_Opnames_COVID"      : "Hospital_admission_LCPS",
+            "value"                             : "IC_opnames_NICE",
+            "IC_Nieuwe_Opnames_COVID"           : "IC_Nieuwe_Opnames_LCPS"},
+                inplace=True)
+
+    lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
+                'IC_Nieuwe_Opnames_LCPS',"IC_opnames_NICE", "Hospital_admission_RIVM",
+                "Hospital_admission_LCPS",  "Hospital_admission_GGD",
+                'Total_reported', 'Deceased','Rt_avg',
+                'Tested_with_result', 'Tested_positive', 'Percentage_positive', 'prev_avg',
+                "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations",
+                "workplaces", "residential", "apple_driving", "apple_transit", "apple_walking",
+                "temp_etmaal","temp_max","zonneschijnduur","globale_straling","specific_humidity",
+                "neerslag","RNA_per_ml", "RNA_flow_per_100000", 'RNA_per_reported' ,
+                "q_biggerthansix"   ]
+
+
     st.title("Interactive Corona Dashboard")
-    #st.header("")
+        #st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
-
-    # LET'S GET AND PREPARE THE DATA
-
-    # what_to_show_day_r = None
-    # what_to_show_week_r = None
-
-    # COLUMNS
-    # index,country_region_code,date,retail_and_recreation,grocery_and_pharmacy,parks,
-    # transit_stations,workplaces,residential,apple_driving,apple_transit,apple_walking,
-    # Date_of_statistics_x,Version_x,Hospital_admission_notification,Hospital_admission_x,
-    # Datum,IC_Bedden_COVID,IC_Bedden_Non_COVID,Kliniek_Bedden,IC_Nieuwe_Opnames_COVID,
-    # Kliniek_Nieuwe_Opnames_COVID,Date_of_publication,Total_reported,Hospital_admission_y,
-    # Deceased,Date,Rt_low,Rt_avg,Rt_up,population,version,Date_of_statistics_y,Version_y,
-    # Tested_with_result,Tested_positive,Percentage_positive,WEEKDAY
-    # Date, prev_low, prev_avg , prev_up, population"
-
-    # WHAT YOU CAN DO :
-    # show correlation matrixes - no options
-    # correlation_matrix(df,werkdagen, weekend_)
 
     # DAILY STATISTICS ################
     df_temp = None
@@ -1009,15 +1068,6 @@ def main():
     else:
         how_to_display = "bar"
 
-    lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
-        'IC_Nieuwe_Opnames_COVID',"Hospital_admission_RIVM",
-        "Hospital_admission_LCPS",  "Hospital_admission_GGD",
-        'Total_reported', 'Deceased','Rt_avg',
-        'Tested_with_result', 'Tested_positive', 'Percentage_positive', 'prev_avg',
-        "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations",
-        "workplaces",         "residential", "apple_driving", "apple_transit", "apple_walking",
-        "temp_etmaal","temp_max","zonneschijnduur","globale_straling","specific_humidity",
-        "neerslag","RNA_per_ml", "RNA_flow_per_100000" , 'RNA_per_reported' , "q_biggerthansix"   ]
 
     if how_to_display != "bar":
         what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
@@ -1071,8 +1121,6 @@ def main():
     show_scenario = st.sidebar.selectbox('Show Scenario',[True, False], index=1)
     if show_scenario:
 
-        global Rnew1_, Rnew2_
-        global ry1, ry2,  total_cases_0, sec_variant,extra_days
 
         total_cases_0 = st.sidebar.number_input('Total number of positive tests',None,None,8000)
 
@@ -1117,10 +1165,17 @@ def main():
 
     else:
         st.error ("Choose what to show")
-    # show a weekgraph, options have to put in the function self, no options her (for now)
 
-    #find_correlations(df)
-    #find_lag_time(df,"transit_stations","Rt_avg", 0,10)
+    # EXTRA POSSIBLE CALCULATIONS - INTERFACE HAS TO BE WRITTEN
+
+    if st.sidebar.button('Find Correlations'):
+        treshhold = st.sidebar.slider('R-number first variant', 0.0, 1.0, 0.8)
+        find_correlations(df, treshhold, lijst)
+
+
+    # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
+    # correlation_matrix(df,werkdagen, weekend_)
+
 
     toelichting = ( '<h2>Toelichting bij de keuzevelden</h2>'
                     '<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten (LCPS)'
