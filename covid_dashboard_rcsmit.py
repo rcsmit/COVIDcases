@@ -610,7 +610,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                         ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
                     if showR :
-                        ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
+                        if show_R_value_RIVM :
+                            ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
                         ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
                                     color=green_pigment, alpha=0.2, label='_nolegend_')
                         tgs = [3.5,4,5]
@@ -626,7 +627,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                                 df, Rn = move_column(df,R,MOVE_WR)
 
                                 if teller == 1 :
-                                    ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=falu_red, linewidth=1.2)
+                                    if show_R_value_graph:
+                                        ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=falu_red, linewidth=1.2)
                                 else:
                                     if teller == 0 :
                                         dfmin = Rn
@@ -638,7 +640,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                                 # correctie R waarde, moet naar links ivm 2x smoothen
                                 df, Rn = move_column(df,R,MOVE_WR)
                                 #ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
-                        ax3.fill_between(df['date'].index, df[dfmin], df[dfmax],  color=falu_red, alpha=0.3, label='_nolegend_')
+                        if show_R_value_graph:
+                            ax3.fill_between(df['date'].index, df[dfmin], df[dfmax],  color=falu_red, alpha=0.3, label='_nolegend_')
 
             else: # t = line
                 df_temp = df
@@ -996,7 +999,7 @@ def main():
     global how_to_norm
     global Rnew1_, Rnew2_
     global ry1, ry2,  total_cases_0, sec_variant,extra_days
-
+    global show_R_value_graph, show_R_value_RIVM
 
     df_getdata, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
@@ -1090,6 +1093,9 @@ def main():
         if showR == False:
             what_to_show_day_r =  st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst, ["Total_reported"])
         else:
+            
+            show_R_value_graph = streamlit.checkbox(f"Show R from {what_to_show_day_l}", value=True)
+            show_R_value_RIVM = streamlit.checkbox("Show R-value RIVM", value=True)
             what_to_show_day_r = None
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
         lijst_x = [0,1,2,3,4,5,6]
