@@ -1215,8 +1215,8 @@ def main():
                 graph_week(df, what_to_show_day_l , how_to_agg_l, None , how_to_agg_r)
             else:
                 graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
-                if len(what_to_show_day_R)>0:
-                        for xx in what_to_show_day_R:
+                if len(what_to_show_day_r)>0:
+                        for xx in what_to_show_day_r:
                             graph_daily_normed      (df,[xx], None, how_to_smoothen, how_to_display)
 
     else:
