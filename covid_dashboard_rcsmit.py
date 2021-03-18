@@ -779,7 +779,7 @@ def add_restrictions(df,ax):
 
         if diff.days >0 and diff2.days >0:
 
-            ax.text((diff.days), y_lab, f'  {df_restrictions.iloc[i]["Description"] }', rotation=90, fontsize=4,horizontalalignment='center')
+            ax.text((diff.days), 0, f'  {df_restrictions.iloc[i]["Description"] }', rotation=90, fontsize=4,horizontalalignment='center')
             #plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
 
 def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
@@ -1186,12 +1186,24 @@ def main():
                 df, what_to_show_day_r = move_column(df, what_to_show_day_r,move_right  )
             if how_to_display == "line":
                 graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+                if len(what_to_show_day_l)>1:
+                    for xx in what_to_show_day_l:
+                        graph_daily       (df,[xx], None, how_to_smoothen, how_to_display)
+
+
             elif how_to_display == "line_scaled_to_peak":
                 how_to_norm = "max"
                 graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+                if len(what_to_show_day_l)>1:
+                    for xx in what_to_show_day_l:
+                        graph_daily_normed      (df,[xx], None, how_to_smoothen, how_to_display)
             elif how_to_display == "line_first_is_100":
                 how_to_norm = "first"
                 graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+                if len(what_to_show_day_l)>1:
+                        for xx in what_to_show_day_l:
+                            graph_daily_normed      (df,[xx], None, how_to_smoothen, how_to_display)
+
             elif how_to_display == "bar":
                 #st.write(what_to_show_day_l)
                 graph_daily        (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
