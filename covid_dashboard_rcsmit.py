@@ -612,7 +612,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                     if showR :
                         if show_R_value_RIVM :
                             ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
-                        ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
+                            ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
                                     color=green_pigment, alpha=0.2, label='_nolegend_')
                         tgs = [3.5,4,5]
 
@@ -1094,8 +1094,8 @@ def main():
             what_to_show_day_r =  st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst, ["Total_reported"])
         else:
 
-            show_R_value_graph = st.checkbox(f"Show R from {what_to_show_day_l}", value=True)
-            show_R_value_RIVM = st.checkbox("Show R-value RIVM", value=True)
+            show_R_value_graph = st.sidebar.checkbox(f"Show R from {what_to_show_day_l}", value=True)
+            show_R_value_RIVM = st..sidebar.checkbox("Show R-value RIVM", value=True)
             what_to_show_day_r = None
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
         lijst_x = [0,1,2,3,4,5,6]
