@@ -1094,6 +1094,8 @@ def main():
             st.error ("Choose something for the left-axis")
         if showR == False:
             what_to_show_day_r =  st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst, ["Total_reported"])
+            show_R_value_graph = False
+            show_R_value_RIVM = False
         else:
 
             show_R_value_graph = st.sidebar.checkbox(f"Show R from {what_to_show_day_l}", value=True)
