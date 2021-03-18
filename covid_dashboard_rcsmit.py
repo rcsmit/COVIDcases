@@ -815,7 +815,8 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         plt.legend(handles,labels)
         plt.xlabel('Week counted from '+ str(FROM))
         # configgraph(titlex)
-        plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+        if show_R_value_graph or  show_R_value_RIVM:
+            plt.ax3hline(y=1, color='yellow', alpha=.6,linestyle='--')
         st.pyplot(fig1y)
         #plt.show()
 
