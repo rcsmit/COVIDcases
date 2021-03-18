@@ -1039,12 +1039,12 @@ def main():
     df.rename(columns={"Hospital_admission_x"   : "Hospital_admission_RIVM",
             "Hospital_admission_y"              : "Hospital_admission_GGD",
             "Kliniek_Nieuwe_Opnames_COVID"      : "Hospital_admission_LCPS",
-            "value"                             : "IC_opnames_NICE",
+         #   "value"                             : "IC_opnames_NICE",
             "IC_Nieuwe_Opnames_COVID"           : "IC_Nieuwe_Opnames_LCPS"},
                 inplace=True)
 
     lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
-                'IC_Nieuwe_Opnames_LCPS',"IC_opnames_NICE", "Hospital_admission_RIVM",
+                'IC_Nieuwe_Opnames_LCPS', "Hospital_admission_RIVM",
                 "Hospital_admission_LCPS",  "Hospital_admission_GGD",
                 'Total_reported', 'Deceased','Rt_avg',
                 'Tested_with_result', 'Tested_positive', 'Percentage_positive', 'prev_avg',
@@ -1215,6 +1215,9 @@ def main():
                 graph_week(df, what_to_show_day_l , how_to_agg_l, None , how_to_agg_r)
             else:
                 graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
+                if len(what_to_show_day_R)>0:
+                        for xx in what_to_show_day_R:
+                            graph_daily_normed      (df,[xx], None, how_to_smoothen, how_to_display)
 
     else:
         st.error ("Choose what to show")
@@ -1271,7 +1274,8 @@ def main():
                     '<h2>Hidden features</h2>'
                     '<h3>Correlation</h3>'
                     'If you have chosen one field on the left side and one for the right side, correlation of the fields are shown. Attention: <i>correlation is not causation</i>!'
-
+                    '<h3>Find correlations<h3>'
+                    'After clicking this button, you can choose your treshold. Fields with correlations above this treshold are shown'
                     '<h3>Move curves at right axis (days)</h3>'
                     'You can move the curves at the right ax to see possible cause-effect relations.'
                     '<h3>Show Scenario</h3>'
