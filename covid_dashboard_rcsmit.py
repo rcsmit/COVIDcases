@@ -1081,7 +1081,7 @@ def main():
         move_right = 0
     showR = False
     if how_to_display == "bar":
-        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=5  )
+        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=8  )
         #what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
 
         showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
@@ -1097,7 +1097,7 @@ def main():
         firstday = df.iloc[0]['WEEKDAY']  # monday = 0
         dagenvdweek = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         showonedaylabel = 'Show which day (0 = ' + dagenvdweek[firstday] + ')'
-        showoneday = st.sidebar.selectbox('Show one day',[True, False], index=0)
+        showoneday = st.sidebar.selectbox('Show one day',[True, False], index=1)
         if showoneday:
             showday= st.sidebar.selectbox(showonedaylabel ,lijst_x, index=0  )
     else:
