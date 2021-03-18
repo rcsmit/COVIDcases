@@ -175,12 +175,17 @@ def get_data():
 
         if data[d]['groupby'] != None:
             df_temp_x = df_temp_x.groupby([data[d]['key']] , sort=True).sum().reset_index()
+            df_ungrouped = df_temp_x.reset_index()
+            firstkey_ungrouped = data[d]['key']
         else:
             df_temp_x = df_temp_x.sort_values(by=firstkey)
+            df_ungrouped = None
+
         df_temp = df_temp_x   # df_temp is the base to which the other databases are merged to
         # Read the other files
 
         for d in range (1,len(data)):
+
             df_temp_x = download_data_file(data[d]['url'], data[d]['name'],data[d]['delimiter'], data[d]['fileformat'])
             #df_temp_x = df_temp_x.replace({pd.np.nan: None})
             oldkey = data[d]['key']
@@ -188,7 +193,18 @@ def get_data():
             df_temp_x = df_temp_x.rename(columns = {oldkey: newkey})
             df_temp_x[newkey]=pd.to_datetime(df_temp_x[newkey], format=data[d]['dateformat'])
             if data[d]['groupby'] != None:
+                if df_ungrouped is not None:
+                    df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
+                    print (df_ungrouped.dtypes)
+                    print (firstkey_ungrouped)
+                    print (newkey)
+                    df_ungrouped.loc[df_ungrouped[firstkey_ungrouped].isnull(),firstkey_ungrouped] = df_ungrouped[newkey]
+
+                else:
+                    df_ungrouped = df_temp_x.reset_index()
+                    firstkey_ungrouped = newkey
                 df_temp_x = df_temp_x.groupby([newkey] , sort=True).sum().reset_index()
+
             df_temp = pd.merge(df_temp, df_temp_x, how=type_of_join, left_on = firstkey, right_on=newkey)
             df_temp.loc[df_temp[firstkey].isnull(),firstkey] = df_temp[newkey]
             df_temp = df_temp.sort_values(by=firstkey)
@@ -199,7 +215,7 @@ def get_data():
         UPDATETIME = datetime.now()
         df = splitupweekweekend(df_temp)
         df = extra_calculations(df)
-        return df, UPDATETIME
+        return df, df_ungrouped, UPDATETIME
 
 def extra_calculations(df):
     """   Extra calculations
@@ -725,7 +741,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     if show_R_value_graph or  show_R_value_RIVM:
             plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
     add_restrictions(df,ax)
-
+    plt.axhline(y=0, color='black', alpha=.6)
     if t == "line":
         set_xmargin(ax, left=-0.04, right=-0.04)
     st.pyplot(fig1x)
@@ -985,6 +1001,16 @@ def init():
     # GLOBAL SETTINGS
     download = True # True : download from internet False: download from INPUT_DIR
     # De open data worden om 15.15 uur gepubliceerd
+def get_locations(df_ungrouped, field):
+    """ Get a list of the Municipalities """
+    return df_ungrouped[field].unique()
+    # Municipality_name;
+    # Province;
+    # Security_region_code;
+    # Security_region_name;
+    # Municipal_health_service;
+    # ROAZ_region
+    print (df_ungrouped)
 
 def main():
     """  _ _ _ """
@@ -1003,8 +1029,11 @@ def main():
     global ry1, ry2,  total_cases_0, sec_variant,extra_days
     global show_R_value_graph, show_R_value_RIVM
 
-    df_getdata, UPDATETIME = get_data()
+    df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
+    df_ungrouped = df_ungrouped_.copy(deep=False)
+    #rioolwaterplaatsen = (get_locations(df_ungrouped, "RWZI_AWZI_name"))
+
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
     # #CONFIG
     df.rename(columns={"Hospital_admission_x"   : "Hospital_admission_RIVM",
@@ -1218,6 +1247,7 @@ def main():
                     '<br><i>Specific Humidity</i> -  - Specific Humidity in (g/kg)'
                     '<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020'
                     '<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020'
+                    '<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)'
                     '<h2>Toelichting bij de opties</h2>'
                     '<h3>What to plot</h3>'
                     '<i>Line</i> - Line graph'
