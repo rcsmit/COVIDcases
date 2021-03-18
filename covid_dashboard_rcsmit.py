@@ -722,7 +722,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
     ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
             transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
-
+    if show_R_value_graph or  show_R_value_RIVM:
+            plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
     add_restrictions(df,ax)
 
     if t == "line":
@@ -816,7 +817,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         plt.xlabel('Week counted from '+ str(FROM))
         # configgraph(titlex)
         if show_R_value_graph or  show_R_value_RIVM:
-            plt.ax3hline(y=1, color='yellow', alpha=.6,linestyle='--')
+            ax3.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
         st.pyplot(fig1y)
         #plt.show()
 
