@@ -1095,7 +1095,7 @@ def main():
         else:
 
             show_R_value_graph = st.sidebar.checkbox(f"Show R from {what_to_show_day_l}", value=True)
-            show_R_value_RIVM = st..sidebar.checkbox("Show R-value RIVM", value=True)
+            show_R_value_RIVM = st.sidebar.checkbox("Show R-value RIVM", value=True)
             what_to_show_day_r = None
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
         lijst_x = [0,1,2,3,4,5,6]
