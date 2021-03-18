@@ -53,12 +53,12 @@ def download_data_file(url, filename,delimiter_, fileformat):
         elif fileformat =='json':
             df_temp = pd.read_json (url)
 
-        elif fileformat =='json_x':   # workaround for NICE IC data
-            pass
-            # with urllib.request.urlopen(url) as url_x:
-            #     datajson = json.loads(url_x.read().decode())
-            #     for a in datajson:
-            #         df_temp = pd.json_normalize(a)
+        # elif fileformat =='json_x':   # workaround for NICE IC data
+        #     pass
+        #     # with urllib.request.urlopen(url) as url_x:
+        #     #     datajson = json.loads(url_x.read().decode())
+        #     #     for a in datajson:
+        #     #         df_temp = pd.json_normalize(a)
         else:
             st.error("Error in fileformat")
             st.stop()
