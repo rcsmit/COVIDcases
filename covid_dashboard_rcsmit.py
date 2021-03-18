@@ -148,13 +148,13 @@ def get_data():
             'groupby'    : 'Date_measurement',
             'fileformat' : 'json'},
 
-             {'url'      : 'https://stichting-nice.nl/covid-19/public/new-intake/',
-            'name'       : 'IC_opnames_LCPS',
-            'delimiter'  : ',',
-            'key'        : 'date',
-            'dateformat' : '%Y-%m-%d',
-            'groupby'    : 'date',
-            'fileformat' : 'json_x'}
+            #  {'url'      : 'https://stichting-nice.nl/covid-19/public/new-intake/',
+            # 'name'       : 'IC_opnames_LCPS',
+            # 'delimiter'  : ',',
+            # 'key'        : 'date',
+            # 'dateformat' : '%Y-%m-%d',
+            # 'groupby'    : 'date',
+            # 'fileformat' : 'json_x'}
             # {'url'       : 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\download_NICE.json',
             # 'name'       : 'IC_opnames_LCPS',
             # 'delimiter'  : ',',
