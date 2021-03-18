@@ -1103,6 +1103,9 @@ def main():
             what_to_show_day_r = None
             pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
         lijst_x = [0,1,2,3,4,5,6]
+    else:
+        show_R_value_graph = False
+        show_R_value_RIVM = False
     if week_or_day == "day" and how_to_display == "bar":
         firstday = df.iloc[0]['WEEKDAY']  # monday = 0
         dagenvdweek = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
