@@ -52,12 +52,13 @@ def download_data_file(url, filename,delimiter_, fileformat):
                     low_memory=False)
         elif fileformat =='json':
             df_temp = pd.read_json (url)
-            print (df_temp)
+
         elif fileformat =='json_x':   # workaround for NICE IC data
-            with urllib.request.urlopen(url) as url_x:
-                datajson = json.loads(url_x.read().decode())
-                for a in datajson:
-                    df_temp = pd.json_normalize(a)
+            pass
+            # with urllib.request.urlopen(url) as url_x:
+            #     datajson = json.loads(url_x.read().decode())
+            #     for a in datajson:
+            #         df_temp = pd.json_normalize(a)
         else:
             st.error("Error in fileformat")
             st.stop()
@@ -271,7 +272,7 @@ def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
 
     df = pd.merge(df, df_calculated, how='outer', left_on = 'date', right_on="date_calc",
                         left_index=True )
-    print (df.dtypes)
+
     df.loc[df['date'].isnull(),'date'] = df['date_calc']
     return df
 
@@ -430,7 +431,7 @@ def save_df(df,name):
 ##########################################################
 def correlation_matrix(df, werkdagen, weekend_):
     """  _ _ _ """
-    print("x")
+
     # CALCULATE CORRELATION
 
     corrMatrix = df.corr()
@@ -631,7 +632,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
                                         dfmin = Rn
                                     if teller == 2 :
                                         dfmax = Rn
-                                        print (dfmax)
+                                        #print (dfmax)
                                 teller += 1
                             for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
                                 # correctie R waarde, moet naar links ivm 2x smoothen
@@ -652,7 +653,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
             n +=1
         if show_scenario == True:
             df = calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days)
-            print (df.dtypes)
+            #print (df.dtypes)
             l1 = (f"R = {ry1}")
             l2 = (f"R = {ry2}")
             ax = df["variant_1"].plot(label=l1, color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
@@ -867,7 +868,7 @@ def smooth_columnlist(df,columnlist,t):
             columnlist_=columnlist
         else:
             columnlist_=[columnlist]
-            print (columnlist)
+            #print (columnlist)
         for c in columnlist_:
             print (f"Smoothening {c}")
             if t=='SMA':
@@ -1145,11 +1146,9 @@ def main():
                 graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
             elif how_to_display == "line_scaled_to_peak":
                 how_to_norm = "max"
-                print(how_to_norm)
                 graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
             elif how_to_display == "line_first_is_100":
                 how_to_norm = "first"
-                print(how_to_norm)
                 graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
             elif how_to_display == "bar":
                 #st.write(what_to_show_day_l)
