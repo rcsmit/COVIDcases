@@ -146,7 +146,15 @@ def get_data():
             'key'        : 'Date_measurement',
             'dateformat' : '%Y-%m-%d',
             'groupby'    : 'Date_measurement',
-            'fileformat' : 'json'},
+            'fileformat' : 'json'}
+            # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
+            # 'name'       : 'sweden',
+            # 'delimiter'  : ';',
+            # 'key'        : 'Day',
+            # 'dateformat' : '%d-%m-%Y',
+            # 'groupby'    : None,
+            # 'fileformat' : 'csv'},
+
 
             #  {'url'      : 'https://stichting-nice.nl/covid-19/public/new-intake/',
             # 'name'       : 'IC_opnames_LCPS',
@@ -332,7 +340,8 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
                 date_ = df.iloc[i]['date']
                 if df.iloc[i-d][base] != 0 or df.iloc[i-d][base] is not None:
                     slidingR_= round(((df.iloc[i][base]/df.iloc[i-d][base])**(tg/d) ),2)
-                    slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
+
+                    slidingR_sec = None #slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
                 else:
                     slidingR_ = None
                     slidingR_sec = None
@@ -432,6 +441,8 @@ def last_manipulations(df, what_to_drop, drop_last):
 
     df.insert(df.shape[1],'q_biggerthansix', None)
     df['q_biggerthansix'] = df.apply(lambda x: x['specific_humidity'] if x['specific_humidity'] > 6 else None, axis=1)
+    df.insert(df.shape[1],'q_smallerthansix', None)
+    df['q_smallerthansix'] = df.apply(lambda x: x['specific_humidity'] if x['specific_humidity'] < 6 else None, axis=1)
 
     return df, werkdagen, weekend_
 
@@ -1052,8 +1063,12 @@ def main():
                 "workplaces", "residential", "apple_driving", "apple_transit", "apple_walking",
                 "temp_etmaal","temp_max","zonneschijnduur","globale_straling","specific_humidity",
                 "neerslag","RNA_per_ml", "RNA_flow_per_100000", 'RNA_per_reported' ,
-                "q_biggerthansix"   ]
-
+                "q_biggerthansix" ,"q_smallerthansix" ]
+                # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
+                # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
+                # "SWE_new_cases", "SWE_total_deaths", "SWE_new_deaths", "SWE_total_cases_per_million",
+                # "SWE_new_cases_per_million", "SWE_reproduction_rate", "SWE_icu_patients",
+                # "SWE_hosp_patients", "SWE_new_tests", "SWE_total_tests", "SWE_stringency_index"]
 
     st.title("Interactive Corona Dashboard")
         #st.header("")
@@ -1136,7 +1151,7 @@ def main():
         show_R_value_graph = False
         show_R_value_RIVM = False
     if week_or_day == "day" and how_to_display == "bar":
-        firstday = df.iloc[0]['WEEKDAY']  # monday = 0
+        firstday = int(df.iloc[0]['WEEKDAY'])  # monday = 0
         dagenvdweek = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         showonedaylabel = 'Show which day (0 = ' + dagenvdweek[firstday] + ')'
         showoneday = st.sidebar.selectbox('Show one day',[True, False], index=1)
@@ -1274,7 +1289,7 @@ def main():
                     '<h2>Hidden features</h2>'
                     '<h3>Correlation</h3>'
                     'If you have chosen one field on the left side and one for the right side, correlation of the fields are shown. Attention: <i>correlation is not causation</i>!'
-                    '<h3>Find correlations<h3>'
+                    '<h3>Find correlations</h3>'
                     'After clicking this button, you can choose your treshold. Fields with correlations above this treshold are shown'
                     '<h3>Move curves at right axis (days)</h3>'
                     'You can move the curves at the right ax to see possible cause-effect relations.'
