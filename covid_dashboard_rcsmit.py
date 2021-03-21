@@ -252,7 +252,7 @@ def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
     a_ = FROM
     datediff = ( abs((a_ - b_).days))+1+extra_days
     population = 17_500_000
-    immune_day_zero = 4_000_000
+    immune_day_zero = 5_000_000
     Tg = 4
 
     suspectible_0 = population - immune_day_zero
