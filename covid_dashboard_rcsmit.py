@@ -235,6 +235,8 @@ def extra_calculations(df):
     df['temp_etmaal'] = df['temp_etmaal']  / 10
     df['temp_max'] = df['temp_max']  / 10
     df['RNA_per_reported'] = round(((df['RNA_flow_per_100000']/1e15)/df[ 'Total_reported']* 100),2 )
+    df['reported_corrected'] =round((df[ 'Total_reported'] * (df['Percentage_positive']/12.8)),2)
+    #12.8 is percentage positief getest in week 1-2021
 
     return df
 
@@ -1063,7 +1065,7 @@ def main():
                 "workplaces", "residential", "apple_driving", "apple_transit", "apple_walking",
                 "temp_etmaal","temp_max","zonneschijnduur","globale_straling","specific_humidity",
                 "neerslag","RNA_per_ml", "RNA_flow_per_100000", 'RNA_per_reported' ,
-                "q_biggerthansix" ,"q_smallerthansix" ]
+                "q_biggerthansix" ,"q_smallerthansix", 'reported_corrected' ]
                 # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
                 # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
                 # "SWE_new_cases", "SWE_total_deaths", "SWE_new_deaths", "SWE_total_cases_per_million",
@@ -1278,6 +1280,7 @@ def main():
                     '<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020'
                     '<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020'
                     '<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)'
+                    '<br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021'
                     '<h2>Toelichting bij de opties</h2>'
                     '<h3>What to plot</h3>'
                     '<i>Line</i> - Line graph'
