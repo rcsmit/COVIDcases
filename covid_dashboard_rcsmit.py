@@ -225,6 +225,34 @@ def get_data():
         df = extra_calculations(df)
         return df, df_ungrouped, UPDATETIME
 
+def week_to_week(df, column_):
+    if type(column_) == list:
+        column_=column_
+    else:
+        column_=[column_]
+    newcolumns = []
+    newcolumns2 = []
+
+    for c in column_:
+        newname = str(c)+ "_weekdiff"
+        newname2 = str(c)+ "_weekdiff_index"
+        newcolumns.append(newname)
+        newcolumns2.append(newname2)
+        df[newname] = np.nan
+        df[newname2] = np.nan
+        for n in range(7, len(df)):
+            vorige_week= df.iloc[n-7][c]
+            nu = df.iloc[n][c]
+            waarde= round((((nu - vorige_week)/vorige_week)*100),2)
+            waarde2= round((((nu)/vorige_week)*100),2)
+            df.at[n, newname] = waarde
+            df.at[n, newname2] = waarde2
+    return df, newcolumns, newcolumns2
+
+
+
+
+
 def extra_calculations(df):
     """   Extra calculations
     IN  : df
@@ -1045,6 +1073,8 @@ def main():
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
     df_ungrouped = df_ungrouped_.copy(deep=False)
+
+
     #rioolwaterplaatsen = (get_locations(df_ungrouped, "RWZI_AWZI_name"))
 
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
@@ -1065,7 +1095,7 @@ def main():
                 "workplaces", "residential", "apple_driving", "apple_transit", "apple_walking",
                 "temp_etmaal","temp_max","zonneschijnduur","globale_straling","specific_humidity",
                 "neerslag","RNA_per_ml", "RNA_flow_per_100000", 'RNA_per_reported' ,
-                "q_biggerthansix" ,"q_smallerthansix", 'reported_corrected' ]
+                "q_biggerthansix" ,"q_smallerthansix", 'reported_corrected']
                 # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
                 # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
                 # "SWE_new_cases", "SWE_total_deaths", "SWE_new_deaths", "SWE_total_cases_per_million",
@@ -1107,13 +1137,29 @@ def main():
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
             caching.clear_cache()
-            until_ = "2021-01-01"
-            main()
             st.success("Cache is cleared, please reload to scrape new values")
 
     df = select_period(df, FROM, UNTIL)
     df = df.drop_duplicates()
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+
+    # df,newcolumns = week_to_week(df,["Total_reported"])
+
+    # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
+    # WDW2=7
+    # st.write(df.dtypes)
+    w2w =[  "Total_reported","Hospital_admission_RIVM", 'IC_Nieuwe_Opnames_LCPS', 'Deceased']
+
+    df, newcolumns, newcolumns2 = week_to_week (df, w2w)
+    lijst.extend(newcolumns)
+    lijst.extend(newcolumns2)
+
+
+    # for n in newcolumns:
+    #     .write(df[n])
+    # graph_daily       (df,newcolumns,None, "SMA", "line")
+    # st.stop()
+
     week_or_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
     if week_or_day != "week":
         how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "line_scaled_to_peak", "line_first_is_100", "bar"], index=0)
@@ -1281,6 +1327,9 @@ def main():
                     '<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020'
                     '<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)'
                     '<br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021'
+                    '<br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]'
+                    '<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]'
+
                     '<h2>Toelichting bij de opties</h2>'
                     '<h3>What to plot</h3>'
                     '<i>Line</i> - Line graph'
