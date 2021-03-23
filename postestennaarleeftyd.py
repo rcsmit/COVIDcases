@@ -56,7 +56,7 @@ for n in range (len(df)):
     cumm_getest_metkids +=  (df.loc[n]['getest'])
     cumm_positief_metkids += (df.loc[n]['positief'])
 
-    if df.loc[n]['tot'] ==3 or  df.loc[n]['tot'] ==12 or df.loc[n]['tot'] ==99:
+    if df.loc[n]['tot'] ==3 or  df.loc[n]['tot'] ==12 or  df.loc[n]['tot'] ==12 or df.loc[n]['tot'] ==99:
         getest_weg +=  (df.loc[n]['getest'])
         positief_weg += (df.loc[n]['positief'])
     else:
@@ -72,8 +72,9 @@ print (uitslag)
 
 # GRAFIEK ZONDER KINDEREN
 
-fig1x = plt.figure()
-ax = uitslag.plot(x="weeknr", y=["getest", "positief"], kind="bar")
+fig1x, ax = plt.subplots(1,1)
+#ax = uitslag.plot(x="weeknr", y=["getest", "positief"], kind="bar")
+ax = uitslag.plot(x="weeknr", y=[ "positief"], kind="bar")
 ax3=uitslag["percentage"].plot(secondary_y=True,linestyle='--', label="Percentage positive")
 
 ax.set_ylabel('aantal')
@@ -85,17 +86,20 @@ for ax in fig1x.axes:
             labels.append(l)
 plt.legend(handles,labels)
 ax3.set_ylim(0,15)
+ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
+            transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
 plt.title("Getest boven de 12 jaar" , fontsize=10)
 plt.show()
-
+exit()
 # GRAFIEK MET KINDEREN
 
-fig1y = plt.figure()
+fig1y = plt.subplots()
 ax = uitslag.plot(x="weeknr", y=["getest_metkids", "positief_metkids"], kind="bar")
 ax3=uitslag["percentage_metkids"].plot(secondary_y=True,linestyle='--', label="Percentage positive_metkids")
 
 ax.set_ylabel('aantal')
 ax3.set_ylabel('percentage')
+#ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',fontsize='xx-small', va='top', ha='right')
 handles,labels = [],[]
 for ax in fig1y.axes:
         for h,l in zip(*ax.get_legend_handles_labels()):
@@ -103,5 +107,6 @@ for ax in fig1y.axes:
             labels.append(l)
 plt.legend(handles,labels)
 ax3.set_ylim(0,15)
+
 plt.title("Getest alles" , fontsize=10)
 plt.show()
