@@ -777,7 +777,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
             labels.append(l)
     #plt.legend(handles,labels)
     #https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
-    plt.legend(handles,labels, bbox_to_anchor=(0,1.02), loc="upper left")
+    plt.legend(handles,labels, bbox_to_anchor=(0,-0.4), loc="lower left")
     ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
             transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
     if show_R_value_graph or  show_R_value_RIVM:
@@ -909,7 +909,7 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
                 what_to_show_r=what_to_show_r
             else:
                 what_to_show_r=[what_to_show_r]
-            tl += " - "
+            tl += " - \n"
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
                     tl += r + " / "
