@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.dates as mdates
-#import seaborn as sn
+
+# import seaborn as sn
 from scipy import stats
 import datetime as dt
 from datetime import datetime, timedelta
@@ -11,10 +12,10 @@ from datetime import datetime, timedelta
 import json
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
-from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
-                               AutoMinorLocator)
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
+
 _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 import streamlit as st
@@ -25,33 +26,31 @@ from streamlit import caching
 from inspect import currentframe, getframeinfo
 
 ###################################################################
-@st.cache(ttl=60*60*24)
-def download_data_file(url, filename,delimiter_, fileformat):
-    """   Download the external datafiles
+@st.cache(ttl=60 * 60 * 24)
+def download_data_file(url, filename, delimiter_, fileformat):
+    """Download the external datafiles
     IN :  url : the url
           filename : the filename (without extension) to export the file
           delimiter : delimiter
           fileformat : fileformat
     OUT : df_temp : the dataframe
-         """
+    """
 
-    #df_temp = None
-    download= True
-    with st.spinner(f'Downloading...{url}'):
-        if download : #download from the internet
+    # df_temp = None
+    download = True
+    with st.spinner(f"Downloading...{url}"):
+        if download:  # download from the internet
             url = url
-        else:         # download from the local drive
-            if fileformat =='json':
+        else:  # download from the local drive
+            if fileformat == "json":
                 url = INPUT_DIR + filename + ".json"
             else:
                 url = INPUT_DIR + filename + ".csv"
 
-        if fileformat =='csv' :
-            df_temp = pd.read_csv(url,
-                    delimiter=delimiter_,
-                    low_memory=False)
-        elif fileformat =='json':
-            df_temp = pd.read_json (url)
+        if fileformat == "csv":
+            df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
+        elif fileformat == "json":
+            df_temp = pd.read_json(url)
 
         # elif fileformat =='json_x':   # workaround for NICE IC data
         #     pass
@@ -63,90 +62,101 @@ def download_data_file(url, filename,delimiter_, fileformat):
             st.error("Error in fileformat")
             st.stop()
         df_temp = df_temp.drop_duplicates()
-        #df_temp = df_temp.replace({pd.np.nan: None})  Let it to test
-        save_df(df_temp,filename)
+        # df_temp = df_temp.replace({pd.np.nan: None})  Let it to test
+        save_df(df_temp, filename)
         return df_temp
 
-@st.cache(ttl=60*60*24)
+
+@st.cache(ttl=60 * 60 * 24)
 def get_data():
-    """  Get the data from various sources
+    """Get the data from various sources
     In : -
     Out : df        : dataframe
-         UPDATETIME : Date and time from the last update """
-    with st.spinner(f'GETTING ALL DATA ...'):
+         UPDATETIME : Date and time from the last update"""
+    with st.spinner(f"GETTING ALL DATA ..."):
         # #CONFIG
-        data =  [
-            {'url'       : 'https://lcps.nu/wp-content/uploads/covid-19.csv',
-            'name'       : 'LCPS',
-            'delimiter'  : ',',
-            'key'        : 'Datum',
-            'dateformat' : '%d-%m-%Y',
-            'groupby'    : None,
-            'fileformat' : 'csv'},
-
-            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv',
-            'name'       : 'COVID-19_ziekenhuisopname',
-            'delimiter'  : ';',
-            'key'        : 'Date_of_statistics',
-            'dateformat' : '%Y-%m-%d',
-            'groupby'    : 'Date_of_statistics',
-            'fileformat' : 'csv'},
-
-            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json',
-            'name'       : 'reprogetal',
-            'delimiter'  : ',',
-            'key'        : 'Date',
-            'dateformat' : '%Y-%m-%d',
-            'groupby'    : None,
-            'fileformat' : 'json'},
-
-            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv',
-            'name'       : 'COVID-19_aantallen_gemeente_per_dag',
-            'delimiter'  : ';',
-            'key'        : 'Date_of_publication',
-            'dateformat' : '%Y-%m-%d',
-            'groupby'    : 'Date_of_publication',
-            'fileformat' : 'csv'},
-
-            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv',
-            'name'       : 'COVID-19_uitgevoerde_testen',
-            'delimiter'  : ';',
-            'key'        : 'Date_of_statistics',
-            'dateformat' : '%Y-%m-%d',
-            'groupby'    : 'Date_of_statistics',
-            'fileformat' : 'csv'},
-
-            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_prevalentie.json',
-            'name'       : 'prevalentie',
-            'delimiter'  : ',',
-            'key'        : 'Date',
-            'dateformat' : '%Y-%m-%d',
-            'groupby'    : None,
-            'fileformat' : 'json'},
-
-            {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv',
-            'name'       : 'mobility',
-            'delimiter'  : ';',
-            'key'        : 'Date',
-            'dateformat' : '%d-%m-%Y',
-            'groupby'    : None,
-            'fileformat' : 'csv'},
-
-            {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv',
-            'name'       : 'knmi',
-            'delimiter'  : ';',
-            'key'        : 'Datum',
-            'dateformat' : '%d-%m-%Y',
-            'groupby'    : None,
-            'fileformat' : 'csv'},
-
-            {'url'       : 'https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json',
-            'name'       : 'rioolwater',
-            'delimiter'  : ',',
-            'key'        : 'Date_measurement',
-            'dateformat' : '%Y-%m-%d',
-            'groupby'    : 'Date_measurement',
-            'fileformat' : 'json'}
+        data = [
+            {
+                "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
+                "name": "LCPS",
+                "delimiter": ",",
+                "key": "Datum",
+                "dateformat": "%d-%m-%Y",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+            {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv",
+                "name": "COVID-19_ziekenhuisopname",
+                "delimiter": ";",
+                "key": "Date_of_statistics",
+                "dateformat": "%Y-%m-%d",
+                "groupby": "Date_of_statistics",
+                "fileformat": "csv",
+            },
+            {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json",
+                "name": "reprogetal",
+                "delimiter": ",",
+                "key": "Date",
+                "dateformat": "%Y-%m-%d",
+                "groupby": None,
+                "fileformat": "json",
+            },
+            {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv",
+                "name": "COVID-19_aantallen_gemeente_per_dag",
+                "delimiter": ";",
+                "key": "Date_of_publication",
+                "dateformat": "%Y-%m-%d",
+                "groupby": "Date_of_publication",
+                "fileformat": "csv",
+            },
+            {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv",
+                "name": "COVID-19_uitgevoerde_testen",
+                "delimiter": ";",
+                "key": "Date_of_statistics",
+                "dateformat": "%Y-%m-%d",
+                "groupby": "Date_of_statistics",
+                "fileformat": "csv",
+            },
+            {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_prevalentie.json",
+                "name": "prevalentie",
+                "delimiter": ",",
+                "key": "Date",
+                "dateformat": "%Y-%m-%d",
+                "groupby": None,
+                "fileformat": "json",
+            },
+            {
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv",
+                "name": "mobility",
+                "delimiter": ";",
+                "key": "Date",
+                "dateformat": "%d-%m-%Y",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+            {
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv",
+                "name": "knmi",
+                "delimiter": ";",
+                "key": "Datum",
+                "dateformat": "%d-%m-%Y",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+            {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json",
+                "name": "rioolwater",
+                "delimiter": ",",
+                "key": "Date_measurement",
+                "dateformat": "%Y-%m-%d",
+                "groupby": "Date_measurement",
+                "fileformat": "json",
+            }
             # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
             # 'name'       : 'sweden',
             # 'delimiter'  : ';',
@@ -154,8 +164,6 @@ def get_data():
             # 'dateformat' : '%d-%m-%Y',
             # 'groupby'    : None,
             # 'fileformat' : 'csv'},
-
-
             #  {'url'      : 'https://stichting-nice.nl/covid-19/public/new-intake/',
             # 'name'       : 'IC_opnames_LCPS',
             # 'delimiter'  : ',',
@@ -170,107 +178,129 @@ def get_data():
             # 'dateformat' : '%Y-%m-%d',
             # 'groupby'    : 'date',
             # 'fileformat' : 'json_y'}
-            ]
+        ]
 
-        type_of_join="outer"
-        d=0
+        type_of_join = "outer"
+        d = 0
 
         # Read first datafile
-        df_temp_x = download_data_file(data[d]['url'], data[d]['name'],data[d]['delimiter'], data[d]['fileformat'])
-        #df_temp_x = df_temp_x.replace({pd.np.nan: None})
-        df_temp_x[data[d]['key']]=pd.to_datetime(df_temp_x[data[d]['key']], format=data[d]['dateformat'])
-        firstkey = data[d]['key']
+        df_temp_x = download_data_file(
+            data[d]["url"], data[d]["name"], data[d]["delimiter"], data[d]["fileformat"]
+        )
+        # df_temp_x = df_temp_x.replace({pd.np.nan: None})
+        df_temp_x[data[d]["key"]] = pd.to_datetime(
+            df_temp_x[data[d]["key"]], format=data[d]["dateformat"]
+        )
+        firstkey = data[d]["key"]
 
-        if data[d]['groupby'] != None:
-            df_temp_x = df_temp_x.groupby([data[d]['key']] , sort=True).sum().reset_index()
+        if data[d]["groupby"] != None:
+            df_temp_x = (
+                df_temp_x.groupby([data[d]["key"]], sort=True).sum().reset_index()
+            )
             df_ungrouped = df_temp_x.reset_index()
-            firstkey_ungrouped = data[d]['key']
+            firstkey_ungrouped = data[d]["key"]
         else:
             df_temp_x = df_temp_x.sort_values(by=firstkey)
             df_ungrouped = None
 
-        df_temp = df_temp_x   # df_temp is the base to which the other databases are merged to
+        df_temp = (
+            df_temp_x  # df_temp is the base to which the other databases are merged to
+        )
         # Read the other files
 
-        for d in range (1,len(data)):
+        for d in range(1, len(data)):
 
-            df_temp_x = download_data_file(data[d]['url'], data[d]['name'],data[d]['delimiter'], data[d]['fileformat'])
-            #df_temp_x = df_temp_x.replace({pd.np.nan: None})
-            oldkey = data[d]['key']
-            newkey = "key"+ str(d)
-            df_temp_x = df_temp_x.rename(columns = {oldkey: newkey})
-            df_temp_x[newkey]=pd.to_datetime(df_temp_x[newkey], format=data[d]['dateformat'])
-            if data[d]['groupby'] != None:
+            df_temp_x = download_data_file(
+                data[d]["url"],
+                data[d]["name"],
+                data[d]["delimiter"],
+                data[d]["fileformat"],
+            )
+            # df_temp_x = df_temp_x.replace({pd.np.nan: None})
+            oldkey = data[d]["key"]
+            newkey = "key" + str(d)
+            df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
+            df_temp_x[newkey] = pd.to_datetime(
+                df_temp_x[newkey], format=data[d]["dateformat"]
+            )
+            if data[d]["groupby"] != None:
                 if df_ungrouped is not None:
                     df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
-                    print (df_ungrouped.dtypes)
-                    print (firstkey_ungrouped)
-                    print (newkey)
-                    df_ungrouped.loc[df_ungrouped[firstkey_ungrouped].isnull(),firstkey_ungrouped] = df_ungrouped[newkey]
+                    print(df_ungrouped.dtypes)
+                    print(firstkey_ungrouped)
+                    print(newkey)
+                    df_ungrouped.loc[
+                        df_ungrouped[firstkey_ungrouped].isnull(), firstkey_ungrouped
+                    ] = df_ungrouped[newkey]
 
                 else:
                     df_ungrouped = df_temp_x.reset_index()
                     firstkey_ungrouped = newkey
-                df_temp_x = df_temp_x.groupby([newkey] , sort=True).sum().reset_index()
+                df_temp_x = df_temp_x.groupby([newkey], sort=True).sum().reset_index()
 
-            df_temp = pd.merge(df_temp, df_temp_x, how=type_of_join, left_on = firstkey, right_on=newkey)
-            df_temp.loc[df_temp[firstkey].isnull(),firstkey] = df_temp[newkey]
+            df_temp = pd.merge(
+                df_temp, df_temp_x, how=type_of_join, left_on=firstkey, right_on=newkey
+            )
+            df_temp.loc[df_temp[firstkey].isnull(), firstkey] = df_temp[newkey]
             df_temp = df_temp.sort_values(by=firstkey)
-        #the tool is build around "date"
-        df_temp = df_temp.rename(columns = {firstkey: "date"})
-
+        # the tool is build around "date"
+        df_temp = df_temp.rename(columns={firstkey: "date"})
 
         UPDATETIME = datetime.now()
         df = splitupweekweekend(df_temp)
         df = extra_calculations(df)
         return df, df_ungrouped, UPDATETIME
 
+
 def week_to_week(df, column_):
     if type(column_) == list:
-        column_=column_
+        column_ = column_
     else:
-        column_=[column_]
+        column_ = [column_]
     newcolumns = []
     newcolumns2 = []
 
     for c in column_:
-        newname = str(c)+ "_weekdiff"
-        newname2 = str(c)+ "_weekdiff_index"
+        newname = str(c) + "_weekdiff"
+        newname2 = str(c) + "_weekdiff_index"
         newcolumns.append(newname)
         newcolumns2.append(newname2)
         df[newname] = np.nan
         df[newname2] = np.nan
         for n in range(7, len(df)):
-            vorige_week= df.iloc[n-7][c]
+            vorige_week = df.iloc[n - 7][c]
             nu = df.iloc[n][c]
-            waarde= round((((nu - vorige_week)/vorige_week)*100),2)
-            waarde2= round((((nu)/vorige_week)*100),2)
+            waarde = round((((nu - vorige_week) / vorige_week) * 100), 2)
+            waarde2 = round((((nu) / vorige_week) * 100), 2)
             df.at[n, newname] = waarde
             df.at[n, newname2] = waarde2
     return df, newcolumns, newcolumns2
 
 
-
-
-
 def extra_calculations(df):
-    """   Extra calculations
+    """Extra calculations
     IN  : df
-    OUT : df with extra columns """
+    OUT : df with extra columns"""
 
-    df['Percentage_positive'] = round((df['Tested_positive'] /
-                                                df['Tested_with_result'] * 100),2 )
-    df['temp_etmaal'] = df['temp_etmaal']  / 10
-    df['temp_max'] = df['temp_max']  / 10
-    df['RNA_per_reported'] = round(((df['RNA_flow_per_100000']/1e15)/df[ 'Total_reported']* 100),2 )
-    df['reported_corrected'] =round((df[ 'Total_reported'] * (df['Percentage_positive']/12.8)),2)
-    #12.8 is percentage positief getest in week 1-2021
+    df["Percentage_positive"] = round(
+        (df["Tested_positive"] / df["Tested_with_result"] * 100), 2
+    )
+    df["temp_etmaal"] = df["temp_etmaal"] / 10
+    df["temp_max"] = df["temp_max"] / 10
+    df["RNA_per_reported"] = round(
+        ((df["RNA_flow_per_100000"] / 1e15) / df["Total_reported"] * 100), 2
+    )
+    df["reported_corrected"] = round(
+        (df["Total_reported"] * (df["Percentage_positive"] / 12.8)), 2
+    )
+    # 12.8 is percentage positief getest in week 1-2021
 
     return df
 
+
 ###################################################
-def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
-    """   Add an curve to the graph with a predicted growth model
+def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
+    """Add an curve to the graph with a predicted growth model
     IN :  ry1, ry2      : R numbers of two variants
           total_cases_0 : Number of cases on the start date
           sec_variant   : Fraction of the second variant in % (0-100)
@@ -278,9 +308,9 @@ def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
     OUT : df            : dataframe with extra columns (coming from df_calculated)"""
 
     column = df["date"]
-    b_= column.max().date()
+    b_ = column.max().date()
     a_ = FROM
-    datediff = ( abs((a_ - b_).days))+1+extra_days
+    datediff = (abs((a_ - b_).days)) + 1 + extra_days
     population = 17_500_000
     immune_day_zero = 5_000_000
     Tg = 4
@@ -288,58 +318,81 @@ def calculate_cases(df, ry1, ry2,  total_cases_0, sec_variant,extra_days):
     suspectible_0 = population - immune_day_zero
     cumm_cases = 0
 
-    cases_1 = ((100-sec_variant)/100)* total_cases_0
-    cases_2 = (sec_variant/100)* total_cases_0
+    cases_1 = ((100 - sec_variant) / 100) * total_cases_0
+    cases_2 = (sec_variant / 100) * total_cases_0
     temp_1 = cases_1
     temp_2 = cases_2
     r_temp_1 = ry1
     r_temp_2 = ry2
 
     immeratio = 1
-    df_calculated = pd.DataFrame({'date_calc': a_,
-                'variant_1': cases_1,'variant_2' :cases_2, 'variant_12' : int(cases_1+cases_2)}, index=[0])
+    df_calculated = pd.DataFrame(
+        {
+            "date_calc": a_,
+            "variant_1": cases_1,
+            "variant_2": cases_2,
+            "variant_12": int(cases_1 + cases_2),
+        },
+        index=[0],
+    )
 
     column = df["date"]
-    max_value = column. max()
+    max_value = column.max()
 
-    for day in range (1, datediff):
-        thalf1 = Tg * math.log(0.5) / math.log(immeratio*ry1)
-        thalf2 = Tg * math.log(0.5) / math.log(immeratio*ry2)
+    for day in range(1, datediff):
+        thalf1 = Tg * math.log(0.5) / math.log(immeratio * ry1)
+        thalf2 = Tg * math.log(0.5) / math.log(immeratio * ry2)
         day = a_ + timedelta(days=day)
-        pt1 = (temp_1 * (0.5**(1/thalf1)))
-        pt2 = (temp_2* (0.5**(1/thalf2)))
-        day_ = day.strftime("%Y-%m-%d") # FROM object TO string
-        day__ =  dt.datetime.strptime(day_,'%Y-%m-%d') # from string to daytime
+        pt1 = temp_1 * (0.5 ** (1 / thalf1))
+        pt2 = temp_2 * (0.5 ** (1 / thalf2))
+        day_ = day.strftime("%Y-%m-%d")  # FROM object TO string
+        day__ = dt.datetime.strptime(day_, "%Y-%m-%d")  # from string to daytime
 
-        df_calculated =df_calculated .append({'date_calc':day_,
-                'variant_1'  : int(pt1),
-                'variant_2' : int(pt2) , 'variant_12' : int(pt1+pt2) },ignore_index=True)
+        df_calculated = df_calculated.append(
+            {
+                "date_calc": day_,
+                "variant_1": int(pt1),
+                "variant_2": int(pt2),
+                "variant_12": int(pt1 + pt2),
+            },
+            ignore_index=True,
+        )
 
         temp_1 = pt1
         temp_2 = pt2
 
         cumm_cases += pt1 + pt2
         cumm_cases_corr = cumm_cases * 2.5
-        immeratio = (1-(cumm_cases_corr/suspectible_0 ))
+        immeratio = 1 - (cumm_cases_corr / suspectible_0)
 
-    df_calculated['date_calc'] = pd.to_datetime( df_calculated['date_calc'])
+    df_calculated["date_calc"] = pd.to_datetime(df_calculated["date_calc"])
 
-    df = pd.merge(df, df_calculated, how='outer', left_on = 'date', right_on="date_calc",
-                        left_index=True )
+    df = pd.merge(
+        df,
+        df_calculated,
+        how="outer",
+        left_on="date",
+        right_on="date_calc",
+        left_index=True,
+    )
 
-    df.loc[df['date'].isnull(),'date'] = df['date_calc']
+    df.loc[df["date"].isnull(), "date"] = df["date_calc"]
     return df
+
 
 def splitupweekweekend(df):
-    """ SPLIT UP IN WEEKDAY AND WEEKEND
+    """SPLIT UP IN WEEKDAY AND WEEKEND
     IN  : df
-    OUT : df """
+    OUT : df"""
     # SPLIT UP IN WEEKDAY AND WEEKEND
     # https://stackoverflow.com/posts/56336718/revisions
-    df['WEEKDAY'] = pd.to_datetime(df['date']).dt.dayofweek  # monday = 0, sunday = 6
-    df['weekend'] = 0          # Initialize the column with default value of 0
-    df.loc[df['WEEKDAY'].isin([5, 6]), 'weekend'] = 1  # 5 and 6 correspond to Sat and Sun
+    df["WEEKDAY"] = pd.to_datetime(df["date"]).dt.dayofweek  # monday = 0, sunday = 6
+    df["weekend"] = 0  # Initialize the column with default value of 0
+    df.loc[
+        df["WEEKDAY"].isin([5, 6]), "weekend"
+    ] = 1  # 5 and 6 correspond to Sat and Sun
     return df
+
 
 def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     """  _ _ _ """
@@ -352,39 +405,75 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     column_list_r_smoothened = []
     column_list_r_sec_smoothened = []
     for base in smoothed_columns:
-        column_name_R = 'R_value_from_'+ base +'_tg'+str(tg)
-        column_name_R_sec = 'R_value_(hk)_from_'+ base
+        column_name_R = "R_value_from_" + base + "_tg" + str(tg)
+        column_name_R_sec = "R_value_(hk)_from_" + base
 
-        column_name_r_smoothened = 'R_value_from_'+ base +'_tg'+str(tg) + '_'+ how_to_smooth + '_' + str(WDW3)
-        column_name_r_sec_smoothened = 'R_value_sec_from_'+ base +'_tg'+str(tg) + '_'+ how_to_smooth + '_' + str(WDW3)
+        column_name_r_smoothened = (
+            "R_value_from_"
+            + base
+            + "_tg"
+            + str(tg)
+            + "_"
+            + how_to_smooth
+            + "_"
+            + str(WDW3)
+        )
+        column_name_r_sec_smoothened = (
+            "R_value_sec_from_"
+            + base
+            + "_tg"
+            + str(tg)
+            + "_"
+            + how_to_smooth
+            + "_"
+            + str(WDW3)
+        )
 
-        sliding_r_df= pd.DataFrame({'date_sR': [],
-                column_name_R: [],column_name_R_sec: []})
+        sliding_r_df = pd.DataFrame(
+            {"date_sR": [], column_name_R: [], column_name_R_sec: []}
+        )
 
-        d= 7
-        d2=2
+        d = 7
+        d2 = 2
         r_sec = []
         for i in range(0, len(df)):
             if df.iloc[i][base] != None:
-                date_ = pd.to_datetime(df.iloc[i]['date'], format="%Y-%m-%d")
-                date_ = df.iloc[i]['date']
-                if df.iloc[i-d][base] != 0 or df.iloc[i-d][base] is not None:
-                    slidingR_= round(((df.iloc[i][base]/df.iloc[i-d][base])**(tg/d) ),2)
+                date_ = pd.to_datetime(df.iloc[i]["date"], format="%Y-%m-%d")
+                date_ = df.iloc[i]["date"]
+                if df.iloc[i - d][base] != 0 or df.iloc[i - d][base] is not None:
+                    slidingR_ = round(
+                        ((df.iloc[i][base] / df.iloc[i - d][base]) ** (tg / d)), 2
+                    )
 
-                    slidingR_sec = None #slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
+                    slidingR_sec = None  # slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
                 else:
                     slidingR_ = None
                     slidingR_sec = None
-                sliding_r_df=sliding_r_df.append({'date_sR':date_,
-                column_name_R    : slidingR_,
-                column_name_R_sec : slidingR_sec },ignore_index=True)
+                sliding_r_df = sliding_r_df.append(
+                    {
+                        "date_sR": date_,
+                        column_name_R: slidingR_,
+                        column_name_R_sec: slidingR_sec,
+                    },
+                    ignore_index=True,
+                )
 
-        sliding_r_df[column_name_r_smoothened] = round(sliding_r_df.iloc[:,1].rolling(window=WDW3,  center=True).mean(),2)
-        sliding_r_df[column_name_r_sec_smoothened] = round(sliding_r_df.iloc[:,2].rolling(window=WDW3,  center=True).mean(),2)
+        sliding_r_df[column_name_r_smoothened] = round(
+            sliding_r_df.iloc[:, 1].rolling(window=WDW3, center=True).mean(), 2
+        )
+        sliding_r_df[column_name_r_sec_smoothened] = round(
+            sliding_r_df.iloc[:, 2].rolling(window=WDW3, center=True).mean(), 2
+        )
 
         sliding_r_df = sliding_r_df.reset_index()
-        df = pd.merge(df, sliding_r_df, how='outer', left_on = 'date', right_on="date_sR",
-                        left_index=True )
+        df = pd.merge(
+            df,
+            sliding_r_df,
+            how="outer",
+            left_on="date",
+            right_on="date_sR",
+            left_index=True,
+        )
         column_list_r_smoothened.append(column_name_r_smoothened)
         column_list_r_sec_smoothened.append(column_name_r_sec_smoothened)
 
@@ -392,65 +481,74 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     return df, column_list_r_smoothened, column_list_r_sec_smoothened
 
 
-
-def move_column(df, column_,days):
+def move_column(df, column_, days):
     """  _ _ _ """
     if type(column_) == list:
-        column_=column_
+        column_ = column_
     else:
-        column_=[column_]
+        column_ = [column_]
 
     for column in column_:
         new_column = column + "_moved_" + str(days)
         df[new_column] = df[column].shift(days)
     return df, new_column
 
+
 def drop_columns(what_to_drop):
     """  _ _ _ """
     if what_to_drop != None:
-        print ("dropping " + what_to_drop)
+        print("dropping " + what_to_drop)
         for d in what_to_drop:
-            df = df.drop(columns=['d'],axis=1)
+            df = df.drop(columns=["d"], axis=1)
+
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
     if show_from == None:
-        show_from = '2020-1-1'
+        show_from = "2020-1-1"
 
     if show_until == None:
-        show_until = '2030-1-1'
+        show_until = "2030-1-1"
 
-    mask = (df['date'].dt.date >= show_from) & (df['date'].dt.date <= show_until)
-    df = (df.loc[mask])
+    mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
+    df = df.loc[mask]
 
     df = df.reset_index()
 
     return df
+
+
 def agg_week(df, how):
     """  _ _ _ """
     # #TODO
     # HERE ARE SOME PROBLEMS DUE TO MISSING .isotype()
     # FutureWarning: Series.dt.weekofyear and Series.dt.week have been deprecated.
     #  Please use Series.dt.isocalendar().week instead.
-    df['weeknr']  =  df['date'].dt.week
-    df['yearnr']  =  df['date'].dt.year
+    df["weeknr"] = df["date"].dt.week
+    df["yearnr"] = df["date"].dt.year
 
-    df['weekalt']   = (df['date'].dt.year.astype(str) + "-"+
-                         df['date'].dt.week.astype(str))
+    df["weekalt"] = (
+        df["date"].dt.year.astype(str) + "-" + df["date"].dt.week.astype(str)
+    )
 
-    for i in range(0,len (df)):
-        if df.iloc[i]['weekalt'] == "2021-53":
-            df.iloc[i]['weekalt'] = "2020-53"
+    for i in range(0, len(df)):
+        if df.iloc[i]["weekalt"] == "2021-53":
+            df.iloc[i]["weekalt"] = "2020-53"
 
-    #how = "mean"
+    # how = "mean"
     if how == "mean":
-        dfweek = df.groupby(['weeknr', 'yearnr', 'weekalt'], sort=False).mean().reset_index()
-    elif how == "sum" :
-        dfweek = df.groupby(['weeknr', 'yearnr', 'weekalt'], sort=False).sum().reset_index()
+        dfweek = (
+            df.groupby(["weeknr", "yearnr", "weekalt"], sort=False).mean().reset_index()
+        )
+    elif how == "sum":
+        dfweek = (
+            df.groupby(["weeknr", "yearnr", "weekalt"], sort=False).sum().reset_index()
+        )
     else:
-        print ("error agg_week()")
+        print("error agg_week()")
         st.stop()
     return df, dfweek
+
 
 def last_manipulations(df, what_to_drop, drop_last):
     """  _ _ _ """
@@ -458,33 +556,38 @@ def last_manipulations(df, what_to_drop, drop_last):
 
     # Two different dataframes for workdays/weekend
 
-    werkdagen = df.loc[(df['weekend'] == 0)]
-    weekend_ = df.loc[(df['weekend'] == 1) ]
-    df = df.drop(columns=['weekend'],axis=1)
-    werkdagen = werkdagen.drop(columns=['WEEKDAY'],axis=1)
-    werkdagen = werkdagen.drop(columns=['weekend'],axis=1)
-    weekend_ = weekend_.drop(columns=['WEEKDAY'],axis=1)
-    weekend_ = weekend_.drop(columns=['weekend'],axis=1)
+    werkdagen = df.loc[(df["weekend"] == 0)]
+    weekend_ = df.loc[(df["weekend"] == 1)]
+    df = df.drop(columns=["weekend"], axis=1)
+    werkdagen = werkdagen.drop(columns=["WEEKDAY"], axis=1)
+    werkdagen = werkdagen.drop(columns=["weekend"], axis=1)
+    weekend_ = weekend_.drop(columns=["WEEKDAY"], axis=1)
+    weekend_ = weekend_.drop(columns=["weekend"], axis=1)
 
     if drop_last != None:
-        df = df[:drop_last] #drop last row(s)
+        df = df[:drop_last]  # drop last row(s)
 
-    df.insert(df.shape[1],'q_biggerthansix', None)
-    df['q_biggerthansix'] = df.apply(lambda x: x['specific_humidity'] if x['specific_humidity'] > 6 else None, axis=1)
-    df.insert(df.shape[1],'q_smallerthansix', None)
-    df['q_smallerthansix'] = df.apply(lambda x: x['specific_humidity'] if x['specific_humidity'] < 6 else None, axis=1)
+    df.insert(df.shape[1], "q_biggerthansix", None)
+    df["q_biggerthansix"] = df.apply(
+        lambda x: x["specific_humidity"] if x["specific_humidity"] > 6 else None, axis=1
+    )
+    df.insert(df.shape[1], "q_smallerthansix", None)
+    df["q_smallerthansix"] = df.apply(
+        lambda x: x["specific_humidity"] if x["specific_humidity"] < 6 else None, axis=1
+    )
 
     return df, werkdagen, weekend_
 
-def save_df(df,name):
-    """  _ _ _ """
-    name_ =  OUTPUT_DIR + name+'.csv'
-    compression_opts = dict(method=None,
-                            archive_name=name_)
-    df.to_csv(name_, index=False,
-            compression=compression_opts)
 
-    print ("--- Saving "+ name_ + " ---" )
+def save_df(df, name):
+    """  _ _ _ """
+    name_ = OUTPUT_DIR + name + ".csv"
+    compression_opts = dict(method=None, archive_name=name_)
+    df.to_csv(name_, index=False, compression=compression_opts)
+
+    print("--- Saving " + name_ + " ---")
+
+
 ##########################################################
 def correlation_matrix(df, werkdagen, weekend_):
     """  _ _ _ """
@@ -492,8 +595,8 @@ def correlation_matrix(df, werkdagen, weekend_):
     # CALCULATE CORRELATION
 
     corrMatrix = df.corr()
-    sn.heatmap(corrMatrix, annot=True, annot_kws={"fontsize":7})
-    plt.title("ALL DAYS", fontsize =20)
+    sn.heatmap(corrMatrix, annot=True, annot_kws={"fontsize": 7})
+    plt.title("ALL DAYS", fontsize=20)
     plt.show()
 
     # corrMatrix = werkdagen.corr()
@@ -506,58 +609,64 @@ def correlation_matrix(df, werkdagen, weekend_):
     # plt.title("WEEKEND", fontsize =20)
     # plt.show()
 
-    #MAKE A SCATTERPLOT
+    # MAKE A SCATTERPLOT
 
-    #sn.regplot(y="Rt_avg", x="Kliniek_Nieuwe_Opnames_COVID", data=df)
-    #plt.show()
+    # sn.regplot(y="Rt_avg", x="Kliniek_Nieuwe_Opnames_COVID", data=df)
+    # plt.show()
+
+
 def normeren(df, what_to_norm):
-    """ In : columlijst
+    """In : columlijst
     Bewerking : max = 1
-    Out : columlijst met genormeerde kolommen """
-    #print(df.dtypes)
+    Out : columlijst met genormeerde kolommen"""
+    # print(df.dtypes)
 
     normed_columns = []
 
     for column in what_to_norm:
-        maxvalue = (df[column].max())/100
-        firstvalue = df[column].iloc[int(WDW2/2)]/100
-        name = (f"{column}_normed")
-        for i in range(0,len(df)):
+        maxvalue = (df[column].max()) / 100
+        firstvalue = df[column].iloc[int(WDW2 / 2)] / 100
+        name = f"{column}_normed"
+        for i in range(0, len(df)):
             if how_to_norm == "max":
-                df.loc[i, name] = df.loc[i,column]/maxvalue
+                df.loc[i, name] = df.loc[i, column] / maxvalue
             else:
-                df.loc[i, name] = df.loc[i,column]/firstvalue
+                df.loc[i, name] = df.loc[i, column] / firstvalue
         normed_columns.append(name)
-        print (f"{name} generated")
+        print(f"{name} generated")
     return df, normed_columns
 
-def graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display):
-    """ IN : df, de kolommen die genormeerd moeten worden
-    ACTION : de grafieken met de genormeerde kolommen tonen """
+
+def graph_daily_normed(
+    df, what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display
+):
+    """IN : df, de kolommen die genormeerd moeten worden
+    ACTION : de grafieken met de genormeerde kolommen tonen"""
 
     if what_to_show_day_l is None:
-        st.warning ("Choose something")
+        st.warning("Choose something")
         st.stop()
 
-    df, smoothed_columns_l = smooth_columnlist(df,what_to_show_day_l,how_to_smoothen)
-    df, normed_columns_l = normeren(df, smoothed_columns_l )
+    df, smoothed_columns_l = smooth_columnlist(df, what_to_show_day_l, how_to_smoothen)
+    df, normed_columns_l = normeren(df, smoothed_columns_l)
 
-    df, smoothed_columns_r = smooth_columnlist(df,what_to_show_day_r,how_to_smoothen)
-    df, normed_columns_r = normeren(df, smoothed_columns_r )
+    df, smoothed_columns_r = smooth_columnlist(df, what_to_show_day_r, how_to_smoothen)
+    df, normed_columns_r = normeren(df, smoothed_columns_r)
 
-    graph_daily(df,normed_columns_l,normed_columns_r, None , how_to_display)
+    graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
 
-def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
+
+def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     """  _ _ _ """
-    df_temp = pd.DataFrame(columns = ['date'])
+    df_temp = pd.DataFrame(columns=["date"])
     if what_to_show_l is None:
-        st.warning ("Choose something")
+        st.warning("Choose something")
         st.stop()
 
     if type(what_to_show_l) == list:
-        what_to_show_l_=what_to_show_l
+        what_to_show_l_ = what_to_show_l
     else:
-        what_to_show_l_=[what_to_show_l]
+        what_to_show_l_ = [what_to_show_l]
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
 
@@ -568,20 +677,28 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
         # #CONFIG
         bittersweet = "#ff6666"  # reddish 0
-        operamauve = "#ac80a0" # purple 1
-        green_pigment = "#3fa34d" #green 2
-        minion_yellow = "#EAD94C" # yellow 3
-        mariagold = "#EFA00B" # orange 4
-        falu_red= "#7b2d26" # red 5
-        COLOR_weekday = "#3e5c76" # blue 6
-        COLOR_weekend = "#e49273" # dark salmon 7
-        prusian_blue = "#1D2D44" # 8
+        operamauve = "#ac80a0"  # purple 1
+        green_pigment = "#3fa34d"  # green 2
+        minion_yellow = "#EAD94C"  # yellow 3
+        mariagold = "#EFA00B"  # orange 4
+        falu_red = "#7b2d26"  # red 5
+        COLOR_weekday = "#3e5c76"  # blue 6
+        COLOR_weekend = "#e49273"  # dark salmon 7
+        prusian_blue = "#1D2D44"  # 8
         white = "#eeeeee"
-        color_list =["#02A6A8","#4E9148","#F05225","#024754","#FBAA27","#302823","#F07826"]
+        color_list = [
+            "#02A6A8",
+            "#4E9148",
+            "#F05225",
+            "#024754",
+            "#FBAA27",
+            "#302823",
+            "#F07826",
+        ]
 
         n = 0  # counter to walk through the colors-list
 
-        df, columnlist_sm_l = smooth_columnlist(df,what_to_show_l_,how_to_smooth)
+        df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth)
 
         # CODE TO MAKE STACKED BARS - DOESNT WORK
         # stackon=""
@@ -594,18 +711,18 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         #     #print (df_stacked.dtypes)
         #     #df_stacked.set_index('Datum')
 
-            #st.write(df_stacked)
-            #if t == "bar":
-                #ax = df_stacked.plot.bar(stacked=True)
-                #ax = df_stacked.plot(rot=0)
-                #st.bar_chart(df_stacked)
-         #ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
+        # st.write(df_stacked)
+        # if t == "bar":
+        # ax = df_stacked.plot.bar(stacked=True)
+        # ax = df_stacked.plot(rot=0)
+        # st.bar_chart(df_stacked)
+        # ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
         for b in what_to_show_l_:
-        # if type(a) == list:
-        #     a_=a
-        # else:
-        #     a_=[a]
+            # if type(a) == list:
+            #     a_=a
+            # else:
+            #     a_=[a]
 
             # PROBEERSEL OM WEEK GEMIDDELDES MEE TE KUNNEN PLOTTEN IN DE DAGELIJKSE GRAFIEK
 
@@ -623,206 +740,397 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
             if t == "bar":
                 # weekends have a different color
-                firstday = df.iloc[0]['WEEKDAY']  # monday = 0
-                if  firstday == 0:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend]
+                firstday = df.iloc[0]["WEEKDAY"]  # monday = 0
+                if firstday == 0:
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                    ]
                 elif firstday == 1:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 2:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 3:
-                    color_x = [COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 4:
-                    color_x = [COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 5:
-                    color_x = [COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday]
+                    color_x = [
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 6:
-                    color_x = [COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend]
+                    color_x = [
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                    ]
 
                 if showoneday:
                     if showday == 6:
-                        color_x = [white, white, white, white, white,white, bittersweet]
-                    elif  showday == 5:
-                        color_x = [white, white, white, white, white, bittersweet, white]
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                        ]
+                    elif showday == 5:
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                        ]
                     elif showday == 4:
-                        color_x = [white, white, white, white, bittersweet, white, white]
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                        ]
                     elif showday == 3:
-                        color_x = [white, white, white, bittersweet, white, white, white]
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                        ]
                     elif showday == 2:
-                        color_x = [white, white, bittersweet, white, white, white, white]
+                        color_x = [
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                            white,
+                        ]
                     elif showday == 1:
-                        color_x = [white, bittersweet, white, white, white, white, white]
+                        color_x = [
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                        ]
                     elif showday == 0:
-                        color_x = [bittersweet, white, white, white, white, white, white]
+                        color_x = [
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                        ]
                 # MAYBE WE CAN LEAVE THIS OUT HERE
-                df, columnlist = smooth_columnlist(df,[b],how_to_smooth)
+                df, columnlist = smooth_columnlist(df, [b], how_to_smooth)
 
-                df.set_index('date')
+                df.set_index("date")
 
                 df_temp = df
-                if len(what_to_show_l_)==1:
-                    ax = df_temp[b].plot.bar(label=b, color = color_x, alpha=.6)     # number of cases
+                if len(what_to_show_l_) == 1:
+                    ax = df_temp[b].plot.bar(
+                        label=b, color=color_x, alpha=0.6
+                    )  # number of cases
 
                     for c_smooth in columnlist:
-                        ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
+                        ax = df[c_smooth].plot(
+                            label=c_smooth, color=color_list[2], linewidth=1.5
+                        )  # SMA
 
-                    if showR :
-                        if show_R_value_RIVM :
-                            ax3=df["Rt_avg"].plot(secondary_y=True,linestyle='--', label="Rt RIVM",color=green_pigment, alpha=.8,linewidth=1)
-                            ax3.fill_between(df['date'].index, df["Rt_low"], df["Rt_up"],
-                                    color=green_pigment, alpha=0.2, label='_nolegend_')
-                        tgs = [3.5,4,5]
+                    if showR:
+                        if show_R_value_RIVM:
+                            ax3 = df["Rt_avg"].plot(
+                                secondary_y=True,
+                                linestyle="--",
+                                label="Rt RIVM",
+                                color=green_pigment,
+                                alpha=0.8,
+                                linewidth=1,
+                            )
+                            ax3.fill_between(
+                                df["date"].index,
+                                df["Rt_low"],
+                                df["Rt_up"],
+                                color=green_pigment,
+                                alpha=0.2,
+                                label="_nolegend_",
+                            )
+                        tgs = [3.5, 4, 5]
 
-                        teller=0
+                        teller = 0
                         dfmin = ""
                         dfmax = ""
                         for TG in tgs:
-                            df, R_smooth, R_smooth_sec = add_walking_r(df, columnlist, how_to_smooth,TG)
+                            df, R_smooth, R_smooth_sec = add_walking_r(
+                                df, columnlist, how_to_smooth, TG
+                            )
 
                             for R in R_smooth:
                                 # correctie R waarde, moet naar links ivm 2x smoothen
-                                df, Rn = move_column(df,R,MOVE_WR)
+                                df, Rn = move_column(df, R, MOVE_WR)
 
-                                if teller == 1 :
+                                if teller == 1:
                                     if show_R_value_graph:
-                                        ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=falu_red, linewidth=1.2)
+                                        ax3 = df[Rn].plot(
+                                            secondary_y=True,
+                                            label=Rn,
+                                            linestyle="--",
+                                            color=falu_red,
+                                            linewidth=1.2,
+                                        )
                                 else:
-                                    if teller == 0 :
+                                    if teller == 0:
                                         dfmin = Rn
-                                    if teller == 2 :
+                                    if teller == 2:
                                         dfmax = Rn
-                                        #print (dfmax)
+                                        # print (dfmax)
                                 teller += 1
                             for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
                                 # correctie R waarde, moet naar links ivm 2x smoothen
-                                df, Rn = move_column(df,R,MOVE_WR)
-                                #ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
+                                df, Rn = move_column(df, R, MOVE_WR)
+                                # ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
                         if show_R_value_graph:
-                            ax3.fill_between(df['date'].index, df[dfmin], df[dfmax],  color=falu_red, alpha=0.3, label='_nolegend_')
+                            ax3.fill_between(
+                                df["date"].index,
+                                df[dfmin],
+                                df[dfmax],
+                                color=falu_red,
+                                alpha=0.3,
+                                label="_nolegend_",
+                            )
 
-            else: # t = line
+            else:  # t = line
                 df_temp = df
 
                 if how_to_smooth == None:
                     how_to_smooth_ = "unchanged_"
                 else:
                     how_to_smooth_ = how_to_smooth + "_" + str(WDW2)
-                b_ = str(b)+ "_"+how_to_smooth_
-                df_temp[b_].plot(label=b, color = color_list[n], linewidth=1.1) # label = b_ for uitgebreid label
-                df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.9,linewidth=.8)
-            n +=1
+                b_ = str(b) + "_" + how_to_smooth_
+                df_temp[b_].plot(
+                    label=b, color=color_list[n], linewidth=1.1
+                )  # label = b_ for uitgebreid label
+                df_temp[b].plot(
+                    label="_nolegend_",
+                    color=color_list[n],
+                    linestyle="dotted",
+                    alpha=0.9,
+                    linewidth=0.8,
+                )
+            n += 1
         if show_scenario == True:
             df = calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days)
-            #print (df.dtypes)
-            l1 = (f"R = {ry1}")
-            l2 = (f"R = {ry2}")
-            ax = df["variant_1"].plot(label=l1, color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
-            ax = df["variant_2"].plot(label=l2, color = color_list[5],linestyle='dotted',linewidth=1, alpha=1)
-            ax = df["variant_12"].plot(label='TOTAL', color = color_list[6],linestyle='--',linewidth=1, alpha=1)
+            # print (df.dtypes)
+            l1 = f"R = {ry1}"
+            l2 = f"R = {ry2}"
+            ax = df["variant_1"].plot(
+                label=l1, color=color_list[4], linestyle="dotted", linewidth=1, alpha=1
+            )
+            ax = df["variant_2"].plot(
+                label=l2, color=color_list[5], linestyle="dotted", linewidth=1, alpha=1
+            )
+            ax = df["variant_12"].plot(
+                label="TOTAL", color=color_list[6], linestyle="--", linewidth=1, alpha=1
+            )
 
         if what_to_show_r != None:
             if type(what_to_show_r) == list:
-                what_to_show_r=what_to_show_r
+                what_to_show_r = what_to_show_r
             else:
-                what_to_show_r=[what_to_show_r]
+                what_to_show_r = [what_to_show_r]
 
-            n = len (color_list)
+            n = len(color_list)
             x = n
             for a in what_to_show_r:
-                x -=1
+                x -= 1
                 lbl = a + " (right ax)"
-                df, columnlist = smooth_columnlist(df,[a],how_to_smooth)
+                df, columnlist = smooth_columnlist(df, [a], how_to_smooth)
                 for c_ in columnlist:
-                    #smoothed
+                    # smoothed
                     lbl2 = a + " (right ax)"
-                    ax3 = df_temp[c_].plot(secondary_y=True, label=lbl2, color = color_list[x], linestyle='--', linewidth=1.1) #abel = lbl2 voor uitgebreid label
-                ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=1, alpha=.9, label='_nolegend_')
-                ax3.set_ylabel('_')
+                    ax3 = df_temp[c_].plot(
+                        secondary_y=True,
+                        label=lbl2,
+                        color=color_list[x],
+                        linestyle="--",
+                        linewidth=1.1,
+                    )  # abel = lbl2 voor uitgebreid label
+                ax3 = df_temp[a].plot(
+                    secondary_y=True,
+                    linestyle="dotted",
+                    color=color_list[x],
+                    linewidth=1,
+                    alpha=0.9,
+                    label="_nolegend_",
+                )
+                ax3.set_ylabel("_")
 
         if what_to_show_r is not None:
-            if len( what_to_show_l) ==1 and len( what_to_show_r)==1:  # add correlation
+            if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
-                correlation_sm= find_correlation_pair(df, b_, c_)
-                title = (f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}")
-        plt.title(title , fontsize=10)
+                correlation_sm = find_correlation_pair(df, b_, c_)
+                title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
+        plt.title(title, fontsize=10)
 
-    a__ = (max(df_temp['date'].tolist())).date() - (min(df_temp['date'].tolist())).date()
-    freq = int(a__.days/10)
+    a__ = (max(df_temp["date"].tolist())).date() - (
+        min(df_temp["date"].tolist())
+    ).date()
+    freq = int(a__.days / 10)
     ax.xaxis.set_major_locator(MultipleLocator(freq))
 
-    ax.set_xticks(df_temp['date'].index)
-    ax.set_xticklabels(df_temp['date'].dt.date,fontsize=6, rotation=90)
+    ax.set_xticks(df_temp["date"].index)
+    ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
     xticks = ax.xaxis.get_major_ticks()
-    for i,tick in enumerate(xticks):
-        if i%10 != 0:
+    for i, tick in enumerate(xticks):
+        if i % 10 != 0:
             tick.label1.set_visible(False)
     plt.xticks()
 
     # layout of the x-axis
-    ax.xaxis.grid(True, which='major',alpha=.4,linestyle='--')
-    ax.yaxis.grid(True, which='major',alpha=.4,linestyle='--')
+    ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
+    ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
 
     left, right = ax.get_xlim()
     ax.set_xlim(left, right)
     fontP = FontProperties()
-    fontP.set_size('xx-small')
+    fontP.set_size("xx-small")
 
-    plt.xlabel('date')
+    plt.xlabel("date")
     # everything in legend
     # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
-    handles,labels = [],[]
+    handles, labels = [], []
     for ax in fig1x.axes:
-        for h,l in zip(*ax.get_legend_handles_labels()):
+        for h, l in zip(*ax.get_legend_handles_labels()):
             handles.append(h)
             labels.append(l)
-    #plt.legend(handles,labels)
-    #https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
-    plt.legend(handles,labels, bbox_to_anchor=(0,-0.4), loc="lower left")
-    ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
-            transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
-    if show_R_value_graph or  show_R_value_RIVM:
-            plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-    add_restrictions(df,ax)
-    plt.axhline(y=0, color='black', alpha=.6, linestyle='--')
+    # plt.legend(handles,labels)
+    # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
+    plt.legend(handles, labels, bbox_to_anchor=(0, -0.4), loc="lower left")
+    ax.text(
+        1,
+        1.1,
+        "Created by Rene Smit — @rcsmit",
+        transform=ax.transAxes,
+        fontsize="xx-small",
+        va="top",
+        ha="right",
+    )
+    if show_R_value_graph or show_R_value_RIVM:
+        plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
+    add_restrictions(df, ax)
+    plt.axhline(y=0, color="black", alpha=0.6, linestyle="--")
     if t == "line":
         set_xmargin(ax, left=-0.04, right=-0.04)
     st.pyplot(fig1x)
+
 
 def set_xmargin(ax, left=0.0, right=0.3):
     ax.set_xmargin(0)
     ax.autoscale_view()
     lim = ax.get_xlim()
     delta = np.diff(lim)
-    left = lim[0] - delta*left
-    right = lim[1] + delta*right
-    ax.set_xlim(left,right)
+    left = lim[0] - delta * left
+    right = lim[1] + delta * right
+    ax.set_xlim(left, right)
 
-def add_restrictions(df,ax):
+
+def add_restrictions(df, ax):
     """  _ _ _ """
     # Add restrictions
     # From Han-Kwang Nienhuys - MIT-licence
-    df_restrictions = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv',
-                    comment='#',
-                    delimiter=',',
-                    low_memory=False,
-                    )
+    df_restrictions = pd.read_csv(
+        "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv",
+        comment="#",
+        delimiter=",",
+        low_memory=False,
+    )
 
-    a = (min(df['date'].tolist())).date()
-    b = (max(df['date'].tolist())).date()
+    a = (min(df["date"].tolist())).date()
+    b = (max(df["date"].tolist())).date()
 
     ymin, ymax = ax.get_ylim()
     y_lab = ymin
     for i in range(0, len(df_restrictions)):
-        d_ = df_restrictions.iloc[i]['Date'] #string
-        d__ = dt.datetime.strptime(d_,'%Y-%m-%d').date()  # to dateday
+        d_ = df_restrictions.iloc[i]["Date"]  # string
+        d__ = dt.datetime.strptime(d_, "%Y-%m-%d").date()  # to dateday
 
-        diff = (d__ - a)
-        diff2 = (b - d__ )
+        diff = d__ - a
+        diff2 = b - d__
 
-        if diff.days >0 and diff2.days >0:
+        if diff.days > 0 and diff2.days > 0:
 
-            ax.text((diff.days), 0, f'  {df_restrictions.iloc[i]["Description"] }', rotation=90, fontsize=4,horizontalalignment='center')
-            #plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
+            ax.text(
+                (diff.days),
+                0,
+                f'  {df_restrictions.iloc[i]["Description"] }',
+                rotation=90,
+                fontsize=4,
+                horizontalalignment="center",
+            )
+            # plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
+
 
 def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     """  _ _ _ """
@@ -830,204 +1138,218 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     # SHOW A GRAPH IN TIME / WEEK
     df_l, dfweek_l = agg_week(df, how_l)
 
-    if str(FROM) != '2021-01-01':
-        st.info("To match the weeknumbers on the ax with the real weeknumbers, please set the startdate at 2021-1-1")
+    if str(FROM) != "2021-01-01":
+        st.info(
+            "To match the weeknumbers on the ax with the real weeknumbers, please set the startdate at 2021-1-1"
+        )
     if what_to_show_r != None:
-        df_r, dfweek_r = agg_week (df, how_r)
+        df_r, dfweek_r = agg_week(df, how_r)
 
     if type(what_to_show_l) == list:
-            what_to_show_l = what_to_show_l
+        what_to_show_l = what_to_show_l
     else:
-            what_to_show_l=[what_to_show_l]
+        what_to_show_l = [what_to_show_l]
 
     for show_l in what_to_show_l:
         fig1y = plt.figure()
         ax = fig1y.add_subplot(111)
-        ax.set_xticks(dfweek_l['weeknr'])
-        ax.set_xticklabels(dfweek_l['weekalt'] ,fontsize=6, rotation=45)
-        label_l = show_l+ " ("+ how_l + ")"
+        ax.set_xticks(dfweek_l["weeknr"])
+        ax.set_xticklabels(dfweek_l["weekalt"], fontsize=6, rotation=45)
+        label_l = show_l + " (" + how_l + ")"
         dfweek_l[show_l].plot.bar(label=label_l, color="#F05225")
 
         if what_to_show_r != None:
             for what_to_show_r_ in what_to_show_r:
-                label_r = what_to_show_r_+ " ("+ how_r + ")"
-                ax3=dfweek_r[what_to_show_r_].plot(secondary_y=True, color = 'r', label=label_r)
+                label_r = what_to_show_r_ + " (" + how_r + ")"
+                ax3 = dfweek_r[what_to_show_r_].plot(
+                    secondary_y=True, color="r", label=label_r
+                )
 
         # Add a grid
-        plt.grid(alpha=.2,linestyle='--')
+        plt.grid(alpha=0.2, linestyle="--")
 
-        #Add a Legend
+        # Add a Legend
         fontP = FontProperties()
-        fontP.set_size('xx-small')
-        plt.legend(  loc='best', prop=fontP)
+        fontP.set_size("xx-small")
+        plt.legend(loc="best", prop=fontP)
 
         ax.xaxis.set_major_locator(MultipleLocator(1))
-        #ax.xaxis.set_major_formatter()
+        # ax.xaxis.set_major_formatter()
         # everything in legend
         # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
-        handles,labels = [],[]
+        handles, labels = [], []
         for ax in fig1y.axes:
-            for h,l in zip(*ax.get_legend_handles_labels()):
+            for h, l in zip(*ax.get_legend_handles_labels()):
                 handles.append(h)
                 labels.append(l)
 
-        plt.legend(handles,labels)
-        plt.xlabel('Week counted from '+ str(FROM))
+        plt.legend(handles, labels)
+        plt.xlabel("Week counted from " + str(FROM))
         # configgraph(titlex)
-        if show_R_value_graph or  show_R_value_RIVM:
-            ax3.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+        if show_R_value_graph or show_R_value_RIVM:
+            ax3.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
         st.pyplot(fig1y)
-        #plt.show()
+        # plt.show()
 
-def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
+
+def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
     """  _ _ _ """
     if t == "bar":
         if type(what_to_show_l) == list:
-            what_to_show_l=what_to_show_l
+            what_to_show_l = what_to_show_l
         else:
-            what_to_show_l=[what_to_show_l]
+            what_to_show_l = [what_to_show_l]
         title = ""
         for c in what_to_show_l:
 
-        #    what_to_show_r = what_to_show_r
+            #    what_to_show_r = what_to_show_r
             title += str(c) + " "
-        graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
+        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
     else:
-        tl =""
-        tr=""
-        i=0
-        j=0
+        tl = ""
+        tr = ""
+        i = 0
+        j = 0
         if what_to_show_l is not None:
             for l in what_to_show_l:
                 if i != len(what_to_show_l) - 1:
                     tl += l + " / "
-                    i+=1
+                    i += 1
                 else:
                     tl += l
         if what_to_show_r is not None:
             if type(what_to_show_r) == list:
-                what_to_show_r=what_to_show_r
+                what_to_show_r = what_to_show_r
             else:
-                what_to_show_r=[what_to_show_r]
+                what_to_show_r = [what_to_show_r]
             tl += " - \n"
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
                     tl += r + " / "
-                    j+=1
+                    j += 1
                 else:
                     tl += r
         tl = tl.replace("_", " ")
 
-        title = (f"{tl}")
-        graph_day(df, what_to_show_l,what_to_show_r , how_to_smooth, title, t)
+        title = f"{tl}"
+        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
 
-def smooth_columnlist(df,columnlist,t):
+
+def smooth_columnlist(df, columnlist, t):
     """  _ _ _ """
     c_smoothen = []
     wdw_savgol = 7
 
     if columnlist is not None:
         if type(columnlist) == list:
-            columnlist_=columnlist
+            columnlist_ = columnlist
         else:
-            columnlist_=[columnlist]
-            #print (columnlist)
+            columnlist_ = [columnlist]
+            # print (columnlist)
         for c in columnlist_:
-            print (f"Smoothening {c}")
-            if t=='SMA':
-                new_column = c + '_SMA_' + str(WDW2)
-                print ('Generating ' + new_column+ '...')
-                df[new_column] = df.iloc[:,df.columns.get_loc(c)].rolling(window=WDW2,  center=True).mean()
+            print(f"Smoothening {c}")
+            if t == "SMA":
+                new_column = c + "_SMA_" + str(WDW2)
+                print("Generating " + new_column + "...")
+                df[new_column] = (
+                    df.iloc[:, df.columns.get_loc(c)]
+                    .rolling(window=WDW2, center=True)
+                    .mean()
+                )
 
-            elif t=='savgol':
-                new_column = c + '_savgol_' + str(WDW2)
-                print ('Generating ' + new_column + '...')
-                df[new_column] = df[c].transform(lambda x: savgol_filter(x, WDW2,2))
+            elif t == "savgol":
+                new_column = c + "_savgol_" + str(WDW2)
+                print("Generating " + new_column + "...")
+                df[new_column] = df[c].transform(lambda x: savgol_filter(x, WDW2, 2))
 
             elif t == None:
                 new_column = c + "_unchanged_"
                 df[new_column] = df[c]
-                print ('Added ' + new_column + '...~')
+                print("Added " + new_column + "...~")
             else:
-                print ("ERROR in smooth_columnlist")
+                print("ERROR in smooth_columnlist")
                 st.stop()
             c_smoothen.append(new_column)
     return df, c_smoothen
+
 
 ###################################################################
 def find_correlations(df, treshold, fields):
     al_gehad = []
     paar = []
-    #column_list = list(df.columns)
+    # column_list = list(df.columns)
     column_list = fields
     # print (column_list)
-    st.header ("Found correlations in the data :")
+    st.header("Found correlations in the data :")
     for i in column_list:
         for j in column_list:
-            #paar = [j, i]
-            paar = str(i)+str(j)
+            # paar = [j, i]
+            paar = str(i) + str(j)
             if paar not in al_gehad:
                 if i == j:
                     pass
                 else:
                     try:
-                        c = round(df[i].corr(df[j]),3)
-                        if c >= treshold or c <= (treshold*-1):
-                            st.write (f"{i} - {j} - {str(c)}")
+                        c = round(df[i].corr(df[j]), 3)
+                        if c >= treshold or c <= (treshold * -1):
+                            st.write(f"{i} - {j} - {str(c)}")
 
                     except:
                         pass
             else:
-                pass  #("algehad")
-            al_gehad.append(str(j)+str(i))
+                pass  # ("algehad")
+            al_gehad.append(str(j) + str(i))
+
 
 def find_correlation_pair(df, first, second):
     al_gehad = []
     paar = []
     if type(first) == list:
-            first = first
+        first = first
     else:
-            first = [first]
+        first = [first]
     if type(second) == list:
-            second = second
+        second = second
     else:
-            second = [second]
+        second = [second]
     for i in first:
         for j in second:
-            c = round(df[i].corr(df[j]),3)
+            c = round(df[i].corr(df[j]), 3)
     return c
 
-def find_lag_time(df, what_happens_first,what_happens_second ,r1,r2):
+
+def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     b = what_happens_first
     a = what_happens_second
     x = []
     y = []
     max = 0
     max_column = None
-    for n in range (r1,(r2+1)):
-        df,m  = move_column(df,b,n)
-        c = round(df[m].corr(df[a]),3)
-        if c > max :
-            max =c
+    for n in range(r1, (r2 + 1)):
+        df, m = move_column(df, b, n)
+        c = round(df[m].corr(df[a]), 3)
+        if c > max:
+            max = c
             max_column = m
             m_days = n
         x.append(n)
         y.append(c)
-    title = (f"Correlation between : {a} - {b} ")
-    title2 = (f" {a} - b - moved {m_days} days ")
+    title = f"Correlation between : {a} - {b} "
+    title2 = f" {a} - b - moved {m_days} days "
 
     fig1x = plt.figure()
     ax = fig1x.add_subplot(111)
-    plt.xlabel('shift in days')
+    plt.xlabel("shift in days")
     plt.plot(x, y)
-    plt.axvline(x=0, color='yellow', alpha=.6,linestyle='--')
+    plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
     # Add a grid
-    plt.grid(alpha=.2,linestyle='--')
-    plt.title(title , fontsize=10)
+    plt.grid(alpha=0.2, linestyle="--")
+    plt.title(title, fontsize=10)
     plt.show()
-    graph_daily(df,[a],[b], "SMA","line")
-    graph_daily(df,[a],[max_column], "SMA","line")
+    graph_daily(df, [a], [b], "SMA", "line")
+    graph_daily(df, [a], [max_column], "SMA", "line")
     # if the optimum is negative, the second one is that x days later
+
 
 def init():
     """  _ _ _ """
@@ -1037,12 +1359,18 @@ def init():
     global INPUT_DIR
     global OUTPUT_DIR
 
-    INPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\'
-    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\'
+    INPUT_DIR = (
+        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\"
+    )
+    OUTPUT_DIR = (
+        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+    )
 
     # GLOBAL SETTINGS
-    download = True # True : download from internet False: download from INPUT_DIR
+    download = True  # True : download from internet False: download from INPUT_DIR
     # De open data worden om 15.15 uur gepubliceerd
+
+
 def get_locations(df_ungrouped, field):
     """ Get a list of the Municipalities """
     return df_ungrouped[field].unique()
@@ -1052,7 +1380,8 @@ def get_locations(df_ungrouped, field):
     # Security_region_name;
     # Municipal_health_service;
     # ROAZ_region
-    print (df_ungrouped)
+    print(df_ungrouped)
+
 
 def main():
     """  _ _ _ """
@@ -1064,47 +1393,77 @@ def main():
     global showday
     global MOVE_WR
     global showR
-    global lijst   # Lijst in de pull down menu's voor de assen
+    global lijst  # Lijst in de pull down menu's voor de assen
     global show_scenario
     global how_to_norm
     global Rnew1_, Rnew2_
-    global ry1, ry2,  total_cases_0, sec_variant,extra_days
+    global ry1, ry2, total_cases_0, sec_variant, extra_days
     global show_R_value_graph, show_R_value_RIVM
 
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
     df_ungrouped = df_ungrouped_.copy(deep=False)
 
-
-    #rioolwaterplaatsen = (get_locations(df_ungrouped, "RWZI_AWZI_name"))
+    # rioolwaterplaatsen = (get_locations(df_ungrouped, "RWZI_AWZI_name"))
 
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
     # #CONFIG
-    df.rename(columns={"Hospital_admission_x"   : "Hospital_admission_RIVM",
-            "Hospital_admission_y"              : "Hospital_admission_GGD",
-            "Kliniek_Nieuwe_Opnames_COVID"      : "Hospital_admission_LCPS",
-         #   "value"                             : "IC_opnames_NICE",
-            "IC_Nieuwe_Opnames_COVID"           : "IC_Nieuwe_Opnames_LCPS"},
-                inplace=True)
+    df.rename(
+        columns={
+            "Hospital_admission_x": "Hospital_admission_RIVM",
+            "Hospital_admission_y": "Hospital_admission_GGD",
+            "Kliniek_Nieuwe_Opnames_COVID": "Hospital_admission_LCPS",
+            #   "value"                             : "IC_opnames_NICE",
+            "IC_Nieuwe_Opnames_COVID": "IC_Nieuwe_Opnames_LCPS",
+        },
+        inplace=True,
+    )
 
-    lijst = ['IC_Bedden_COVID', 'IC_Bedden_Non_COVID', 'Kliniek_Bedden',
-                'IC_Nieuwe_Opnames_LCPS', "Hospital_admission_RIVM",
-                "Hospital_admission_LCPS",  "Hospital_admission_GGD",
-                'Total_reported', 'Deceased','Rt_avg',
-                'Tested_with_result', 'Tested_positive', 'Percentage_positive', 'prev_avg',
-                "retail_and_recreation", "grocery_and_pharmacy", "parks", "transit_stations",
-                "workplaces", "residential", "apple_driving", "apple_transit", "apple_walking",
-                "temp_etmaal","temp_max","zonneschijnduur","globale_straling","specific_humidity",
-                "neerslag","RNA_per_ml", "RNA_flow_per_100000", 'RNA_per_reported' ,
-                "q_biggerthansix" ,"q_smallerthansix", 'reported_corrected']
-                # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
-                # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
-                # "SWE_new_cases", "SWE_total_deaths", "SWE_new_deaths", "SWE_total_cases_per_million",
-                # "SWE_new_cases_per_million", "SWE_reproduction_rate", "SWE_icu_patients",
-                # "SWE_hosp_patients", "SWE_new_tests", "SWE_total_tests", "SWE_stringency_index"]
+    lijst = [
+        "IC_Bedden_COVID",
+        "IC_Bedden_Non_COVID",
+        "Kliniek_Bedden",
+        "IC_Nieuwe_Opnames_LCPS",
+        "Hospital_admission_RIVM",
+        "Hospital_admission_LCPS",
+        "Hospital_admission_GGD",
+        "Total_reported",
+        "Deceased",
+        "Rt_avg",
+        "Tested_with_result",
+        "Tested_positive",
+        "Percentage_positive",
+        "prev_avg",
+        "retail_and_recreation",
+        "grocery_and_pharmacy",
+        "parks",
+        "transit_stations",
+        "workplaces",
+        "residential",
+        "apple_driving",
+        "apple_transit",
+        "apple_walking",
+        "temp_etmaal",
+        "temp_max",
+        "zonneschijnduur",
+        "globale_straling",
+        "specific_humidity",
+        "neerslag",
+        "RNA_per_ml",
+        "RNA_flow_per_100000",
+        "RNA_per_reported",
+        "q_biggerthansix",
+        "q_smallerthansix",
+        "reported_corrected",
+    ]
+    # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
+    # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
+    # "SWE_new_cases", "SWE_total_deaths", "SWE_new_deaths", "SWE_total_cases_per_million",
+    # "SWE_new_cases_per_million", "SWE_reproduction_rate", "SWE_icu_patients",
+    # "SWE_hosp_patients", "SWE_new_tests", "SWE_total_tests", "SWE_stringency_index"]
 
     st.title("Interactive Corona Dashboard")
-        #st.header("")
+    # st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
 
     # DAILY STATISTICS ################
@@ -1113,24 +1472,24 @@ def main():
 
     DATE_FORMAT = "%m/%d/%Y"
     start_ = "2021-01-01"
-    today = datetime.today().strftime('%Y-%m-%d')
-    from_ = st.sidebar.text_input('startdate (yyyy-mm-dd)',start_)
+    today = datetime.today().strftime("%Y-%m-%d")
+    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
 
     try:
-        FROM = dt.datetime.strptime(from_,'%Y-%m-%d').date()
+        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
     except:
         st.error("Please make sure that the startdate is in format yyyy-mm-dd")
         st.stop()
 
-    until_ = st.sidebar.text_input('enddate (yyyy-mm-dd)',today)
+    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
 
     try:
-        UNTIL = dt.datetime.strptime(until_,'%Y-%m-%d').date()
+        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
     except:
         st.error("Please make sure that the enddate is in format yyyy-mm-dd")
         st.stop()
 
-    if FROM >= UNTIL :
+    if FROM >= UNTIL:
         st.warning("Make sure that the end date is not before the start date")
         st.stop()
 
@@ -1149,233 +1508,308 @@ def main():
     # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
     # WDW2=7
     # st.write(df.dtypes)
-    w2w =[  "Total_reported","Hospital_admission_RIVM", 'IC_Nieuwe_Opnames_LCPS', 'Deceased']
+    w2w = [
+        "Total_reported",
+        "Hospital_admission_RIVM",
+        "IC_Nieuwe_Opnames_LCPS",
+        "Deceased",
+    ]
 
-    df, newcolumns, newcolumns2 = week_to_week (df, w2w)
+    df, newcolumns, newcolumns2 = week_to_week(df, w2w)
     lijst.extend(newcolumns)
     lijst.extend(newcolumns2)
-
 
     # for n in newcolumns:
     #     .write(df[n])
     # graph_daily       (df,newcolumns,None, "SMA", "line")
     # st.stop()
 
-    week_or_day = st.sidebar.selectbox('Day or Week', ["day", "week"], index=0)
+    week_or_day = st.sidebar.selectbox("Day or Week", ["day", "week"], index=0)
     if week_or_day != "week":
-        how_to_display = st.sidebar.selectbox('What to plot (line/bar)', ["line", "line_scaled_to_peak", "line_first_is_100", "bar"], index=0)
+        how_to_display = st.sidebar.selectbox(
+            "What to plot (line/bar)",
+            ["line", "line_scaled_to_peak", "line_first_is_100", "bar"],
+            index=0,
+        )
     else:
         how_to_display = "bar"
 
-
     if how_to_display != "bar":
-        what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
-        what_to_show_day_r = st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst)
+        what_to_show_day_l = st.sidebar.multiselect(
+            "What to show left-axis (multiple possible)", lijst, ["Total_reported"]
+        )
+        what_to_show_day_r = st.sidebar.multiselect(
+            "What to show right-axis (multiple possible)", lijst
+        )
         if what_to_show_day_l == None:
-            st.warning ("Choose something")
+            st.warning("Choose something")
             st.stop()
-        move_right = st.sidebar.slider('Move curves at right axis (days)', -14, 14, 0)
+        move_right = st.sidebar.slider("Move curves at right axis (days)", -14, 14, 0)
     else:
         move_right = 0
     showR = False
     if how_to_display == "bar":
-        what_to_show_day_l = st.sidebar.selectbox('What to show left-axis (bar -one possible)',lijst, index=8  )
-        #what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
+        what_to_show_day_l = st.sidebar.selectbox(
+            "What to show left-axis (bar -one possible)", lijst, index=8
+        )
+        # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
 
-        showR = st.sidebar.selectbox('Show R number',[True, False], index=0)
+        showR = st.sidebar.selectbox("Show R number", [True, False], index=0)
         if what_to_show_day_l == []:
-            st.error ("Choose something for the left-axis")
+            st.error("Choose something for the left-axis")
         if showR == False:
-            what_to_show_day_r =  st.sidebar.multiselect('What to show right-axis (multiple possible)', lijst, ["Total_reported"])
+            what_to_show_day_r = st.sidebar.multiselect(
+                "What to show right-axis (multiple possible)", lijst, ["Total_reported"]
+            )
             show_R_value_graph = False
             show_R_value_RIVM = False
         else:
 
-            show_R_value_graph = st.sidebar.checkbox(f"Show R from {what_to_show_day_l}", value=True)
+            show_R_value_graph = st.sidebar.checkbox(
+                f"Show R from {what_to_show_day_l}", value=True
+            )
             show_R_value_RIVM = st.sidebar.checkbox("Show R-value RIVM", value=True)
             what_to_show_day_r = None
-            pass # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
-        lijst_x = [0,1,2,3,4,5,6]
+            pass  # what_to_show_day_r = st.sidebar.selectbox('What to show right-axis (line - one possible)',lijst, index=6)
+        lijst_x = [0, 1, 2, 3, 4, 5, 6]
     else:
         show_R_value_graph = False
         show_R_value_RIVM = False
     if week_or_day == "day" and how_to_display == "bar":
-        firstday = int(df.iloc[0]['WEEKDAY'])  # monday = 0
-        dagenvdweek = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        showonedaylabel = 'Show which day (0 = ' + dagenvdweek[firstday] + ')'
-        showoneday = st.sidebar.selectbox('Show one day',[True, False], index=1)
+        firstday = int(df.iloc[0]["WEEKDAY"])  # monday = 0
+        dagenvdweek = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
+        showonedaylabel = "Show which day (0 = " + dagenvdweek[firstday] + ")"
+        showoneday = st.sidebar.selectbox("Show one day", [True, False], index=1)
         if showoneday:
-            showday= st.sidebar.selectbox(showonedaylabel ,lijst_x, index=0  )
+            showday = st.sidebar.selectbox(showonedaylabel, lijst_x, index=0)
     else:
         showoneday = False
         showday = 0
 
-    how_to_smoothen = st.sidebar.selectbox('How to smooth (SMA/savgol)', ["SMA", "savgol"], index=0)
-    WDW2 = st.sidebar.slider('Window smoothing curves (days)', 1, 14, 7)
-    if how_to_smoothen== "savgol" and int(WDW2/2)==(WDW2/2):
-        st.warning ("When using Savgol, the window has to be uneven")
+    how_to_smoothen = st.sidebar.selectbox(
+        "How to smooth (SMA/savgol)", ["SMA", "savgol"], index=0
+    )
+    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 14, 7)
+    if how_to_smoothen == "savgol" and int(WDW2 / 2) == (WDW2 / 2):
+        st.warning("When using Savgol, the window has to be uneven")
         st.stop()
     if showR == True:
-        WDW3 =  st.sidebar.slider('Window smoothing R-number', 1, 14, 7)
-        MOVE_WR = st.sidebar.slider('Move the R-curve', -20, 10, -8)
+        WDW3 = st.sidebar.slider("Window smoothing R-number", 1, 14, 7)
+        MOVE_WR = st.sidebar.slider("Move the R-curve", -20, 10, -8)
     else:
         showR = False
 
     if week_or_day == "week":
-        how_to_agg_l = st.sidebar.selectbox('How to agg left (sum/mean)', ["sum", "mean"], index=0)
-        how_to_agg_r = st.sidebar.selectbox('How to agg right (sum/mean)', ["sum", "mean"], index=0)
+        how_to_agg_l = st.sidebar.selectbox(
+            "How to agg left (sum/mean)", ["sum", "mean"], index=0
+        )
+        how_to_agg_r = st.sidebar.selectbox(
+            "How to agg right (sum/mean)", ["sum", "mean"], index=0
+        )
 
-    show_scenario = st.sidebar.selectbox('Show Scenario',[True, False], index=1)
+    show_scenario = st.sidebar.selectbox("Show Scenario", [True, False], index=1)
     if show_scenario:
 
+        total_cases_0 = st.sidebar.number_input(
+            "Total number of positive tests", None, None, 8000
+        )
 
-        total_cases_0 = st.sidebar.number_input('Total number of positive tests',None,None,8000)
-
-        Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.84)
-        Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
-        f = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
-        ry1 = round(Rnew_1_ * f,2)
-        ry2 = round(Rnew_2_ * f,2)
-        sec_variant = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 43.0))
-        extra_days = st.sidebar.slider('Extra days', 0, 60, 0)
+        Rnew_1_ = st.sidebar.slider("R-number first variant", 0.1, 10.0, 0.84)
+        Rnew_2_ = st.sidebar.slider("R-number second variant", 0.1, 6.0, 1.15)
+        f = st.sidebar.slider("Correction factor", 0.0, 2.0, 1.00)
+        ry1 = round(Rnew_1_ * f, 2)
+        ry2 = round(Rnew_2_ * f, 2)
+        sec_variant = st.sidebar.slider(
+            "Percentage second variant at start", 0.0, 100.0, 43.0
+        )
+        extra_days = st.sidebar.slider("Extra days", 0, 60, 0)
 
     if what_to_show_day_l == []:
-            st.error ("Choose something for the left-axis")
-            st.stop()
+        st.error("Choose something for the left-axis")
+        st.stop()
 
     if what_to_show_day_l is not None:
 
-        if week_or_day == "day"  :
-            if move_right != 0 and  len(what_to_show_day_r) != 0:
-                df, what_to_show_day_r = move_column(df, what_to_show_day_r,move_right  )
+        if week_or_day == "day":
+            if move_right != 0 and len(what_to_show_day_r) != 0:
+                df, what_to_show_day_r = move_column(df, what_to_show_day_r, move_right)
             if how_to_display == "line":
-                graph_daily       (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
-                if len(what_to_show_day_l)>1:
+                graph_daily(
+                    df,
+                    what_to_show_day_l,
+                    what_to_show_day_r,
+                    how_to_smoothen,
+                    how_to_display,
+                )
+                if len(what_to_show_day_l) > 1:
                     for xx in what_to_show_day_l:
-                        graph_daily       (df,[xx], None, how_to_smoothen, how_to_display)
-
+                        graph_daily(df, [xx], None, how_to_smoothen, how_to_display)
 
             elif how_to_display == "line_scaled_to_peak":
                 how_to_norm = "max"
-                graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
-                if len(what_to_show_day_l)>1:
+                graph_daily_normed(
+                    df,
+                    what_to_show_day_l,
+                    what_to_show_day_r,
+                    how_to_smoothen,
+                    how_to_display,
+                )
+                if len(what_to_show_day_l) > 1:
                     for xx in what_to_show_day_l:
-                        graph_daily_normed      (df,[xx], None, how_to_smoothen, how_to_display)
+                        graph_daily_normed(
+                            df, [xx], None, how_to_smoothen, how_to_display
+                        )
             elif how_to_display == "line_first_is_100":
                 how_to_norm = "first"
-                graph_daily_normed(df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
-                if len(what_to_show_day_l)>1:
-                        for xx in what_to_show_day_l:
-                            graph_daily_normed      (df,[xx], None, how_to_smoothen, how_to_display)
+                graph_daily_normed(
+                    df,
+                    what_to_show_day_l,
+                    what_to_show_day_r,
+                    how_to_smoothen,
+                    how_to_display,
+                )
+                if len(what_to_show_day_l) > 1:
+                    for xx in what_to_show_day_l:
+                        graph_daily_normed(
+                            df, [xx], None, how_to_smoothen, how_to_display
+                        )
 
             elif how_to_display == "bar":
-                #st.write(what_to_show_day_l)
-                graph_daily        (df,what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display)
+                # st.write(what_to_show_day_l)
+                graph_daily(
+                    df,
+                    what_to_show_day_l,
+                    what_to_show_day_r,
+                    how_to_smoothen,
+                    how_to_display,
+                )
 
         else:
             if showR == True:
                 if what_to_show_day_r != None:
-                    st.warning ("On the right axis the R number will shown")
-                graph_week(df, what_to_show_day_l , how_to_agg_l, None , how_to_agg_r)
+                    st.warning("On the right axis the R number will shown")
+                graph_week(df, what_to_show_day_l, how_to_agg_l, None, how_to_agg_r)
             else:
-                graph_week(df, what_to_show_day_l , how_to_agg_l, what_to_show_day_r , how_to_agg_r)
-                if len(what_to_show_day_r)>0:
-                        for xx in what_to_show_day_r:
-                            graph_daily_normed      (df,[xx], None, how_to_smoothen, how_to_display)
+                graph_week(
+                    df,
+                    what_to_show_day_l,
+                    how_to_agg_l,
+                    what_to_show_day_r,
+                    how_to_agg_r,
+                )
+                if len(what_to_show_day_r) > 0:
+                    for xx in what_to_show_day_r:
+                        graph_daily_normed(
+                            df, [xx], None, how_to_smoothen, how_to_display
+                        )
 
     else:
-        st.error ("Choose what to show")
+        st.error("Choose what to show")
 
     # EXTRA POSSIBLE CALCULATIONS - INTERFACE HAS TO BE WRITTEN
 
-    if st.sidebar.button('Find Correlations'):
-        treshhold = st.sidebar.slider('R-number first variant', 0.0, 1.0, 0.8)
+    if st.sidebar.button("Find Correlations"):
+        treshhold = st.sidebar.slider("R-number first variant", 0.0, 1.0, 0.8)
         find_correlations(df, treshhold, lijst)
-
 
     # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
 
-
-    toelichting = ( '<h2>Toelichting bij de keuzevelden</h2>'
-                    '<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten (LCPS)'
-                    '<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden (LCPS) '
-                    '<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden (LCPS)'
-                    '<br><i>IC_Nieuwe_Opnames_COVID</i> - Nieuwe opnames op de IC '
-                    '<br><br><i>Hospital_admission_LCPS</i> - Nieuwe opnames in de ziekenhuizen LCPS. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting '
-
-                    '<br><i>Hospital_admission_RIVM</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn.'
-                    '<br><i>Hospital_admission_GGD</i> - Nieuwe opnames in de ziekenhuizen GGD, lager omdat niet alles vanuit GGD wordt doorgegeven '
-
-                    '<br><br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) '
-
-                    '<br><i>Deceased</i> - Totaal overledenen '
-                    '<br><i>Rt_avg</i> - Rt-getal berekend door RIVM'
-                    '<br><i>Tested_with_result</i> - Totaal aantal testen bij GGD '
-                    '<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD '
-                    '<br><i>Percentage_positive</i> - Percentage positief getest bij de GGD '
-                    '<br><i>prev_avg</i> - Aantal besmettelijke mensen.'
-                    '<br><br><i>retail_and_recreation, grocery_and_pharmacy, parks, transit_stations, workplaces, '
-                    'residential</i> - Mobiliteitsdata van Google'
-                    '<br><i>apple_driving, apple_transit, apple_walking</i> - Mobiliteitsdata van Apple'
-                    '<br><br><i>temp_etmaal</i> - Etmaalgemiddelde temperatuur (in graden Celsius)'
-                    '<br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)'
-                    '<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling'
-                    '<br><i>Globale straling</i> - Globale straling in (in J//cm2) '
-                    '<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) '
-                    '<br><i>Specific Humidity</i> -  - Specific Humidity in (g/kg)'
-                    '<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020'
-                    '<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020'
-                    '<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)'
-                    '<br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021'
-                    '<br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]'
-                    '<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]'
-
-                    '<h2>Toelichting bij de opties</h2>'
-                    '<h3>What to plot</h3>'
-                    '<i>Line</i> - Line graph'
-                    '<br><i>Linemax</i> - Indexed line grap. Maximum (smoothed) value is 100'
-                    '<br><i>Linefirst</i> - Indexed line graph. First (smoothed) value is 100'
-                    '<br><i>Bar</i> - Bar graph for the left axis, line graph for the right ax'
-                    '<h3>How to smooth</h3>'
-                    '<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href=\'https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter\' target=\'_bank\'>Savitzky-Golay filter</a>'
-                    '<h2>Hidden features</h2>'
-                    '<h3>Correlation</h3>'
-                    'If you have chosen one field on the left side and one for the right side, correlation of the fields are shown. Attention: <i>correlation is not causation</i>!'
-                    '<h3>Find correlations</h3>'
-                    'After clicking this button, you can choose your treshold. Fields with correlations above this treshold are shown'
-                    '<h3>Move curves at right axis (days)</h3>'
-                    'You can move the curves at the right ax to see possible cause-effect relations.'
-                    '<h3>Show Scenario</h3>'
-                    'You are able to calculate a scenario based on two R-numbers, their ratio, a correction factor (to put in effect measures) and add extra days. Works only with [total reported].'
-                    'You can calculate scenarios with more options and graphs at my other webapp <a href=\'https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\' target=\'_blank\'>https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py</a>'
-                    '<h2>Show specific weekday</h2>'
-                    'When you choose [bar] and [week], you can choose one specific weekday to compare them more easily'
-                    '<h2>Datasource</h2>'
-                    'Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. '
-                    ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
-                    'For the moment most of the data is be updated automatically every 24h.'
-                    ' The KNMI, Google and Apple data will be updated manually at a lower frequency.<br><br>')
+    toelichting = (
+        "<h2>Toelichting bij de keuzevelden</h2>"
+        "<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten (LCPS)"
+        "<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden (LCPS) "
+        "<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden (LCPS)"
+        "<br><i>IC_Nieuwe_Opnames_COVID</i> - Nieuwe opnames op de IC "
+        "<br><br><i>Hospital_admission_LCPS</i> - Nieuwe opnames in de ziekenhuizen LCPS. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting "
+        "<br><i>Hospital_admission_RIVM</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn."
+        "<br><i>Hospital_admission_GGD</i> - Nieuwe opnames in de ziekenhuizen GGD, lager omdat niet alles vanuit GGD wordt doorgegeven "
+        "<br><br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) "
+        "<br><i>Deceased</i> - Totaal overledenen "
+        "<br><i>Rt_avg</i> - Rt-getal berekend door RIVM"
+        "<br><i>Tested_with_result</i> - Totaal aantal testen bij GGD "
+        "<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD "
+        "<br><i>Percentage_positive</i> - Percentage positief getest bij de GGD "
+        "<br><i>prev_avg</i> - Aantal besmettelijke mensen."
+        "<br><br><i>retail_and_recreation, grocery_and_pharmacy, parks, transit_stations, workplaces, "
+        "residential</i> - Mobiliteitsdata van Google"
+        "<br><i>apple_driving, apple_transit, apple_walking</i> - Mobiliteitsdata van Apple"
+        "<br><br><i>temp_etmaal</i> - Etmaalgemiddelde temperatuur (in graden Celsius)"
+        "<br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)"
+        "<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling"
+        "<br><i>Globale straling</i> - Globale straling in (in J//cm2) "
+        "<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) "
+        "<br><i>Specific Humidity</i> -  - Specific Humidity in (g/kg)"
+        "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
+        "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
+        "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
+        "<br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
+        "<br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
+        "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
+        "<h2>Toelichting bij de opties</h2>"
+        "<h3>What to plot</h3>"
+        "<i>Line</i> - Line graph"
+        "<br><i>Linemax</i> - Indexed line grap. Maximum (smoothed) value is 100"
+        "<br><i>Linefirst</i> - Indexed line graph. First (smoothed) value is 100"
+        "<br><i>Bar</i> - Bar graph for the left axis, line graph for the right ax"
+        "<h3>How to smooth</h3>"
+        "<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href='https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter' target='_bank'>Savitzky-Golay filter</a>"
+        "<h2>Hidden features</h2>"
+        "<h3>Correlation</h3>"
+        "If you have chosen one field on the left side and one for the right side, correlation of the fields are shown. Attention: <i>correlation is not causation</i>!"
+        "<h3>Find correlations</h3>"
+        "After clicking this button, you can choose your treshold. Fields with correlations above this treshold are shown"
+        "<h3>Move curves at right axis (days)</h3>"
+        "You can move the curves at the right ax to see possible cause-effect relations."
+        "<h3>Show Scenario</h3>"
+        "You are able to calculate a scenario based on two R-numbers, their ratio, a correction factor (to put in effect measures) and add extra days. Works only with [total reported]."
+        "You can calculate scenarios with more options and graphs at my other webapp <a href='https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py' target='_blank'>https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py</a>"
+        "<h2>Show specific weekday</h2>"
+        "When you choose [bar] and [week], you can choose one specific weekday to compare them more easily"
+        "<h2>Datasource</h2>"
+        "Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. "
+        ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
+        "For the moment most of the data is be updated automatically every 24h."
+        " The KNMI, Google and Apple data will be updated manually at a lower frequency.<br><br>"
+    )
 
     tekst = (
-                    '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
-                    '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
-                    'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/covid_dashboard_rcsmit.py\" target=\"_blank\">github.com/rcsmit</a><br>'
-                    'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
-                    'Restrictions by <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a> (MIT-license).</div>')
+        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
+        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/edit/main/covid_dashboard_rcsmit.py" target="_blank">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
+        'Restrictions by <a href="https://twitter.com/hk_nien" target="_blank">Han-Kwang Nienhuys</a> (MIT-license).</div>'
+    )
 
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
     now = UPDATETIME
     UPDATETIME_ = now.strftime("%d/%m/%Y %H:%M:%S")
     st.write(f"\n\n\nData last updated : {str(UPDATETIME_)}")
-    st.markdown('<hr>', unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
 
-    st.image('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/buymeacoffee.png')
+    st.image(
+        "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/buymeacoffee.png"
+    )
 
-    st.markdown('<a href=\"https://www.buymeacoffee.com/rcsmit" target=\"_blank\">If you are happy with this dashboard, you can buy me a coffee</a>', unsafe_allow_html=True)
+    st.markdown(
+        '<a href="https://www.buymeacoffee.com/rcsmit" target="_blank">If you are happy with this dashboard, you can buy me a coffee</a>',
+        unsafe_allow_html=True,
+    )
 
-    st.markdown('<br><br><a href=\"https://www.linkedin.com/in/rcsmit" target=\"_blank\">Contact me for custom dashboards and infographics</a>', unsafe_allow_html=True)
+    st.markdown(
+        '<br><br><a href="https://www.linkedin.com/in/rcsmit" target="_blank">Contact me for custom dashboards and infographics</a>',
+        unsafe_allow_html=True,
+    )
+
 
 init()
 main()
