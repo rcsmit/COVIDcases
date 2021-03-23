@@ -775,8 +775,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
         for h,l in zip(*ax.get_legend_handles_labels()):
             handles.append(h)
             labels.append(l)
-    plt.legend(handles,labels)
-
+    #plt.legend(handles,labels)
+    plt.legend(handles,labels, bbox_to_anchor=(1.04,1), loc="upper left")
     ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
             transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
     if show_R_value_graph or  show_R_value_RIVM:
