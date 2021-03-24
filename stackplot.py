@@ -18,6 +18,7 @@ import datetime
 
 
 def smooth(df, columnlist):
+    c2 = []
     for c in columnlist:
         print(f"Smoothening {c}")
         new_column = c + "_SMA"
@@ -25,8 +26,8 @@ def smooth(df, columnlist):
         df[new_column] = (
             df.iloc[:, df.columns.get_loc(c)].rolling(window=7, center=True).mean()
         )
-    return df
-
+        c2.append(df[new_column])
+    return df, c2
 
 def main():
     url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\landelijk_leeftijd_pivot.csv"
@@ -43,7 +44,7 @@ def main():
         df["pos_test_Date_statistics"], format="%Y-%m-%d"
     )
 
-    cl = cl = [
+    c1  = [
         "pos_test_0-9",
         "pos_test_10-19",
         "pos_test_20-29",
@@ -53,32 +54,16 @@ def main():
         "pos_test_60-69",
         "pos_test_70-79",
         "pos_test_80-89",
-        "pos_test_90+",
-        "pos_test_<50",
-        "pos_test_Unknown",
+        "pos_test_90+"
+
     ]
-    df = smooth(df, cl)
+    #  "pos_test_<50",
+    #     "pos_test_Unknown",
+    df, c2 = smooth(df, c1)
     datumlijst = df["pos_test_Date_statistics"].tolist()
 
-    # cols2 =[ 'deceased_0-9', 'deceased_10-19', 'deceased_20-29', 'deceased_30-39', 'deceased_40-49', 'deceased_50-59', 'deceased_60-69', 'deceased_70-79', 'deceased_80-89', 'deceased_90+', 'deceased_<50']
-    cols2 = [
-        df["pos_test_0-9_SMA"],
-        df["pos_test_10-19_SMA"],
-        df["pos_test_20-29_SMA"],
-        df["pos_test_30-39_SMA"],
-        df["pos_test_40-49_SMA"],
-        df["pos_test_50-59_SMA"],
-        df["pos_test_60-69_SMA"],
-        df["pos_test_70-79_SMA"],
-        df["pos_test_80-89_SMA"],
-        df["pos_test_90+_SMA"],
-        df["pos_test_<50_SMA"],
-        df["pos_test_Unknown_SMA"],
-    ]
-    # fig = plt.figure()
-    # ax = fig.add_subplot(1,1,1)
     fig, ax = plt.subplots()
-    ax.stackplot(datumlijst, cols2)
+    ax.stackplot(datumlijst, c2)
     ax.legend(loc="upper left")
     plt.legend()
     plt.show()
