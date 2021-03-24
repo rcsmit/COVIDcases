@@ -1623,12 +1623,12 @@ def main():
         )
 
         Rnew_1_ = st.sidebar.slider("R-number first variant", 0.1, 10.0, 0.84)
-        Rnew_2_ = st.sidebar.slider("R-number second variant", 0.1, 6.0, 1.15)
+        Rnew_2_ = st.sidebar.slider("R-number second variant", 0.1, 6.0, 1.16)
         f = st.sidebar.slider("Correction factor", 0.0, 2.0, 1.00)
         ry1 = round(Rnew_1_ * f, 2)
         ry2 = round(Rnew_2_ * f, 2)
         sec_variant = st.sidebar.slider(
-            "Percentage second variant at start", 0.0, 100.0, 43.0
+            "Percentage second variant at start", 0.0, 100.0, 10.0
         )
         extra_days = st.sidebar.slider("Extra days", 0, 60, 0)
 
