@@ -172,8 +172,7 @@ def main():
         )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    st.markdown(
-        '<br><br><br><br><br><br><br><br><br><br>')
+    st.markdown('<br><br><br><br><br><br><br><br><br><br>', unsafe_allow_html=True)
     st.image(
         "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/buymeacoffee.png"
     )
