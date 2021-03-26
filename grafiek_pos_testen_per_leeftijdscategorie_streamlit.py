@@ -17,7 +17,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from labellines import *  #https://stackoverflow.com/questions/16992038/inline-labels-in-matplotlib
+#from labellines import *  #https://stackoverflow.com/questions/16992038/inline-labels-in-matplotlib
 import streamlit as st
 from streamlit import caching
 from matplotlib.backends.backend_agg import RendererAgg
@@ -178,6 +178,7 @@ def main():
     )
 
     st.markdown(
+        '<br><br><br><br><br><br><br><br><br><br>'
         '<a href="https://www.buymeacoffee.com/rcsmit" target="_blank">If you are happy with this dashboard, you can buy me a coffee</a>',
         unsafe_allow_html=True,
     )
