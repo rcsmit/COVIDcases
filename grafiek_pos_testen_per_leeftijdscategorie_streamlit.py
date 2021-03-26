@@ -120,8 +120,11 @@ def real_action( to_show_in_graph, kids_split_up, show_from, show_until):
     df_= read_df( kids_split_up)
     print (df_)
     df_new = df_.copy(deep=False)
-    #df_new["date"]=pd.to_datetime(df_new["date"], format='%d-%m-%Y')
-    df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
+    if kids_split_up:
+        df_new["date"]=pd.to_datetime(df_new["date"], format='%d-%m-%Y')
+
+    else:
+        df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
     df_new['percentage'] =  round((df_new['positief_testen']/df_new['totaal_testen']*100),1)
 
 
