@@ -5,7 +5,9 @@
 #     handmatig overgenomen uit Tabel 14 vh wekelijkse rapport van RIVM
 #     Wekelijkse update epidemiologische situatie COVID-19 in Nederland
 #     https://www.rivm.nl/coronavirus-covid-19/actueel/wekelijkse-update-epidemiologische-situatie-covid-19-in-nederland
-
+#
+#     Needs file generatied with https://github.com/rcsmit/COVIDcases/blob/main/grafiek_pos_testen_per_leeftijdscategorie_PREPARE.py
+#
 # Uitdagingen : Kopieren en bewerken Tabel 14. 3 verschillende leeftijdsindelingen. Tot dec. 2020 alles
 # cummulatief. X-as in de grafiek
 
@@ -56,66 +58,6 @@ def read_df( kids_split_up):
                         low_memory=False)
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
     return df_new
-
-@st.cache(ttl=60 * 60 * 24)
-def regroup_df(to_show_in_graph, kids_split_up):
-    """ regroup the age-categories """
-
-    df_= read_df()
-    df = df_.copy(deep=False)
-    df["datum"]=pd.to_datetime(df["datum"], format='%d-%m-%Y')
-
-    list_dates = df["datum"].unique()
-
-    cat_oud =            [ "0-4",  "05-09",  "10-14",  "15-19",  "20-24",  "25-29",  "30-34",  "35-39",
-                "40-44",  "45-49",  "50-54",  "55-59",  "60-64",  "65-69",  "70-74",  "75-79",  "80-84",  "85-89",  "90-94",  "95+" ]
-
-    cat_nieuw =           [ "0-12", "13-17", "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+", "Niet vermeld"]
-
-    cat_nieuwst=            ["0-3", "04-12", "13-17", "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+", "Niet vermeld"]
-
-    #originele groepsindeling
-    if kids_split_up:
-        cat_oud_vervanging = [ "0-4",  "05-09",  "10-14",  "15-19",  "20-29",  "20-29",  "30-39",  "30-39",
-                "40-49",  "40-49",  "50-59",  "50-59",  "60-69",  "60-69",   "70+",   "70+",      "70+",   "70+",    "70+",   "70+" ]
-
-        cat_nieuw_vervanging = [ "0-12", "13-17", "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+", "Niet vermeld"]
-        cat_nieuwst_vervanging= ["0-3", "04-12", "13-17", "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+", "Niet vermeld"]
-    else:
-        cat_oud_vervanging = [ "0-19",  "0-19",  "0-19",  "0-19",  "20-29",  "20-29",  "30-39",  "30-39",
-                "40-49",  "40-49",  "50-59",  "50-59",  "60-69",  "60-69",   "70+",   "70+",      "70+",   "70+",    "70+",   "70+" ]
-        cat_nieuw_vervanging = [ "0-17", "0-17", "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+", "Niet vermeld"]
-        cat_nieuwst_vervanging= ["0-17", "0-17", "0-17", "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+", "Niet vermeld"]
-
-    #####################################################
-    df_new= pd.DataFrame({'date': [],'cat_oud': [],
-                    'cat_nieuw': [], "positief_testen": [],"totaal_testen": [], "methode":[]})
-
-    for i in range(0, len(df)):
-        print(i, end = '')
-        d =  df.loc[i, "datum"]
-        for x in range(0,len(cat_oud)-1):
-            c_o,c,p,t,m = None,None,None,None,None
-            if df.loc[i, "methode"] == "oud":
-                if df.loc[i, "leeftijdscat"] == cat_oud[x]:
-                    c = cat_oud_vervanging[x]
-            elif df.loc[i, "methode"] == "nieuw":
-                if x <= len(cat_nieuw)-1 :
-                    if df.loc[i, "leeftijdscat"] == cat_nieuw[x]:
-                        c =  cat_nieuw_vervanging[x]
-            else:
-                if x <= len(cat_nieuw)-1 :
-                    if df.loc[i, "leeftijdscat"] == cat_nieuwst[x]:
-                        c =  cat_nieuwst_vervanging[x]
-            c_o =  df.loc[i, "leeftijdscat"]
-            p =df.loc[i, "totaal_pos"]
-            t = df.loc[i, "totaal_getest"]
-            m = df.loc[i, "methode"]
-            df_new = df_new.append({ 'date': d, 'cat_oud': c_o, 'cat_nieuw': c,  "positief_testen": p,"totaal_testen":t, "methode": m}, ignore_index= True)
-            c_o,c,p,t,m = None,None,None,None,None
-
-    df_new = df_new.groupby(['date','cat_nieuw'], sort=True).sum().reset_index()
-    real_action( to_show_in_graph, kids_split_up)
 
 def real_action( to_show_in_graph, kids_split_up, show_from, show_until):
     df_= read_df( kids_split_up)
