@@ -195,6 +195,7 @@ def main():
     today = datetime.today().strftime("%Y-%m-%d")
     # from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
     show_from = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+
     # try:
     #     show_from = dt.datetime.strptime(from_, "%Y-%m-%d").date()
     # except:
@@ -203,6 +204,11 @@ def main():
 
     # until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
     show_until = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+    if show_until == "2023-08-23":
+        st.sidebar.error("Do you really, really, wanna do this?")
+        if st.sidebar.button("Yes I'm ready to rumble"):
+            caching.clear_cache()
+            st.success("Cache is cleared, please reload to scrape new values")
     # try:
     #     show_until = dt.datetime.strptime(until_, "%Y-%m-%d").date()
     # except:
