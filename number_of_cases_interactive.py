@@ -68,7 +68,7 @@ showcummulative = st.sidebar.checkbox("Show cummulative / SIR", True)
 
 
 
-showimmunization = st.sidebar.checkbox("Immunization", True)
+showunization = st.sidebar.checkbox("Immunization", True)
 
 showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
 #showSIR = False
@@ -233,6 +233,10 @@ for t in range(1, NUMBEROFDAYS):
         ry2_ = ry2x[0]
 
     if turning:
+        # Normally the turning won't be -rechtevenredig- but logistic
+        # https://miro.medium.com/max/1050/1*4rBxPap9aKEg_zoUZhGYMA.png
+        # https://towardsdatascience.com/infectious-disease-modelling-beyond-the-basic-sir-model-216369c584c4
+
         if (t>=(turningpoint) and t<(turningpoint+turningdays)):
             if turningdays==0:
                 ry1__ = ry1_  * changefactor
@@ -907,7 +911,7 @@ st.sidebar.markdown(tekst, unsafe_allow_html=True)
 if vaccination:
     st.markdown(vaccinationdisclaimer, unsafe_allow_html=True)
 st.markdown(links, unsafe_allow_html=True)
-                
+
 st.markdown('<hr>', unsafe_allow_html=True)
 
 st.image('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/buymeacoffee.png')
