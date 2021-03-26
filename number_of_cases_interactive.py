@@ -233,9 +233,12 @@ for t in range(1, NUMBEROFDAYS):
         ry2_ = ry2x[0]
 
     if turning:
-        # Normally the turning won't be -rechtevenredig- but logistic
+        # Normally the turning won't be proportional but logistic
         # https://miro.medium.com/max/1050/1*4rBxPap9aKEg_zoUZhGYMA.png
         # https://towardsdatascience.com/infectious-disease-modelling-beyond-the-basic-sir-model-216369c584c4
+        # (R_0_start-R_0_end) / (1 + np.exp(-k*(-t+x0))) + R_0_end
+        # k = mate voor de snelheid
+        # x0 is turningpoint (midden van de lijn)
 
         if (t>=(turningpoint) and t<(turningpoint+turningdays)):
             if turningdays==0:
