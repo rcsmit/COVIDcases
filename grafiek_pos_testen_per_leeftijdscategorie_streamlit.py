@@ -172,13 +172,14 @@ def main():
         )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-
+    st.markdown(
+        '<br><br><br><br><br><br><br><br><br><br>')
     st.image(
         "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/buymeacoffee.png"
     )
 
     st.markdown(
-        '<br><br><br><br><br><br><br><br><br><br>'
+        '<br><br>'
         '<a href="https://www.buymeacoffee.com/rcsmit" target="_blank">If you are happy with this dashboard, you can buy me a coffee</a>',
         unsafe_allow_html=True,
     )
