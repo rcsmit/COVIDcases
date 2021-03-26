@@ -1,3 +1,5 @@
+# CONTINUED IN https://github.com/rcsmit/COVIDcases/blob/main/covid_dashboard_rcsmit.py
+
 # 27/28 feb 2021
 # Calculate the relation between gliding R and mobility (Apple and Google)
 # Calculate the corelation with hospital admissions and factors mentioned above
