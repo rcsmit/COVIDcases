@@ -51,10 +51,11 @@ def read_df( kids_split_up):
     #id;datum;leeftijdscat;methode;mannen_pos;mannen_getest;vrouwen_pos ;vrouwen_getest ;
     # totaal_pos;totaal_getest;weeknr2021;van2021;tot2021
 
-    df   = pd.read_csv(url,
+    df_new   = pd.read_csv(url,
                         delimiter=",",
                         low_memory=False)
-    return df
+    df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
+    return df_new
 
 @st.cache(ttl=60 * 60 * 24)
 def regroup_df(to_show_in_graph, kids_split_up):
@@ -118,20 +119,22 @@ def regroup_df(to_show_in_graph, kids_split_up):
 
 def real_action( to_show_in_graph, kids_split_up, show_from, show_until):
     df_= read_df( kids_split_up)
-    print (df_)
+    #print (df_)
+    save_df(df_,"werktnieteerasefCXX")
     df_new = df_.copy(deep=False)
-    if kids_split_up:
-        df_new["date"]=pd.to_datetime(df_new["date"], format='%d-%m-%Y')
+    # if kids_split_up:
+    #     df_new["date"]=pd.to_datetime(df_new["date"], format='%d-%m-%Y')
 
-    else:
-        df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
+    # else:
+    df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
+    save_df(df_new,"werktnieteerasefDXX")
     df_new['percentage'] =  round((df_new['positief_testen']/df_new['totaal_testen']*100),1)
 
 
     #show_from = "2020-1-1"
     #show_until = "2030-1-1"
 
-
+    #save_df(df_new,"werktnieteerasefA")
     datumveld = 'date'
     try:
         startdate = pd.to_datetime(show_from).date()
@@ -141,13 +144,14 @@ def real_action( to_show_in_graph, kids_split_up, show_from, show_until):
     except:
         st.error("Please make sure that the dates in format yyyy-mm-dd")
         st.stop()
-
+    save_df(df_new,"werktnieteerasefB")
 
 
     print (f'Totaal aantal positieve testen : {df_new["positief_testen"].sum()}')
     print (f'Totaal aantal testen : {df_new["totaal_testen"].sum()}')
     print (f'Percentage positief  : {  round (( 100 * df_new["positief_testen"].sum() /  df_new["totaal_testen"].sum() ),2)    }')
     #save_df(df_new, "input_latest")
+
     show_graph(df_new, to_show_in_graph)
 
 def show_graph(df_new, to_show_in_graph):
@@ -170,15 +174,24 @@ def show_graph(df_new, to_show_in_graph):
                     "#F07826",
                      ]
     list_age_groups =  df_new["cat_nieuw"].unique()
-
+    print (df_new)
 
     with _lock:
         fig1x, ax = plt.subplots(1,1)
         #for l in to_show_in_graph:
+        save_df(df_new,"werktnieteerasef")
         for i,l in enumerate(to_show_in_graph):
+
             df_temp = df_new[df_new['cat_nieuw']==l]
+            df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
+            df_temp.sort_values(by = 'date')
+            print (df_temp)
+            #print (df_temp)
+            #print (len(df_temp))
             list_percentage = df_temp["percentage"].tolist()
             list_dates = df_temp["date"].tolist()
+
+            #print (list_dates)
 
             plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
         #labelLines(plt.gca().get_lines(),align=False,fontsize=8)
@@ -194,7 +207,7 @@ def show_graph(df_new, to_show_in_graph):
 def main():
 
     # DATE_FORMAT = "%m/%d/%Y"
-    start_ = "2020-01-01"
+    start_ = "2020-11-01"
     today = datetime.today().strftime("%Y-%m-%d")
     # from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
     show_from = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
