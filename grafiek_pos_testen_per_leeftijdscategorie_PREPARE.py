@@ -85,14 +85,12 @@ def real_action( to_show_in_graph, what_to_show_r, kids_split_up, show_from, sho
 
     show_graph(df_new, to_show_in_graph, what_to_show_r)
 
-@st.cache(ttl=60 * 60 * 24)
+
 def generate_aantallen_gemeente_per_dag_grouped_per_day():
     # Local file
-    url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
-    #url = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
-    df_new   = pd.read_csv(url,
-                        delimiter=";",
-                        low_memory=False)
+    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
+    url = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
+    df_new   = pd.read_csv(url, delimiter=";", low_memory=False)
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
     df_new = df_new.groupby(['Date_of_publication'], sort=True).sum().reset_index()
     return df_new
