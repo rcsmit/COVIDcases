@@ -97,13 +97,11 @@ def generate_aantallen_gemeente_per_dag_grouped_per_day():
 
 
 
-@st.cache(ttl=60 * 60 * 24)
+
 def read_cases_day():
     #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
     url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
-    df_new   = pd.read_csv(url,
-                        delimiter=",",
-                        low_memory=False)
+    df_new   = pd.read_csv(url,delimiter=",", low_memory=False)
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
 
     df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
