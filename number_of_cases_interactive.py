@@ -393,7 +393,7 @@ for t in range(1, NUMBEROFDAYS):
 st.title('Positive COVID-tests in NL')
 
 
-mernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
+disclaimernew=('<style> .infobox {  background-color: lightyellow; padding: 10px;margin: 20-px}</style>'
                '<div class=\"infobox\"><h3>Disclaimer</h3><p>For illustration purpose only.</p>'
                '<p>Attention: these results are different from the official models'
                ' due to simplifications. '
@@ -445,6 +445,8 @@ def configgraph(titlex):
     plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
     # Add a grid
     plt.grid(alpha=.4,linestyle='--')
+    ax.text(1, 1.15, 'Created by Rene Smit — @rcsmit\nIllustrative purpose only\nRead the disclaimer',
+                    transform=ax.transAxes, fontsize='x-small', va='top', ha='right')
 
     #Add a Legend
     fontP = FontProperties()
