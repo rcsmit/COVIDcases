@@ -56,6 +56,9 @@ def read_df( kids_split_up):
     df_new   = pd.read_csv(url,
                         delimiter=",",
                         low_memory=False)
+
+    #df_new = generate_aantallen_gemeente_per_dag_grouped_per_day()
+
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
     return df_new
 
@@ -63,7 +66,6 @@ def real_action( to_show_in_graph, what_to_show_r, kids_split_up, show_from, sho
     df_= read_df( kids_split_up)
     df_new = df_.copy(deep=False)
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
-    save_df(df_new,"werktnieteerasefDXX")
     df_new['percentage'] =  round((df_new['positief_testen']/df_new['totaal_testen']*100),1)
 
     datumveld = 'date'
@@ -75,27 +77,34 @@ def real_action( to_show_in_graph, what_to_show_r, kids_split_up, show_from, sho
     except:
         st.error("Please make sure that the dates in format yyyy-mm-dd")
         st.stop()
-    save_df(df_new,"werktnieteerasefB")
 
 
     print (f'Totaal aantal positieve testen : {df_new["positief_testen"].sum()}')
     print (f'Totaal aantal testen : {df_new["totaal_testen"].sum()}')
     print (f'Percentage positief  : {  round (( 100 * df_new["positief_testen"].sum() /  df_new["totaal_testen"].sum() ),2)    }')
-    #save_df(df_new, "input_latest")
 
     show_graph(df_new, to_show_in_graph, what_to_show_r)
 
-@st.cache(ttl=60 * 60 * 24)
+
+def generate_aantallen_gemeente_per_dag_grouped_per_day():
+    # Local file
+    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
+    url = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
+    df_new   = pd.read_csv(url, delimiter=";", low_memory=False)
+    df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
+    df_new = df_new.groupby(['Date_of_publication'], sort=True).sum().reset_index()
+    return df_new
+
+
+
+
 def read_cases_day():
     #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
-    url= "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
-    df_new   = pd.read_csv(url,
-                        delimiter=",",
-                        low_memory=False)
+    url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
+    df_new   = pd.read_csv(url, sep=",", delimiter=",", low_memory=False)
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
 
     df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
-    save_df(df_new, "weektabel")
 
     return df_new
 def show_graph(df_new, to_show_in_graph, what_to_show_r):
@@ -217,7 +226,7 @@ def main():
     what_to_show_r = st.sidebar.selectbox(
         "What to show right", to_show_r_list, index=1
     )
-    st.sidebar.write("NB: De weken lopen niet exact gelijk met de testen (ma-zo vs wo-di")
+    st.sidebar.write("NB: De weken lopen niet exact gelijk met de testen (ma-zo vs wo-di)")
     st.header ("Percentage positieve testen per leeftijdsgroep door de tijd heen")
 
     # Rerun when new weeks are added
