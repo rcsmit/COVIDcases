@@ -167,6 +167,8 @@ def show_graph(df_new, to_show_in_graph, what_to_show_r):
                 tick.label1.set_visible(False)
         plt.xticks()
 
+        ax.yaxis.grid(True, which="major", alpha=0.4)
+
         ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
                     transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
         plt.title("Percentage Positieve testen per agegroup" , fontsize=10)
