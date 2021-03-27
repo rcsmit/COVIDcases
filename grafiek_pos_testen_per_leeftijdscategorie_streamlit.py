@@ -156,7 +156,7 @@ def show_graph(df_new, to_show_in_graph, what_to_show_r):
 
             #print (list_dates)
 
-            ax =  df_temp["percentage"].plot()
+            ax =  df_temp["percentage"].plot(label = l)
             #plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
         #labelLines(plt.gca().get_lines(),align=False,fontsize=8)
         ax.set_xticks(df_new["date"].index)
@@ -174,6 +174,12 @@ def show_graph(df_new, to_show_in_graph, what_to_show_r):
         plt.title("Percentage Positieve testen per agegroup" , fontsize=10)
         plt.legend(bbox_to_anchor=(1.3, 1),loc="best")
         plt.tight_layout()
+        handles, labels = [], []
+        for ax in fig1x.axes:
+            for h, l in zip(*ax.get_legend_handles_labels()):
+                handles.append(h)
+                labels.append(l)
+        plt.legend(handles,labels)
         #plt.show()
         st.pyplot(fig1x)
 
