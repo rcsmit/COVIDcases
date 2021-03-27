@@ -66,6 +66,7 @@ https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-str
 
 ## Acknowledgments
 * Thanks to [Han-Kwang Nienhuys](https://twitter.com/hk_nien) for his help on several topics and some code snippets (MIT-licensed)
+* Thanks to [Josette Schoenmakers](https://twitter.com/JosetteSchoenma) and [Maarten van den Berg](https://twitter.com/mr_Smith_Econ) for their inspiration, help and feedback
 
 ## Contact
 * [Twitter @rcsmit](https://twitter.com/rcsmit)
