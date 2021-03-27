@@ -4,10 +4,15 @@ Various files with models and graphs concerning COVID-19
 
 ## Interesting files/scripts
 * **number_of_cases_interactive.py** - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity
+
+![image](https://user-images.githubusercontent.com/1609141/112731094-945b9280-8f35-11eb-8c3d-a99e5f48487d.png)
+
  [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py)
 
 * **covid_dashboard_rcsmit.py** - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs. 
 ![image](https://user-images.githubusercontent.com/1609141/112730553-8b1cf680-8f32-11eb-83f6-1569f5114678.png)
+
+ [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/covid_dashboard_rcsmit.py.py)
 
 * **SEIR_hobbeland.py** -  Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745
 ![image](https://user-images.githubusercontent.com/1609141/112730583-adaf0f80-8f32-11eb-9517-0b2fd6443c42.png)
@@ -23,6 +28,9 @@ Various files with models and graphs concerning COVID-19
 * **grafiek_pos_testen_per_leeftijdscategorie_PREPARE.py**
 * **grafiek_pos_testen_per_leeftijdscategorie_streamlit.py** - draw graphs of positieve cases per age in time
  ![image](https://user-images.githubusercontent.com/1609141/112730260-e0f09f00-8f30-11eb-9bff-a835c2f965f7.png)
+
+ [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/grafiek_pos_testen_per_leeftijdscategorie_streamlit.py.py)
+
 
 * **getest_leeftijd_weekcijfers.py** -  IS ER EEN VERBAND MET HET PERCENTAGE POSITIEF PER LEEFTIJDSGROEP EN DE ZIEKENHUISOPNAMES?
 ![image](https://user-images.githubusercontent.com/1609141/112730368-7e4bd300-8f31-11eb-8b72-a6d39b579ea9.png)
