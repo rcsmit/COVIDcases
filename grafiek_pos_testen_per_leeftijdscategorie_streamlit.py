@@ -141,7 +141,7 @@ def show_graph(df_new, to_show_in_graph, what_to_show_r):
 
         if what_to_show_r != None:
 
-            ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = "cases")
+            ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = what_to_show_r)
         for i,l in enumerate(to_show_in_graph):
 
             df_temp = df_new[df_new['cat_nieuw']==l]
