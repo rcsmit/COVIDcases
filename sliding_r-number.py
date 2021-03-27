@@ -2,6 +2,8 @@ import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
+# Calculate the R-number in time starting with an R-number in the SIR model.
+
 # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
 
 # Total population, N.
