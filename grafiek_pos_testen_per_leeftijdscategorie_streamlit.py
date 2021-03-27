@@ -59,24 +59,13 @@ def read_df( kids_split_up):
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
     return df_new
 
-def real_action( to_show_in_graph, kids_split_up, show_from, show_until):
+def real_action( to_show_in_graph, what_to_show_r, kids_split_up, show_from, show_until):
     df_= read_df( kids_split_up)
-    #print (df_)
-    save_df(df_,"werktnieteerasefCXX")
     df_new = df_.copy(deep=False)
-    # if kids_split_up:
-    #     df_new["date"]=pd.to_datetime(df_new["date"], format='%d-%m-%Y')
-
-    # else:
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
     save_df(df_new,"werktnieteerasefDXX")
     df_new['percentage'] =  round((df_new['positief_testen']/df_new['totaal_testen']*100),1)
 
-
-    #show_from = "2020-1-1"
-    #show_until = "2030-1-1"
-
-    #save_df(df_new,"werktnieteerasefA")
     datumveld = 'date'
     try:
         startdate = pd.to_datetime(show_from).date()
@@ -94,10 +83,23 @@ def real_action( to_show_in_graph, kids_split_up, show_from, show_until):
     print (f'Percentage positief  : {  round (( 100 * df_new["positief_testen"].sum() /  df_new["totaal_testen"].sum() ),2)    }')
     #save_df(df_new, "input_latest")
 
-    show_graph(df_new, to_show_in_graph)
+    show_graph(df_new, to_show_in_graph, what_to_show_r)
 
-def show_graph(df_new, to_show_in_graph):
-    print ("Running show_graph")
+@st.cache(ttl=60 * 60 * 24)
+def read_cases_day():
+    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
+    url= "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
+    df_new   = pd.read_csv(url,
+                        delimiter=",",
+                        low_memory=False)
+    df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
+
+    df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
+    save_df(df_new, "weektabel")
+
+    return df_new
+def show_graph(df_new, to_show_in_graph, what_to_show_r):
+
     color_list = [  "#ff6666",  # reddish 0
                     "#ac80a0",  # purple 1
                     "#3fa34d",  # green 2
@@ -116,18 +118,28 @@ def show_graph(df_new, to_show_in_graph):
                     "#F07826",
                      ]
     list_age_groups =  df_new["cat_nieuw"].unique()
-    print (df_new)
+    #df_new = df.shift(-2, freq = "D")
+    df_cases = read_cases_day()
+    df_new = pd.merge(
+                df_new, df_cases, how="inner", left_on="date", right_on="Date_of_publication"
+            )
+
 
     with _lock:
-        fig1x, ax = plt.subplots(1,1)
+        fig1x = plt.figure()
+        ax = fig1x.add_subplot(111)
         #for l in to_show_in_graph:
-        save_df(df_new,"werktnieteerasef")
+
+        if what_to_show_r != None:
+
+            ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = "cases")
         for i,l in enumerate(to_show_in_graph):
 
             df_temp = df_new[df_new['cat_nieuw']==l]
             df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
             df_temp.sort_values(by = 'date')
             print (df_temp)
+
             #print (df_temp)
             #print (len(df_temp))
             list_percentage = df_temp["percentage"].tolist()
@@ -135,8 +147,16 @@ def show_graph(df_new, to_show_in_graph):
 
             #print (list_dates)
 
-            plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
+            ax =  df_temp["percentage"].plot()
+            #plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
         #labelLines(plt.gca().get_lines(),align=False,fontsize=8)
+        ax.set_xticks(df_new["date"].index)
+        ax.set_xticklabels(df_new["date"].dt.date, fontsize=6, rotation=90)
+        xticks = ax.xaxis.get_major_ticks()
+        for i, tick in enumerate(xticks):
+            if i % 10 != 0:
+                tick.label1.set_visible(False)
+        plt.xticks()
 
         ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
                     transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
@@ -192,12 +212,18 @@ def main():
            st.stop()
     st.sidebar.write("Onder de 18 heeft men 3x de groepsindeling veranderd.")
 
+
+    to_show_r_list = [None, "Total_reported","Hospital_admission","Deceased"]
+    what_to_show_r = st.sidebar.selectbox(
+        "What to show right", to_show_r_list, index=1
+    )
+    st.sidebar.write("NB: De weken lopen niet exact gelijk met de testen (ma-zo vs wo-di")
     st.header ("Percentage positieve testen per leeftijdsgroep door de tijd heen")
 
     # Rerun when new weeks are added
     #regroup_df( to_show_in_graph, kids_split_up)
 
-    real_action ( to_show_in_graph, kids_split_up, show_from, show_until)
+    real_action ( to_show_in_graph, what_to_show_r, kids_split_up, show_from, show_until)
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
