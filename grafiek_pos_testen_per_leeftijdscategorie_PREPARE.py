@@ -112,7 +112,7 @@ def read_cases_day():
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
 
     df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
-    save_df(df_new, "weektabel")
+    #save_df(df_new, "weektabel")
 
     return df_new
 def show_graph(df_new, to_show_in_graph, what_to_show_r):
@@ -234,7 +234,7 @@ def main():
     what_to_show_r = st.sidebar.selectbox(
         "What to show right", to_show_r_list, index=1
     )
-    st.sidebar.write("NB: De weken lopen niet exact gelijk met de testen (ma-zo vs wo-di")
+    st.sidebar.write("NB: De weken lopen niet exact gelijk met de testen (ma-zo vs wo-di)")
     st.header ("Percentage positieve testen per leeftijdsgroep door de tijd heen")
 
     # Rerun when new weeks are added
