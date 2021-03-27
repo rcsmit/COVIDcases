@@ -77,13 +77,11 @@ def real_action( to_show_in_graph, what_to_show_r, kids_split_up, show_from, sho
     except:
         st.error("Please make sure that the dates in format yyyy-mm-dd")
         st.stop()
-    save_df(df_new,"werktnieteerasefB")
 
 
     print (f'Totaal aantal positieve testen : {df_new["positief_testen"].sum()}')
     print (f'Totaal aantal testen : {df_new["totaal_testen"].sum()}')
     print (f'Percentage positief  : {  round (( 100 * df_new["positief_testen"].sum() /  df_new["totaal_testen"].sum() ),2)    }')
-    #save_df(df_new, "input_latest")
 
     show_graph(df_new, to_show_in_graph, what_to_show_r)
 
@@ -97,7 +95,6 @@ def generate_aantallen_gemeente_per_dag_grouped_per_day():
                         low_memory=False)
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
     df_new = df_new.groupby(['Date_of_publication'], sort=True).sum().reset_index()
-    save_df(df_new, "hergegroepeerd_totalreportedperdag")
     return df_new
 
 
@@ -112,7 +109,6 @@ def read_cases_day():
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
 
     df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
-    #save_df(df_new, "weektabel")
 
     return df_new
 def show_graph(df_new, to_show_in_graph, what_to_show_r):
