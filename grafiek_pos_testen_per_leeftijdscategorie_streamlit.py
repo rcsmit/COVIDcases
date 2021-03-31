@@ -139,26 +139,31 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
         fig1y = plt.figure()
         ax = fig1y.add_subplot(111)
         #for l in ages_to_show_in_graph:
-
+        ax.set_xticks(df_new["date"].index)
         #for i,l in enumerate(ages_to_show_in_graph):
         for l in ages_to_show_in_graph:
             df_temp = df_new[df_new['cat_nieuw']==l]
-            df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
+            df_temp.set_index('date' ,drop=True,inplace=True)
+            #df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
             df_temp.sort_values(by = 'date')
             print (df_temp)
 
             #print (df_temp)
             #print (len(df_temp))
-            list_dates = df_temp["date"].tolist()
+            #list_dates = df_temp["date"].tolist()
             if what_to_show_l== "percentage positieve testen":
                 list_percentage = df_temp["percentage"].tolist()
-                ax =  df_temp["percentage"].plot(label = l)
+                ax =  df_temp["percentage"].plot( label = l, marker = ".")
+                #ax =  df_temp.plot(x="date", y = "percentage", label = l, marker = ".")
+                # print(list_dates)
+                # print (list_percentage)
+                # plt.plot(list_dates, list_percentage,  label = l)
             elif what_to_show_l== "aantal positieve testen":
                 list_percentage = df_temp["positief_testen"].tolist()
-                ax =  df_temp["positief_testen"].plot(label = l)
+                ax =  df_temp["positief_testen"].plot(label = l, marker = ".")
             elif what_to_show_l== "totaal testen gedaan":
                 list_percentage = df_temp["totaal_testen"].tolist()
-                ax =  df_temp["totaal_testen"].plot(label = l)
+                ax =  df_temp["totaal_testen"].plot(label = l, marker = ".")
             else:
                 print ("error")
 
@@ -171,7 +176,7 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
             ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = what_to_show_r)
 
 
-        ax.set_xticks(df_new["date"].index)
+
         ax.set_xticklabels(df_new["date"].dt.date, fontsize=6, rotation=90)
         xticks = ax.xaxis.get_major_ticks()
         for i, tick in enumerate(xticks):
