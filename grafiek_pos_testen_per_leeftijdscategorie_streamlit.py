@@ -143,7 +143,7 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
         #for i,l in enumerate(ages_to_show_in_graph):
         for l in ages_to_show_in_graph:
             df_temp = df_new[df_new['cat_nieuw']==l]
-            df_temp.set_index('date' ,drop=True,inplace=True)
+            df_temp.set_index('date', drop=True ) # inplace=True
             #df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
             df_temp.sort_values(by = 'date')
             print (df_temp)
