@@ -140,9 +140,8 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
         ax = fig1y.add_subplot(111)
         #for l in ages_to_show_in_graph:
 
-        if what_to_show_r != None:
-            ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = what_to_show_r)
-        for i,l in enumerate(ages_to_show_in_graph):
+        #for i,l in enumerate(ages_to_show_in_graph):
+        for l in ages_to_show_in_graph:
             df_temp = df_new[df_new['cat_nieuw']==l]
             df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
             df_temp.sort_values(by = 'date')
@@ -165,9 +164,13 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
 
             #print (list_dates)
 
-            ax =  df_temp["percentage"].plot(label = l)
+            #ax =  df_temp["percentage"].plot(label = l)
             #plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
         #labelLines(plt.gca().get_lines(),align=False,fontsize=8)
+        if what_to_show_r != None:
+            ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = what_to_show_r)
+
+
         ax.set_xticks(df_new["date"].index)
         ax.set_xticklabels(df_new["date"].dt.date, fontsize=6, rotation=90)
         xticks = ax.xaxis.get_major_ticks()
@@ -181,15 +184,26 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
         ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
                     transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
         plt.title(f"{what_to_show_l} per agegroup" , fontsize=10)
-        plt.legend(bbox_to_anchor=(1.5, 1))
+        #plt.legend(bbox_to_anchor=(1.5, 1))
         plt.tight_layout()
+
+
+        # hand, labl = ax.get_legend_handles_labels()
+        # handout=[]
+        # lablout=[]
+        # for h,l in zip(hand,labl):
+        #     if l not in lablout:
+        #             lablout.append(l)
+        #             handout.append(h)
+        # fig1y.legend(handout, lablout, bbox_to_anchor=(1.2, 1))
+
         handles, labels = [], []
         for ax in fig1y.axes:
             for h, l in zip(*ax.get_legend_handles_labels()):
                 handles.append(h)
                 labels.append(l)
         plt.legend(handles,labels)
-        #plt.show()
+        plt.show()
         st.pyplot(fig1y)
 
     #with _lock:
