@@ -24,7 +24,10 @@ import streamlit as st
 from streamlit import caching
 from matplotlib.backends.backend_agg import RendererAgg
 from datetime import datetime
+import grafiek_pos_testen_per_leeftijdscategorie_PREPARE
 _lock = RendererAgg.lock
+
+
 def save_df(df,name):
     """  _ _ _ """
     OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\'
@@ -62,7 +65,7 @@ def read_df( kids_split_up):
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
     return df_new
 
-def real_action( to_show_in_graph, what_to_show_r, kids_split_up, show_from, show_until):
+def real_action( ages_to_show_in_graph, what_to_show_l,what_to_show_r, kids_split_up, show_from, show_until):
     df_= read_df( kids_split_up)
     df_new = df_.copy(deep=False)
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
@@ -83,7 +86,7 @@ def real_action( to_show_in_graph, what_to_show_r, kids_split_up, show_from, sho
     print (f'Totaal aantal testen : {df_new["totaal_testen"].sum()}')
     print (f'Percentage positief  : {  round (( 100 * df_new["positief_testen"].sum() /  df_new["totaal_testen"].sum() ),2)    }')
 
-    show_graph(df_new, to_show_in_graph, what_to_show_r)
+    show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r)
 
 
 def generate_aantallen_gemeente_per_dag_grouped_per_day():
@@ -95,9 +98,6 @@ def generate_aantallen_gemeente_per_dag_grouped_per_day():
     df_new = df_new.groupby(['Date_of_publication'], sort=True).sum().reset_index()
     return df_new
 
-
-
-
 def read_cases_day():
     #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
     url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
@@ -107,7 +107,7 @@ def read_cases_day():
     df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
 
     return df_new
-def show_graph(df_new, to_show_in_graph, what_to_show_r):
+def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
 
     color_list = [  "#ff6666",  # reddish 0
                     "#ac80a0",  # purple 1
@@ -129,21 +129,20 @@ def show_graph(df_new, to_show_in_graph, what_to_show_r):
     list_age_groups =  df_new["cat_nieuw"].unique()
     #df_new = df.shift(-2, freq = "D")
     df_cases = read_cases_day()
+    df_temp_x = df_new
     df_new = pd.merge(
                 df_new, df_cases, how="inner", left_on="date", right_on="Date_of_publication"
             )
 
 
     with _lock:
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
-        #for l in to_show_in_graph:
+        fig1y = plt.figure()
+        ax = fig1y.add_subplot(111)
+        #for l in ages_to_show_in_graph:
 
         if what_to_show_r != None:
-
             ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = what_to_show_r)
-        for i,l in enumerate(to_show_in_graph):
-
+        for i,l in enumerate(ages_to_show_in_graph):
             df_temp = df_new[df_new['cat_nieuw']==l]
             df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
             df_temp.sort_values(by = 'date')
@@ -151,8 +150,18 @@ def show_graph(df_new, to_show_in_graph, what_to_show_r):
 
             #print (df_temp)
             #print (len(df_temp))
-            list_percentage = df_temp["percentage"].tolist()
             list_dates = df_temp["date"].tolist()
+            if what_to_show_l== "percentage positieve testen":
+                list_percentage = df_temp["percentage"].tolist()
+                ax =  df_temp["percentage"].plot(label = l)
+            elif what_to_show_l== "aantal positieve testen":
+                list_percentage = df_temp["positief_testen"].tolist()
+                ax =  df_temp["positief_testen"].plot(label = l)
+            elif what_to_show_l== "totaal testen gedaan":
+                list_percentage = df_temp["totaal_testen"].tolist()
+                ax =  df_temp["totaal_testen"].plot(label = l)
+            else:
+                print ("error")
 
             #print (list_dates)
 
@@ -171,20 +180,113 @@ def show_graph(df_new, to_show_in_graph, what_to_show_r):
 
         ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
                     transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
-        plt.title("Percentage Positieve testen per agegroup" , fontsize=10)
-        plt.legend(bbox_to_anchor=(1.3, 1),loc="best")
+        plt.title(f"{what_to_show_l} per agegroup" , fontsize=10)
+        plt.legend(bbox_to_anchor=(1.5, 1))
         plt.tight_layout()
         handles, labels = [], []
-        for ax in fig1x.axes:
+        for ax in fig1y.axes:
             for h, l in zip(*ax.get_legend_handles_labels()):
                 handles.append(h)
                 labels.append(l)
         plt.legend(handles,labels)
         #plt.show()
+        st.pyplot(fig1y)
+
+    #with _lock:
+    testmeout = False
+    #TODO : New graph with grouped barcharts
+    if testmeout = True:
+        st.write(df_temp_x)
+        df_pivot_0 = df_temp_x.pivot_table( values='percentage', index=['date'],
+                    columns=['cat_nieuw'], aggfunc=np.sum,  fill_value=0)
+
+        df_pivot = df_temp_x.pivot_table( values='percentage', index=['date'],
+                    columns=['cat_nieuw'], aggfunc=np.sum,  fill_value=0).reset_index()
+        st.write(df_pivot_0)
+        df_pivot_transpose = df_pivot.transpose()
+
+        df_pivot_transpose.columns = df_pivot_transpose.iloc[0]
+        df_pivot_transpose = df_pivot_transpose.drop('date')
+        st.write(df_pivot_transpose)
+        fig1x = plt.figure()
+        ax = fig1x.add_subplot(111)
+        #for l in ages_to_show_in_graph:
+        #ax = df_pivot.plot.bar()
+        # if what_to_show_r != None:
+        #     ax3 = df_new[what_to_show_r].plot.bar( secondary_y=True, color ="r", alpha=.3, label = what_to_show_r)
+        # aantaldata = len(df_new)
+        aantaldata= len(ages_to_show_in_graph)
+        ax = df_pivot_transpose.plot.bar()
+        for i,l in enumerate(ages_to_show_in_graph):
+
+            a = i/aantaldata
+            width = 1
+
+            #ax.bar(df_pivot.index+ (i*width), df_pivot[l], width, align = 'center')
+            ax = df_pivot.plot.bar(rot=0)
+            #ax.set_xticks(df_pivot.index + width) # sets the x-ticks to the middle of the cluster of bars
+
+            list_dates = df_pivot["date"].tolist()
+
+
+
+
+            # if what_to_show_l== "percentage positieve testen":
+            #     list_percentage = df_temp["percentage"].tolist()
+            #     ax =  df_temp["percentage"].plot(label = l)
+            # elif what_to_show_l== "aantal positieve testen":
+            #     list_percentage = df_temp["positief_testen"].tolist()
+            #     ax =  df_temp["positief_testen"].plot(label = l)
+            # elif what_to_show_l== "totaal testen gedaan":
+            #     list_percentage = df_temp["totaal_testen"].tolist()
+            #     ax =  df_temp["totaal_testen"].plot(label = l)
+            # else:
+            #     print ("error")
+
+            #print (list_dates)
+
+            # ax =  df_temp["percentage"].plot(label = l)
+            #plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
+        #labelLines(plt.gca().get_lines(),align=False,fontsize=8)
+
+        # ticks = [tick.get_text() for tick in ax.get_xticklabels()]
+        # ticks = pd.to_datetime(ticks).strftime('%Y-%m-%d')
+        # ax.set_xticklabels(ticks)
+
+        # ax.set_xticks(df_new["date"].index)
+        # ax.set_xticklabels(df_new["date"].dt.date, fontsize=6, rotation=90)
+        # xticks = ax.xaxis.get_major_ticks()
+        # for i, tick in enumerate(xticks):
+        #     if i % 10 != 0:
+        #         tick.label1.set_visible(False)
+        # plt.xticks()
+
+        ax.yaxis.grid(True, which="major", alpha=0.4)
+
+        ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
+                    transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
+        plt.title(f"{what_to_show_l} per agegroup" , fontsize=10)
+        plt.legend(bbox_to_anchor=(1.5, 1))
+        plt.tight_layout()
+        # handles, labels = [], []
+        # for ax in fig1x.axes:
+        #     for h, l in zip(*ax.get_legend_handles_labels()):
+        #         handles.append(h)
+        #         labels.append(l)
+        plt.legend(handles,labels)
+        #plt.show()
         st.pyplot(fig1x)
 
-def main():
+def prepare_files():
+    # ONLY TO RUN LOCALLY ! (doesnt upload the files to Github)
+    print ("I am going to prepare")
+    grafiek_pos_testen_per_leeftijdscategorie_PREPARE.regroup_df( True)
+    grafiek_pos_testen_per_leeftijdscategorie_PREPARE.regroup_df( False)
 
+def main():
+    prepare = False
+    if prepare:
+        prepare_files()
     # DATE_FORMAT = "%m/%d/%Y"
     start_ = "2020-11-01"
     today = datetime.today().strftime("%Y-%m-%d")
@@ -221,16 +323,19 @@ def main():
     else:
         lijst = ["0-17", "0-19",  "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+", "Niet vermeld"]
 
-    to_show_in_graph = st.sidebar.multiselect(
+    ages_to_show_in_graph = st.sidebar.multiselect(
                 "What to show  (multiple possible)", lijst, ["30-39", "40-49", "50-59", "60-69"])
 
-    if to_show_in_graph == []:
+    if ages_to_show_in_graph == []:
            st.error("Choose something for the left-axis")
            st.stop()
     st.sidebar.write("Onder de 18 heeft men 3x de groepsindeling veranderd.")
-
+    to_show_l_list = ["aantal positieve testen","totaal testen gedaan", "percentage positieve testen"]
 
     to_show_r_list = [None, "Total_reported","Hospital_admission","Deceased"]
+    what_to_show_l = st.sidebar.selectbox(
+        "What to show left", to_show_l_list, index=2
+    )
     what_to_show_r = st.sidebar.selectbox(
         "What to show right", to_show_r_list, index=1
     )
@@ -238,9 +343,9 @@ def main():
     st.header ("Percentage positieve testen per leeftijdsgroep door de tijd heen")
 
     # Rerun when new weeks are added
-    #regroup_df( to_show_in_graph, kids_split_up)
+    #regroup_df( ages_to_show_in_graph, kids_split_up)
 
-    real_action ( to_show_in_graph, what_to_show_r, kids_split_up, show_from, show_until)
+    real_action ( ages_to_show_in_graph, what_to_show_l,what_to_show_r, kids_split_up, show_from, show_until)
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
