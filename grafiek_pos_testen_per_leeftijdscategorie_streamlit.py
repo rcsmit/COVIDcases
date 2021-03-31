@@ -143,7 +143,7 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
         #for i,l in enumerate(ages_to_show_in_graph):
         for l in ages_to_show_in_graph:
             df_temp = df_new[df_new['cat_nieuw']==l]
-            df_temp.set_index('date', drop=True ) # inplace=True
+            df_temp.set_index('date', inplace=True, drop=True ) #
             #df_temp["date"]=pd.to_datetime(df_temp["date"], format='%Y-%m-%d')
             df_temp.sort_values(by = 'date')
             print (df_temp)
@@ -177,12 +177,12 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
 
 
 
-        ax.set_xticklabels(df_new["date"].dt.date, fontsize=6, rotation=90)
-        xticks = ax.xaxis.get_major_ticks()
-        for i, tick in enumerate(xticks):
-            if i % 10 != 0:
-                tick.label1.set_visible(False)
-        plt.xticks()
+        #ax.set_xticklabels(df_new["date"].dt.date, fontsize=6, rotation=90)
+        # xticks = ax.xaxis.get_major_ticks()
+        # for i, tick in enumerate(xticks):
+        #     if i % 10 != 0:
+        #         tick.label1.set_visible(False)
+        #plt.xticks()
 
         ax.yaxis.grid(True, which="major", alpha=0.4)
 
@@ -355,9 +355,11 @@ def main():
     what_to_show_l = st.sidebar.selectbox(
         "What to show left", to_show_l_list, index=2
     )
-    what_to_show_r = st.sidebar.selectbox(
-        "What to show right", to_show_r_list, index=1
-    )
+    what_to_show_r = None
+
+    # what_to_show_r = st.sidebar.selectbox(
+    #     "What to show right", to_show_r_list, index=1
+    # )
     st.sidebar.write("NB: De weken lopen niet exact gelijk met de testen (ma-zo vs wo-di)")
     st.header ("Percentage positieve testen per leeftijdsgroep door de tijd heen")
 
