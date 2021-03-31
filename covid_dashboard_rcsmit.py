@@ -1253,7 +1253,7 @@ def smooth_columnlist(df, columnlist, t):
                 print("Generating " + new_column + "...")
                 df[new_column] = (
                     df.iloc[:, df.columns.get_loc(c)]
-                    .rolling(window=WDW2, center=True)
+                    .rolling(window=WDW2, center=centersmooth)
                     .mean()
                 )
 
@@ -1596,6 +1596,10 @@ def main():
 
     how_to_smoothen = st.sidebar.selectbox(
         "How to smooth (SMA/savgol)", ["SMA", "savgol"], index=0
+    )
+    
+    centersmooth =  st.sidebar.selectbox(
+        "Smooth in center", [True, False], index=0
     )
     WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 7)
     if how_to_smoothen == "savgol" and int(WDW2 / 2) == (WDW2 / 2):
