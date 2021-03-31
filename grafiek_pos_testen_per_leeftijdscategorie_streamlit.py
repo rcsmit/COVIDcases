@@ -67,6 +67,7 @@ def read_df( kids_split_up):
 
 def real_action( ages_to_show_in_graph, what_to_show_l,what_to_show_r, kids_split_up, show_from, show_until):
     df_= read_df( kids_split_up)
+    save_df (df_, "viertottwaalf")
     df_new = df_.copy(deep=False)
     df_new["date"]=pd.to_datetime(df_new["date"], format='%Y-%m-%d')
     df_new['percentage'] =  round((df_new['positief_testen']/df_new['totaal_testen']*100),1)
@@ -216,6 +217,7 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
     #TODO : New graph with grouped barcharts
     if testmeout == True:
         st.write(df_temp_x)
+
         df_pivot_0 = df_temp_x.pivot_table( values='percentage', index=['date'],
                     columns=['cat_nieuw'], aggfunc=np.sum,  fill_value=0)
 
@@ -391,5 +393,4 @@ def main():
         unsafe_allow_html=True,
     )
 
-#main()
-st.error("UNDER CONSTRUCTION")
+main()
