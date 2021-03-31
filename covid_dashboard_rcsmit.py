@@ -1597,7 +1597,7 @@ def main():
     how_to_smoothen = st.sidebar.selectbox(
         "How to smooth (SMA/savgol)", ["SMA", "savgol"], index=0
     )
-    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 14, 7)
+    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 7)
     if how_to_smoothen == "savgol" and int(WDW2 / 2) == (WDW2 / 2):
         st.warning("When using Savgol, the window has to be uneven")
         st.stop()
