@@ -195,7 +195,7 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
     #with _lock:
     testmeout = False
     #TODO : New graph with grouped barcharts
-    if testmeout = True:
+    if testmeout == True:
         st.write(df_temp_x)
         df_pivot_0 = df_temp_x.pivot_table( values='percentage', index=['date'],
                     columns=['cat_nieuw'], aggfunc=np.sum,  fill_value=0)
