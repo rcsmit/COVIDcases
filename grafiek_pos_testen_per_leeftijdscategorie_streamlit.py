@@ -141,6 +141,7 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
         ax = fig1y.add_subplot(111)
         #for l in ages_to_show_in_graph:
         ax.set_xticks(df_new["date"].index)
+        ax.xaxis_date()
         #for i,l in enumerate(ages_to_show_in_graph):
         for l in ages_to_show_in_graph:
             df_temp = df_new[df_new['cat_nieuw']==l]
@@ -209,6 +210,7 @@ def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
                 handles.append(h)
                 labels.append(l)
         plt.legend(handles,labels)
+
         plt.show()
         st.pyplot(fig1y)
 
