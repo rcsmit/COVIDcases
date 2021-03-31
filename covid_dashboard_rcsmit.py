@@ -1398,7 +1398,7 @@ def main():
     global how_to_norm
     global Rnew1_, Rnew2_
     global ry1, ry2, total_cases_0, sec_variant, extra_days
-    global show_R_value_graph, show_R_value_RIVM
+    global show_R_value_graph, show_R_value_RIVM, centersmooth
 
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
