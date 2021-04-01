@@ -308,7 +308,7 @@ def extra_calculations(df):
     )
     # 12.8 is percentage positief getest in week 1-2021
 
-    df["spec_humidity_knmi"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
+    df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
 
     return df
 
@@ -1470,7 +1470,7 @@ def main():
         "q_biggerthansix",
         "q_smallerthansix",
         "reported_corrected",
-        "spec_humidity_knmi"
+        "spec_humidity_knmi_derived"
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
@@ -1768,7 +1768,7 @@ def main():
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
         "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
         "<br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
-        "<br><i>Specific_humidity_KNMI</i> - Specific humidity calculated with the RH<sub>min</sub> and Temp<sub>max</sub> of <i>De Bilt</i> with the formulas <i>es = 6.112 * exp((17.67 * t)/(t + 243.5)) // e = es * (rh / 100) // q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
+        "<br><i>Specific_humidity_KNMI_derived</i> - Specific humidity calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
 
