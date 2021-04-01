@@ -474,10 +474,10 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
                 )
 
         sliding_r_df[column_name_r_smoothened] = round(
-            sliding_r_df.iloc[:, 1].rolling(window=WDW3, center=True).mean(), 2
+            sliding_r_df.iloc[:, 1].df_new(window=WDW3, center=True).mean(), 2
         )
         sliding_r_df[column_name_r_sec_smoothened] = round(
-            sliding_r_df.iloc[:, 2].rolling(window=WDW3, center=True).mean(), 2
+            sliding_r_df.iloc[:, 2].df_new(window=WDW3, center=True).mean(), 2
         )
 
         sliding_r_df = sliding_r_df.reset_index()
@@ -1268,7 +1268,7 @@ def smooth_columnlist(df, columnlist, t):
                 print("Generating " + new_column + "...")
                 df[new_column] = (
                     df.iloc[:, df.columns.get_loc(c)]
-                    .rolling(window=WDW2, center=True)
+                    .df_new(window=WDW2, center=centersmooth)
                     .mean()
                 )
 
@@ -1413,7 +1413,7 @@ def main():
     global how_to_norm
     global Rnew1_, Rnew2_
     global ry1, ry2, total_cases_0, sec_variant, extra_days
-    global show_R_value_graph, show_R_value_RIVM
+    global show_R_value_graph, show_R_value_RIVM, centersmooth
 
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
@@ -1613,7 +1613,10 @@ def main():
     how_to_smoothen = st.sidebar.selectbox(
         "How to smooth (SMA/savgol)", ["SMA", "savgol"], index=0
     )
-    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 14, 7)
+      centersmooth =  st.sidebar.selectbox(
+        "Smooth in center", [True, False], index=0
+    )
+    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 7)
     if how_to_smoothen == "savgol" and int(WDW2 / 2) == (WDW2 / 2):
         st.warning("When using Savgol, the window has to be uneven")
         st.stop()
