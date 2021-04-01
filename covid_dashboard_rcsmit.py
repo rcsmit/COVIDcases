@@ -1613,7 +1613,7 @@ def main():
     how_to_smoothen = st.sidebar.selectbox(
         "How to smooth (SMA/savgol)", ["SMA", "savgol"], index=0
     )
-      centersmooth =  st.sidebar.selectbox(
+    centersmooth =  st.sidebar.selectbox(
         "Smooth in center", [True, False], index=0
     )
     WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 7)
