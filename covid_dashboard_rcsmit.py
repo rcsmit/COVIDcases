@@ -77,15 +77,6 @@ def get_data():
         # #CONFIG
         data = [
             {
-                "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
-                "name": "LCPS",
-                "delimiter": ",",
-                "key": "Datum",
-                "dateformat": "%d-%m-%Y",
-                "groupby": None,
-                "fileformat": "csv",
-            },
-            {
                 "url": "https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv",
                 "name": "COVID-19_ziekenhuisopname",
                 "delimiter": ";",
@@ -94,6 +85,25 @@ def get_data():
                 "groupby": "Date_of_statistics",
                 "fileformat": "csv",
             },
+             {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json",
+                "name": "rioolwater",
+                "delimiter": ",",
+                "key": "Date_measurement",
+                "dateformat": "%Y-%m-%d",
+                "groupby": "Date_measurement",
+                "fileformat": "json",
+            },
+            {
+                "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
+                "name": "LCPS",
+                "delimiter": ",",
+                "key": "Datum",
+                "dateformat": "%d-%m-%Y",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+
             {
                 "url": "https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json",
                 "name": "reprogetal",
@@ -140,22 +150,13 @@ def get_data():
                 "fileformat": "csv",
             },
             {
-                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi2.csv",
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi3.csv",
                 "name": "knmi",
                 "delimiter": ";",
                 "key": "Datum",
                 "dateformat": "%d-%m-%Y",
                 "groupby": None,
                 "fileformat": "csv",
-            },
-            {
-                "url": "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json",
-                "name": "rioolwater",
-                "delimiter": ",",
-                "key": "Date_measurement",
-                "dateformat": "%Y-%m-%d",
-                "groupby": "Date_measurement",
-                "fileformat": "json",
             }
             # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
             # 'name'       : 'sweden',
@@ -220,6 +221,7 @@ def get_data():
             oldkey = data[d]["key"]
             newkey = "key" + str(d)
             df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
+            #st.write (df_temp_x.dtypes)
             df_temp_x[newkey] = pd.to_datetime(
                 df_temp_x[newkey], format=data[d]["dateformat"]
             )
@@ -276,6 +278,17 @@ def week_to_week(df, column_):
             df.at[n, newname2] = waarde2
     return df, newcolumns, newcolumns2
 
+def rh2q (rh, t, p ):
+    print ( "rh2q")
+    # https://archive.eol.ucar.edu/projects/ceop/dm/documents/refdata_report/eqns.html
+
+    #Td = math.log(e/6.112)*243.5/(17.67-math.log(e/6.112))
+    es = 6.112 * math.exp((17.67 * t)/(t + 243.5))
+    e = es * (rh / 100)
+    q_ = (0.622 * e)/(p - (0.378 * e)) * 1000
+    q= round(q_,2)
+    return q
+
 
 def extra_calculations(df):
     """Extra calculations
@@ -294,6 +307,8 @@ def extra_calculations(df):
         (df["Total_reported"] * (df["Percentage_positive"] / 12.8)), 2
     )
     # 12.8 is percentage positief getest in week 1-2021
+
+    df["spec_humidity_knmi"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
 
     return df
 
@@ -1253,7 +1268,7 @@ def smooth_columnlist(df, columnlist, t):
                 print("Generating " + new_column + "...")
                 df[new_column] = (
                     df.iloc[:, df.columns.get_loc(c)]
-                    .rolling(window=WDW2, center=centersmooth)
+                    .rolling(window=WDW2, center=True)
                     .mean()
                 )
 
@@ -1398,7 +1413,7 @@ def main():
     global how_to_norm
     global Rnew1_, Rnew2_
     global ry1, ry2, total_cases_0, sec_variant, extra_days
-    global show_R_value_graph, show_R_value_RIVM, centersmooth
+    global show_R_value_graph, show_R_value_RIVM
 
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
@@ -1455,6 +1470,7 @@ def main():
         "q_biggerthansix",
         "q_smallerthansix",
         "reported_corrected",
+        "spec_humidity_knmi"
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
@@ -1597,11 +1613,7 @@ def main():
     how_to_smoothen = st.sidebar.selectbox(
         "How to smooth (SMA/savgol)", ["SMA", "savgol"], index=0
     )
-    
-    centersmooth =  st.sidebar.selectbox(
-        "Smooth in center", [True, False], index=0
-    )
-    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 7)
+    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 14, 7)
     if how_to_smoothen == "savgol" and int(WDW2 / 2) == (WDW2 / 2):
         st.warning("When using Savgol, the window has to be uneven")
         st.stop()
@@ -1756,8 +1768,10 @@ def main():
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
         "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
         "<br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
-        "<br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
+        "<br><i>Specific_humidity_KNMI</i> - Specific humidity calculated with the RH<sub>min</sub> and Temp<sub>max</sub> of <i>De Bilt</i> with the formulas <i>es = 6.112 * exp((17.67 * t)/(t + 243.5)) // e = es * (rh / 100) // q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
+        "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
+
         "<h2>Toelichting bij de opties</h2>"
         "<h3>What to plot</h3>"
         "<i>Line</i> - Line graph"
