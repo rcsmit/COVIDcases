@@ -1268,7 +1268,7 @@ def smooth_columnlist(df, columnlist, t):
                 print("Generating " + new_column + "...")
                 df[new_column] = (
                     df.iloc[:, df.columns.get_loc(c)]
-                    .df_new(window=WDW2, center=centersmooth)
+                    .rolling(window=WDW2, center=centersmooth)
                     .mean()
                 )
 
