@@ -26,7 +26,7 @@ from matplotlib.backends.backend_agg import RendererAgg
 from datetime import datetime
 import grafiek_pos_testen_per_leeftijdscategorie_PREPARE
 _lock = RendererAgg.lock
-
+import perprovincieperleeftijd
 
 def save_df(df,name):
     """  _ _ _ """
@@ -87,7 +87,7 @@ def real_action( ages_to_show_in_graph, what_to_show_l,what_to_show_r, kids_spli
     print (f'Totaal aantal testen : {df_new["totaal_testen"].sum()}')
     print (f'Percentage positief  : {  round (( 100 * df_new["positief_testen"].sum() /  df_new["totaal_testen"].sum() ),2)    }')
 
-    show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r)
+    show_graph_ages_percentage(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r)
 
 
 def generate_aantallen_gemeente_per_dag_grouped_per_day():
@@ -108,7 +108,7 @@ def read_cases_day():
     df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
 
     return df_new
-def show_graph(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
+def show_graph_ages_percentage(df_new, ages_to_show_in_graph, what_to_show_l, what_to_show_r):
 
     color_list = [  "#ff6666",  # reddish 0
                     "#ac80a0",  # purple 1
@@ -306,7 +306,7 @@ def prepare_files():
     grafiek_pos_testen_per_leeftijdscategorie_PREPARE.regroup_df( True)
     grafiek_pos_testen_per_leeftijdscategorie_PREPARE.regroup_df( False)
 
-def main():
+def main_ages_percentage():
     prepare = False
     if prepare:
         prepare_files()
@@ -395,4 +395,13 @@ def main():
         unsafe_allow_html=True,
     )
 
+def main():
+    what_to_do = st.sidebar.selectbox(
+        "WHAT TO DO", [ "Ages/percentage", "Per province"]
+    )
+    st.sidebar.write ("==============================")
+    if what_to_do == "Ages/percentage":
+        main_ages_percentage()
+    else:
+        perprovincieperleeftijd.main_per_province_per_leeftijd()
 main()
