@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.dates as mdates
+from textwrap import wrap
 
 # import seaborn as sn
 from scipy import stats
@@ -140,6 +141,18 @@ def get_data():
                 "groupby": None,
                 "fileformat": "json",
             },
+
+            {
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_deceased__ages.csv",
+                "name": "cases_hospital_deceased__ages",
+                "delimiter": ";",
+                "key": "pos_test_Date_statistics",
+                "dateformat": "%d-%m-%Y",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+
+
             {
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv",
                 "name": "mobility",
@@ -709,6 +722,16 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             "#FBAA27",
             "#302823",
             "#F07826",
+             "#ff6666",  # reddish 0
+         "#ac80a0",  # purple 1
+         "#3fa34d",  # green 2
+         "#EAD94C",  # yellow 3
+         "#EFA00B",  # orange 4
+         "#7b2d26",  # red 5
+         "#3e5c76",  # blue 6
+         "#e49273",  # dark salmon 7
+         "#1D2D44",  # 8
+
         ]
 
         n = 0  # counter to walk through the colors-list
@@ -1082,7 +1105,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             labels.append(l)
     # plt.legend(handles,labels)
     # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
-    plt.legend(handles, labels, bbox_to_anchor=(0, -0.4), loc="lower left")
+    plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=2)
     ax.text(
         1,
         1.1,
@@ -1219,6 +1242,12 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
 
             #    what_to_show_r = what_to_show_r
             title += str(c) + " "
+        t1 =wrap(title, 40)
+        title = ""
+        st.write (t1)
+        for t in t1:
+            title += t + "\n"
+        print (title)
         graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
     else:
         tl = ""
@@ -1246,7 +1275,12 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
                     tl += r
         tl = tl.replace("_", " ")
 
-        title = f"{tl}"
+        #title = f"{tl}"
+        t1 =wrap(tl, 80)
+        title = ""
+
+        for t in t1:
+            title += t + "\n"
         graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
 
 
@@ -1254,7 +1288,12 @@ def smooth_columnlist(df, columnlist, t):
     """  _ _ _ """
     c_smoothen = []
     wdw_savgol = 7
-
+    #if __name__ = "covid_dashboard_rcsmit":
+    # global WDW2, centersmooth, show_scenario
+    # WDW2=7
+    # st.write(__name__)
+    # centersmooth = False
+    # show_scenario = False
     if columnlist is not None:
         if type(columnlist) == list:
             columnlist_ = columnlist
@@ -1530,10 +1569,11 @@ def main():
         "IC_Nieuwe_Opnames_LCPS",
         "Deceased",
     ]
-
+    chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
     df, newcolumns, newcolumns2 = week_to_week(df, w2w)
     lijst.extend(newcolumns)
     lijst.extend(newcolumns2)
+    lijst.extend(chd)
 
     # for n in newcolumns:
     #     .write(df[n])
@@ -1774,7 +1814,7 @@ def main():
         "<br><i>Specific_humidity_KNMI_derived</i> - Specific humidity calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
-
+        "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
         "<h2>Toelichting bij de opties</h2>"
         "<h3>What to plot</h3>"
         "<i>Line</i> - Line graph"
@@ -1831,6 +1871,6 @@ def main():
         unsafe_allow_html=True,
     )
 
-
-init()
-main()
+if __name__ == "__main__":
+    init()
+    main()
