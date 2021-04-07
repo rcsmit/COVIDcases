@@ -264,7 +264,7 @@ def get_data():
 
         UPDATETIME = datetime.now()
         df = splitupweekweekend(df_temp)
-        df = extra_calculations(df)
+        
         return df, df_ungrouped, UPDATETIME
 
 
@@ -293,7 +293,6 @@ def week_to_week(df, column_):
     return df, newcolumns, newcolumns2
 
 def rh2q (rh, t, p ):
-    print ( "rh2q")
     # https://archive.eol.ucar.edu/projects/ceop/dm/documents/refdata_report/eqns.html
 
     #Td = math.log(e/6.112)*243.5/(17.67-math.log(e/6.112))
@@ -314,7 +313,7 @@ def extra_calculations(df):
     )
     df["temp_etmaal"] = df["temp_etmaal"] / 10
     df["temp_max"] = df["temp_max"] / 10
-    st.write(df.dtypes)
+    #st.write(df.dtypes)
     try:
         df["RNA_per_reported"] = round(
             ((df["RNA_flow_per_100000"] / 1e15) / df["Total_reported"] * 100), 2
@@ -326,6 +325,27 @@ def extra_calculations(df):
     )
     # 12.8 is percentage positief getest in week 1-2021
 
+   
+    df["Total_reported_moved_5"] = df["Total_reported"].shift(5)
+    df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
+    df["hosp_adm_per_reported"] = round(
+            ((df["Hospital_admission_RIVM"] ) / df["Total_reported"] * 100), 2
+        )
+
+    df["IC_adm_per_reported"] = round(
+            ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported"] * 100), 2
+        )
+    df["Deceased_per_reported"] = round(
+            ((df["Deceased"] ) / df["Total_reported"] * 100), 2)
+    df["hosp_adm_per_reported_moved_5"] = round(
+            ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_5"] * 100), 2
+        )
+
+    df["IC_adm_per_reported_moved_5"] = round(
+            ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported_moved_5"] * 100), 2
+        )
+    df["Deceased_per_reported_moved_14"] = round(
+            ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
     save_df(df, "percentage_positief")
     return df
@@ -1477,7 +1497,7 @@ def main():
         },
         inplace=True,
     )
-
+    df = extra_calculations(df)
     lijst = [
         "IC_Bedden_COVID",
         "IC_Bedden_Non_COVID",
@@ -1511,6 +1531,12 @@ def main():
         "RNA_per_ml",
         "RNA_flow_per_100000",
         "RNA_per_reported",
+        "hosp_adm_per_reported",
+        "IC_adm_per_reported",
+        "Deceased_per_reported",
+        "hosp_adm_per_reported_moved_5",
+        "IC_adm_per_reported_moved_5",
+        "Deceased_per_reported_moved_14",
         "q_biggerthansix",
         "q_smallerthansix",
         "reported_corrected"
@@ -1814,7 +1840,15 @@ def main():
         "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
         "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
-        "<br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
+        "<br><br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
+        "<br><i>hosp_adm_per_reported</i> - Percentage hospital admissions "
+        "<br><i>IC_adm_per_reported</i> - Percentage ICU admissions"
+        "<br><i>Deceased_per_reported</i> - Percentage hospital admissions "
+        
+        "<br><i>hosp_adm_per_reported_moved_5</i> - Percentage hospital admissions, total reported moved 5 days"
+        "<br><i>IC_adm_per_reported_moved_5</i>  - Percentage hospital admissions, total reported moved 5 days - "
+        "<br><i>Deceased_per_reported_moved_14</i> - Percentage hospital admissions, total reported moved 14 days "
+       
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
