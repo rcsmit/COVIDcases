@@ -217,6 +217,15 @@ def fit_the_values(to_do_list , total_days):
             y_values_extra.append(None)
 
         # Here we go !
+        st.header("Fitting data to formulas")
+        infox = (
+        '<br>Exponential / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
+        '<br>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
+        '<br>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
+        '<br>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li>'
+            )
+        st.markdown(infox, unsafe_allow_html=True)
+
         use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title)
         use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title)
 
