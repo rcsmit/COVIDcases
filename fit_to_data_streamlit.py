@@ -179,14 +179,14 @@ def use_lmfit(x_values, y_values, functionlist, title):
         with _lock:
             fig1y = plt.figure()
             # plot results -- note that `best_fit` is already available
-            plt.plot(x_values, y_values, "bo")
+            plt.scatter(x_values, y_values, color="#00b3b3")
             plt.plot(x_values, result.best_fit, "r--")
             res = (f"a: {result.params['a'].value} / b: {result.params['b'].value} / c: {result.params['c'].value}")
             plt.title(f"{title} / lmfit - {function}\n{formula}\n{res}")
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
 
             # use `result.eval()` to evaluate model given params and x
-            plt.plot(t, bmodel.eval(result.params, x=t), "k-")
+            plt.plot(t, bmodel.eval(result.params, x=t), "r-")
             plt.ylim(bottom=0)
             plt.xlabel("Days")
             plt.ylabel(title)
@@ -219,7 +219,6 @@ def fit_the_values(to_do_list , total_days):
         # Here we go !
         use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title)
         use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title)
-        #use_lmfit(x_values,y_values, ["exponential"], title)
 
 
 def main_oud():
@@ -271,10 +270,32 @@ def main():
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     DATE_FORMAT = "%m/%d/%Y"
-    start_ = "2020-02-27"
-    until__ = "2020-03-31"
+
+    scenario = st.sidebar.radio(
+    "Select a datarange",
+    ("Total_reported_march_2020","IC_Bedden_march_2021", "IC_opnames_march_2021")
+    )
+    if scenario =='Total_reported_march_2020':
+        start__ = "2020-02-27"
+        until__ = "2020-03-31"
+        what_default = 0
+    elif scenario =='IC_opnames_march_2021':
+        start__ = "2021-03-1"
+        until__ = "2021-03-31"
+        what_default = 4
+
+    elif scenario =='IC_Bedden_march_2021':
+        start__ = "2021-03-1"
+        until__ = "2021-03-31"
+        what_default = 2
+
+    else:
+        st.error ("ERROR in scenario")
+        st.stop()
+
+
     today = datetime.today().strftime("%Y-%m-%d")
-    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start__)
 
     try:
         FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
@@ -312,7 +333,7 @@ def main():
 
     what_to_display = st.sidebar.selectbox(
             "What to display", lijst,
-            index=0,
+            index=what_default,
         )
     total_days = st.sidebar.number_input('Total days to show',None,None,60)
 
