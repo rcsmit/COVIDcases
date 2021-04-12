@@ -10,6 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
+import matplotlib.dates as mdates
 import copy, math
 from lmfit import Model
 import pandas as pd
@@ -47,7 +48,7 @@ def growth(x, a, b):
     return np.power(a * 0.5, (x / (4 * (math.log(0.5) / math.log(b)))))
 
 # #####################################################################
-def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title):
+def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, daterange):
     """
     Use the curve-fit from scipy.
     IN : x- and y-values. The ___-extra are for "predicting" the curve
@@ -135,6 +136,17 @@ def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title):
         plt.legend()
         plt.title(f"{title} / curve_fit (scipy)")
         plt.ylim(bottom=0)
+        plt.xlabel(f"Days from {start__}")
+
+
+        # POGING OM DATUMS OP DE X-AS TE KRIJGEN (TOFIX)
+        # plt.xlim(daterange[0], daterange[-1])
+        # lay-out of the x axis
+        # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        # interval_ = 5
+        # plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
+        # plt.gcf().autofmt_xdate()
+
         #plt.show()
         st.pyplot(fig1x)
 
@@ -188,12 +200,15 @@ def use_lmfit(x_values, y_values, functionlist, title):
             # use `result.eval()` to evaluate model given params and x
             plt.plot(t, bmodel.eval(result.params, x=t), "r-")
             plt.ylim(bottom=0)
-            plt.xlabel("Days")
+            plt.xlabel(f"Days from {start__}")
+
+
+
             plt.ylabel(title)
             #plt.show()
             st.pyplot(fig1y)
 
-def fit_the_values(to_do_list , total_days):
+def fit_the_values(to_do_list , total_days, daterange):
     """
     We are going to fit the values
 
@@ -226,7 +241,7 @@ def fit_the_values(to_do_list , total_days):
             )
         st.markdown(infox, unsafe_allow_html=True)
 
-        use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title)
+        use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, daterange)
         use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title)
 
 def select_period(df, show_from, show_until):
@@ -250,7 +265,7 @@ def main():
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     DATE_FORMAT = "%m/%d/%Y"
-
+    global start__
     scenario = st.sidebar.radio(
     "Select a datarange",
     ("Total_reported_march_2020","IC_Bedden_march_2021", "IC_opnames_march_2021")
@@ -328,7 +343,12 @@ def main():
     df_to_use = select_period(df, FROM, UNTIL)
     values_to_fit = df_to_use[what_to_display].tolist()
     to_do_list = [[what_to_display, values_to_fit]]
-    fit_the_values(to_do_list, total_days)
+
+    then = d1 + dt.timedelta(days=total_days)
+    daterange = mdates.drange(d1,then,dt.timedelta(days=1))
+
+
+    fit_the_values(to_do_list, total_days, daterange)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
