@@ -290,6 +290,7 @@ def main():
 
 
     today = datetime.today().strftime("%Y-%m-%d")
+    global from_
     from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start__)
 
     try:
