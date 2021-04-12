@@ -24,6 +24,9 @@ import streamlit.components.v1 as components
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 
+from PIL import Image
+import glob
+
 # Functions to calculate values a,b  and c ##########################
 def exponential(x, a, b, c):
     ''' Standard gompertz function
@@ -68,7 +71,7 @@ def find_gaussian_curvefit(x_values, y_values):
 
     return tuple(popt_g2)
 
-def use_curvefit(x_values, x_values_extra, y_values,  title, daterange):
+def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
     """
     Use the curve-fit from scipy.
     IN : x- and y-values. The ___-extra are for "predicting" the curve
@@ -175,10 +178,27 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange):
         # plt.gcf().autofmt_xdate()
 
         #plt.show()
+        filename= (f"{OUTPUT_DIR}scipi_{title}_{i}")
+        #plt.savefig(filename, dpi=100, bbox_inches="tight")
+
         st.pyplot(fig1x)
 
 
-def use_lmfit(x_values, y_values, functionlist, title):
+# def make_gif(filelist):
+#     # Create the frames
+#     frames = []
+#     imgs = glob.glob("*.png")
+#     for i in imgs:
+#         new_frame = Image.open(i)
+#         frames.append(new_frame)
+#      
+#     # Save into a GIF file that loops forever
+#     frames[0].save('png_to_gif.gif', format='GIF',
+#                    append_images=frames[1:],
+#                    save_all=True,
+#                    duration=300, loop=0)
+
+def use_lmfit(x_values, y_values, functionlist, title,i):
     """
     Use lmfit.
     IN : x- and y-values.
@@ -231,22 +251,20 @@ def use_lmfit(x_values, y_values, functionlist, title):
 
             plt.ylabel(title)
             #plt.show()
+            filename= (f"{OUTPUT_DIR}lmfit_{title}_{function}_{i}")
+            #plt.savefig(filename, dpi=100, bbox_inches="tight")
             st.pyplot(fig1y)
 
 def fit_the_values_really(x_values,  y_values,  title, daterange,i):
         x_values_extra = np.linspace(
             start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
         )
-        x_values_short = x_values[:i]
-        y_values_short = y_values[:i]
-        use_curvefit(x_values, x_values_extra, y_values,  title, daterange)
+        x_values = x_values[:i]
+        y_values = y_values[:i]
+        use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
+        use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title,i)
 
-
-
-
-        use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title)
-
-def fit_the_values(to_do_list , total_days, daterange):
+def fit_the_values(to_do_list , total_days, daterange, prepare_for_animation):
     """
     We are going to fit the values
 
@@ -270,9 +288,13 @@ def fit_the_values(to_do_list , total_days, daterange):
         TOTAL_DAYS_IN_GRAPH = total_days  # number of total days
         x_values = np.linspace(start=0, stop=number_of_y_values - 1, num=number_of_y_values)
 
-        for i in range(len(x_values)-1, len(x_values)):
-            # i made this in a loop to enable animations
-            fit_the_values_really(x_values,  y_values,  title, daterange, i)
+
+        if prepare_for_animation == True:
+            for i in range(5, len(x_values)):
+                fit_the_values_really(x_values,  y_values,  title, daterange, i)
+        else:
+            for i in range(len(x_values)-1, len(x_values)):
+                fit_the_values_really(x_values,  y_values,  title, daterange, i)
 
         # FIXIT
         # aq, bq, cq = find_gaussian_curvefit(x_values, y_values)
@@ -302,6 +324,10 @@ def main():
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     DATE_FORMAT = "%m/%d/%Y"
     global start__
+    global OUTPUT_DIR
+    OUTPUT_DIR = (
+        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\"
+    )
     scenario = st.sidebar.radio(
     "Select a datarange",
     ("Total_reported_march_2020","IC_Bedden_march_2021", "IC_opnames_march_2021")
@@ -314,7 +340,7 @@ def main():
     elif scenario =='IC_opnames_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
-        what_default = 4
+        what_default = 5
         days_to_show = 60
     elif scenario =='IC_Bedden_march_2021':
         start__ = "2021-03-1"
@@ -385,14 +411,17 @@ def main():
 
 
     df_to_use = select_period(df, FROM, UNTIL)
+    df_to_use.fillna(value=0, inplace=True)
     values_to_fit = df_to_use[what_to_display].tolist()
     to_do_list = [[what_to_display, values_to_fit]]
 
     then = d1 + dt.timedelta(days=total_days)
     daterange = mdates.drange(d1,then,dt.timedelta(days=1))
 
+    #prepare_for_animation = st.sidebar.selectbox("Prepare for animation (SLOW!)", [True, False], index=1)
+    prepare_for_animation = False
 
-    fit_the_values(to_do_list, total_days, daterange)
+    fit_the_values(to_do_list, total_days, daterange, prepare_for_animation)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
