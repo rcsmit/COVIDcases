@@ -272,7 +272,7 @@ def main():
     )
     if scenario =='Total_reported_march_2020':
         start__ = "2020-02-27"
-        until__ = "2020-03-31"
+        until__ = "2020-05-31"
         what_default = 0
     elif scenario =='IC_opnames_march_2021':
         start__ = "2021-03-1"
