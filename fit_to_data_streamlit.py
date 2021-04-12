@@ -136,7 +136,7 @@ def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, date
         plt.legend()
         plt.title(f"{title} / curve_fit (scipy)")
         plt.ylim(bottom=0)
-        plt.xlabel(f"Days from {start__}")
+        plt.xlabel(f"Days from {from_}")
 
 
         # POGING OM DATUMS OP DE X-AS TE KRIJGEN (TOFIX)
@@ -200,7 +200,7 @@ def use_lmfit(x_values, y_values, functionlist, title):
             # use `result.eval()` to evaluate model given params and x
             plt.plot(t, bmodel.eval(result.params, x=t), "r-")
             plt.ylim(bottom=0)
-            plt.xlabel(f"Days from {start__}")
+            plt.xlabel(f"Days from {from_}")
 
 
 
