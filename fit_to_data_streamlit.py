@@ -220,35 +220,6 @@ def fit_the_values(to_do_list , total_days):
         use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title)
         use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title)
 
-
-def main_oud():
-    """
-    Main function.
-
-    Manually input:  a list of the values to fit as a list as 'y_values'
-    """
-    # Total reported vanaf 27-2-2020
-    total_reported = [ 0, 1, 1, 3, 5, 4, 10, 17, 40, 50, 32, 61, 130, 123, 127,
-                 113, 219, 173, 270, 288, 347, 396, 533, 637, 605, 553, 749,
-                 843, 1007, 1167, 1146, 1092, 874, 836, 1008, 1083, 1020, 1002, 1099]
-
-    # IC Bedden vanaf 1 maart 2021
-    ic_bedden = [536.0, 540.0, 549.0, 539.0, 541.0, 542.0, 545.0, 558.0,
-                  556.0, 560.0, 572.0, 576.0, 554.0, 554.0, 564.0, 586.0,
-                  568.0, 564.0, 579.0, 602.0, 611.0, 638.0, 623.0, 625.0,
-                  619.0, 625.0, 643.0, 655.0, 675.0, 682.0, 681.0, 688.0,
-                  705.0, 734.0, 730.0, 746.0, 750.0, 776.0, 798.0]
-
-    # IC nieuwe opnames vanaf 1 maart 2021
-    ic_opnames = [30, 52, 49, 31, 39, 36, 39, 33, 35, 28, 50, 39, 44, 37, 46,
-                  38, 36, 29, 46, 54, 31, 50, 32, 37, 34, 44, 51, 41, 36, 50, 42,
-                  61, 48, 54, 53, 58, 44, 57, 57]
-    #to_do_list = [["Total reported", total_reported],
-    #            ["IC bedden", ic_bedden],
-    #            ["IC opnames", ic_opnames]]
-    to_do_list = [["Total reported", total_reported]]
-    fit_the_values(to_do_list)
-
 def select_period(df, show_from, show_until):
     """ _ _ _ """
     if show_from == None:
@@ -349,6 +320,17 @@ def main():
     values_to_fit = df_to_use[what_to_display].tolist()
     to_do_list = [[what_to_display, values_to_fit]]
     fit_the_values(to_do_list, total_days)
+
+     tekst = (
+        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
+        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/fit_to_data_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
+        'Thanks to <a href="https://twitter.com/dimgrr" target="_blank">@dimgrr</a> for the inspiration and help.</div>'
+    )
+
+    st.markdown(toelichting, unsafe_allow_html=True)
+    st.sidebar.markdown(tekst, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
