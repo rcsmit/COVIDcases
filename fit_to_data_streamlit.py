@@ -321,7 +321,7 @@ def main():
     to_do_list = [[what_to_display, values_to_fit]]
     fit_the_values(to_do_list, total_days)
 
-     tekst = (
+    tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
         'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/fit_to_data_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
@@ -329,7 +329,6 @@ def main():
         'Thanks to <a href="https://twitter.com/dimgrr" target="_blank">@dimgrr</a> for the inspiration and help.</div>'
     )
 
-    st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
 
 if __name__ == "__main__":
