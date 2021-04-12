@@ -17,6 +17,9 @@ import pandas as pd
 import streamlit as st
 import datetime as dt
 from datetime import datetime, timedelta
+import matplotlib.animation as animation
+
+import streamlit.components.v1 as components
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
@@ -48,13 +51,31 @@ def growth(x, a, b):
     return np.power(a * 0.5, (x / (4 * (math.log(0.5) / math.log(b)))))
 
 # #####################################################################
-def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, daterange):
+
+def find_gaussian_curvefit(x_values, y_values):
+    try:
+        popt_g2, pcov_g2 = curve_fit(
+            f=gaussian_2,
+            xdata=x_values,
+            ydata=y_values,
+            p0=[0, 0, 0],
+            bounds=(-np.inf, np.inf),
+            maxfev=10000,
+        )
+    except RuntimeError as e:
+        str_e = str(e)
+        st.error(f"gaussian fit :\n{str_e}")
+
+    return tuple(popt_g2)
+
+def use_curvefit(x_values, x_values_extra, y_values,  title, daterange):
     """
     Use the curve-fit from scipy.
     IN : x- and y-values. The ___-extra are for "predicting" the curve
     """
-    st.subheader(f"Curvefit (scipy) - {title}")
     with _lock:
+        st.subheader(f"Curvefit (scipy) - {title}")
+
         fig1x = plt.figure()
         try:
             popt, pcov = curve_fit(
@@ -75,24 +96,7 @@ def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, date
             str_e = str(e)
             st.error(f"Exponential fit :\n{str_e}")
 
-        # FIXIT
-        # try:
-        #     popt_growth, pcov_growth = curve_fit(
-        #         f=growth,
-        #         xdata=x_values,
-        #         ydata=y_values,
-        #         p0=[500, 0.0001],
-        #         bounds=(-np.inf, np.inf),
-        #         maxfev=10000,
-        #     )
-        #     plt.plot(
-        #         x_values_extra,
-        #         growth(x_values_extra, *popt_growth),
-        #         "y-",
-        #         label="growth: a=%5.3f, b=%5.3f" % tuple(popt_growth),
-        #     )
-        # except:
-        #     st.write("Error with growth model fit")
+
         try:
             popt_d, pcov_d = curve_fit(
                 f=derivate,
@@ -112,6 +116,27 @@ def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, date
             str_e = str(e)
             st.error(f"Derivate fit :\n{str_e}")
 
+
+        # FIXIT
+        # try:
+        #     popt_growth, pcov_growth = curve_fit(
+        #         f=growth,
+        #         xdata=x_values,
+        #         ydata=y_values,
+        #         p0=[500, 0.0001],
+        #         bounds=(-np.inf, np.inf),
+        #         maxfev=10000,
+        #     )
+        #     plt.plot(
+        #         x_values_extra,
+        #         growth(x_values_extra, *popt_growth),
+        #         "y-",
+        #         label="growth: a=%5.3f, b=%5.3f" % tuple(popt_growth),
+        #     )
+        # except:
+        #     st.write("Error with growth model fit")
+
+
         try:
             popt_g, pcov_g = curve_fit(
                 f=gaussian_2,
@@ -121,25 +146,27 @@ def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, date
                 bounds=(-np.inf, np.inf),
                 maxfev=10000,
             )
+
+
             plt.plot(
                 x_values_extra,
                 gaussian_2(x_values_extra, *popt_g),
                 "b-",
                 label="gaussian fit: a=%5.3f, b=%5.3f, c=%5.3f" % tuple(popt_g),
             )
+
         except RuntimeError as e:
             str_e = str(e)
             st.error(f"Gaussian fit :\n{str_e}")
 
 
-        plt.scatter(x_values_extra, y_values_extra, s=20, color="#00b3b3", label="Data")
+        plt.scatter(x_values, y_values, s=20, color="#00b3b3", label="Data")
         plt.legend()
         plt.title(f"{title} / curve_fit (scipy)")
         plt.ylim(bottom=0)
         plt.xlabel(f"Days from {from_}")
 
-
-        # POGING OM DATUMS OP DE X-AS TE KRIJGEN (TOFIX)
+         # POGING OM DATUMS OP DE X-AS TE KRIJGEN (TOFIX)
         # plt.xlim(daterange[0], daterange[-1])
         # lay-out of the x axis
         # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
@@ -202,17 +229,38 @@ def use_lmfit(x_values, y_values, functionlist, title):
             plt.ylim(bottom=0)
             plt.xlabel(f"Days from {from_}")
 
-
-
             plt.ylabel(title)
             #plt.show()
             st.pyplot(fig1y)
+
+def fit_the_values_really(x_values,  y_values,  title, daterange,i):
+        x_values_extra = np.linspace(
+            start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
+        )
+        x_values_short = x_values[:i]
+        y_values_short = y_values[:i]
+        use_curvefit(x_values, x_values_extra, y_values,  title, daterange)
+
+
+
+
+        use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title)
 
 def fit_the_values(to_do_list , total_days, daterange):
     """
     We are going to fit the values
 
     """
+    # Here we go !
+    st.header("Fitting data to formulas")
+    infox = (
+    '<br>Exponential / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
+    '<br>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
+    '<br>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
+    '<br>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li>'
+        )
+    st.markdown(infox, unsafe_allow_html=True)
+    el = st.empty()
     for v in to_do_list:
         title = v[0]
         y_values = v[1]
@@ -221,28 +269,14 @@ def fit_the_values(to_do_list , total_days, daterange):
         global TOTAL_DAYS_IN_GRAPH
         TOTAL_DAYS_IN_GRAPH = total_days  # number of total days
         x_values = np.linspace(start=0, stop=number_of_y_values - 1, num=number_of_y_values)
-        x_values_extra = np.linspace(
-            start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
-        )
 
-        # make a longer list for the prediction
-        y_values_extra = copy.deepcopy(y_values)
-        d = len(x_values_extra) - len(y_values_extra)
-        for i in range(0, d):
-            y_values_extra.append(None)
+        for i in range(len(x_values)-1, len(x_values)):
+            # i made this in a loop to enable animations
+            fit_the_values_really(x_values,  y_values,  title, daterange, i)
 
-        # Here we go !
-        st.header("Fitting data to formulas")
-        infox = (
-        '<br>Exponential / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
-        '<br>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
-        '<br>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
-        '<br>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li>'
-            )
-        st.markdown(infox, unsafe_allow_html=True)
-
-        use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, daterange)
-        use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title)
+        # FIXIT
+        # aq, bq, cq = find_gaussian_curvefit(x_values, y_values)
+        # st.write(f"Find Gaussian curvefit - a:{aq}  b:{bq}  c: {cq}")
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
@@ -264,6 +298,8 @@ def main():
     url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+    df["total_reported_cumm"] = df["Total_reported"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     DATE_FORMAT = "%m/%d/%Y"
     global start__
     scenario = st.sidebar.radio(
@@ -274,15 +310,17 @@ def main():
         start__ = "2020-02-27"
         until__ = "2020-05-31"
         what_default = 0
+        days_to_show = 180
     elif scenario =='IC_opnames_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 4
-
+        days_to_show = 60
     elif scenario =='IC_Bedden_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 2
+        days_to_show = 60
 
     else:
         st.error ("ERROR in scenario")
@@ -313,10 +351,12 @@ def main():
 
     lijst = [
         "Total_reported",
+        "total_reported_cumm",
         "IC_Bedden_COVID",
         "IC_Bedden_Non_COVID",
         "Kliniek_Bedden",
         "IC_Nieuwe_Opnames_LCPS",
+        "IC_Nieuwe_Opnames_LCPS_cumm",
         "Hospital_admission_RIVM",
         "Hospital_admission_LCPS",
         "Hospital_admission_GGD",
@@ -331,13 +371,16 @@ def main():
             "What to display", lijst,
             index=what_default,
         )
-    total_days = st.sidebar.number_input('Total days to show',None,None,60)
+    total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
     d1 = datetime.strptime(from_, "%Y-%m-%d")
     d2 = datetime.strptime(until_, "%Y-%m-%d")
     datediff = abs((d2 - d1).days)
     if  datediff > total_days:
         st.warning("Make sure that the number of total days is bigger than the date difference")
+        st.stop()
+    if  datediff < 4:
+        st.warning("Make sure that the date difference is at least 4 days")
         st.stop()
 
 
