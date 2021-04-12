@@ -124,7 +124,7 @@ def use_curvefit(x_values, x_values_extra, y_values, y_values_extra, title, date
             plt.plot(
                 x_values_extra,
                 gaussian_2(x_values_extra, *popt_g),
-                "r-",
+                "b-",
                 label="gaussian fit: a=%5.3f, b=%5.3f, c=%5.3f" % tuple(popt_g),
             )
         except RuntimeError as e:
