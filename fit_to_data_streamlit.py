@@ -480,7 +480,7 @@ def main():
     global prepare_for_animation
     if platform is not "":
         prepare_for_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=1)
-    else
+    else:
         st.write ("Animation disabled")
 
     fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
