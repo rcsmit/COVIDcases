@@ -18,6 +18,7 @@ import streamlit as st
 import datetime as dt
 from datetime import datetime, timedelta
 import matplotlib.animation as animation
+import platform
 
 import streamlit.components.v1 as components
 
@@ -432,6 +433,7 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
+    st.write(platform.processor())
 
 if __name__ == "__main__":
     main()
