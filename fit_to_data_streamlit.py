@@ -18,9 +18,10 @@ import streamlit as st
 import datetime as dt
 from datetime import datetime, timedelta
 import matplotlib.animation as animation
-import platform
-
+import imageio
 import streamlit.components.v1 as components
+import os
+import platform
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
@@ -86,7 +87,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             f=exponential,
             xdata=x_values,
             ydata=y_values,
-            p0=[0, 0, 0],
+            p0=[4600, 11, 0.5],
             bounds=(-np.inf, np.inf),
             maxfev=10000,
             )
@@ -180,7 +181,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
 
         #plt.show()
         filename= (f"{OUTPUT_DIR}scipi_{title}_{i}")
-        #plt.savefig(filename, dpi=100, bbox_inches="tight")
+        plt.savefig(filename, dpi=100, bbox_inches="tight")
 
         st.pyplot(fig1x)
 
@@ -199,7 +200,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
 #                    save_all=True,
 #                    duration=300, loop=0)
 
-def use_lmfit(x_values, y_values, functionlist, title,i):
+def use_lmfit(x_values, y_values,  functionlist, title,i):
     """
     Use lmfit.
     IN : x- and y-values.
@@ -224,10 +225,10 @@ def use_lmfit(x_values, y_values, functionlist, title,i):
             formula =  "a * np.exp(-((x - b) ** 2) / c)"
         else:
             st.write("Please choose a function")
-            exit()
+            st.stop()
 
         # create Parameters, giving initial values
-        params = bmodel.make_params(a=500, b=25, c=0.5)
+        params = bmodel.make_params(a=4711, b=12, c=0.06)
         # params = bmodel.make_params()
         params["a"].min = 0
         params["b"].min = 0
@@ -235,37 +236,79 @@ def use_lmfit(x_values, y_values, functionlist, title,i):
 
         # do fit, st.write result
         result = bmodel.fit(y_values, params, x=x_values)
+        a = round(result.params['a'].value,5)
+        b= round(result.params['b'].value,5)
+        c =round(result.params['c'].value,5)
+
         st.text(result.fit_report())
         with _lock:
             fig1y = plt.figure()
             # plot results -- note that `best_fit` is already available
             plt.scatter(x_values, y_values, color="#00b3b3")
             plt.plot(x_values, result.best_fit, "r--")
-            res = (f"a: {result.params['a'].value} / b: {result.params['b'].value} / c: {result.params['c'].value}")
+            res = (f"a: {a} / b: {b} / c: {c}")
             plt.title(f"{title} / lmfit - {function}\n{formula}\n{res}")
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
 
             # use `result.eval()` to evaluate model given params and x
             plt.plot(t, bmodel.eval(result.params, x=t), "r-")
-            plt.ylim(bottom=0)
+            #plt.ylim(bottom=0)
+            plt.ylim(0, 1400)
             plt.xlabel(f"Days from {from_}")
 
             plt.ylabel(title)
             #plt.show()
             filename= (f"{OUTPUT_DIR}lmfit_{title}_{function}_{i}")
-            #plt.savefig(filename, dpi=100, bbox_inches="tight")
+
+            plt.savefig(filename, dpi=100, bbox_inches="tight")
             st.pyplot(fig1y)
 
-def fit_the_values_really(x_values,  y_values,  title, daterange,i):
+        if prepare_for_animation == False:
+            with _lock:
+                fig1z = plt.figure()
+                # plot results -- note that `best_fit` is already available
+
+
+                if function == "exponential":
+                    plt.plot(t, derivate(t,a,b,c))
+                    function_x = "derivate"
+                    formula_x = "a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)"
+
+                elif function == "derivate":
+                    plt.plot(t, exponential(t, a,b,c))
+                    function_x = "exponential"
+                    formula_x = "a * np.exp(-b * np.exp(-c * x))"
+
+                else:
+                    st.error("ERROR")
+                    st.stop()
+                plt.title(f"{title} / {function_x}\n{formula_x}\n{res}")
+                t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
+
+                # use `result.eval()` to evaluate model given params and x
+                #plt.plot(t, bmodel.eval(result.params, x=t), "r-")
+                plt.ylim(bottom=0)
+                plt.xlabel(f"Days from {from_}")
+
+                plt.ylabel(title)
+                #plt.show()
+                #filename= (f"{OUTPUT_DIR}lmfit_{title}_{function}_{i}")
+                #plt.savefig(filename, dpi=100, bbox_inches="tight")
+                st.pyplot(fig1z)
+
+    return filename
+
+def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i):
         x_values_extra = np.linspace(
             start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
         )
         x_values = x_values[:i]
         y_values = y_values[:i]
-        use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
-        use_lmfit(x_values,y_values, ["exponential", "derivate", "gaussian"], title,i)
+        # use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
+        filename = use_lmfit(x_values,y_values, [which_method], title,i)
+        return filename
 
-def fit_the_values(to_do_list , total_days, daterange, prepare_for_animation):
+def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for_animation):
     """
     We are going to fit the values
 
@@ -289,13 +332,23 @@ def fit_the_values(to_do_list , total_days, daterange, prepare_for_animation):
         TOTAL_DAYS_IN_GRAPH = total_days  # number of total days
         x_values = np.linspace(start=0, stop=number_of_y_values - 1, num=number_of_y_values)
 
-
+        filenames = []
         if prepare_for_animation == True:
             for i in range(5, len(x_values)):
-                fit_the_values_really(x_values,  y_values,  title, daterange, i)
+                filename = fit_the_values_really(x_values,  y_values, which_method,  title, daterange, i)
+                filenames.append(filename)
+            # build gif
+            with imageio.get_writer('mygif.gif', mode='I') as writer:
+                for filename_ in filenames:
+                    image = imageio.imread(f"{filename_}.png")
+                    writer.append_data(image)
+
+            # Remove files
+            for filename__ in set(filenames):
+                os.remove(f"{filename__}.png")
         else:
             for i in range(len(x_values)-1, len(x_values)):
-                fit_the_values_really(x_values,  y_values,  title, daterange, i)
+                filename = fit_the_values_really(x_values,  y_values, which_method, title, daterange, i)
 
         # FIXIT
         # aq, bq, cq = find_gaussian_curvefit(x_values, y_values)
@@ -321,7 +374,9 @@ def main():
     url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+    df.fillna(value=0, inplace=True)
     df["total_reported_cumm"] = df["Total_reported"].cumsum()
+    #df["total_reported_k_value"] = 1- df["total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     DATE_FORMAT = "%m/%d/%Y"
     global start__
@@ -331,7 +386,7 @@ def main():
     )
     scenario = st.sidebar.radio(
     "Select a datarange",
-    ("Total_reported_march_2020","IC_Bedden_march_2021", "IC_opnames_march_2021")
+    ("Total_reported_march_2020","IC_Bedden_march_2021", "IC_opnames_march_2021", "Hosp_adm_march_2021")
     )
     if scenario =='Total_reported_march_2020':
         start__ = "2020-02-27"
@@ -347,6 +402,11 @@ def main():
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 2
+        days_to_show = 60
+    elif scenario =='Hosp_adm_march_2021':
+        start__ = "2021-03-1"
+        until__ = "2021-03-31"
+        what_default = 7
         days_to_show = 60
 
     else:
@@ -387,17 +447,16 @@ def main():
         "Hospital_admission_RIVM",
         "Hospital_admission_LCPS",
         "Hospital_admission_GGD",
-
         "Deceased",
         "Tested_with_result",
         "Tested_positive",
-        "Percentage_positive"
-    ]
+        "Percentage_positive"]
 
     what_to_display = st.sidebar.selectbox(
             "What to display", lijst,
             index=what_default,
         )
+    which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate"], index=1)
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
     d1 = datetime.strptime(from_, "%Y-%m-%d")
@@ -418,11 +477,13 @@ def main():
 
     then = d1 + dt.timedelta(days=total_days)
     daterange = mdates.drange(d1,then,dt.timedelta(days=1))
+    global prepare_for_animation
+    if platform is not "":
+        prepare_for_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=1)
+    else
+        st.write ("Animation disabled")
 
-    #prepare_for_animation = st.sidebar.selectbox("Prepare for animation (SLOW!)", [True, False], index=1)
-    prepare_for_animation = False
-
-    fit_the_values(to_do_list, total_days, daterange, prepare_for_animation)
+    fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
@@ -433,7 +494,6 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    st.sidebar.write(f"-{platform.processor()}-")
 
 if __name__ == "__main__":
     main()
