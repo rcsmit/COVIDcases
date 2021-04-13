@@ -479,9 +479,11 @@ def main():
     daterange = mdates.drange(d1,then,dt.timedelta(days=1))
     global prepare_for_animation
     if platform.processor() is not "":
+
         prepare_for_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=1)
     else:
         st.write ("Animation disabled")
+        prepare_for_animation = False
 
     fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
 
