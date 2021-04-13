@@ -433,7 +433,7 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    st.write(platform.processor())
+    st.sidebar.write(f"-{platform.processor()}-")
 
 if __name__ == "__main__":
     main()
