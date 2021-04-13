@@ -478,7 +478,7 @@ def main():
     then = d1 + dt.timedelta(days=total_days)
     daterange = mdates.drange(d1,then,dt.timedelta(days=1))
     global prepare_for_animation
-    if platform.processor() is not None:
+    if platform.processor() is not "":
         prepare_for_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=1)
     else:
         st.write ("Animation disabled")
