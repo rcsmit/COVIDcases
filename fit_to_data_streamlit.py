@@ -306,7 +306,8 @@ def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i,
         )
         x_values = x_values[:i]
         y_values = y_values[:i]
-        # use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
+        if prepare_for_animation == False:
+            use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
         filename = use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
         return filename
 
