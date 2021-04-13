@@ -22,6 +22,8 @@ import imageio
 import streamlit.components.v1 as components
 import os
 import platform
+import webbrowser
+
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
@@ -200,7 +202,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
 #                    save_all=True,
 #                    duration=300, loop=0)
 
-def use_lmfit(x_values, y_values,  functionlist, title,i):
+def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
     """
     Use lmfit.
     IN : x- and y-values.
@@ -253,7 +255,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i):
             # use `result.eval()` to evaluate model given params and x
             plt.plot(t, bmodel.eval(result.params, x=t), "r-")
             #plt.ylim(bottom=0)
-            plt.ylim(0, 1400)
+            plt.ylim(0, max_y_values*1.1)
             plt.xlabel(f"Days from {from_}")
 
             plt.ylabel(title)
@@ -298,14 +300,14 @@ def use_lmfit(x_values, y_values,  functionlist, title,i):
 
     return filename
 
-def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i):
+def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i, max_y_values):
         x_values_extra = np.linspace(
             start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
         )
         x_values = x_values[:i]
         y_values = y_values[:i]
         # use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
-        filename = use_lmfit(x_values,y_values, [which_method], title,i)
+        filename = use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
         return filename
 
 def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for_animation):
@@ -326,6 +328,8 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
     for v in to_do_list:
         title = v[0]
         y_values = v[1]
+        max_y_values = max(y_values)
+
         # some preperations
         number_of_y_values = len(y_values)
         global TOTAL_DAYS_IN_GRAPH
@@ -335,20 +339,21 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
         filenames = []
         if prepare_for_animation == True:
             for i in range(5, len(x_values)):
-                filename = fit_the_values_really(x_values,  y_values, which_method,  title, daterange, i)
+                filename = fit_the_values_really(x_values,  y_values, which_method,  title, daterange, i, max_y_values)
                 filenames.append(filename)
             # build gif
             with imageio.get_writer('mygif.gif', mode='I') as writer:
                 for filename_ in filenames:
                     image = imageio.imread(f"{filename_}.png")
                     writer.append_data(image)
+            webbrowser.open('mygif.gif')
 
             # Remove files
             for filename__ in set(filenames):
                 os.remove(f"{filename__}.png")
         else:
             for i in range(len(x_values)-1, len(x_values)):
-                filename = fit_the_values_really(x_values,  y_values, which_method, title, daterange, i)
+                filename = fit_the_values_really(x_values,  y_values, which_method, title, daterange, i, max_y_values)
 
         # FIXIT
         # aq, bq, cq = find_gaussian_curvefit(x_values, y_values)
@@ -482,7 +487,7 @@ def main():
 
         prepare_for_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=1)
     else:
-        st.write ("Animation disabled")
+        st.sidebar.write ("Animation disabled")
         prepare_for_animation = False
 
     fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
