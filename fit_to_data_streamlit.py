@@ -5,6 +5,11 @@
 # https://towardsdatascience.com/basic-curve-fitting-of-scientific-data-with-python-9592244a2509?gi=9c7c4ade0880
 # https://github.com/venkatesannaveen/python-science-tutorial/blob/master/curve-fitting/curve-fitting-tutorial.ipynb
 
+
+# https://www.reddit.com/r/CoronavirusUS/comments/fqx8fn/ive_been_working_on_this_extrapolation_for_the/
+# to explore : https://github.com/fcpenha/Gompertz-Makehan-Fit/blob/master/script.py
+
+
 # Import required packages
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -23,7 +28,14 @@ import streamlit.components.v1 as components
 import os
 import platform
 import webbrowser
-
+from pandas import read_csv, Timestamp, Timedelta, date_range
+from io import StringIO
+from numpy import log, exp, sqrt, clip, argmax, put
+from scipy.special import erfc, erf
+from lmfit import Model
+from matplotlib.pyplot import subplots
+from matplotlib.ticker import StrMethodFormatter
+from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
@@ -56,6 +68,15 @@ def growth(x, a, b):
     """ Growth model. a is the value at t=0. b is the so-called R number.
         Doesnt work. FIX IT """
     return np.power(a * 0.5, (x / (4 * (math.log(0.5) / math.log(b)))))
+
+# https://replit.com/@jsalsman/COVID19USlognormals
+def lognormal_c(x, s, mu, h): # x, sigma, mean, height
+  return h * 0.5 * erfc(- (log(x) - mu) / (s * sqrt(2)))
+# https://en.wikipedia.org/wiki/Log-normal_distribution#Cumulative_distribution_function
+
+
+def normal_c(x, s, mu, h): # x, sigma, mean, height
+  return h * 0.5 * (1 + erf((x - mu) / (s * sqrt(2))))
 
 # #####################################################################
 
@@ -375,14 +396,175 @@ def select_period(df, show_from, show_until):
 
     return df
 
+
+def normal_c(df):
+    #https://replit.com/@jsalsman/COVID19USlognormals
+    st.subheader("Normal_c")
+    df = df.set_index('date')
+    firstday = df.index[0] + Timedelta('1d')
+    nextday = df.index[-1] + Timedelta('1d')
+    lastday = df.index[-1] + Timedelta(TOTAL_DAYS_IN_GRAPH - len(df), 'd') # extrapolate
+    with _lock:
+        #fig1y = plt.figure()
+        fig1yz, ax = subplots()
+        ax.set_title('NL COVID-19 cumulative log-lognormal extrapolations\n'
+            + 'Source: repl.it/@jsalsman/COVID19USlognormals')
+
+        x = ((df.index - Timestamp('2020-01-01')) # independent
+            // Timedelta('1d')).values # small day-of-year integers
+        yi = df['Total_reported_cumm'].values # dependent
+        yd = df['Deceased_cumm'].values # dependent
+        exrange = range((Timestamp(nextday)
+            - Timestamp(firstday)) // Timedelta('1d'),
+            (Timestamp(lastday) + Timedelta('1d')
+            - Timestamp(firstday)) // Timedelta('1d')) # day-of-year ints
+        indates = date_range(df.index[0], df.index[-1])
+        exdates = date_range(nextday, lastday)
+
+        ax.scatter(indates, yi, color="#00b3b3", label='Infected')
+        ax.scatter(indates, yd, color="#00b3b3", label='Dead')
+
+        sqrt2 = sqrt(2)
+
+        im = Model(normal_c)
+        st.write (x)
+        iparams = im.make_params(s=0.3, mu=4.3, h=16.5)
+        st.write (iparams)
+        #iparams['s'].min = 0; iparams['h'].min = 0
+        iresult = im.fit(log(yi+1), iparams, x=x)
+        st.text('---- Infections:\n' + iresult.fit_report())
+        ax.plot(indates, exp(iresult.best_fit)-1, 'b', label='Infections fit')
+        ipred = iresult.eval(x=exrange)
+        ax.plot(exdates, exp(ipred)-1, 'b--',
+            label='Forecast: {:,.0f}'.format(exp(ipred[-1])-1))
+        iupred = iresult.eval_uncertainty(x=exrange, sigma=0.95) # 95% interval
+        iintlow = clip(ipred-iupred, ipred[0], None)
+        put(iintlow, range(argmax(iintlow), len(iintlow)), iintlow[argmax(iintlow)])
+        ax.fill_between(exdates, exp(iintlow), exp(ipred+iupred), alpha=0.35, color='b')
+
+        dm = Model(normal_c)
+
+        dparams = dm.make_params(s=19.8, mu=79.1, h=11.4) # initial guesses
+        dparams['s'].min = 0; iparams['h'].min = 0
+        dresult = dm.fit(log(yd+1), dparams, x=x)
+        st.text('---- Deaths:\n' + dresult.fit_report())
+        ax.plot(indates, exp(dresult.best_fit)-1, 'r', label='Deaths fit')
+        dpred = dresult.eval(x=exrange)
+        ax.plot(exdates, exp(dpred)-1, 'r--',
+            label='Forecast: {:,.0f}'.format(exp(dpred[-1])-1))
+        dupred = dresult.eval_uncertainty(x=exrange, sigma=0.95) # 95% interval
+        dintlow = clip(dpred-dupred, log(max(yd)+1), None)
+        put(dintlow, range(argmax(dintlow), len(dintlow)), dintlow[argmax(dintlow)])
+        ax.fill_between(exdates, exp(dintlow), exp(dpred+dupred), alpha=0.35, color='r')
+        ax.fill_between(exdates, 0.012 * (exp(iintlow)), 0.012 * (exp(ipred+iupred)),
+            alpha=0.85, color='g', label='Deaths from observed fatality rate')
+
+        ax.set_xlim(df.index[0], lastday)
+        #ax.set_yscale('log') # semilog
+        #ax.set_ylim(0, 1500000)
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
+        ax.grid()
+        ax.legend(loc="upper left")
+        ax.xaxis.set_major_formatter(ConciseDateFormatter(AutoDateLocator(), show_offset=False))
+        ax.set_xlabel('95% prediction confidence intervals shaded')
+
+        #fig.savefig('plot.png', bbox_inches='tight')
+        #print('\nTO VIEW GRAPH: click on plot.png in the file pane to the left.')
+        #fig.show()
+        st.pyplot(fig1yz)
+
+    st.text('Infections at end of period shown: {:,.0f}. Deaths: {:,.0f}.'.format(
+        exp(ipred[-1])-1, exp(dpred[-1])-1))
+
+
+def loglognormal(df, what_to_display):
+    #https://replit.com/@jsalsman/COVID19USlognormals
+    st.subheader("Log Normal")
+    df = df.set_index('date')
+    firstday = df.index[0] + Timedelta('1d')
+    nextday = df.index[-1] + Timedelta('1d')
+    lastday = df.index[-1] + Timedelta(TOTAL_DAYS_IN_GRAPH - len(df), 'd') # extrapolate
+    with _lock:
+        #fig1y = plt.figure()
+        fig1yz, ax = subplots()
+        ax.set_title('NL COVID-19 cumulative log-lognormal extrapolations\n'
+            + 'Source: repl.it/@jsalsman/COVID19USlognormals')
+
+        x = ((df.index - Timestamp('2020-01-01')) # independent
+            // Timedelta('1d')).values # small day-of-year integers
+        yi = df[what_to_display].values # dependent
+        #yd = df['Deceased_cumm'].values # dependent
+        exrange = range((Timestamp(nextday)
+            - Timestamp(firstday)) // Timedelta('1d'),
+            (Timestamp(lastday) + Timedelta('1d')
+            - Timestamp(firstday)) // Timedelta('1d')) # day-of-year ints
+        indates = date_range(df.index[0], df.index[-1])
+        exdates = date_range(nextday, lastday)
+
+        ax.scatter(indates, yi, color="#00b3b3", label='Infected')
+        #ax.scatter(indates, yd, color="#00b3b3", label='Dead')
+
+        sqrt2 = sqrt(2)
+
+        #im = Model(normal_c)
+        im = Model(lognormal_c)
+
+        iparams = im.make_params(s=0.3, mu=4.3, h=16.5)
+        iparams['s'].min = 0; iparams['h'].min = 0
+        iresult = im.fit(log(yi+1), iparams, x=x)
+        st.text(f'---- {what_to_display}:\n' + iresult.fit_report())
+        label_ = (f"{what_to_display} fit")
+        ax.plot(indates, exp(iresult.best_fit)-1, 'b', label=label_)
+        ipred = iresult.eval(x=exrange)
+        ax.plot(exdates, exp(ipred)-1, 'b--',
+            label='Forecast: {:,.0f}'.format(exp(ipred[-1])-1))
+        iupred = iresult.eval_uncertainty(x=exrange, sigma=0.95) # 95% interval
+        iintlow = clip(ipred-iupred, ipred[0], None)
+        put(iintlow, range(argmax(iintlow), len(iintlow)), iintlow[argmax(iintlow)])
+        ax.fill_between(exdates, exp(iintlow), exp(ipred+iupred), alpha=0.35, color='b')
+
+        #dm = Model(normal_c)
+        # dm = Model(lognormal_c)
+
+        # dparams = dm.make_params(s=19.8, mu=79.1, h=11.4) # initial guesses
+        # dparams['s'].min = 0; iparams['h'].min = 0
+        # dresult = dm.fit(log(yd+1), dparams, x=x)
+        # st.text('---- Deaths:\n' + dresult.fit_report())
+        # ax.plot(indates, exp(dresult.best_fit)-1, 'r', label='Deaths fit')
+        # dpred = dresult.eval(x=exrange)
+        # ax.plot(exdates, exp(dpred)-1, 'r--',
+        #     label='Forecast: {:,.0f}'.format(exp(dpred[-1])-1))
+        # dupred = dresult.eval_uncertainty(x=exrange, sigma=0.95) # 95% interval
+        # dintlow = clip(dpred-dupred, log(max(yd)+1), None)
+        # put(dintlow, range(argmax(dintlow), len(dintlow)), dintlow[argmax(dintlow)])
+        # ax.fill_between(exdates, exp(dintlow), exp(dpred+dupred), alpha=0.35, color='r')
+        # ax.fill_between(exdates, 0.012 * (exp(iintlow)), 0.012 * (exp(ipred+iupred)),
+        #     alpha=0.85, color='g', label='Deaths from observed fatality rate')
+
+        ax.set_xlim(df.index[0], lastday)
+        #ax.set_yscale('log') # semilog
+        #ax.set_ylim(0, 1500000)
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
+        ax.grid()
+        ax.legend(loc="upper left")
+        ax.xaxis.set_major_formatter(ConciseDateFormatter(AutoDateLocator(), show_offset=False))
+        ax.set_xlabel('95% prediction confidence intervals shaded')
+
+        #fig.savefig('plot.png', bbox_inches='tight')
+        #print('\nTO VIEW GRAPH: click on plot.png in the file pane to the left.')
+        #fig.show()
+        st.pyplot(fig1yz)
+
+    st.text(f"{what_to_display} at end of period shown: {int( exp(ipred[-1])-1)}.")
 def main():
     url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\EINDTABEL.csv"
-    url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
+    #url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.fillna(value=0, inplace=True)
-    df["total_reported_cumm"] = df["Total_reported"].cumsum()
-    #df["total_reported_k_value"] = 1- df["total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
+    df["Total_reported_cumm"] = df["Total_reported"].cumsum()
+    df["Deceased_cumm"] = df["Deceased"].cumsum()
+    #df["total_reported_k_value"] = 1- df["Total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     DATE_FORMAT = "%m/%d/%Y"
     global start__
@@ -392,28 +574,38 @@ def main():
     )
     scenario = st.sidebar.radio(
     "Select a datarange",
-    ("Total_reported_march_2020","IC_Bedden_march_2021", "IC_opnames_march_2021", "Hosp_adm_march_2021")
+    ("Total_reported_march_2020","Total_reported_cumm_march_2020", "IC_Bedden_march_2021", "IC_opnames_march_2021", "Hosp_adm_march_2021")
     )
     if scenario =='Total_reported_march_2020':
         start__ = "2020-02-27"
         until__ = "2020-05-31"
         what_default = 0
         days_to_show = 180
+        what_method_default = 1
+    elif scenario =='Total_reported_cumm_march_2020':
+        start__ = "2020-02-27"
+        until__ = "2020-05-31"
+        what_default = 1
+        days_to_show = 180
+        what_method_default = 0
     elif scenario =='IC_opnames_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 5
         days_to_show = 60
+        what_method_default = 1
     elif scenario =='IC_Bedden_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 2
         days_to_show = 60
+        what_method_default = 1
     elif scenario =='Hosp_adm_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 7
         days_to_show = 60
+        what_method_default = 1
 
     else:
         st.error ("ERROR in scenario")
@@ -427,7 +619,7 @@ def main():
     try:
         FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
     except:
-        st.error("Please make sure that the startdate is in format yyyy-mm-dd")
+        st.error("Please make sure that the startdate is valid and/or in format yyyy-mm-dd")
         st.stop()
 
     until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", until__)
@@ -435,7 +627,7 @@ def main():
     try:
         UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
     except:
-        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+        st.error("Please make sure that the enddate is valid and/or in format yyyy-mm-dd")
         st.stop()
 
     if FROM >= UNTIL:
@@ -444,7 +636,7 @@ def main():
 
     lijst = [
         "Total_reported",
-        "total_reported_cumm",
+        "Total_reported_cumm",
         "IC_Bedden_COVID",
         "IC_Bedden_Non_COVID",
         "Kliniek_Bedden",
@@ -454,15 +646,21 @@ def main():
         "Hospital_admission_LCPS",
         "Hospital_admission_GGD",
         "Deceased",
+        "Deceased_cumm",
         "Tested_with_result",
         "Tested_positive",
         "Percentage_positive"]
+    # for l in lijst:
+    #     l_ = l + "_cumm"
+    #     df[l_] = df[l].cumsum()
+    #     lijst.append(l_)
 
     what_to_display = st.sidebar.selectbox(
             "What to display", lijst,
             index=what_default,
         )
-    which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate"], index=1)
+    which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate"], index=what_method_default)
+
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
     d1 = datetime.strptime(from_, "%Y-%m-%d")
@@ -478,6 +676,7 @@ def main():
 
     df_to_use = select_period(df, FROM, UNTIL)
     df_to_use.fillna(value=0, inplace=True)
+
     values_to_fit = df_to_use[what_to_display].tolist()
     to_do_list = [[what_to_display, values_to_fit]]
 
@@ -492,7 +691,8 @@ def main():
         prepare_for_animation = False
 
     fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
-
+    #normal_c(df_to_use)  #FIXIT doesnt work :()
+    loglognormal(df_to_use, what_to_display)
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
