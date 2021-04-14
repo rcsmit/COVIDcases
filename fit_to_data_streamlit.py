@@ -557,8 +557,8 @@ def loglognormal(df, what_to_display):
 
     st.text(f"{what_to_display} at end of period shown: {int( exp(ipred[-1])-1)}.")
 def main():
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\EINDTABEL.csv"
-    #url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
+    #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\EINDTABEL.csv"
+    url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.fillna(value=0, inplace=True)
