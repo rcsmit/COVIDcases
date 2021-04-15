@@ -264,7 +264,7 @@ def get_data():
 
         UPDATETIME = datetime.now()
         df = splitupweekweekend(df_temp)
-        
+
         return df, df_ungrouped, UPDATETIME
 
 
@@ -325,7 +325,7 @@ def extra_calculations(df):
     )
     # 12.8 is percentage positief getest in week 1-2021
 
-   
+
     df["Total_reported_moved_5"] = df["Total_reported"].shift(5)
     df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
     df["hosp_adm_per_reported"] = round(
@@ -467,6 +467,7 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
             + "_tg"
             + str(tg)
             + "_"
+            + "over_" + str(WDW4) + "_days_"
             + how_to_smooth
             + "_"
             + str(WDW3)
@@ -477,6 +478,8 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
             + "_tg"
             + str(tg)
             + "_"
+            + "over_" + str(WDW4) + "_days_"
+
             + how_to_smooth
             + "_"
             + str(WDW3)
@@ -486,7 +489,7 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
             {"date_sR": [], column_name_R: [], column_name_R_sec: []}
         )
 
-        d = 7
+        d = WDW4
         d2 = 2
         r_sec = []
         for i in range(0, len(df)):
@@ -512,10 +515,13 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
                 )
 
         sliding_r_df[column_name_r_smoothened] = round(
-            sliding_r_df.iloc[:, 1].df_new(window=WDW3, center=True).mean(), 2
+            sliding_r_df.iloc[:, 1].rolling(window=WDW3, center=True).mean(), 2
         )
+
+
+
         sliding_r_df[column_name_r_sec_smoothened] = round(
-            sliding_r_df.iloc[:, 2].df_new(window=WDW3, center=True).mean(), 2
+            sliding_r_df.iloc[:, 2].rolling(window=WDW3, center=True).mean(), 2
         )
 
         sliding_r_df = sliding_r_df.reset_index()
@@ -711,6 +717,7 @@ def graph_daily_normed(
 
 def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     """  _ _ _ """
+    #st.write(f"t = {t}")
     df_temp = pd.DataFrame(columns=["date"])
     if what_to_show_l is None:
         st.warning("Choose something")
@@ -1270,10 +1277,11 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
             title += str(c) + " "
         t1 =wrap(title, 40)
         title = ""
-        st.write (t1)
-        for t in t1:
-            title += t + "\n"
-        print (title)
+        #st.write (t1)
+        for tx in t1:
+            title += tx + "\n"
+        print (f"titel 1277{title}")
+
         graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
     else:
         tl = ""
@@ -1468,7 +1476,7 @@ def main():
     global FROM
     global UNTIL
     global WDW2
-    global WDW3
+    global WDW3, WDW4
     global showoneday
     global showday
     global MOVE_WR
@@ -1487,6 +1495,7 @@ def main():
     # rioolwaterplaatsen = (get_locations(df_ungrouped, "RWZI_AWZI_name"))
 
     df, werkdagen, weekend_ = last_manipulations(df, None, None)
+
     # #CONFIG
     df.rename(
         columns={
@@ -1499,6 +1508,7 @@ def main():
         inplace=True,
     )
     df = extra_calculations(df)
+    save_df(df, "EINDTABELx")
     lijst = [
         "IC_Bedden_COVID",
         "IC_Bedden_Non_COVID",
@@ -1637,7 +1647,7 @@ def main():
     showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox(
-            "What to show left-axis (bar -one possible)", lijst, index=8
+            "What to show left-axis (bar -one possible)", lijst, index=7
         )
         # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
 
@@ -1693,6 +1703,8 @@ def main():
         st.stop()
     if showR == True:
         WDW3 = st.sidebar.slider("Window smoothing R-number", 1, 14, 7)
+        WDW4 = st.sidebar.slider("Calculate R-number over .. days", 1, 14, 4)
+
         MOVE_WR = st.sidebar.slider("Move the R-curve", -20, 10, -8)
     else:
         showR = False
@@ -1845,11 +1857,11 @@ def main():
         "<br><i>hosp_adm_per_reported</i> - Percentage hospital admissions "
         "<br><i>IC_adm_per_reported</i> - Percentage ICU admissions"
         "<br><i>Deceased_per_reported</i> - Percentage hospital admissions "
-        
+
         "<br><i>hosp_adm_per_reported_moved_5</i> - Percentage hospital admissions, total reported moved 5 days"
         "<br><i>IC_adm_per_reported_moved_5</i>  - Percentage hospital admissions, total reported moved 5 days - "
         "<br><i>Deceased_per_reported_moved_14</i> - Percentage hospital admissions, total reported moved 14 days "
-       
+
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
