@@ -347,7 +347,13 @@ def extra_calculations(df):
     df["Deceased_per_reported_moved_14"] = round(
             ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
+    df["Total_reported_cumm"] = df["Total_reported"].cumsum()
+    df["Deceased_cumm"] = df["Deceased"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
+    df["Hospital_admission_RIVM_cumm"] = df["Hospital_admission_RIVM"].cumsum()
+
     save_df(df, "percentage_positief")
+
     return df
 
 
@@ -1533,11 +1539,12 @@ def main():
         "apple_driving",
         "apple_transit",
         "apple_walking",
+        "temp_min",
         "temp_etmaal",
         "temp_max",
         "zonneschijnduur",
         "globale_straling",
-        "spec_humidity_knmi_derived"
+        "spec_humidity_knmi_derived",
         "neerslag",
         "RNA_per_ml",
         "RNA_flow_per_100000",
@@ -1548,6 +1555,15 @@ def main():
         "hosp_adm_per_reported_moved_5",
         "IC_adm_per_reported_moved_5",
         "Deceased_per_reported_moved_14",
+        "Total_reported_cumm",
+        "Hospital_admission_RIVM_cumm",
+        "Deceased_cumm",
+        "IC_Nieuwe_Opnames_LCPS_cumm",
+        "Total_reported_cumm_period",
+        "Hospital_admission_RIVM_cumm_period",
+        "Deceased_cumm_period",
+        "IC_Nieuwe_Opnames_LCPS_cumm_period",
+
         "q_biggerthansix",
         "q_smallerthansix",
         "reported_corrected"
@@ -1596,6 +1612,11 @@ def main():
             st.success("Cache is cleared, please reload to scrape new values")
 
     df = select_period(df, FROM, UNTIL)
+    df["Total_reported_cumm_period"] = df["Total_reported"].cumsum()
+    df["Deceased_cumm_period"] = df["Deceased"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm_period"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
+    df["Hospital_admission_RIVM_cumm_period"] = df["Hospital_admission_RIVM"].cumsum()
+
     df = df.drop_duplicates()
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
@@ -1861,7 +1882,8 @@ def main():
         "<br><i>hosp_adm_per_reported_moved_5</i> - Percentage hospital admissions, total reported moved 5 days"
         "<br><i>IC_adm_per_reported_moved_5</i>  - Percentage hospital admissions, total reported moved 5 days - "
         "<br><i>Deceased_per_reported_moved_14</i> - Percentage hospital admissions, total reported moved 14 days "
-
+        "<br><br><i>*_cumm</i> - cummulative numbers, from the start"
+        "<br><i>*_cumm_period</i> - cummulative numbers for the chosen period"
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
@@ -1874,6 +1896,8 @@ def main():
         "<h3>How to smooth</h3>"
         "<i>SMA</i> - Smooth moving average. <br><i>savgol</i> - <a href='https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter' target='_bank'>Savitzky-Golay filter</a>"
         "<h2>Hidden features</h2>"
+        "<h3>Calculate R value</h3>"
+        "Choose (what to plot)[bar] to calculate the R value."
         "<h3>Correlation</h3>"
         "If you have chosen one field on the left side and one for the right side, correlation of the fields are shown. Attention: <i>correlation is not causation</i>!"
         "<h3>Find correlations</h3>"
@@ -1881,15 +1905,16 @@ def main():
         "<h3>Move curves at right axis (days)</h3>"
         "You can move the curves at the right ax to see possible cause-effect relations."
         "<h3>Show Scenario</h3>"
-        "You are able to calculate a scenario based on two R-numbers, their ratio, a correction factor (to put in effect measures) and add extra days. Works only with [total reported]."
+        "You are able to calculate a scenario based on two R-numbers, their ratio, a correction factor (to put in effect measures) and add extra days. Works only with [total reported]. The current values 'work' when the period starts at 2021/1/1. "
         "You can calculate scenarios with more options and graphs at my other webapp <a href='https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py' target='_blank'>https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py</a>"
         "<h2>Show specific weekday</h2>"
-        "When you choose [bar] and [week], you can choose one specific weekday to compare them more easily"
+        "When you choose (day or week)[week] and (what to plot)[bar], you can choose one specific weekday to compare them more easily"
         "<h2>Datasource</h2>"
         "Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. "
         ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
         "For the moment most of the data is be updated automatically every 24h."
-        " The KNMI, Google and Apple data will be updated manually at a lower frequency.<br><br>"
+        ' The <a href=/"https://www.knmi.nl/nederland-nu/klimatologie/daggegevens/" target=/"_blank/">KNMI</a>, Google and Apple data will be updated manually at a lower frequency.<br><br>'
+        "<b>Feel free to contact me for any wishes, added fields or calculations</b>"
     )
 
     tekst = (
