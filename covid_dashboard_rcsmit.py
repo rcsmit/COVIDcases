@@ -313,6 +313,7 @@ def extra_calculations(df):
     )
     df["temp_etmaal"] = df["temp_etmaal"] / 10
     df["temp_max"] = df["temp_max"] / 10
+    df["temp_min"] = df["temp_min"] / 10
     #st.write(df.dtypes)
     try:
         df["RNA_per_reported"] = round(
