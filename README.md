@@ -1,6 +1,8 @@
 # COVIDcases
 
-Various files with models and graphs concerning COVID-19
+Various files with models and graphs concerning COVID-19. 
+
+Sorry, sourcecode, input and outputfiles are mixed in one directory. If I'd do it again, I would split it up and make an utils.py file also. 
 
 ## Interesting files/scripts
 * **number_of_cases_interactive.py** - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity
@@ -32,6 +34,14 @@ Various files with models and graphs concerning COVID-19
 
 * **getest_leeftijd_weekcijfers.py** -  IS ER EEN VERBAND MET HET PERCENTAGE POSITIEF PER LEEFTIJDSGROEP EN DE ZIEKENHUISOPNAMES?
 ![image](https://user-images.githubusercontent.com/1609141/112730368-7e4bd300-8f31-11eb-8b72-a6d39b579ea9.png)
+
+**calculate_false_positive_rate_covid_test.py** - HOE BETROUWBAAR ZIJN DE TESTEN ?
+![image](https://user-images.githubusercontent.com/1609141/115085095-2b4eb580-9f0a-11eb-8c1f-02642e846114.png)
+![image](https://user-images.githubusercontent.com/1609141/115085050-14a85e80-9f0a-11eb-9732-87a78ffa73d3.png)
+
+**fit_to_data_streamlit.py** - FIT THE DATA 
+![image](https://user-images.githubusercontent.com/1609141/115085210-651fbc00-9f0a-11eb-99e6-6aa4504fd325.png)
+
 
 ## Required files
 * **mobilityR.csv** - Contains google- and apple mobility data for *masterfile_covid.py*
