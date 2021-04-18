@@ -345,11 +345,19 @@ def extra_calculations(df):
     df["IC_adm_per_reported_moved_5"] = round(
             ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported_moved_5"] * 100), 2
         )
+    try:
+        df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
+    except:
+        df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / 8)
+    df["prev_div_days_contagious_cumm"] = df["prev_div_days_contagious"].cumsum()
+    df["deceased_per_prev_div_days_contagious"] = ( df["Deceased"] / df["prev_div_days_contagious"] )*100
+
     df["Deceased_per_reported_moved_14"] = round(
             ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
     df["Deceased_cumm"] = df["Deceased"].cumsum()
+    df["Deceased_cumm_div_prev_div_days_contagious_cumm"] =  df["Deceased_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     df["Hospital_admission_RIVM_cumm"] = df["Hospital_admission_RIVM"].cumsum()
 
@@ -357,6 +365,14 @@ def extra_calculations(df):
 
     return df
 
+def extra_calculations_period(df):
+    df["Total_reported_cumm_period"] = df["Total_reported"].cumsum()
+    df["Deceased_cumm_period"] = df["Deceased"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm_period"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
+    df["Hospital_admission_RIVM_cumm_period"] = df["Hospital_admission_RIVM"].cumsum()
+    df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
+    df["Deceased_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["Deceased_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
+    return df
 
 ###################################################
 def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
@@ -1484,6 +1500,7 @@ def main():
     global UNTIL
     global WDW2
     global WDW3, WDW4
+    global number_days_contagious
     global showoneday
     global showday
     global MOVE_WR
@@ -1531,6 +1548,7 @@ def main():
         "Tested_positive",
         "Percentage_positive",
         "prev_avg",
+
         "retail_and_recreation",
         "grocery_and_pharmacy",
         "parks",
@@ -1556,6 +1574,8 @@ def main():
         "hosp_adm_per_reported_moved_5",
         "IC_adm_per_reported_moved_5",
         "Deceased_per_reported_moved_14",
+
+
         "Total_reported_cumm",
         "Hospital_admission_RIVM_cumm",
         "Deceased_cumm",
@@ -1564,7 +1584,12 @@ def main():
         "Hospital_admission_RIVM_cumm_period",
         "Deceased_cumm_period",
         "IC_Nieuwe_Opnames_LCPS_cumm_period",
-
+        "prev_div_days_contagious",
+        "prev_div_days_contagious_cumm",
+        "prev_div_days_contagious_cumm_period",
+        "deceased_per_prev_div_days_contagious",
+        "Deceased_cumm_div_prev_div_days_contagious_cumm",
+        "Deceased_cumm_period_div_prev_div_days_contagious_cumm_period",
         "q_biggerthansix",
         "q_smallerthansix",
         "reported_corrected"
@@ -1613,10 +1638,8 @@ def main():
             st.success("Cache is cleared, please reload to scrape new values")
 
     df = select_period(df, FROM, UNTIL)
-    df["Total_reported_cumm_period"] = df["Total_reported"].cumsum()
-    df["Deceased_cumm_period"] = df["Deceased"].cumsum()
-    df["IC_Nieuwe_Opnames_LCPS_cumm_period"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
-    df["Hospital_admission_RIVM_cumm_period"] = df["Hospital_admission_RIVM"].cumsum()
+    df = extra_calculations_period(df)
+
 
     df = df.drop_duplicates()
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
@@ -1738,6 +1761,7 @@ def main():
         how_to_agg_r = st.sidebar.selectbox(
             "How to agg right (sum/mean)", ["sum", "mean"], index=0
         )
+    number_days_contagious = st.sidebar.slider("Aantal dagen besmettelijk", 1, 21, 8)
 
     show_scenario = st.sidebar.selectbox("Show Scenario", [True, False], index=1)
     if show_scenario:
@@ -1849,6 +1873,7 @@ def main():
 
     toelichting = (
         "<h2>Toelichting bij de keuzevelden</h2>"
+        "<p>Order may/might have been changed</p>"
         "<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten (LCPS)"
         "<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden (LCPS) "
         "<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden (LCPS)"
@@ -1875,8 +1900,8 @@ def main():
         "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
         "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
-        "<br><br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
-        "<br><i>hosp_adm_per_reported</i> - Percentage hospital admissions "
+
+        "<br><br><i>hosp_adm_per_reported</i> - Percentage hospital admissions "
         "<br><i>IC_adm_per_reported</i> - Percentage ICU admissions"
         "<br><i>Deceased_per_reported</i> - Percentage hospital admissions "
 
@@ -1885,6 +1910,14 @@ def main():
         "<br><i>Deceased_per_reported_moved_14</i> - Percentage hospital admissions, total reported moved 14 days "
         "<br><br><i>*_cumm</i> - cummulative numbers, from the start"
         "<br><i>*_cumm_period</i> - cummulative numbers for the chosen period"
+        "<br><br><i>prev_div_days_contagious</i> - Prevalentie gedeeld door "+ number_days_contagious + " (aantal dagen dat men besmettelijk is) "
+        "<br><i>prev_div_days_contagious_cumm</i> -"
+        "<br><i>prev_div_days_contagious_cumm_period</i> -"
+        "<br><i>deceased_per_prev_div_days_contagious</i> -"
+        "<br><i>Deceased_cumm_div_prev_div_days_contagious_cumm</i> -"
+        "<br><i>Deceased_cumm_period_div_prev_div_days_contagious_cumm_period</i> -"
+        "<br><br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
+
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
