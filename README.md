@@ -42,6 +42,8 @@ Sorry, sourcecode, input and outputfiles are mixed in one directory. If I'd do i
 **fit_to_data_streamlit.py** - FIT THE DATA 
 ![image](https://user-images.githubusercontent.com/1609141/115085210-651fbc00-9f0a-11eb-99e6-6aa4504fd325.png)
 
+**calculate_ifr_prevalence.py** - calculate percentage of population who had covid and the IFR from the prevalence
+![image](https://user-images.githubusercontent.com/1609141/115160069-8f05e980-a096-11eb-87f4-106738c6feed.png)
 
 ## Required files
 * **mobilityR.csv** - Contains google- and apple mobility data for *masterfile_covid.py*
