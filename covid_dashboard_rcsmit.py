@@ -115,6 +115,15 @@ def get_data():
             },
 
             {
+                "url": "https://raw.githubusercontent.com/Sikerdebaard/vaccinatie-orakel/main/data/ensemble.csv",
+                "name": "vaccinatie",
+                "delimiter": ",",
+                "key": "date",
+                "dateformat": "%Y-%m-%d",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+            {
                 "url": "https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json",
                 "name": "reprogetal",
                 "delimiter": ",",
@@ -360,7 +369,9 @@ def extra_calculations(df):
     df["Deceased_cumm_div_prev_div_days_contagious_cumm"] =  df["Deceased_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     df["Hospital_admission_RIVM_cumm"] = df["Hospital_admission_RIVM"].cumsum()
-
+    df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
+    df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
+    df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
     save_df(df, "percentage_positief")
 
     return df
@@ -1548,7 +1559,12 @@ def main():
         "Tested_positive",
         "Percentage_positive",
         "prev_avg",
-
+        "total_vaccinations",
+        "people_vaccinated",
+        "people_fully_vaccinated",
+        "total_vaccinations_diff",
+        "people_vaccinated_diff",
+        "people_fully_vaccinated_diff",
         "retail_and_recreation",
         "grocery_and_pharmacy",
         "parks",
@@ -1888,15 +1904,22 @@ def main():
         "<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD "
         "<br><i>Percentage_positive</i> - Percentage positief getest bij de GGD "
         "<br><i>prev_avg</i> - Aantal besmettelijke mensen."
+        "<br><br><i>total_vaccinations</i> - aantal doses geinjecteerd"
+        "<br><i>people_vaccinated</i> - aantal mensen dat tenminste een prik heeft ontvangen"
+        "<br><i>people_fully_vaccinated</i> - aantal mensen volledig gevaccineerd"
+        "<br><i>*_diff</i> - * per day"
+
         "<br><br><i>retail_and_recreation, grocery_and_pharmacy, parks, transit_stations, workplaces, "
         "residential</i> - Mobiliteitsdata van Google"
         "<br><i>apple_driving, apple_transit, apple_walking</i> - Mobiliteitsdata van Apple"
+
         "<br><br><i>temp_etmaal</i> - Etmaalgemiddelde temperatuur (in graden Celsius)"
         "<br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)"
         "<br><br><i>Zonneschijnduur</i> - Zonneschijnduur (in 0.1 uur) berekend uit de globale straling"
         "<br><i>Globale straling</i> - Globale straling in (in J//cm2) "
         "<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) "
         "<br><i>Specific_humidity_KNMI_derived</i> - Specific humidity in g/kg, calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
+
         "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
         "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
@@ -1908,19 +1931,23 @@ def main():
         "<br><i>hosp_adm_per_reported_moved_5</i> - Percentage hospital admissions, total reported moved 5 days"
         "<br><i>IC_adm_per_reported_moved_5</i>  - Percentage hospital admissions, total reported moved 5 days - "
         "<br><i>Deceased_per_reported_moved_14</i> - Percentage hospital admissions, total reported moved 14 days "
+
         "<br><br><i>*_cumm</i> - cummulative numbers, from the start"
         "<br><i>*_cumm_period</i> - cummulative numbers for the chosen period"
-        "<br><br><i>prev_div_days_contagious</i> - Prevalentie gedeeld door "+ number_days_contagious + " (aantal dagen dat men besmettelijk is) "
+
+        "<br><br><i>prev_div_days_contagious</i> - Prevalentie gedeeld door "+ str(number_days_contagious) + " (aantal dagen dat men besmettelijk is) "
         "<br><i>prev_div_days_contagious_cumm</i> -"
         "<br><i>prev_div_days_contagious_cumm_period</i> -"
         "<br><i>deceased_per_prev_div_days_contagious</i> -"
         "<br><i>Deceased_cumm_div_prev_div_days_contagious_cumm</i> -"
         "<br><i>Deceased_cumm_period_div_prev_div_days_contagious_cumm_period</i> -"
+
         "<br><br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
 
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
+
         "<h2>Toelichting bij de opties</h2>"
         "<h3>What to plot</h3>"
         "<i>Line</i> - Line graph"
