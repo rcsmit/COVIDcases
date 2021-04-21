@@ -1,4 +1,7 @@
-# http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
+# CALCULATE SIR MODEL FOR THE NETHERLANDS WITH
+# FORMULAS AND VALUES FROM THE RIVM
+
+# DOESNT WORK (yet)
 
 from scipy.integrate import solve_ivp
 import numpy as np
@@ -47,16 +50,77 @@ for x in range (0, len(fraction)):
 global C, N
 C, N = 0.1, pop
 
+def calculate(t, y, beta,
+                    sigma,
+                    gamma,
+                    lamdaa,
+                    alfa,
+                    alfa2,
+                    delta,
+                    delta2,
+                    eta,
+                    eta2,
+                    h,
+                    i1,
+                    i2,
+                    d,
+                    dic,
+                    dhic,
+                    r,
+                    ric):
+    S, Shold1d, Sv1d, Shold2d,  Sv2d,    E,  Ev1d, Ev2d,    I, Iv1d, Iv2d,    H, Hv1d, Hv2d,    IC, ICv1d, ICv2d,    HIC, HICv1d, HICv2d,    D,    R, Rv1d, Rv2d = y
 
-Shold1d__, Sv1ddt__, Shold2d__, Sv2d__ = 0,0 , 0, 0
-E__, Ev1ddt__, Ev2d__ = 50_000,0,0
+    return np.array([
+                    -lamdaa * S - alfa * S,
+                    alfa * S - (1/delta)* Shold1d - lamdaa* Shold1d,
+                    (1/delta) * Shold1d - eta * lamdaa * Sv1d - alfa2 * Sv1d,
+                    alfa2 * Sv1d - (1/delta2)*Shold2d - eta * lamdaa * Shold2d,
+                    (1/delta2) * Shold2d - eta2 * lamdaa * Sv2d,
+
+                    lamdaa * (S + Shold1d) - sigma * E,
+                    eta * lamdaa * (Sv1d+Shold2d) - sigma * Ev1d,
+                    eta2 * lamdaa * Sv2d - sigma * Ev2d,
+
+
+                    sigma * E - (gamma + h)*I,
+                    sigma * Ev1d - (gamma + h)*Iv1d,
+                    sigma * Ev2d- (gamma + h)*Iv2d,
+
+
+                    h*I - (i1 +d +r) *H,
+                    h*Iv1d- (i1+d+r)*Hv1d,
+                    h*Iv2d- (i1+d+r)*Hv2d,
+
+
+
+                    i1*H - (i2+dic)*IC,
+                    i1*Hv1d - (i2+dic)*ICv1d,
+                    i1*Hv2d - (i2+dic)*ICv2d,
+
+                    i2 * IC - (ric+dhic)*HIC,
+                    i2 * ICv1d - (ric+dhic)*HICv1d,
+                    i2 * ICv2d - (ric+dhic)*HICv2d,
+
+                    d* (H + Hv1d+ Hv2d) + dic * (IC  +ICv1d + ICv2d) + dhic * (HIC + HICv1d + HICv2d),
+
+                    gamma * I + r* H + ric + HIC,
+                    gamma * Iv1d + r* Hv1d + ric + HICv1d,
+                    gamma * Iv1d + r* Hv1d + ric + HICv2d
+    ])
+
+
+
+
+Shold1d__, Sv1d__, Shold2d__,Sv1d__, Sv2d__ = 0,0 , 0, 0,0
+E__,  Ev1d__, Ev2d__ = 50_000,0,0
 I__, Iv1d__, Iv2d__ = 50_000, 0,0
 H__, Hv1d__, Hv2d__ = 1500, 0,0
-IC__, ICv1ddt__, ICv2d__ = 600, 0, 0
-HIC__, HICv1ddt__, HICv2d__ = 10, 0,0
+IC__, ICv1d__, ICv2d__ = 600, 0, 0
+HIC__, HICv1d__, HICv2d__ = 10, 0,0
 D__ = 15_000
 R__, Rv1d__, Rv2d__ = 0.148 * pop, 0,0
 S__ = pop - E__ - I__ - H__ - IC__ - HIC__ - D__ - R__
+print (S__)
 
 R0 = 2.3 # basic reproduction number
 Reff = 1.04 # effective reproduction number
@@ -93,91 +157,18 @@ P_ascertainment = 0.18
 
 
 
-def calculate(t, y, beta,
-                    sigma,
-                    gamma,
-                    lamdaaa,
-                    alfa,
-                    alfa2,
-                    delta,
-                    delta2,
-                    eta,
-                    eta2,
-                    h,
-                    i1,
-                    i2,
-                    d,
-                    dic,
-                    dhic,
-                    r,
-                    ric):
-    S, Shold1d, Sv1ddt, Shold2d, Sv2d,
-    E, Ev1ddt, Ev2d,
-    I, Idv1d, Iv2d,
-    H, Hv1d, Hv2d,
-    IC, ICv1ddt, ICv2d,
-    HIC, HICv1ddt, HICv2d,
-    D,
-    R, Rv1d, Rv2d = y
-
-    return np.array([
-                    -lamdaa * S - alfa * S,
-                    alfa * S - (1/delta)* Shold1d - lamdaa* Shold1d,
-                    (1/delta) * Shold1d - eta * lamda * Sv1d - alfa2 * Sv1d,
-                    alfa2 * Sv1d - (1/delta2)*Shold2d - eta * lamdaa * Shold2d,
-                    (1/delta2) * Shold2d - eta2 * lamda * Sv2d,
-
-                    lamdaa * (S + Shold1d) - sigma * E,
-                    eta * lamda * (Sv1d+Shold2d) - sigma * Ev1d,
-                    eta2 * lamdaa * Sv2d - sigma * Ev2d,
-
-
-                    sigma * E - (gamma + h)*I,
-                    sigma * Ev1d - (gamma + h)*Iv1d,
-                    sigma * Ev2d- (gamma + h)*Iv2d,
-
-
-                    h*I - (i1 +d +r) *H,
-                    h*Iv1d- (i1+d+r)*Hv1d,
-                    h*Iv2d- (i1+d+r)*Hv2,
-
-
-
-                    i1*H - (i2+dic)*IC,
-                    i1*Hv1d - (i2+dic)*ICv1d,
-                    i1*Hv2d - (i2+dic)*ICv2d,
-
-                    i2 * IC - (ric+dhic)*HIC,
-                    i2 * ICv1d - (ric+dhic)*HICv1d,
-                    i2 * ICv2d - (ric+dhic)*HICv2,
-
-                    d* (H + v1d+ Hv2d) + dic * (IC  +ICv1d + ICv2d) + dhic * (HIC + HICv1d + HICv2d),
-
-                    gamma * I + r* H + ric + HIC,
-                    gamma * Iv1d + r* Hv1d + ric + HICv1d,
-                    gamma * Iv1d + r* Hv1d + ric + HICv2d
-
-
-
-
-
-    ])
-
-
-
 
 sol = solve_ivp(calculate, [0, 60],
-                        [S__, Shold1d__, Sv1ddt__, Shold2d__, Sv2d__,
-                        E__, Ev1ddt__, Ev2d__,
+
+
+                        [S__, Shold1d__, Sv1d__, Shold2d__, Sv2d__,
+                        E__, Ev1d__, Ev2d__,
                         I__, Iv1d__, Iv2d__,
                         H__, Hv1d__, Hv2d__,
-                        IC__, ICv1ddt__, ICv2d__,
-                        HIC__, HICv1ddt__, HICv2d__,
+                        IC__, ICv1d__, ICv2d__,
+                        HIC__, HICv1d__,  HICv2d__,
                         D__,
                         R__, Rv1d__, Rv2d__],
-
-
-
                 rtol=1e-6, args=(beta,
                                 sigma,
                                 gamma,
@@ -201,7 +192,7 @@ sol = solve_ivp(calculate, [0, 60],
 
 fig = plt.figure(); ax = fig.gca()
 curves = ax.plot(sol.t, sol.y.T)
-#ax.legend(curves, ['Susceptible', 'Exposed', 'Infected', 'Recovered'])
+ax.legend(curves, ["S","Shold1d","Sv1d","Shold2d","Sv2d","E","Ev1d","Ev2d","I","Iv1d","Iv2d","H","Hv1d","Hv2d","IC","ICv1d","ICv2d","HIC","HICv1d","HICv2d","D","R","Rv1d","Rv2d"])
 plt.show()
 
 
