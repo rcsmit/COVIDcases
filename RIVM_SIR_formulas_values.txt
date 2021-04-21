@@ -1,37 +1,41 @@
+
+
 # FORMULAS AND VALUES TO MAKE A SIR MODEL FOR THE NETHERLANDS
 # SOURCE : RIVM https://www.rivm.nl/sites/default/files/2021-03/Modellingresults%20COVID19%20vaccination%20version1.0%2020210324_0.pdf
 # retreived 21st of April 2021
 # Copied by René SMIT
 # Fouten voorbehoude
 
+R0 = 2.3 # basic reproduction number
+Reff = 1.04 # effective reproduction number
+beta = 0.00061 # transmission rate
+sigma = 0.5 # inverse of latent period
+gamma = 0.5 # inverse of infectious period
 
+lambda = beta * ( C * (( I + Iv1d + Iv2d) / N)) # forse of infection
+alfa = 3.5/17.5 # rate of vaccination with the first dose
+alfa2 = 1/17.4 # UNKNOWN # rate of vaccination with the second dose
+delta = 14 # TABLE2 # delay to protection of first dose
+delta2 = 14 #TABLE2 # delay of protection of second dose
+eta = 0.2 # 1- vacc_eff_first_dose # SEE TABLE 2
+eta2 = 0.2 # 1- vacc_eff_sec_dose # # SEE TABLE 2
 
 dSdt = -lambda * S - alfa * S
-
 dShold1ddt =alfa * S - (1/delta)* Shold1d - lambda* Shold1d
-
 dSv1ddt= (1/delta) * Shold1d - eta * lamda * Sv1d - alfa2 * Sv1d
-
 dShold2ddt = alfa2 * Sv1d - (1/delta2)*Shold2d - eta * lambda * Shold2d
-
 dSv2ddt = (1/delta2) * Shold2d - eta2 * lamda * Sv2d
 
 DEdt = lambda * (S + Shold1d) - sigma * E
-
 dEv1ddt = eta * lamda * (Sv1d+Shold2d) - sigma * Ev1d
-
 dEv2ddt = eta2 * lambda * Sv2d - sigma * Ev2d
 
 dIdt = sigma * E - (gamma + h)*I
-
-
 dIdv1ddt = sigma * Ev1d - (gamma + h)*Iv1d
-
 dIv2ddt = sigma * Ev2d- (gamma + h)*Iv2d
 
 dHdt = h*I - (i1 +d +r) *H
 dHv1ddt = h*Iv1d- (i1+d+r)*Hv1d
-
 dHv2ddt = h*Iv2d- (i1+d+r)*Hv2d
 
 dICdt = i1*H - (i2+dic)*IC
@@ -58,19 +62,7 @@ life_years_lost = deaths * life_expectancy
 
 
 
-R0 = 2.3 # basic reproduction number
-Reff = 1.04 # effective reproduction number
-beta = 0.00061 # transmission rate
-sigma = 0.5 # inverse of latent period
-gamma = 0.5 # inverse of infectious period
 
-lambda = beta * ( C * (( I + Iv1d + Iv2d) / N)) # forse of infection
-alfa = UNKNOWN # rate of vaccination with the first dose
-alfa2 = UNKNOWN # rate of vaccination with the second dose
-delta = TABLE2 # delay to protection of first dose
-delta2 = TABLE2 # delay of protection of second dose
-eta = 1- vacc_eff_first_dose # SEE TABLE 2
-eta2 = 1- vacc_eff_sec_dose # # SEE TABLE 2
 
 
 #       0-9     10-19   20-29  30-39   40-49   50-59   60-69   70-79  80+ 
@@ -87,12 +79,12 @@ r    = [0.1263, 0.1260, 0.1254, 0.1238, 0.1234, 0.1215, 0.1131, 0.0976, 0.08720 
 ric  = [0.0857, 0.0857, 0.0857, 0.0857, 0.0857, 0.0821, 0.0119, 0.0567, 0.0550] # recovery rate from hospital (after IC)
 LE   = [ 77.89,  67.93,  58.08,  48.48,  38.60,  29.22,  20.52,  12.76,  4.35 ] # Life expectancy
 RSI  = [ 1.000,  3.051,  5.751,  3.538,  3.705,  4.365,  5.688,  5.324,  7.211] # Reletavive suspceptibility/infectiousness
-# name = [ delay to protection, vaccin efficacy]
-pfizer1 = [14, 92.6]
-pfizer2 = p7, 94.8]
-moderna1 = [14, 89.6]
+# name = [ delay to protection, vaccin efficacy] # aantal gezet 18 april
+pfizer1 = [14, 92.6] # 2954000
+pfizer2 = [7, 94.8]
+moderna1 = [14, 89.6] # 323000
 moderna2 = [14, 94.1]
-astrazenica1 = [21, 58.3]
+astrazenica1 = [21, 58.3] # 1322000
 astrazenica2 = [14, 62.1]
-janssen = [14, 66.1]
+janssen = [14, 66.1] # 0
 
