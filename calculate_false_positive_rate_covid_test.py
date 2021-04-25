@@ -18,6 +18,8 @@ def calculate(test, prevalentie, number_of_tested_people):
 
     true_positive = round((total_sick * sensitivity),0)
     false_positive = round((total_healthy * (1 - specificity)),0)
+
+    true_positive_bayes = round (100* (sensitivity * prevalentie) / ((sensitivity * prevalentie) + ((1-specificity)* (1-prevalentie)  )),2)
     data = [
         [
             "Result: 'healthy' (-)",
@@ -38,7 +40,7 @@ def calculate(test, prevalentie, number_of_tested_people):
             (true_positive + false_positive) + (false_negative + true_negative),
         ],
     ]
-    fpr = round(100*false_positive/(false_positive + true_positive),1)
+    fpr = round(100*false_positive/(false_positive + true_positive),2)
     fnr = round(100*false_negative/(false_negative + true_negative),3)
     pos = 100*(true_positive + false_positive)/number_of_tested_people
     output = True
@@ -54,19 +56,25 @@ def calculate(test, prevalentie, number_of_tested_people):
 
         print()
         print(
-            f"Positive predictive value (PPV): {round(100-fpr,3)} % - (Tested sick while you are sick)"
+            f"Positive predictive value (PPV): {round(100-fpr,3)} % - (Tested 'sick' while you are 'sick')"
         )
         print(
-            f"Negative predictive value (NPV): {round(100-fnr,3)} % - (Tested sick while you are sick)"
+            f"Negative predictive value (NPV): {round(100-fnr,3)} % - (Tested 'healthy' while you are 'healthy')"
         )
         print()
         print(
-            f"False positivity rate: {fpr} % - (Tested sick while you are healthy)"
+            f"False positivity rate: {fpr} % - (Tested 'sick' while you are 'healthy')"
         )
         print(
-            f"False negativity rate: {fnr} % - (Tested healthy while you are sick)"
+            f"False negativity rate: {fnr} % - (Tested 'healthy' while you are 'sick')"
         )
         print()
+        # print(
+        #     f"True positivity rate (Bayes): {true_positive_bayes} % ")
+        # if true_positive_bayes!= (100-fpr):
+        #     print (f"DIFFERENCE !")
+        #     print (100-fpr-true_positive_bayes)
+        # print()
         print(
             f"Chance to be tested positive (true & false): {pos} %"
         )
@@ -79,10 +87,10 @@ def main():
     #testen_ = [["Dimgrr", 1.0, 0.7], ["ROCHE SELFTEST", 0.8, 0.97],["BIOSYNEX SELFTEST", 0.972, 1.000],
     #  ["PCR TEST", 0.95, 0.998], ["PCR TEST WHO", 0.95, 0.97]]
 
-    testen_ = [["ROCHE SELFTEST", 0.8, 0.97], ["PCR TEST", 0.95, 0.998]]
+    testen_ = [["ROCHE SELFTEST", 0.8, 0.97]] #, ["PCR TEST", 0.95, 0.998]]
     #testen_ = [["538 TEST", 0.8, 0.999], ["PCR TEST", 0.95, 0.998]]
     #testen_ = [["538 TEST", 0.8, 0.7], ["PCR TEST", 0.95, 0.96]]
-
+    #testen_ = [["Reumatest", 0.7, 0.8]]
     for testen in testen_:
         titel = (f"{testen[0]} - sensitivity {testen[1]} - specificity {testen[2]}")
         besm = []
@@ -96,10 +104,10 @@ def main():
         #for b in range (5_000, 200_000, 20_000):
 
         # (un)comment next two lines to have 1 value of 'contagious people'
-        b = 5_000 # aantal besmettelijken
-        
+        b = 1750 # aantal besmettelijken
+
         if b != None:
-            number_of_tested_people = 10000.0  # don't make too small to prevent rouding errors
+            number_of_tested_people = 10000000000.0  # don't make too small to prevent rouding errors
 
             prevalentie = b / population
             fpr, fnr, pos = calculate(testen, prevalentie, number_of_tested_people)
@@ -128,7 +136,7 @@ def main():
             ax3.plot(besm,false_positive_rate,  'r',marker='o',)
             ax.set_ylabel('green: chance to be tested positive (%)')
             ax3.set_ylabel('red: false positive rate (%)')
-            
+
             plt.show()
 
 if __name__ == "__main__":
