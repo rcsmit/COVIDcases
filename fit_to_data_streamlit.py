@@ -32,7 +32,6 @@ from pandas import read_csv, Timestamp, Timedelta, date_range
 from io import StringIO
 from numpy import log, exp, sqrt, clip, argmax, put
 from scipy.special import erfc, erf
-from lmfit import Model
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
@@ -52,8 +51,11 @@ def exponential(x, a, b, c):
 
 def derivate(x, a, b, c):
     ''' First derivate of the Gompertz function. Might contain an error'''
-    return a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)
-  # return a * b * c * np.exp(-b*np.exp(-c*x))*np.exp(-c*x)
+    return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + BASEVALUE
+    #return a * b * c * np.exp(-b*np.exp(-c*x))*np.exp(-c*x)
+
+def derivate_of_derivate(x,a,b,c):
+    return a*b*c*(b*c*exp(-c*x) - c)*exp(-b*exp(-c*x) - c*x)
 
 def gaussian(x, a, b, c):
     ''' Standard Guassian function. Doesnt give results, Not in use'''
@@ -71,12 +73,12 @@ def growth(x, a, b):
 
 # https://replit.com/@jsalsman/COVID19USlognormals
 def lognormal_c(x, s, mu, h): # x, sigma, mean, height
-  return h * 0.5 * erfc(- (log(x) - mu) / (s * sqrt(2)))
+    return h * 0.5 * erfc(- (log(x) - mu) / (s * sqrt(2)))
 # https://en.wikipedia.org/wiki/Log-normal_distribution#Cumulative_distribution_function
 
 
 def normal_c(x, s, mu, h): # x, sigma, mean, height
-  return h * 0.5 * (1 + erf((x - mu) / (s * sqrt(2))))
+   return h * 0.5 * (1 + erf((x - mu) / (s * sqrt(2))))
 
 # #####################################################################
 
@@ -110,7 +112,9 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             f=exponential,
             xdata=x_values,
             ydata=y_values,
-            p0=[4600, 11, 0.5],
+            #p0=[4600, 11, 0.5],
+            p0 = [26660, 9, 0.03],  # IC BEDDEN MAART APRIL
+
             bounds=(-np.inf, np.inf),
             maxfev=10000,
             )
@@ -130,7 +134,8 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
                 f=derivate,
                 xdata=x_values,
                 ydata=y_values,
-                p0=[0, 0, 0],
+                #p0=[0, 0, 0],
+                p0 = [26660, 9, 0.03],  # IC BEDDEN MAART APRIL
                 bounds=(-np.inf, np.inf),
                 maxfev=10000,
             )
@@ -234,7 +239,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
     TODO: Make all graphs in one graph
     """
     for function in functionlist:
-        st.subheader(f"LMFIT - {title} - {function}")
+        #placeholder0.subheader(f"LMFIT - {title} - {function}")
 
         # create a Model from the model function
         if function == "exponential":
@@ -251,11 +256,13 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             st.stop()
 
         # create Parameters, giving initial values
-        params = bmodel.make_params(a=4711, b=12, c=0.06)
+        #params = bmodel.make_params(a=4711, b=12, c=0.06)
+        params = bmodel.make_params(a=26660.1, b=9.01298, c=0.032198)  # IC BEDDEN MAART APRIL
         # params = bmodel.make_params()
-        params["a"].min = 0
-        params["b"].min = 0
-        params["c"].min = 0
+        params["a"].min = 26660
+        params["b"].min = 9
+        params["c"].min = 0.03
+
 
         # do fit, st.write result
         result = bmodel.fit(y_values, params, x=x_values)
@@ -263,28 +270,36 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
         b= round(result.params['b'].value,5)
         c =round(result.params['c'].value,5)
 
-        st.text(result.fit_report())
+        #placeholder1.text(result.fit_report())
         with _lock:
-            fig1y = plt.figure()
+            #fig1y = plt.figure()
+            fig1y, ax1 = plt.subplots()
+            ax2 = ax1.twinx()
             # plot results -- note that `best_fit` is already available
-            plt.scatter(x_values, y_values, color="#00b3b3")
-            plt.plot(x_values, result.best_fit, "r--")
+            ax1.scatter(x_values, y_values, color="#00b3b3", s=2)
+            #ax1.plot(x_values, result.best_fit, "g")
             res = (f"a: {a} / b: {b} / c: {c}")
             plt.title(f"{title} / lmfit - {function}\n{formula}\n{res}")
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
-
             # use `result.eval()` to evaluate model given params and x
-            plt.plot(t, bmodel.eval(result.params, x=t), "r-")
+            ax1.plot(t, bmodel.eval(result.params, x=t), "r-")
+            ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
+            ax2.axhline(linewidth=1, color='purple', alpha=0.5, linestyle="--")
+            #ax1.plot (t, derivate(t,26660.1, 9.01298, 0.032198), color = 'purple')
+            #ax2.plot (t, derivate_of_derivate(t,26660.1, 9.01298, 0.032198), color = 'yellow')
             #plt.ylim(bottom=0)
-            plt.ylim(0, max_y_values*1.1)
-            plt.xlabel(f"Days from {from_}")
+            #ax1.ylim(0, max_y_values*1.1)
+            #ax1.set_ylim(510,1200)
+            #ax2.set_ylim(0,12)
+            ax1.set_xlabel(f"Days from {from_}")
 
-            plt.ylabel(title)
+            ax1.set_ylabel(f"{title} - red")
+            ax2.set_ylabel("delta - purple")
             #plt.show()
             filename= (f"{OUTPUT_DIR}lmfit_{title}_{function}_{i}")
 
             plt.savefig(filename, dpi=100, bbox_inches="tight")
-            st.pyplot(fig1y)
+            placeholder.pyplot(fig1y)
 
         if prepare_for_animation == False:
             with _lock:
@@ -339,13 +354,19 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
     """
     # Here we go !
     st.header("Fitting data to formulas")
+
     infox = (
     '<br>Exponential / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
     '<br>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
     '<br>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
     '<br>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li>'
         )
+
     st.markdown(infox, unsafe_allow_html=True)
+    global placeholder0, placeholder, placeholder1
+    placeholder0  = st.empty()
+    placeholder  = st.empty()
+    placeholder1  = st.empty()
     el = st.empty()
     for v in to_do_list:
         title = v[0]
@@ -363,6 +384,7 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
             for i in range(5, len(x_values)):
                 filename = fit_the_values_really(x_values,  y_values, which_method,  title, daterange, i, max_y_values)
                 filenames.append(filename)
+
             # build gif
             with imageio.get_writer('mygif.gif', mode='I') as writer:
                 for filename_ in filenames:
@@ -557,13 +579,16 @@ def loglognormal(df, what_to_display):
 
     st.text(f"{what_to_display} at end of period shown: {int( exp(ipred[-1])-1)}.")
 def main():
-    #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\EINDTABEL.csv"
-    url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
+    global placeholder0, placeholder, placeholder1
+
+    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\EINDTABEL.csv"
+    #url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.fillna(value=0, inplace=True)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
     df["Deceased_cumm"] = df["Deceased"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     #df["total_reported_k_value"] = 1- df["Total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     DATE_FORMAT = "%m/%d/%Y"
@@ -574,7 +599,7 @@ def main():
     )
     scenario = st.sidebar.radio(
     "Select a datarange",
-    ("Total_reported_march_2020","Total_reported_cumm_march_2020", "IC_Bedden_march_2021", "IC_opnames_march_2021", "Hosp_adm_march_2021")
+    ("Total_reported_march_2020","Total_reported_cumm_march_2020", "IC_Bedden_march_april_2021", "IC_opnames_march_2021", "Hosp_adm_march_2021")
     )
     if scenario =='Total_reported_march_2020':
         start__ = "2020-02-27"
@@ -582,30 +607,35 @@ def main():
         what_default = 0
         days_to_show = 180
         what_method_default = 1
+
     elif scenario =='Total_reported_cumm_march_2020':
         start__ = "2020-02-27"
         until__ = "2020-05-31"
         what_default = 1
         days_to_show = 180
         what_method_default = 0
+
     elif scenario =='IC_opnames_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 5
         days_to_show = 60
         what_method_default = 1
-    elif scenario =='IC_Bedden_march_2021':
-        start__ = "2021-03-1"
-        until__ = "2021-03-31"
+
+    elif scenario =='IC_Bedden_march_april_2021':
+        start__ = "2021-02-18"
+        until__ = "2021-04-30"
         what_default = 2
-        days_to_show = 60
+        days_to_show = 120
         what_method_default = 1
+
     elif scenario =='Hosp_adm_march_2021':
         start__ = "2021-03-1"
         until__ = "2021-03-31"
         what_default = 7
         days_to_show = 60
         what_method_default = 1
+
 
     else:
         st.error ("ERROR in scenario")
@@ -672,12 +702,15 @@ def main():
     if  datediff < 4:
         st.warning("Make sure that the date difference is at least 4 days")
         st.stop()
-
+    global BASEVALUE
 
     df_to_use = select_period(df, FROM, UNTIL)
     df_to_use.fillna(value=0, inplace=True)
 
     values_to_fit = df_to_use[what_to_display].tolist()
+    base_value__ = values_to_fit[0]
+    BASEVALUE = st.sidebar.number_input('Base value',None,None,base_value__)
+
     to_do_list = [[what_to_display, values_to_fit]]
 
     then = d1 + dt.timedelta(days=total_days)
@@ -702,6 +735,7 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
