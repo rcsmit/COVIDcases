@@ -374,7 +374,13 @@ def extra_calculations(df):
     df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
     df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
     df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
+    
+    df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"] 
+    df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"] 
+    df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
+
     save_df(df, "percentage_positief")
+
 
     return df
 
@@ -1673,7 +1679,7 @@ def main():
         "IC_Nieuwe_Opnames_LCPS",
         "Deceased",
     ]
-    chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
+    chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
     df, newcolumns, newcolumns2 = week_to_week(df, w2w)
     lijst.extend(newcolumns)
     lijst.extend(newcolumns2)
