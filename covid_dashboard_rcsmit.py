@@ -167,7 +167,7 @@ def get_data():
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv",
                 "name": "mobility",
                 "delimiter": ";",
-                "key": "Date",
+                "key": "date",
                 "dateformat": "%d-%m-%Y",
                 "groupby": None,
                 "fileformat": "csv",
