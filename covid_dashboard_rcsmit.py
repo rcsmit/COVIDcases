@@ -245,9 +245,11 @@ def get_data():
             newkey = "key" + str(d)
             df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
             #st.write (df_temp_x.dtypes)
-            df_temp_x[newkey] = pd.to_datetime(
-                df_temp_x[newkey], format=data[d]["dateformat"]
-            )
+            try:
+                df_temp_x[newkey] = pd.to_datetime(df_temp_x[newkey], format=data[d]["dateformat"]           )
+            except:
+                st.error(f"error in {oldkey} {newkey}")
+                st.stop()
             if data[d]["groupby"] != None:
                 if df_ungrouped is not None:
                     df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
