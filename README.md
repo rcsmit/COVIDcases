@@ -25,7 +25,9 @@ Sorry, sourcecode, input and outputfiles are mixed in one directory. If I'd do i
 ![image](https://user-images.githubusercontent.com/1609141/112730583-adaf0f80-8f32-11eb-9517-0b2fd6443c42.png)
 
 * **prepare_casuslandelijk.py** 
-* **stackplot.py** - draw a stackplot of portion of agegroups in time for positive tests, hospitalizations and deceased
+* **stackplot.py** - draw a stackplot of portion of agegroups in time for positive tests, hospitalizations and deceased from cases_landelijk.csv
+* **stackplot_hosp_ic.py** - draw a stackplot of portion of agegroups in time (weekly data) for  hospitalizations and ICU admission from ziekenhuis_ic_opnames_per_leeftijdsgroep.csv
+
 ![image](https://user-images.githubusercontent.com/1609141/112730524-527d1d00-8f32-11eb-9747-9f41de65a80b.png)
 ![image](https://user-images.githubusercontent.com/1609141/112730428-cb2fa980-8f31-11eb-8349-1839c8ddd84c.png)
 
