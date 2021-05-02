@@ -48,7 +48,7 @@ def smooth(df, columnlist):
         #new_column = c + "_SMA"
         new_column = c
 
-        print("Generating " + new_column + "...")
+        # print("Generating " + new_column + "...")
         df[new_column] = (
             df.iloc[:, df.columns.get_loc(c)].rolling(window=1, center=True).mean()
         )
@@ -88,7 +88,7 @@ def hundred_stack_area(df, column_list):
         dfcolumnlist.append(df[new_column])
 
     df = df.drop(columns=["rowtotal"], axis=1)
-    save_df(df, "fordimgrr")
+
     return df, columnlist_names, dfcolumnlist,columnlist_ages
 def drop_columns(df, what_to_drop):
     """  drop columns. what_to_drop : list """
@@ -100,6 +100,20 @@ def drop_columns(df, what_to_drop):
     return df
 def convert(list):
     return tuple(list)
+
+def make_age_graph(df, d, titel):
+
+    # df = agg_ages(df)
+    fig, ax = plt.subplots()
+    for d_ in d:
+        plt.plot(df["Date_of_statistics_week_start"], df[d_], label = d_)
+    plt.legend()
+    titel_ = titel + " (weekcijfers)"
+    plt.title(titel_)
+
+
+    plt.tight_layout()
+    plt.show()
 
 def make_graph(df, columns_df,columnlist_names, columnlist_ages, datumveld, titel):
     #datumlijst = df[datumveld].tolist()
@@ -136,24 +150,10 @@ def make_graph(df, columns_df,columnlist_names, columnlist_ages, datumveld, tite
     plt.tight_layout()
     plt.show()
 
-def show(df, c1,titel,datumveld):
+def show(df, c1,titel):
 
-    show_from = "2020-9-1"
-    show_until = "2030-1-1"
 
-    df = df.reset_index()
-    df.fillna(value=0, inplace=True)
-    save_df(df,"waaromx")
-    df[datumveld] = pd.to_datetime(
-        df[datumveld], format="%Y-%m-%d"
-    )
-
-    startdate = pd.to_datetime(show_from).date()
-    enddate = pd.to_datetime(show_until).date()
-
-    mask = (df[datumveld].dt.date >= startdate) & (df[datumveld].dt.date <= enddate)
-    df = df.loc[mask]
-
+    datumveld = "Date_of_statistics_week_start"
     df, columnlist_df, columnlist_sma_df, columnlist_names, columnlist_ages = smooth(df, c1)
 
     titel = titel + " (weekcijfers)"
@@ -162,11 +162,33 @@ def show(df, c1,titel,datumveld):
     make_graph (df,       columnlist_df,     columnlist_sma_df, columnlist_names, datumveld, titel)
     df, columnlist_hdred_names, columnlist_hdred_df, columnlist_ages = hundred_stack_area(df, columnlist_names)
     make_graph (df, columnlist_hdred_df,columnlist_names,  columnlist_ages , datumveld, titel)
+
+def agg_ages(df):
+    # make age groups
+    df["0-49"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"] + df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"]
+    df["50-79"] = df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"] + df["70-74"] + df["75-79"]
+    df["80+"] = df["80-84"] + df["85-89"] + df["90+"]
+    return df
+
 def prepare_data():
+
+    show_from = "2020-1-1"
+    show_until = "2030-1-1"
+
     url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     # url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
-    df["Date_of_statistics_week_start"] = pd.to_datetime(df["Date_of_statistics_week_start"], format="%Y-%m-%d")
+    datumveld = "Date_of_statistics_week_start"
+    df[datumveld] = pd.to_datetime(df[datumveld], format="%Y-%m-%d")
+
+    df = df.reset_index()
+    df.fillna(value=0, inplace=True)
+
+    startdate = pd.to_datetime(show_from).date()
+    enddate = pd.to_datetime(show_until).date()
+
+    mask = (df[datumveld].dt.date >= startdate) & (df[datumveld].dt.date <= enddate)
+    df = df.loc[mask]
 
     df_pivot_hospital = (
         pd.pivot_table(
@@ -179,6 +201,8 @@ def prepare_data():
         .reset_index()
         .copy(deep=False)
     )
+
+
     df_pivot_ic = (
         pd.pivot_table(
             df,
@@ -191,26 +215,26 @@ def prepare_data():
         .copy(deep=False)
     )
 
-    print (df_pivot_hospital)
-    save_df(df_pivot_hospital, "df_pivot_hospital_x")
-    print (df_pivot_ic)
-
-    save_df(df_pivot_ic, "df_pivot_ic_x")
     return df_pivot_hospital, df_pivot_ic
 
 
 def main():
     df_pivot_hospital, df_pivot_ic  = prepare_data()
+    df_pivot_hospital = agg_ages(df_pivot_hospital)
+    df_pivot_ic = agg_ages(df_pivot_ic)
 
-
-    cx = ["0-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+", "Unknown"]
-
-
-    datumveld = "Date_of_statistics_week_start"
-
-
-    cxx = [[df_pivot_hospital, cx, "ziekenhuisopname naar leeftijd",datumveld],[df_pivot_ic, cx, "IC opname naar leeftijd",datumveld]]
+    #cx = ["0-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+", "Unknown"]
+    cx =  [ "0-49", "50-79","80+"]
+    # SHOW STACKGRAPHS
+    cxx = [[df_pivot_hospital, cx, "ziekenhuisopname naar leeftijd"],[df_pivot_ic, cx, "IC opname naar leeftijd"]]
     for d in cxx:
-        show (d[0],d[1],d[2], d[3])
+        show (d[0],d[1],d[2])
 
-main()
+    # SHOW LINEGRAPHS
+    #d = [ "0-49", "50-79","80+"]
+    d = [ "0-49"]
+    make_age_graph(df_pivot_hospital, d, "ziekenhuisopnames")
+    make_age_graph(df_pivot_ic, d, "IC opnames")
+
+if __name__ == "__main__":
+    main()
