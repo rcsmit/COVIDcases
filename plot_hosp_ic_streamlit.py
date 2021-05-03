@@ -344,7 +344,7 @@ def main():
     global WDW2
     WDW2 = st.sidebar.slider("Window smoothing curves (weeks)", 1, 8, 1)
     global delete_last_row
-    delete_last_row =  st.sidebar.selectbox("Delete last row", [True, False], index=0)
+    delete_last_row =  st.sidebar.selectbox("Delete last week/row of complete dataset", [True, False], index=0)
 
     df_pivot_hospital, df_pivot_ic  = prepare_data()
     df_pivot_hospital = agg_ages(df_pivot_hospital)
