@@ -1,18 +1,18 @@
-# Make a stackplot and a stackplot where total = 100% of agegroups
+# Make a stackplot and a stackplot where total = 100% of agegroups OR
+# Make a lineplot or a lineplot where the start = 100
+
 # René Smit (@rcsmit) - MIT Licence
 
 # IN: https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv
-# OUT : Stackplots
+# OUT : Line-/Stackplots
 #
-# TODO : Legend DONE
-#        Nice colors DONE
-#        Restrictions ??
-#        Set a date-period DONE
-#        Make everything a function call
+# TODO : Make everything a function call
 #        Integration in the dashboard
+#        Make an index compared to [total reported], [total hospital admissions] or [total ICU admissions]
 #
 # Inspired by a graph by @chivotweets
 # https://twitter.com/rubenivangaalen/status/1374443261704605697
+
 import datetime
 import datetime as dt
 from datetime import datetime
@@ -20,8 +20,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-
-
 
 from matplotlib.backends.backend_agg import RendererAgg
 import streamlit as st
@@ -387,7 +385,7 @@ def main():
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
         'Data source :  <a href="https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv" target="_blank">RIVM</a><br>'
-        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/edit/main/stackplot_hosp_ic_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/edit/main/plot_hosp_ic_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
         'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
     )
 
