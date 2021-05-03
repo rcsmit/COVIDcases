@@ -52,7 +52,7 @@ def smooth(df, columnlist):
 
         # print("Generating " + new_column + "...")
         df[new_column] = (
-            df.iloc[:, df.columns.get_loc(c)].rolling(window=1, center=True).mean()
+            df.iloc[:, df.columns.get_loc(c)].rolling(window=WDW2, center=True).mean()
         )
         columnlist_sma_df.append(df[new_column])
         columnlist_df.append(df[c])
@@ -104,7 +104,7 @@ def drop_columns(df, what_to_drop):
 def convert(list):
     return tuple(list)
 
-def make_age_graph(df, d, titel):
+def make_age_graph(df, d, legendanames, titel):
     if d is None:
         st.warning("Choose ages to show")
         st.stop()
@@ -144,6 +144,9 @@ def make_age_graph(df, d, titel):
         # plt.tight_layout()
         # plt.show()
         st.pyplot(fig1y)
+def show_age_graph (df,d, titel):
+    df, columnlist_df, columnlist_sma_df, columnlist_names, columnlist_ages = smooth(df, d)
+    make_age_graph(df,  columnlist_names, columnlist_ages, titel)
 
 def make_stack_graph(df, columns_df,columnlist_names, columnlist_ages, datumveld, titel):
     if columnlist_ages is None:
@@ -335,6 +338,8 @@ def main():
         if st.sidebar.button("Yes I'm ready to rumble"):
             caching.clear_cache()
             st.success("Cache is cleared, please reload to scrape new values")
+    global WDW2
+    WDW2 = st.sidebar.slider("Window smoothing curves (weeks)", 1, 8, 1)
 
     df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
     df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
@@ -381,9 +386,9 @@ def main():
         else:
             d = ages_to_show
         if hospital_or_ic == "hospital":
-            make_age_graph(df_pivot_hospital, d, "ziekenhuisopnames")
+            show_age_graph(df_pivot_hospital, d, "ziekenhuisopnames")
         else:
-            make_age_graph(df_pivot_ic, d, "IC opnames")
+            show_age_graph(df_pivot_ic, d, "IC opnames")
     else:
         st.error ("ERROR")
         st.stop
