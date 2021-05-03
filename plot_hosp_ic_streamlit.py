@@ -47,8 +47,8 @@ def smooth(df, columnlist):
     #fraction = [0.10055, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.04804]
 
     for c in columnlist:
-        #new_column = c + "_SMA"
-        new_column = c
+        new_column = c + "_SMA"
+        #new_column = c
 
         # print("Generating " + new_column + "...")
         df[new_column] = (
@@ -59,7 +59,7 @@ def smooth(df, columnlist):
         columnlist_names.append(new_column)
         columnlist_ages.append(c)           # alleen de leeftijden, voor de legenda
 
-    return df,columnlist_df, columnlist_sma_df,columnlist_names,columnlist_ages
+    return df,columnlist_df, columnlist_sma_df,columnlist_names,columnlist_ages, columnlist
 
 def hundred_stack_area(df, column_list):
     l = len(df)
@@ -104,7 +104,7 @@ def drop_columns(df, what_to_drop):
 def convert(list):
     return tuple(list)
 
-def make_age_graph(df, d, legendanames, titel):
+def make_age_graph(df, d, columns_original, legendanames, titel):
     if d is None:
         st.warning("Choose ages to show")
         st.stop()
@@ -133,9 +133,11 @@ def make_age_graph(df, d, legendanames, titel):
         for i, d_ in enumerate(d):
 
             if d_ == "TOTAAL_index":
-                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i], label = d_,  linewidth=2)
+                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i], label = columns_original[i],  linewidth=2)
+                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
             else:
-                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i], label = d_)
+                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i], label = columns_original[i])
+                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
         plt.legend()
         titel_ = titel + " (weekcijfers)"
         plt.title(titel_)
@@ -145,8 +147,8 @@ def make_age_graph(df, d, legendanames, titel):
         # plt.show()
         st.pyplot(fig1y)
 def show_age_graph (df,d, titel):
-    df, columnlist_df, columnlist_sma_df, columnlist_names, columnlist_ages = smooth(df, d)
-    make_age_graph(df,  columnlist_names, columnlist_ages, titel)
+    df, columnlist_df, columnlist_sma_df, columnlist_sma, columnlist_ages_legenda, columnlist_original = smooth(df, d)
+    make_age_graph(df,  columnlist_sma, columnlist_original, columnlist_ages_legenda, titel)
 
 def make_stack_graph(df, columns_df,columnlist_names, columnlist_ages, datumveld, titel):
     if columnlist_ages is None:
@@ -195,7 +197,7 @@ def show_stack(df, c1,titel,absolute_or_relative):
 
 
     datumveld = "Date_of_statistics_week_start"
-    df, columnlist_df, columnlist_sma_df, columnlist_names, columnlist_ages = smooth(df, c1)
+    df, columnlist_df, columnlist_sma_df, columnlist_names, columnlist_ages, columnlist_original = smooth(df, c1)
 
     titel = titel + " (weekcijfers)"
 
@@ -218,6 +220,7 @@ def agg_ages(df):
 def load_data():
     url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
+
     return df
 
 def prepare_data():
@@ -256,7 +259,9 @@ def prepare_data():
         .reset_index()
         .copy(deep=False)
     )
-
+    if delete_last_row == True:
+        df_pivot_hospital = df_pivot_hospital[:-1]
+        df_pivot_ic = df_pivot_ic[:-1]
     return df_pivot_hospital, df_pivot_ic
 
 def normeren(df, what_to_norm):
@@ -296,9 +301,7 @@ def select_period(df, show_from, show_until):
     return df
 
 def main():
-    df_pivot_hospital, df_pivot_ic  = prepare_data()
-    df_pivot_hospital = agg_ages(df_pivot_hospital)
-    df_pivot_ic = agg_ages(df_pivot_ic)
+
 
     lijst  = ["0-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+", "Unknown", "0-29","30-49","50-69","70-89","90+", "TOTAAL"]
 
@@ -340,6 +343,12 @@ def main():
             st.success("Cache is cleared, please reload to scrape new values")
     global WDW2
     WDW2 = st.sidebar.slider("Window smoothing curves (weeks)", 1, 8, 1)
+    global delete_last_row
+    delete_last_row =  st.sidebar.selectbox("Delete last row", [True, False], index=0)
+
+    df_pivot_hospital, df_pivot_ic  = prepare_data()
+    df_pivot_hospital = agg_ages(df_pivot_hospital)
+    df_pivot_ic = agg_ages(df_pivot_ic)
 
     df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
     df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
@@ -365,6 +374,7 @@ def main():
     if len(ages_to_show) == 0:
         st.warning("Choose ages to show")
         st.stop()
+
 
     if what_to_do == "stack":
 
