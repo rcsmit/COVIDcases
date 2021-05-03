@@ -212,10 +212,17 @@ def agg_ages(df):
     return df
 
 @st.cache(ttl=60 * 60 * 24)
-def prepare_data():
-    #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
+def load_data():
     url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
+    return df
+
+def prepare_data():
+    #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
+    df_getdata = load_data()
+    df = df_getdata.copy(deep=False)  # prevent an error [Return value of `prepare_data()` was mutated between runs.]
+
+
     datumveld = "Date_of_statistics_week_start"
     df[datumveld] = pd.to_datetime(df[datumveld], format="%Y-%m-%d")
 
