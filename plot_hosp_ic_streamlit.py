@@ -325,6 +325,15 @@ def calculate_percentages(df, lijst):
         lijst_perc.append(new_name)
         df[new_name] = round((df[d] / df["TOTAAL"] * 100),2)
     return df, lijst_perc
+
+def calculate_cumm(df, lijst):
+    cumlist = []
+    for l in lijst:
+        name = l + "_cumm"
+        df[name] = df[l].cumsum()
+        cumlist.append(name)
+    return df, cumlist
+
 def main():
 
 
@@ -379,19 +388,22 @@ def main():
     df_pivot_hospital, lijst_perc = calculate_percentages(df_pivot_hospital,lijst)
     df_pivot_ic, lijst_perc = calculate_percentages(df_pivot_ic,lijst)
 
+    df_pivot_hospital, lijst_cumm =  calculate_cumm(df_pivot_hospital, lijst)
+    df_pivot_ic, lijst_cumm =  calculate_cumm(df_pivot_ic, lijst)
     df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
     df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
 
     hospital_or_ic = st.sidebar.selectbox("Hospital or IC", ["hospital", "icu"], index=0)
-    what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line"], index=0)
+    what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line"], index=1)
 
     age_groups = ["0-29","30-49","50-69","70-89","90+"]
     age_groups_perc = ["0-29_perc","30-49_perc","50-69_perc","70-89_perc","90+_perc"]
+    age_groups_cumm = ["0-29_cumm","30-49_cumm","50-69_cumm","70-89_cumm","90+_cumm"]
 
     if what_to_do == "line":
 
         age_groups = ["0-29","30-49","50-69","70-89","90+", "TOTAAL"]
-        absolute_or_index = st.sidebar.selectbox("Absolute, percentages of TOTAAL or index (start = 100)", ["absolute",  "percentages", "index"], index=0)
+        absolute_or_index = st.sidebar.selectbox("Absolute, percentages of TOTAAL,index (start = 100) or cummulatief", ["absolute",  "percentages", "index",  "cummulatief"], index=0)
 
         if absolute_or_index == "index":
             normed = True
@@ -400,11 +412,15 @@ def main():
         if absolute_or_index  == "percentages":
             ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst_perc, age_groups_perc)
+        elif  absolute_or_index  == "cummulatief":
+            ages_to_show = st.sidebar.multiselect(
+                "Ages to show (multiple possible)", lijst_cumm, age_groups_cumm)
         else:
 
             ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst, age_groups)
     else:
+        #stackplot
         absolute_or_relative = st.sidebar.selectbox("Absolute or relative (total = 100%)", ["absolute", "relative"], index=0)
         ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst, age_groups)
@@ -447,7 +463,7 @@ def main():
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
-        'Data source :  <a href="https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv" target="_blank">RIVM</a><br>'
+        'Data source :  <a href="https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv" target="_blank">RIVM</a> (daily retrieved)<br>'
         'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/edit/main/plot_hosp_ic_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
         'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
     )
