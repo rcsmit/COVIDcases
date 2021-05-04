@@ -136,6 +136,8 @@ def make_age_graph(df, d, columns_original, legendanames, titel):
                 ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i], label = columns_original[i])
                 ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
         plt.legend()
+        if y_zero == True:
+            ax.set_ylim(bottom = 0)
         titel_ = titel + " (weekcijfers)"
         plt.title(titel_)
         plt.xticks(rotation=270)
@@ -431,6 +433,8 @@ def main():
     if len(ages_to_show) == 0:
         st.warning("Choose ages to show")
         st.stop()
+    global y_zero
+    y_zero =  st.sidebar.selectbox("Y-ax starts at 0", [True, False], index=1)
 
 
     if what_to_do == "stack":
@@ -459,6 +463,7 @@ def main():
     else:
         st.error ("ERROR")
         st.stop
+
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
