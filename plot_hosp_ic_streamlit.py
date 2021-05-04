@@ -299,7 +299,14 @@ def select_period(df, show_from, show_until):
     df = df.loc[mask]
     df = df.reset_index()
     return df
+def calculate_percentages(df, lijst):
+    lijst_perc = []
 
+    for d in lijst:
+        new_name = d + "_perc"
+        lijst_perc.append(new_name)
+        df[new_name] = round((df[d] / df["TOTAAL"] * 100),2)
+    return df, lijst_perc
 def main():
 
 
@@ -350,14 +357,19 @@ def main():
     df_pivot_hospital = agg_ages(df_pivot_hospital)
     df_pivot_ic = agg_ages(df_pivot_ic)
 
+    df_pivot_hospital, lijst_perc = calculate_percentages(df_pivot_hospital,lijst)
+    df_pivot_ic, lijst_perc = calculate_percentages(df_pivot_ic,lijst)
+
     df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
     df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
+
     hospital_or_ic = st.sidebar.selectbox("Hospital or IC", ["hospital", "icu"], index=0)
     what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line"], index=0)
 
     if what_to_do == "line":
+
         age_groups = ["0-29","30-49","50-69","70-89","90+", "TOTAAL"]
-        absolute_or_index = st.sidebar.selectbox("Absolute or index (start = 100)", ["absolute", "index"], index=0)
+        absolute_or_index = st.sidebar.selectbox("Absolute, percentages of TOTAAL or index (start = 100)", ["absolute",  "percentages", "index"], index=0)
 
         if absolute_or_index == "index":
             normed = True
@@ -366,10 +378,16 @@ def main():
     else:
         absolute_or_relative = st.sidebar.selectbox("Absolute or relative (total = 100%)", ["absolute", "relative"], index=0)
 
-        age_groups = ["0-29","30-49","50-69","70-89","90+"]
+    age_groups = ["0-29","30-49","50-69","70-89","90+"]
+    age_groups_perc = ["0-29_perc","30-49_perc","50-69_perc","70-89_perc","90+_perc"]
 
-    ages_to_show = st.sidebar.multiselect(
-            "Ages to show (multiple possible)", lijst, age_groups)
+    if absolute_or_index  == "percentages":
+        ages_to_show = st.sidebar.multiselect(
+            "Ages to show (multiple possible)", lijst_perc, age_groups_perc)
+    else:
+
+        ages_to_show = st.sidebar.multiselect(
+                "Ages to show (multiple possible)", lijst, age_groups)
 
     if len(ages_to_show) == 0:
         st.warning("Choose ages to show")
