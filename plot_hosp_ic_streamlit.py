@@ -274,15 +274,25 @@ def normeren(df, what_to_norm):
     how_to_norm = "first"
     for column in what_to_norm:
         #maxvalue = (df[column].max()) / 100
-        firstvalue = df[column].iloc[0] / 100
-        name = f"{column}_index"
+        if df[column].iloc[0] == 0:
+            st.error(f"The agegroup [{column}] has a value of zero at {from_}, so I can't calculate an index.\n\nPlease change the startdate and/or agegroup(s)")
+            st.stop()
+        else:
+            firstvalue = df[column].iloc[0] / 100
+            name = f"{column}_index"
 
-        for i in range(0, len(df)):
-            if how_to_norm == "max":
-                df.loc[i, name] = df.loc[i, column] / maxvalue
-            else:
-                df.loc[i, name] = df.loc[i, column] / firstvalue
-        normed_columns.append(name)
+            for i in range(0, len(df)):
+                if how_to_norm == "max":
+                    df.loc[i, name] = df.loc[i, column] / maxvalue
+                else:
+                    print (firstvalue)
+                    try:
+                        df.loc[i, name] = df.loc[i, column] / firstvalue
+                    except:
+                        df.loc[i, name] = 0
+                        st.alert("dividebyzero")
+            normed_columns.append(name)
+
         #print(f"{name} generated")
         #print (df)
     return df, normed_columns
@@ -323,6 +333,7 @@ def main():
 
     start_ = "2021-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
+    global from_
     from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
 
     try:
@@ -366,6 +377,9 @@ def main():
     hospital_or_ic = st.sidebar.selectbox("Hospital or IC", ["hospital", "icu"], index=0)
     what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line"], index=0)
 
+    age_groups = ["0-29","30-49","50-69","70-89","90+"]
+    age_groups_perc = ["0-29_perc","30-49_perc","50-69_perc","70-89_perc","90+_perc"]
+
     if what_to_do == "line":
 
         age_groups = ["0-29","30-49","50-69","70-89","90+", "TOTAAL"]
@@ -375,19 +389,20 @@ def main():
             normed = True
         else:
             normed = False
+        if absolute_or_index  == "percentages":
+            ages_to_show = st.sidebar.multiselect(
+                "Ages to show (multiple possible)", lijst_perc, age_groups_perc)
+        else:
+
+            ages_to_show = st.sidebar.multiselect(
+                "Ages to show (multiple possible)", lijst, age_groups)
     else:
         absolute_or_relative = st.sidebar.selectbox("Absolute or relative (total = 100%)", ["absolute", "relative"], index=0)
-
-    age_groups = ["0-29","30-49","50-69","70-89","90+"]
-    age_groups_perc = ["0-29_perc","30-49_perc","50-69_perc","70-89_perc","90+_perc"]
-
-    if absolute_or_index  == "percentages":
-        ages_to_show = st.sidebar.multiselect(
-            "Ages to show (multiple possible)", lijst_perc, age_groups_perc)
-    else:
-
         ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst, age_groups)
+
+
+
 
     if len(ages_to_show) == 0:
         st.warning("Choose ages to show")
