@@ -479,7 +479,7 @@ def main():
         #stackplot
         absolute_or_relative = st.sidebar.selectbox("Absolute or relative (total = 100%)", ["absolute", "relative"], index=0)
         ages_to_show = st.sidebar.multiselect(
-                "Ages to show (multiple possible)", lijst, age_groups)
+                "Ages to show (multiple possible)", lijst, default_age_groups)
 
 
 
