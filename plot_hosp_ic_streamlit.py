@@ -106,13 +106,13 @@ def make_age_graph(df, d, columns_original, legendanames, titel):
         st.warning("Choose ages to show")
         st.stop()
     with _lock:
-        color_list = [  "#ff6666",  # reddish 0
+        color_list = [    "#3e5c76",  # blue 6,
+                        "#ff6666",  # reddish 0
                         "#ac80a0",  # purple 1
                         "#3fa34d",  # green 2
                         "#EAD94C",  # yellow 3
                         "#EFA00B",  # orange 4
                         "#7b2d26",  # red 5
-                        "#3e5c76",  # blue 6
                         "#e49273" , # dark salmon 7
                         "#1D2D44",  # 8
                         "#02A6A8",
@@ -129,12 +129,13 @@ def make_age_graph(df, d, columns_original, legendanames, titel):
         fig1y, ax = plt.subplots()
         for i, d_ in enumerate(d):
 
-            if d_ == "TOTAAL_index":
-                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i], label = columns_original[i],  linewidth=2)
-                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
+            #if d_ == "TOTAAL_index":
+            if d_[:6] == "TOTAAL":
+                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[0], label = columns_original[i], linestyle="--", linewidth=2)
+                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[0], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
             else:
-                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i], label = columns_original[i])
-                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
+                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i+1], label = columns_original[i])
+                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i+1], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
         plt.legend()
         if y_zero == True:
             ax.set_ylim(bottom = 0)
@@ -142,6 +143,15 @@ def make_age_graph(df, d, columns_original, legendanames, titel):
         plt.title(titel_)
         plt.xticks(rotation=270)
 
+        ax.text(
+        1,
+        1.1,
+        "Created by Rene Smit — @rcsmit",
+        transform=ax.transAxes,
+        fontsize="xx-small",
+        va="top",
+        ha="right",
+    )
         # plt.tight_layout()
         # plt.show()
         st.pyplot(fig1y)
@@ -190,6 +200,15 @@ def make_stack_graph(df, columns_df,columnlist_names, columnlist_ages, datumveld
         plt.xticks(rotation=270)
         #plt.tight_layout()
         #plt.show()
+        ax.text(
+        1,
+        1.1,
+        "Created by Rene Smit — @rcsmit",
+        transform=ax.transAxes,
+        fontsize="xx-small",
+        va="top",
+        ha="right",
+    )
         st.pyplot(fig1x)
 
 def show_stack(df, c1,titel,absolute_or_relative):
@@ -328,22 +347,40 @@ def calculate_percentages(df, lijst):
         df[new_name] = round((df[d] / df["TOTAAL"] * 100),2)
     return df, lijst_perc
 
-def calculate_cumm(df, lijst):
+def calculate_cumm(df, lijst, all_or_period):
     cumlist = []
     for l in lijst:
-        name = l + "_cumm"
+        if all_or_period == "all":
+            name = l + "_cumm_all"
+        else:
+            name = l + "_cumm_period"
         df[name] = df[l].cumsum()
         cumlist.append(name)
     return df, cumlist
 
+def calculate_per_capita(df, lijst, population):
+    capitalist = []
+    for i,l in enumerate(lijst):
+        name = l + "_per_capita"
+        df[name] = df[l] / population[i]
+        capitalist.append(name)
+    return df, capitalist
+
 def main():
 
 
-    lijst  = ["0-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+", "Unknown", "0-29","30-49","50-69","70-89","90+", "30-69", "0-39", "40-59", "60-79", "80+", "TOTAAL"]
-
-
-
-
+    lijst  = ["0-14", "15-19", "20-24", "25-29", "30-34",
+             "35-39", "40-44", "45-49", "50-54", "55-59",
+             "60-64", "65-69", "70-74", "75-79", "80-84",
+             "85-89", "90+", "Unknown",
+             "0-29","30-49","50-69","70-89","90+",
+             "30-69", "0-39", "40-59", "60-79", "80+", "TOTAAL"]
+    population = [2707000,1029000,1111000,1134000,1124000,
+                  1052000,1033000,1131000,1285000,1263000,
+                  1138000,1003000,971000,644000,450000,
+                  259000,130000,10,
+                  5981000,4340000,4689000,2324000,130000,
+                  9029000,8157000,4712000,3756000,839000,17464000]
 
     st.header("Hospital / ICU admissions in the Netherlands")
     st.subheader("Please send feedback to @rcsmit")
@@ -390,22 +427,33 @@ def main():
     df_pivot_hospital, lijst_perc = calculate_percentages(df_pivot_hospital,lijst)
     df_pivot_ic, lijst_perc = calculate_percentages(df_pivot_ic,lijst)
 
-    df_pivot_hospital, lijst_cumm =  calculate_cumm(df_pivot_hospital, lijst)
-    df_pivot_ic, lijst_cumm =  calculate_cumm(df_pivot_ic, lijst)
+    df_pivot_hospital, lijst_cumm_all =  calculate_cumm(df_pivot_hospital, lijst, "all")
+    df_pivot_ic, lijst_cumm_all =  calculate_cumm(df_pivot_ic, lijst, "all")
+
+
+
+    df_pivot_hospital, lijst_per_capita = calculate_per_capita(df_pivot_hospital, lijst, population)
+    df_pivot_ic, lijst_per_capita = calculate_per_capita(df_pivot_ic, lijst, population)
+
+
     df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
     df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
+
+    df_pivot_hospital, lijst_cumm_period =  calculate_cumm(df_pivot_hospital, lijst, "period")
+    df_pivot_ic, lijst_cumm_period =  calculate_cumm(df_pivot_ic, lijst, "period")
 
     hospital_or_ic = st.sidebar.selectbox("Hospital or IC", ["hospital", "icu"], index=0)
     what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line"], index=1)
 
-    age_groups = ["0-29","30-49","50-69","70-89","90+"]
-    age_groups_perc = ["0-29_perc","30-49_perc","50-69_perc","70-89_perc","90+_perc"]
-    age_groups_cumm = ["0-29_cumm","30-49_cumm","50-69_cumm","70-89_cumm","90+_cumm"]
-
+    default_age_groups = ["0-29","30-49","50-69","70-89","90+"]
+    default_age_groups_perc = ["0-29_perc","30-49_perc","50-69_perc","70-89_perc","90+_perc"]
+    default_age_groups_cumm_all = ["0-29_cumm_all","30-49_cumm_all","50-69_cumm_all","70-89_cumm_all","90+_cumm_all"]
+    default_age_groups_cumm_period = ["0-29_cumm_period","30-49_cumm_period","50-69_cumm_period","70-89_cumm_period","90+_cumm_period"]
+    default_age_groups_per_capita = ["0-29_per_capita","30-49_per_capita","50-69_per_capita","70-89_per_capita","90+_per_capita"]
     if what_to_do == "line":
 
         age_groups = ["0-29","30-49","50-69","70-89","90+", "TOTAAL"]
-        absolute_or_index = st.sidebar.selectbox("Absolute, percentages of TOTAAL,index (start = 100) or cummulatief", ["absolute",  "percentages", "index",  "cummulatief"], index=0)
+        absolute_or_index = st.sidebar.selectbox(f"Absolute | percentages of TOTAAL |\n index (start = 100) | per capita | cummulatief from 2020-1-1 | cummulatief from {FROM}", ["absolute",  "percentages", "index",  "per_capita", "cummulatief_all", "cummulatief_period"], index=0)
 
         if absolute_or_index == "index":
             normed = True
@@ -413,14 +461,20 @@ def main():
             normed = False
         if absolute_or_index  == "percentages":
             ages_to_show = st.sidebar.multiselect(
-                "Ages to show (multiple possible)", lijst_perc, age_groups_perc)
-        elif  absolute_or_index  == "cummulatief":
+                "Ages to show (multiple possible)", lijst_perc, default_age_groups_perc)
+        elif  absolute_or_index  == "cummulatief_all":
             ages_to_show = st.sidebar.multiselect(
-                "Ages to show (multiple possible)", lijst_cumm, age_groups_cumm)
+                "Ages to show (multiple possible)", lijst_cumm_all, default_age_groups_cumm_all)
+        elif  absolute_or_index  == "cummulatief_period":
+            ages_to_show = st.sidebar.multiselect(
+                "Ages to show (multiple possible)", lijst_cumm_period, default_age_groups_cumm_period)
+        elif  absolute_or_index  == "per_capita":
+            ages_to_show = st.sidebar.multiselect(
+                "Ages to show (multiple possible)", lijst_per_capita, default_age_groups_per_capita)
         else:
-
+            # absolute
             ages_to_show = st.sidebar.multiselect(
-                "Ages to show (multiple possible)", lijst, age_groups)
+                "Ages to show (multiple possible)", lijst, default_age_groups)
     else:
         #stackplot
         absolute_or_relative = st.sidebar.selectbox("Absolute or relative (total = 100%)", ["absolute", "relative"], index=0)
