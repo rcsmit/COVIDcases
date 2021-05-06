@@ -1,4 +1,4 @@
-# CALCULATE FALSE POSITIVITY RATE AT VARIOUS LEVELS OF CONTAGIOUS PEOPLE ('besmettelijken')
+# CALCULATE VARIOUS RATES AT VARIOUS LEVELS OF CONTAGIOUS PEOPLE ('besmettelijken')
 # René Smit, 14 april 2021, MIT LICENSE
 
 from tabulate import tabulate
@@ -17,7 +17,8 @@ def calculate(test, prevalentie, number_of_tested_people, population):
     false_negative = round((total_sick * (1 - sensitivity)),0)
 
     true_positive = round((total_sick * sensitivity),0)
-    false_positive = round((total_healthy * (1 - specificity)),0)
+    false_positive= round((total_healthy * (1 - specificity)),0)
+
 
     true_positive_bayes = round (100* (sensitivity * prevalentie) / ((sensitivity * prevalentie) + ((1-specificity)* (1-prevalentie)  )),2)
     data = [
@@ -31,18 +32,21 @@ def calculate(test, prevalentie, number_of_tested_people, population):
             "Result: 'sick' (+) ",
             false_positive,
             true_positive,
-            false_positive + true_positive,
+            false_positive+ true_positive,
         ],
         [
             "Total",
             (true_negative + false_positive),
             (false_negative + true_positive),
-            (true_positive + false_positive) + (false_negative + true_negative),
+            (true_positive + false_positive + false_negative + true_negative),
         ],
     ]
-    fpr = round(100*false_positive/(false_positive + true_positive),2)
-    fnr = round(100*false_negative/(false_negative + true_negative),3)
-    pos = 100*(true_positive + false_positive)/number_of_tested_people
+    fdr = round(100*false_positive/(false_positive+ true_positive),4)
+    acc = round(100*((true_positive+true_negative)/number_of_tested_people),4)
+    for_ = round(100*false_negative/(false_negative + true_negative),4)
+    fpr = round(100*false_positive/(false_positive+ true_negative),4)
+    fnr =  round(100*(false_negative/(true_positive+ false_negative)),4)
+    pos = round(100*((true_positive + false_positive)/number_of_tested_people),4)
     output = True
     if output:
         print("--------------------------------------------------------------------------")
@@ -52,34 +56,46 @@ def calculate(test, prevalentie, number_of_tested_people, population):
 
         print(f"Name test: {name} - specificity : {test[2]} - sensitivity : {test[1]}\n")
 
-        print(tabulate(data, headers=["", "'Healthy' (-)\nSpecificity", "'Sick' (+)\nSensitivity", "Total"]))
+        print(tabulate(data, headers=["", "'Healthy' (-)\nSpecificity (TNR)", "'Sick' (+)\nSensitivity (TPR)", "Total"]))
 
         print()
         print(
-            f"Positive predictive value (PPV): {round(100-fpr,3)} % - (Tested 'sick' while you are 'sick')"
+            f"Positive predictive value (PPV)              : {round((true_positive/(true_positive+false_positive)*100),3)} % - (Tested 'sick' while you are 'sick')"
         )
         print(
-            f"Negative predictive value (NPV): {round(100-fnr,3)} % - (Tested 'healthy' while you are 'healthy')"
+            f"Negative predictive value (NPV)              : {round((true_negative/(false_negative+true_negative)*100),3)} % - (Tested 'healthy' while you are 'healthy')"
+        )
+        print()
+
+        print(
+            f"False Positive rate (FPR / α / Type 1 error) : {fpr} % - (chance of being tested 'sick' while being 'healthy' - probability of false alarm)"
+        )
+        print(
+            f"False Negative rate (FNR/ β / type II error  : {fnr} % - (chance of being tested 'healty' while being 'sick' - miss rate)"
         )
         print()
         print(
-            f"False positivity rate: {fpr} % - (Tested 'sick' while you are 'healthy')"
+            f"False Discovery rate (FDR)                   : {fdr} % - (Chance of being not 'sick' while you are tested 'sick')"
         )
         print(
-            f"False negativity rate: {fnr} % - (Tested 'healthy' while you are 'sick')"
+            f"False Omission Rate (FOR)                    : {for_} % - (Chance of being 'sick' when you are tested  'healthy')"
         )
         print()
         # print(
-        #     f"True positivity rate (Bayes): {true_positive_bayes} % ")
-        # if true_positive_bayes!= (100-fpr):
+        #      f"True positivity rate (Bayes): {true_positive_bayes} % ") # TOFIX
+
+
+        # if true_positive_bayes!= (100-fdr):
         #     print (f"DIFFERENCE !")
-        #     print (100-fpr-true_positive_bayes)
+        #     print (100-fdr-true_positive_bayes)
         # print()
         print(
-            f"Chance to be tested positive (true & false): {pos} %"
+            f"Accuracy                                     : {acc} % ")
+        print(
+            f"Chance to be tested positive (true & false)  : {pos} %"
         )
         print()
-    return fpr,fnr, pos
+    return fdr,for_, pos, fpr
 
 def main():
     # [ name, sensitivity (% true positive), specificity (% true negative) ]
@@ -91,30 +107,34 @@ def main():
     #testen_ = [["538 TEST", 0.8, 0.999], ["PCR TEST", 0.95, 0.998]]
     #testen_ = [["538 TEST", 0.8, 0.7], ["PCR TEST", 0.95, 0.96]]
     #testen_ = [["Reumatest", 0.7, 0.8]]
+    #testen_ = [["Wikipedia", 0.67, 0.91]] #https://en.wikipedia.org/wiki/Sensitivity_and_specificity#Worked_example
     for testen in testen_:
         titel = (f"{testen[0]} - sensitivity {testen[1]} - specificity {testen[2]}")
         besm = []
-        false_positive_rate = []
+        false_discovery_rate = []
         false_negative_rate = []
         chance_to_be_tested_positive = []
+        false_positive_rate = []
 
-        #population = 17_500_000 # The Netherlands
-        population = 9_000_000   # Israel
-
+        population = 17_500_000 # The Netherlands
+        #population = 9_000_000   # Israel
+        #population = 100_000
         # (un)comment next one line to have a loop of "contagious people"
-        #for b in range (5_000, 200_000, 20_000):
+        #for b in range (5_000, 17_500_000, 100_000):
 
         # (un)comment next two lines to have 1 value of 'contagious people'
-        b = 200 # aantal besmettelijken
+        #b = 200 # aantal besmettelijken
+        b = 175_0
         if b != None: # line added to keep the code indented
 
-            number_of_tested_people = 40_000.0  # don't make too small to prevent rouding errors
+            number_of_tested_people = 20000  # don't make too small to prevent rouding errors
 
             prevalentie = b / population
-            fpr, fnr, pos = calculate(testen, prevalentie, number_of_tested_people, population)
+            fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, population)
             besm.append(b)
+            false_discovery_rate.append(fdr)
             false_positive_rate.append(fpr)
-            false_negative_rate.append(fnr)
+            false_negative_rate.append(for_)
             chance_to_be_tested_positive.append(pos)
 
         graph = True
@@ -127,16 +147,23 @@ def main():
             ax.set_xlabel('aantal besmettelijken in NL (#)')
 
             # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-            ax.plot(besm,false_positive_rate,  'r',marker='o',)
-            ax3.plot(besm,false_negative_rate,'g',  marker='o',)
-            ax.set_ylabel('red: false positive rate (%)')
-            ax3.set_ylabel('green: false negative rate (%)')
+            ax.plot(besm,false_discovery_rate,  'r',marker='o',)
+            ax.set_ylabel('red: false discovery rate (%)')
+
+
+            #ax3.plot(besm,false_negative_rate,'g',  marker='o',)
+            #ax3.set_ylabel('green: False non-discovery rate (%)')
+
+            ax3.plot(besm,false_positive_rate,'g',  marker='o',)
+            ax3.set_ylabel('green: False positive rate (%)')
+
+
 
             # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
             #ax.plot(besm,chance_to_be_tested_positive,'g',  marker='o',)
-            #ax3.plot(besm,false_positive_rate,  'r',marker='o',)
+            #ax3.plot(besm,false_discovery_rate,  'r',marker='o',)
             #ax.set_ylabel('green: chance to be tested positive (%)')
-            #ax3.set_ylabel('red: false positive rate (%)')
+            #ax3.set_ylabel('red: false discovery rate (%)')
 
             plt.show()
 
