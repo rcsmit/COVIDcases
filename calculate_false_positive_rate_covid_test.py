@@ -4,7 +4,7 @@
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
-def calculate(test, prevalentie, number_of_tested_people):
+def calculate(test, prevalentie, number_of_tested_people, population):
 
     name = test[0]
     sensitivity = test[1]
@@ -47,7 +47,7 @@ def calculate(test, prevalentie, number_of_tested_people):
     if output:
         print("--------------------------------------------------------------------------")
         print()
-        print (f"Prevalentie = {round(prevalentie*100,2)} % ({prevalentie*17500000}/17.5 miljoen)\nNumber of tested people : {number_of_tested_people}")
+        print (f"Prevalentie = {round(prevalentie*100,2)} % ({prevalentie*population}/{population})\nNumber of tested people : {number_of_tested_people}")
         print()
 
         print(f"Name test: {name} - specificity : {test[2]} - sensitivity : {test[1]}\n")
@@ -86,8 +86,8 @@ def main():
 
     #testen_ = [["Dimgrr", 1.0, 0.7], ["ROCHE SELFTEST", 0.8, 0.97],["BIOSYNEX SELFTEST", 0.972, 1.000],
     #  ["PCR TEST", 0.95, 0.998], ["PCR TEST WHO", 0.95, 0.97]]
-
-    testen_ = [["ROCHE SELFTEST", 0.8, 0.97]] #, ["PCR TEST", 0.95, 0.998]]
+    testen_ =  [["PCR TEST", 0.95, 0.998]]
+    #testen_ = [["ROCHE SELFTEST", 0.8, 0.97]] #, ["PCR TEST", 0.95, 0.998]]
     #testen_ = [["538 TEST", 0.8, 0.999], ["PCR TEST", 0.95, 0.998]]
     #testen_ = [["538 TEST", 0.8, 0.7], ["PCR TEST", 0.95, 0.96]]
     #testen_ = [["Reumatest", 0.7, 0.8]]
@@ -98,25 +98,26 @@ def main():
         false_negative_rate = []
         chance_to_be_tested_positive = []
 
-        population = 17_500_000
+        #population = 17_500_000 # The Netherlands
+        population = 9_000_000   # Israel
 
         # (un)comment next one line to have a loop of "contagious people"
         #for b in range (5_000, 200_000, 20_000):
 
         # (un)comment next two lines to have 1 value of 'contagious people'
-        b = 1750 # aantal besmettelijken
+        b = 200 # aantal besmettelijken
+        if b != None: # line added to keep the code indented
 
-        if b != None:
-            number_of_tested_people = 10000000000.0  # don't make too small to prevent rouding errors
+            number_of_tested_people = 40_000.0  # don't make too small to prevent rouding errors
 
             prevalentie = b / population
-            fpr, fnr, pos = calculate(testen, prevalentie, number_of_tested_people)
+            fpr, fnr, pos = calculate(testen, prevalentie, number_of_tested_people, population)
             besm.append(b)
             false_positive_rate.append(fpr)
             false_negative_rate.append(fnr)
             chance_to_be_tested_positive.append(pos)
 
-        graph = False
+        graph = True
         if graph :
             fig = plt.figure()
             ax = fig.add_subplot(111)
@@ -126,16 +127,16 @@ def main():
             ax.set_xlabel('aantal besmettelijken in NL (#)')
 
             # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-            # ax.plot(besm,false_positive_rate,  'r',marker='o',)
-            # ax3.plot(besm,false_negative_rate,'g',  marker='o',)
-            # ax.set_ylabel('red: false positive rate (%)')
-            # ax3.set_ylabel('green: false negative rate (%)')
+            ax.plot(besm,false_positive_rate,  'r',marker='o',)
+            ax3.plot(besm,false_negative_rate,'g',  marker='o',)
+            ax.set_ylabel('red: false positive rate (%)')
+            ax3.set_ylabel('green: false negative rate (%)')
 
             # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
-            ax.plot(besm,chance_to_be_tested_positive,'g',  marker='o',)
-            ax3.plot(besm,false_positive_rate,  'r',marker='o',)
-            ax.set_ylabel('green: chance to be tested positive (%)')
-            ax3.set_ylabel('red: false positive rate (%)')
+            #ax.plot(besm,chance_to_be_tested_positive,'g',  marker='o',)
+            #ax3.plot(besm,false_positive_rate,  'r',marker='o',)
+            #ax.set_ylabel('green: chance to be tested positive (%)')
+            #ax3.set_ylabel('red: false positive rate (%)')
 
             plt.show()
 
