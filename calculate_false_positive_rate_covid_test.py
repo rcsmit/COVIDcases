@@ -1,4 +1,4 @@
-# CALCULATE VARIOUS RATES AT VARIOUS LEVELS OF CONTAGIOUS PEOPLE ('besmettelijken')
+# CALCULATE FALSE DISCOVERY RATE AT VARIOUS LEVELS OF CONTAGIOUS PEOPLE ('besmettelijken')
 # René Smit, 14 april 2021, MIT LICENSE
 
 from tabulate import tabulate
@@ -60,10 +60,10 @@ def calculate(test, prevalentie, number_of_tested_people, population):
 
         print()
         print(
-            f"Positive predictive value (PPV)              : {round((true_positive/(true_positive+false_positive)*100),3)} % - (Tested 'sick' while you are 'sick')"
+            f"Positive predictive value (PPV)              : {round((true_positive/(true_positive+false_positive)*100),3)} % - (Chance of being really 'sick' when tested 'sick')"
         )
         print(
-            f"Negative predictive value (NPV)              : {round((true_negative/(false_negative+true_negative)*100),3)} % - (Tested 'healthy' while you are 'healthy')"
+            f"Negative predictive value (NPV)              : {round((true_negative/(false_negative+true_negative)*100),3)} % - (Chance of being really 'healthy' when you are tested 'healthy')"
         )
         print()
 
