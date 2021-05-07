@@ -282,8 +282,13 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             plt.title(f"{title} / lmfit - {function}\n{formula}\n{res}")
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
             # use `result.eval()` to evaluate model given params and x
-            ax1.plot(t, bmodel.eval(result.params, x=t), "r-")
+            ax1.plot(t, bmodel.eval(result.params, x=t), "r-", linewidth=2)
             ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
+
+            if compare_to:
+                ax1.plot (t, derivate(t,a_,b_,c_), color = 'r', alpha=0.4)
+                ax2.plot (t, derivate_of_derivate(t,a_,b_,c_), color = 'purple', alpha=0.4)
+
             ax2.axhline(linewidth=1, color='purple', alpha=0.5, linestyle="--")
             #ax1.plot (t, derivate(t,26660.1, 9.01298, 0.032198), color = 'purple')
             #ax2.plot (t, derivate_of_derivate(t,26660.1, 9.01298, 0.032198), color = 'yellow')
@@ -292,8 +297,10 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             #ax1.set_ylim(510,1200)
             #ax2.set_ylim(0,12)
             ax1.set_xlabel(f"Days from {from_}")
-
-            ax1.set_ylabel(f"{title} - red")
+            if compare_to:
+                ax1.set_ylabel(f"{title} - red ")
+            else:
+                ax1.set_ylabel(f"{title} - red")
             ax2.set_ylabel("delta - purple")
             #plt.show()
             filename= (f"{OUTPUT_DIR}lmfit_{title}_{function}_{i}")
@@ -712,6 +719,16 @@ def main():
     BASEVALUE = st.sidebar.number_input('Base value',None,None,base_value__)
 
     to_do_list = [[what_to_display, values_to_fit]]
+    global a_,b_,c_, compare_to
+
+    compare_to  = st.sidebar.selectbox("Make comparison", [True, False], index=1)
+    if compare_to:
+
+        st.sidebar.write("Compare to:")
+        a_ = st.sidebar.number_input('a',None,None,27003.56909)
+        b_ = st.sidebar.number_input('b',None,None,9.0)
+        c_ = st.sidebar.number_input('c',None,None,0.032)
+
 
     then = d1 + dt.timedelta(days=total_days)
     daterange = mdates.drange(d1,then,dt.timedelta(days=1))
