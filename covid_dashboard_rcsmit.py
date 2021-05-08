@@ -319,8 +319,8 @@ def week_to_week(df, column_):
             nu = df.iloc[n][c]
             waarde = round((((nu - vorige_week) / vorige_week) * 100), 2)
             waarde2 = round((((nu) / vorige_week) * 100), 2)
-            df[n, newname] = waarde
-            df[n, newname2] = waarde2
+            df.at[n, newname] = waarde
+            df.at[n, newname2] = waarde2
     return df, newcolumns, newcolumns2
 
 def rh2q (rh, t, p ):
@@ -1702,10 +1702,12 @@ def main():
     # st.write(df.dtypes)
     w2w = [
         "Total_reported",
-        "Hospital_admission_RIVM",
-        "IC_Nieuwe_Opnames_LCPS",
+
         "Deceased",
     ]
+
+
+
     chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
     mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
     df, newcolumns, newcolumns2 = week_to_week(df, w2w)
