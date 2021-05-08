@@ -319,8 +319,8 @@ def week_to_week(df, column_):
             nu = df.iloc[n][c]
             waarde = round((((nu - vorige_week) / vorige_week) * 100), 2)
             waarde2 = round((((nu) / vorige_week) * 100), 2)
-            df.at[n, newname] = waarde
-            df.at[n, newname2] = waarde2
+            df[n, newname] = waarde
+            df[n, newname2] = waarde2
     return df, newcolumns, newcolumns2
 
 def rh2q (rh, t, p ):
