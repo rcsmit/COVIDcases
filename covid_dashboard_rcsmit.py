@@ -152,6 +152,17 @@ def get_data():
                 "fileformat": "json",
             },
 
+ {
+                "url": "https://raw.githubusercontent.com/mzelst/covid-19/master/data-rivm/ic-datasets/ic_daily_2021-05-06.csv",
+                "name": "ic_daily",
+                "delimiter": ",",
+                "key": "Date_of_statistics",
+                "dateformat": "%Y-%m-%d",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+
+
             {
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_deceased__ages.csv",
                 "name": "cases_hospital_deceased__ages",
@@ -180,7 +191,16 @@ def get_data():
                 "dateformat": "%d-%m-%Y",
                 "groupby": None,
                 "fileformat": "csv",
-            }
+            },
+            {
+                "url": "https://raw.githubusercontent.com/mzelst/covid-19/master/data/all_data.csv",
+                "name": "all_mzelst",
+                "delimiter": ",",
+                "key": "date",
+                "dateformat": "%Y-%m-%d",
+                "groupby": None,
+                "fileformat": "csv",
+            },
             # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
             # 'name'       : 'sweden',
             # 'delimiter'  : ';',
@@ -318,7 +338,7 @@ def extra_calculations(df):
     """Extra calculations
     IN  : df
     OUT : df with extra columns"""
-
+    #st.write(df.dtypes)
     df["Percentage_positive"] = round(
         (df["Tested_positive"] / df["Tested_with_result"] * 100), 2
     )
@@ -374,9 +394,9 @@ def extra_calculations(df):
     df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
     df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
     df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
-    
-    df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"] 
-    df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"] 
+
+    df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"]
+    df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"]
     df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
 
     save_df(df, "percentage_positief")
@@ -1543,10 +1563,15 @@ def main():
     df.rename(
         columns={
             "Hospital_admission_x": "Hospital_admission_RIVM",
+            "IC_admission": "IC_admission_RIVM",
             "Hospital_admission_y": "Hospital_admission_GGD",
-            "Kliniek_Nieuwe_Opnames_COVID": "Hospital_admission_LCPS",
+            "Kliniek_Nieuwe_Opnames_COVID_x": "Hospital_admission_LCPS",
             #   "value"                             : "IC_opnames_NICE",
-            "IC_Nieuwe_Opnames_COVID": "IC_Nieuwe_Opnames_LCPS",
+            "IC_Nieuwe_Opnames_COVID_x": "IC_Nieuwe_Opnames_LCPS",
+            "IC_Nieuwe_Opnames_COVID_y": "IC_Nieuwe_Opnames_COVID",
+            "IC_Bedden_COVID_x": "IC_Bedden_COVID",
+            "IC_Bedden_Non_COVID_x":"IC_Bedden_Non_COVID",
+            "Kliniek_Bedden_x":"Kliniek_Bedden",
         },
         inplace=True,
     )
@@ -1557,6 +1582,8 @@ def main():
         "IC_Bedden_Non_COVID",
         "Kliniek_Bedden",
         "IC_Nieuwe_Opnames_LCPS",
+        "IC_admission_RIVM",
+        "IC_Intake_Proven",
         "Hospital_admission_RIVM",
         "Hospital_admission_LCPS",
         "Hospital_admission_GGD",
@@ -1680,10 +1707,12 @@ def main():
         "Deceased",
     ]
     chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
+    mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
     df, newcolumns, newcolumns2 = week_to_week(df, w2w)
     lijst.extend(newcolumns)
     lijst.extend(newcolumns2)
     lijst.extend(chd)
+    lijst.extend(mzelst)
 
     # for n in newcolumns:
     #     .write(df[n])
