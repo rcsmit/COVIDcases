@@ -1553,7 +1553,7 @@ def main():
     global show_R_value_graph, show_R_value_RIVM, centersmooth
     global OUTPUT_DIR
     global INPUT_DIR
-
+    init()
 
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
