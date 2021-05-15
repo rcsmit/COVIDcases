@@ -35,6 +35,7 @@ from scipy.special import erfc, erf
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
+import covid_dashboard_rcsmit
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
@@ -588,16 +589,22 @@ def loglognormal(df, what_to_display):
 def main():
     global placeholder0, placeholder, placeholder1
 
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\EINDTABEL.csv"
-    #url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
-    df = pd.read_csv(url1, delimiter=",", low_memory=False)
+    # url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\EINDTABEL.csv"
+    # #url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
+    # df = pd.read_csv(url1, delimiter=",", low_memory=False)
+
+
+    df_getdata, df_ungrouped_, UPDATETIME = covid_dashboard_rcsmit.get_data()
+    df = df_getdata.copy(deep=False)
+
+    #st.write (df.dtypes)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.fillna(value=0, inplace=True)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
     df["Deceased_cumm"] = df["Deceased"].cumsum()
-    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID_x"].cumsum()
     #df["total_reported_k_value"] = 1- df["Total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
-    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
+
     DATE_FORMAT = "%m/%d/%Y"
     global start__
     global OUTPUT_DIR
@@ -674,10 +681,10 @@ def main():
     lijst = [
         "Total_reported",
         "Total_reported_cumm",
-        "IC_Bedden_COVID",
+        "IC_Bedden_COVID_x",
         "IC_Bedden_Non_COVID",
         "Kliniek_Bedden",
-        "IC_Nieuwe_Opnames_LCPS",
+        "IC_Nieuwe_Opnames_COVID_x",
         "IC_Nieuwe_Opnames_LCPS_cumm",
         "Hospital_admission_RIVM",
         "Hospital_admission_LCPS",
@@ -743,6 +750,7 @@ def main():
     fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
     #normal_c(df_to_use)  #FIXIT doesnt work :()
     loglognormal(df_to_use, what_to_display)
+    st.sidebar.write(f"last updated: {UPDATETIME}")
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
