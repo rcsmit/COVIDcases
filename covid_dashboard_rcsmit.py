@@ -382,12 +382,16 @@ def extra_calculations(df):
     except:
         df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / 8)
     df["prev_div_days_contagious_cumm"] = df["prev_div_days_contagious"].cumsum()
+
+
     df["deceased_per_prev_div_days_contagious"] = ( df["Deceased"] / df["prev_div_days_contagious"] )*100
 
     df["Deceased_per_reported_moved_14"] = round(
             ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
+    df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Total_reported_cumm"]
+
     df["Deceased_cumm"] = df["Deceased"].cumsum()
     df["Deceased_cumm_div_prev_div_days_contagious_cumm"] =  df["Deceased_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
@@ -1651,7 +1655,8 @@ def main():
         "Deceased_cumm_period_div_prev_div_days_contagious_cumm_period",
         "q_biggerthansix",
         "q_smallerthansix",
-        "reported_corrected"
+        "reported_corrected",
+        "onderrapportagefactor"
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
@@ -1991,7 +1996,7 @@ def main():
         "<br><i>Deceased_cumm_period_div_prev_div_days_contagious_cumm_period</i> -"
 
         "<br><br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
-
+        "<br><i>onderrapportagefactor</i> - prev_div_days_contagious_cumm / Total_reported_cumm"
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
