@@ -1551,6 +1551,9 @@ def main():
     global Rnew1_, Rnew2_
     global ry1, ry2, total_cases_0, sec_variant, extra_days
     global show_R_value_graph, show_R_value_RIVM, centersmooth
+    global OUTPUT_DIR
+    global INPUT_DIR
+
 
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
