@@ -10,7 +10,7 @@ def main():
         "<br><i>calculate_false_positive_rate_covid_test_streamlit</i> -  HOE BETROUWBAAR ZIJN DE TESTEN ?"
         "<br><i>number_of_cases_interactive</i> -  - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity"
         "<br><i>calculate_ifr_from_prevalence_streamlit</i> -  calculate percentage of population who had covid and the IFR from the prevalence"
-        "<br><i>fit_to_data_streamlit</i> -  FIT THE DATA
+        "<br><i>fit_to_data_streamlit</i> -  Fit the various curves to a derivate formula"
         "<br><i>SEIR_hobbeland</i> - - Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745"
 
         "<br><i>grafiek_pos_testen_per_leeftijdscategorie_streamlit</i> -  draw graphs of positieve cases per age in time. DATA NOT UPDATED"
