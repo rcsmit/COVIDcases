@@ -4,8 +4,8 @@ import streamlit as st
 def main():
     st.header ("Welcome!")
     # "welcome", "fit_to_data_streamlit", "covid_dashboard_rcsmit", "plot_hosp_ic_streamlit", "number_of_cases_interactive", "SEIR_hobbeland",
-     "grafiek_pos_testen_per_leeftijdscategorie_streamlit", "perprovincieperleeftijd"
-        number_of_cases_interactive.py - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity
+    # "grafiek_pos_testen_per_leeftijdscategorie_streamlit", "perprovincieperleeftijd"
+    #    number_of_cases_interactive.py - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity
 
 
 # covid_dashboard_rcsmit.py - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs. image
