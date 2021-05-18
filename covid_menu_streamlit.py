@@ -19,7 +19,7 @@ def main():
             index=0,
         )
 
-    if if what_to_do == "welcome":
+    if what_to_do == "welcome":
         welcome.main()
 
     elif what_to_do == "fit_to_data_streamlit":
