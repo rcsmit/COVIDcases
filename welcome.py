@@ -6,7 +6,7 @@ def main():
     toelichting = (
         "<p>Here you'll find the scripts I made in the last months regarding to COVID-19 in the Netherlands.</p>"
         "<br><br><i>covid_dashboard_rcsmit</i> - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs."
-        "<br><br><i>plot_hosp_ic_streamlit/i> - Plot the number of hospital or ICU admissions per agegroup"
+        "<br><br><i>plot_hosp_ic_streamlit</i> - Plot the number of hospital or ICU admissions per agegroup"
         "<br><br><i>calculate_false_positive_rate_covid_test_streamlit</i> -  HOE BETROUWBAAR ZIJN DE TESTEN ?"
         "<br><br><i>number_of_cases_interactive</i> -  - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity"
         "<br><br><i>calculate_ifr_from_prevalence_streamlit</i> -  calculate percentage of population who had covid and the IFR from the prevalence"
