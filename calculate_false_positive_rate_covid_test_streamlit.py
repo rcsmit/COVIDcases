@@ -111,7 +111,7 @@ def calculate(test, prevalentie, number_of_tested_people, population):
 
         st.text(f"Name test: {name} - specificity : {test[2]} - sensitivity : {test[1]}\n")
 
-        st.text(tabulate(data, headers=["", "'Person is\nSick' (+)\nSensitivity (TPR)", "'Person is\nHealthy' (-)\nSpecificity (TNR)", "Total"]))
+        st.text(tabulate(data, headers=["_", "'Person is\nSick' (+)\nSensitivity (TPR)", "'Person is\nHealthy' (-)\nSpecificity (TNR)", "Total"]))
 
 
 
