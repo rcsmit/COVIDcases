@@ -1,14 +1,3 @@
-
-
-
-
-
-
-
-import welcome
-
-
-
 import streamlit as st
 
 def main():
@@ -27,7 +16,7 @@ def main():
     elif what_to_do == "fit_to_data_streamlit":
         import fit_to_data_streamlit
         fit_to_data_streamlit.main()
-        import covid_dashboard_rcsmit
+       
     elif  what_to_do == "covid_dashboard_rcsmit" :
         import covid_dashboard_rcsmit
         covid_dashboard_rcsmit.main()
