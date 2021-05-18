@@ -3,33 +3,28 @@ import streamlit as st
 
 def main():
     st.header ("Welcome!")
-    # "welcome", "fit_to_data_streamlit", "covid_dashboard_rcsmit", "plot_hosp_ic_streamlit", "number_of_cases_interactive", "SEIR_hobbeland",
-    # "grafiek_pos_testen_per_leeftijdscategorie_streamlit", "perprovincieperleeftijd"
-    #    number_of_cases_interactive.py - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity
+    toelichting = (
+        "<p>Her you the scripts I made in the last months regarding to COVID-19 in the Netherlands.</p>"
+        "<br><i>covid_dashboard_rcsmit</i> - - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs."
+        "<br><i>plot_hosp_ic_streamlit",
+        "<br><i>calculate_false_positive_rate_covid_test_streamlit</i> -  HOE BETROUWBAAR ZIJN DE TESTEN ?"
+        "<br><i>number_of_cases_interactive</i> -  - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity"
+        "<br><i>calculate_ifr_from_prevalence_streamlit</i> -  calculate percentage of population who had covid and the IFR from the prevalence"
+        "<br><i>fit_to_data_streamlit</i> -  FIT THE DATA
+        "<br><i>SEIR_hobbeland</i> - - Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745"
 
-
-# covid_dashboard_rcsmit.py - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs. image
-# grafiek_pos_testen_per_leeftijdscategorie_streamlit.py - draw graphs of positieve cases per age in time image
-# SEIR_hobbeland.py - Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745 image
-
-# calculate_false_positive_rate_covid_test.py - HOE BETROUWBAAR ZIJN DE TESTEN ? image image
-
-# fit_to_data_streamlit.py - FIT THE DATA image
-
-# calculate_ifr_prevalence.py - calculate percentage of population who had covid and the IFR from the prevalence
-
-
-# stackplot.py - draw a stackplot of portion of agegroups in time for positive tests, hospitalizations and deceased from cases_landelijk.csv
-
-# stackplot_hosp_ic.py - draw a stackplot of portion of agegroups in time (weekly data) for hospitalizations and ICU admission from ziekenhuis_ic_opnames_per_leeftijdsgroep.csv
-
-# image image
-
-# postestennaarleeftyd.py - ZIJN KINDEREN DE REDEN DAT HET PERCENTAGE POSITIEF DAALT ? image
-
-# getest_leeftijd_weekcijfers.py - IS ER EEN VERBAND MET HET PERCENTAGE POSITIEF PER LEEFTIJDSGROEP EN DE ZIEKENHUISOPNAMES? image
-
-
+        "<br><i>grafiek_pos_testen_per_leeftijdscategorie_streamlit</i> -  draw graphs of positieve cases per age in time. DATA NOT UPDATED"
+        "<br><i>perprovincieperleeftijd</i> - Zijn kinderen de redenen dat het percentage positief daalt? DATA NOT UPDATED"
+    )
+    tekst = (
+        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
+        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/" target="_blank">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
+        'With support of : @hk_nien, @mr_Smith_Econ, @dimgrr, @JosetteSchoenma e.a'
+    )
+    st.markdown(toelichting, unsafe_allow_html=True)
+    st.markdown(tekst, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
