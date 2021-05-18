@@ -6,20 +6,21 @@ import SEIR_hobbeland
 import grafiek_pos_testen_per_leeftijdscategorie_streamlit
 import perprovincieperleeftijd
 import welcome
+import calculate_ifr_from_prevalence_streamlit
 
 
 import streamlit as st
 
 def main():
     lijst = ["welcome", "fit_to_data_streamlit", "covid_dashboard_rcsmit", "plot_hosp_ic_streamlit", "number_of_cases_interactive", "SEIR_hobbeland",
-     "grafiek_pos_testen_per_leeftijdscategorie_streamlit", "perprovincieperleeftijd"]
+     "grafiek_pos_testen_per_leeftijdscategorie_streamlit", "perprovincieperleeftijd", "calculate_ifr_from_prevalence_streamlit"]
 
     what_to_do =  st.sidebar.selectbox(
             "What to dp", lijst,
             index=0,
         )
 
-    if what_to_do == "welcome":
+    if if what_to_do == "welcome":
         welcome.main()
 
     elif what_to_do == "fit_to_data_streamlit":
@@ -36,6 +37,8 @@ def main():
         perprovincieperleeftijd.main_per_province_per_leeftijd()
     elif what_to_do == "number_of_cases_interactive":
         number_of_cases_interactive.main()
+    elif what_to_do == "calculate_ifr_from_prevalence_streamlit":
+        calculate_ifr_from_prevalence_streamlit.main()
 
 
 if __name__ == "__main__":
