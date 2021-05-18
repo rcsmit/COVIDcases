@@ -181,7 +181,7 @@ def main():
     chance_to_be_tested_positive = []
     false_positive_rate = []
 
-    population = 17_500_000 # The Netherlands
+    #population = 17_500_000 # The Netherlands
     #population = 9_000_000   # Israel
     #population = 100_000
     #population = 25_000_000 # AUSTRALIA
