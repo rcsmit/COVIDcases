@@ -167,10 +167,12 @@ def main():
 
     contagious  = (st.sidebar.number_input('Contagious',None,None, 174_835))
     population = (st.sidebar.number_input('Total population', None,None, 17_483_471))
+    number_of_tested_people =  (st.sidebar.number_input('Number of tested people',None,None, 100_000))
+    
     name = (st.sidebar.text_input('Name', 'PCR test'))
-    specificity = (st.sidebar.number_input('Total population',None,None, 0.998))
+    specificity = (st.sidebar.number_input('Specificity',None,None, 0.998))
     sensitivity = (st.sidebar.number_input('Sensitivity',None,None, 0.95))
-    number_of_tested_people =  (st.sidebar.number_input('number of tested people',None,None, 100_000))
+    
     testen = [name, sensitivity, specificity]
     titel = (f"{testen[0]} - sensitivity {sensitivity} - specificity {specificity}")
     besm = []
