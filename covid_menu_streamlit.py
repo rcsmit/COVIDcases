@@ -4,12 +4,13 @@ import streamlit as st
 def main():
     lijst = [
         "welcome",
-        "fit_to_data",
+        
         "covid_dashboard_rcsmit",
         "plot_hosp_ic",
         "calculate_false_positive_rate_covid_test",
         "number_of_cases_interactive",
         "calculate_ifr_from_prevalence",
+        "fit_to_data",
         "SEIR_hobbeland",
         "grafiek_pos_testen_per_leeftijdscategorie",
         "perprovincieperleeftijd",
