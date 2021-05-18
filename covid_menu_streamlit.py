@@ -30,6 +30,7 @@ def main():
     elif what_to_do == "perprovincieperleeftijd":
         perprovincieperleeftijd.main_per_province_per_leeftijd()
 
+    st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
