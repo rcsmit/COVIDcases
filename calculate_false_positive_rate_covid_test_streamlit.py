@@ -111,7 +111,7 @@ def calculate(test, prevalentie, number_of_tested_people, population):
 
         st.text(f"Name test: {name} - specificity : {test[2]} - sensitivity : {test[1]}\n")
 
-        #st.text(tabulate(data, headers=["", "'Person is\nSick' (+)\nSensitivity (TPR)", "'Person is\nHealthy' (-)\nSpecificity (TNR)", "Total"]))
+        st.text(tabulate(data, headers=["", "'Person is\nSick' (+)\nSensitivity (TPR)", "'Person is\nHealthy' (-)\nSpecificity (TNR)", "Total"]))
 
 
 
@@ -147,9 +147,9 @@ def calculate(test, prevalentie, number_of_tested_people, population):
         )
         #
         #
-        # st.text(tabulate(data2, headers=["%", "'Person is\nSick' (+)", "'Person is\nHealthy' (-)", "Total"]))
+        st.text(tabulate(data2, headers=["%", "'Person is\nSick' (+)", "'Person is\nHealthy' (-)", "Total"]))
         #
-        # st.text(tabulate(data3, headers=["%", "'Person is\nSick' (+)", "'Person is\nHealthy' (-)"]))
+        st.text(tabulate(data3, headers=["%", "'Person is\nSick' (+)", "'Person is\nHealthy' (-)"]))
     return fdr,for_, pos, fpr
 
 def main():
