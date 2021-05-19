@@ -10,7 +10,7 @@ _lock = RendererAgg.lock
 
 
 
-def calculate(test, prevalentie, number_of_tested_people, population):
+def calculate(test, prevalentie, number_of_tested_people, population, output):
 
     name = test[0]
     sensitivity = test[1]
@@ -31,13 +31,19 @@ def calculate(test, prevalentie, number_of_tested_people, population):
     fdr = round(100*false_positive/(false_positive+ true_positive),4)
     acc = round(100*((true_positive+true_negative)/number_of_tested_people),4)
     for_ = round(100*false_negative/(false_negative + true_negative),4)
-    fpr = round(100*false_positive/(false_positive+ true_negative),4)
+    try:
+        fpr = round(100*false_positive/(false_positive+ true_negative),4)
+    except:
+        fpr = 0
     fnr =  round(100*(false_negative/(true_positive+ false_negative)),4)
     pos = round(100*((true_positive + false_positive)/number_of_tested_people),4)
     ppv = round((true_positive/(true_positive+false_positive)*100),3)
     npv = round((true_negative/(false_negative+true_negative)*100),3)
     tpr =round(100*true_positive/(true_positive+false_negative),3) # equal to Se
-    tnr = round(100*true_negative/(false_positive+true_negative),3) # equal to Sp
+    try:
+        tnr = round(100*true_negative/(false_positive+true_negative),3) # equal to Sp
+    except:
+        tnr = 0
     a, b,c,d = ("PPV - "+ str(ppv)), ("FDR - " + str(fdr)),  ("FOR - " + str(for_)), ("NPV - " + str(npv))
     e,f,g,h = ("TPR/Se - " + str(tpr)), ("FPR - " + str(fpr)), ("FNR - " + str(fnr)), ("TNR, Sp - " + str(tnr))
     data = [
@@ -102,16 +108,15 @@ def calculate(test, prevalentie, number_of_tested_people, population):
         ],
 
     ]
-    output = True
+
     if output:
-        st.text("--------------------------------------------------------------------------")
 
         st.text (f"Prevalentie = {round(prevalentie*100,2)} % ({prevalentie*population}/{population})\nNumber of tested people : {number_of_tested_people}")
 
 
         st.text(f"Name test: {name} - specificity : {test[2]} - sensitivity : {test[1]}\n")
 
-        st.text(tabulate(data, headers=["_", "'Person is\nSick' (+)\nSensitivity (TPR)", "'Person is\nHealthy' (-)\nSpecificity (TNR)", "Total"]))
+        st.text(tabulate(data, headers=["#", "'Person is\nSick' (+)\nSensitivity (TPR)", "'Person is\nHealthy' (-)\nSpecificity (TNR)", "Total"]))
 
 
 
@@ -143,13 +148,17 @@ def calculate(test, prevalentie, number_of_tested_people, population):
         st.text(
             f"Accuracy                                     : {acc} % ")
         st.text(
-            f"Chance to be tested positive (true & false)  : {pos} %"
+            f"Chance to be tested positive (true & false)  : {pos} %\n\n"
         )
         #
+        st.text("\n\n")
+
         #
         st.text(tabulate(data2, headers=["%", "'Person is\nSick' (+)", "'Person is\nHealthy' (-)", "Total"]))
-        #
+        st.text("\n\n")
         st.text(tabulate(data3, headers=["%", "'Person is\nSick' (+)", "'Person is\nHealthy' (-)"]))
+        st.text("--------------------------------------------------------------------------")
+
     return fdr,for_, pos, fpr
 
 def main():
@@ -168,12 +177,36 @@ def main():
     contagious  = (st.sidebar.number_input('Contagious',None,None, 174_835))
     population = (st.sidebar.number_input('Total population', None,None, 17_483_471))
     number_of_tested_people =  (st.sidebar.number_input('Number of tested people',None,None, 100_000))
-    
-    name = (st.sidebar.text_input('Name', 'PCR test'))
-    specificity = (st.sidebar.number_input('Specificity',None,None, 0.998))
-    sensitivity = (st.sidebar.number_input('Sensitivity',None,None, 0.95))
-    
+
+    scenario = st.sidebar.radio(
+        "Select a test",
+        ("PCR", "Sneltest Roche", "PCR WHO", "BIOSYNEX SELFTEST")
+                )
+
+    if scenario == "PCR":
+        naam = "PCR"
+        se = 0.998
+        sp = 0.95
+    elif scenario == "PCR WHO":
+        naam = "PCR WHO"
+        se = 0.95
+        sp = 0.97
+    elif scenario == "Sneltest Roche":
+        naam = "Sneltest Roche"
+        se = 0.8
+        sp = 0.97
+    elif scenario == "BIOSYNEX SELFTEST":
+        naam = "BIOSYNEX SELFTEST"
+        se = 0.972
+        sp = 1.000
+    name = (st.sidebar.text_input('Name', naam))
+    specificity = (st.sidebar.number_input('Specificity',None,None, sp, format="%.4f"))
+    sensitivity = (st.sidebar.number_input('Sensitivity',None,None, se, format="%.4f"))
     testen = [name, sensitivity, specificity]
+    b = contagious
+    prevalentie = b / population
+    fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, population, True)
+
     titel = (f"{testen[0]} - sensitivity {sensitivity} - specificity {specificity}")
     besm = []
     false_discovery_rate = []
@@ -186,27 +219,16 @@ def main():
     #population = 100_000
     #population = 25_000_000 # AUSTRALIA
     # (un)comment next one line to have a loop of "contagious people"
-    #for b in range (5_000, 17_500_000, 100_000):
-
-    # (un)comment next two lines to have 1 value of 'contagious people'
-    #b = 300 # aantal besmettelijken ISRAEL
-    #b = 29886 # australia
-    #b = 2030
-    b = contagious
-    if b != None: # line added to keep the code indented
-
-        number_of_tested_people = 100_000  # don't make too small to prevent rouding errors
-        #number_of_tested_people = 2030
+    for b in range (int(population*0.01), population, int(population*0.01)):
         prevalentie = b / population
-        #prevalentie = 0.0148
-        fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, population)
+        fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, population, False)
         besm.append(b)
         false_discovery_rate.append(fdr)
         false_positive_rate.append(fpr)
         false_negative_rate.append(for_)
         chance_to_be_tested_positive.append(pos)
 
-    graph = False
+    graph = True
     if graph :
         with _lock:
             fig1y = plt.figure()
@@ -216,18 +238,18 @@ def main():
             ax3 = ax.twinx()
             plt.title(titel)
 
-            ax.set_xlabel('aantal besmettelijken in NL (#)')
+            ax.set_xlabel(f'aantal besmettelijken (population = {population})')
 
             # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-            ax.plot(besm,false_discovery_rate,  'r',marker='o',)
-            ax.set_ylabel('red: false discovery rate (%)')
+            ax.plot(besm,false_discovery_rate,  'b',marker='.',)
+            ax.set_ylabel('blue: false discovery rate (%)')
 
 
-            #ax3.plot(besm,false_negative_rate,'g',  marker='o',)
-            #ax3.set_ylabel('green: False non-discovery rate (%)')
+            ax3.plot(besm,false_negative_rate,'purple',  marker='.',)
+            ax3.set_ylabel('purple: False omission rate (%)')
 
-            ax3.plot(besm,false_positive_rate,'g',  marker='o',)
-            ax3.set_ylabel('green: False positive rate (%)')
+            # ax3.plot(besm,false_positive_rate,'g',  marker='o',)
+            # ax3.set_ylabel('green: False positive rate (%)')
 
 
 
