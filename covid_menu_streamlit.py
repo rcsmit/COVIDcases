@@ -21,7 +21,7 @@ def main():
         lijst,
         index=0,
     )
-    st.sidebar.markdown("<h1>__________________</h1>", unsafe_allow_html=True)
+    st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
     if menu_keuze == "welcome":
         import welcome
 
