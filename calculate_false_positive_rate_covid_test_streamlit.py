@@ -177,6 +177,7 @@ def main():
     contagious  = (st.sidebar.number_input('Contagious',None,None, 174_835))
     population = (st.sidebar.number_input('Total population', None,None, 17_483_471))
     number_of_tested_people =  (st.sidebar.number_input('Number of tested people',None,None, 100_000))
+    st.sidebar.write("Attention: too small numbers give erorrs (Division by zero)")
 
     scenario = st.sidebar.radio(
         "Select a test",
@@ -202,7 +203,6 @@ def main():
     name = (st.sidebar.text_input('Name', naam))
     specificity = (st.sidebar.number_input('Specificity',None,None, sp, format="%.4f"))
     sensitivity = (st.sidebar.number_input('Sensitivity',None,None, se, format="%.4f"))
-    st.sidebar.write("Attention: too small numbers give erorrs (Division by zero)")
     testen = [name, sensitivity, specificity]
     b = contagious
     prevalentie = b / population
