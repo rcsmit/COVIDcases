@@ -9,6 +9,7 @@ def main():
         "<br><br><i>plot_hosp_ic_streamlit</i> - Plot the number of hospital or ICU admissions per agegroup"
         "<br><br><i>calculate_false_positive_rate_covid_test_streamlit</i> -  HOE BETROUWBAAR ZIJN DE TESTEN ?"
         "<br><br><i>number_of_cases_interactive</i> - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity"
+        "<img src='https://user-images.githubusercontent.com/1609141/112731094-945b9280-8f35-11eb-8c3d-a99e5f48487d.png'>"
         "<br><br><i>calculate_ifr_from_prevalence_streamlit</i> - calculate percentage of population who had covid and the IFR from the prevalence"
         "<br><br><i>fit_to_data_streamlit</i> - Fit the various curves to a derivate formula. Make an animation to see how the maximum predicted value changes in time"
         "<br><br><i>SEIR_hobbeland</i> - Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745"
