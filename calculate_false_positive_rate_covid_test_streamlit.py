@@ -202,6 +202,7 @@ def main():
     name = (st.sidebar.text_input('Name', naam))
     specificity = (st.sidebar.number_input('Specificity',None,None, sp, format="%.4f"))
     sensitivity = (st.sidebar.number_input('Sensitivity',None,None, se, format="%.4f"))
+    st.sidebar.write("Attention: too small numbers give erorrs (Division by zero)")
     testen = [name, sensitivity, specificity]
     b = contagious
     prevalentie = b / population
