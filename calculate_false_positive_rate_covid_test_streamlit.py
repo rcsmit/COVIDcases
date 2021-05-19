@@ -219,7 +219,7 @@ def main():
     #population = 100_000
     #population = 25_000_000 # AUSTRALIA
     # (un)comment next one line to have a loop of "contagious people"
-    for b in range (int(population*0.01), population, int(population*0.01)):
+    for b in range (int(population*0.001), population, int(population*0.001)):
         prevalentie = b / population
         fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, population, False)
         besm.append(b)
@@ -241,11 +241,11 @@ def main():
             ax.set_xlabel(f'aantal besmettelijken (population = {population})')
 
             # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-            ax.plot(besm,false_discovery_rate,  'b',marker='.',)
+            ax.plot(besm,false_discovery_rate,  'b')
             ax.set_ylabel('blue: false discovery rate (%)')
 
 
-            ax3.plot(besm,false_negative_rate,'purple',  marker='.',)
+            ax3.plot(besm,false_negative_rate,'purple' )
             ax3.set_ylabel('purple: False omission rate (%)')
 
             # ax3.plot(besm,false_positive_rate,'g',  marker='o',)
@@ -261,6 +261,39 @@ def main():
 
             # plt.show()
             st.pyplot(fig1y)
+
+
+        with _lock:
+            fig1z = plt.figure()
+            ax = fig1z.add_subplot(111)
+
+
+            ax3 = ax.twinx()
+            plt.title(titel)
+
+            ax.set_xlabel(f'aantal besmettelijken (population = {population})')
+            ax.set_xlim(0, int(population*0.02))
+            # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
+            ax.plot(besm,false_discovery_rate,  'b')
+            ax.set_ylabel('blue: false discovery rate (%)')
+
+
+            ax3.plot(besm,false_negative_rate,'purple')
+            ax3.set_ylabel('purple: False omission rate (%)')
+
+            # ax3.plot(besm,false_positive_rate,'g',  marker='o',)
+            # ax3.set_ylabel('green: False positive rate (%)')
+
+
+
+            # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
+            #ax.plot(besm,chance_to_be_tested_positive,'g',  marker='o',)
+            #ax3.plot(besm,false_discovery_rate,  'r',marker='o',)
+            #ax.set_ylabel('green: chance to be tested positive (%)')
+            #ax3.set_ylabel('red: false discovery rate (%)')
+
+            # plt.show()
+            st.pyplot(fig1z)
 
 if __name__ == "__main__":
     main()
