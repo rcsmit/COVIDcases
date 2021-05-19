@@ -6,15 +6,21 @@ def main():
     toelichting = (
         "<p>Here you'll find the scripts I made in the last months regarding to COVID-19 in the Netherlands.</p>"
         "<br><br><i>covid_dashboard_rcsmit</i> - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs."
+        "<img src='https://user-images.githubusercontent.com/1609141/112730553-8b1cf680-8f32-11eb-83f6-1569f5114678.png' width=400>"
         "<br><br><i>plot_hosp_ic_streamlit</i> - Plot the number of hospital or ICU admissions per agegroup"
+        "<img src='https://user-images.githubusercontent.com/1609141/118802804-e02a1880-b8a2-11eb-8772-cc495bf7bca8.png' width=400>"
         "<br><br><i>calculate_false_positive_rate_covid_test_streamlit</i> -  HOE BETROUWBAAR ZIJN DE TESTEN ?"
+        "<img src='https://user-images.githubusercontent.com/1609141/115085050-14a85e80-9f0a-11eb-9732-87a78ffa73d3.png' width=400>"
         "<br><br><i>number_of_cases_interactive</i> - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity"
-        "<img src='https://user-images.githubusercontent.com/1609141/112731094-945b9280-8f35-11eb-8c3d-a99e5f48487d.png'>"
+        "<img src='https://user-images.githubusercontent.com/1609141/112731094-945b9280-8f35-11eb-8c3d-a99e5f48487d.png' width=400>"
         "<br><br><i>calculate_ifr_from_prevalence_streamlit</i> - calculate percentage of population who had covid and the IFR from the prevalence"
+        "<img src='https://user-images.githubusercontent.com/1609141/115160069-8f05e980-a096-11eb-87f4-106738c6feed.png' width=400>"      
         "<br><br><i>fit_to_data_streamlit</i> - Fit the various curves to a derivate formula. Make an animation to see how the maximum predicted value changes in time"
+        "<img src='https://user-images.githubusercontent.com/1609141/115085210-651fbc00-9f0a-11eb-99e6-6aa4504fd325.png' width=400>"
         "<br><br><i>SEIR_hobbeland</i> - Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745"
-
+        "<img src='https://user-images.githubusercontent.com/1609141/112730583-adaf0f80-8f32-11eb-9517-0b2fd6443c42.png' width=400>"
         "<br><br><i>grafiek_pos_testen_per_leeftijdscategorie_streamlit</i> -  draw graphs of positieve cases per age in time. DATA NOT UPDATED"
+        "<img src='https://user-images.githubusercontent.com/1609141/112730260-e0f09f00-8f30-11eb-9bff-a835c2f965f7.png' width=400>"
         "<br><br><i>perprovincieperleeftijd</i> - Zijn kinderen de redenen dat het percentage positief daalt? DATA NOT UPDATED"
     )
     tekst = (
