@@ -14,13 +14,19 @@ Sorry, sourcecode, input and outputfiles are mixed in one directory. If I'd do i
 * **covid_dashboard_rcsmit.py** - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs. 
 ![image](https://user-images.githubusercontent.com/1609141/112730553-8b1cf680-8f32-11eb-83f6-1569f5114678.png)
 
- [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/covid_dashboard_rcsmit.py.py)
+ [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/covid_dashboard_rcsmit.py)
 
 * **grafiek_pos_testen_per_leeftijdscategorie_PREPARE.py**
 * **grafiek_pos_testen_per_leeftijdscategorie_streamlit.py** - draw graphs of positieve cases per age in time
  ![image](https://user-images.githubusercontent.com/1609141/112730260-e0f09f00-8f30-11eb-9bff-a835c2f965f7.png)
 
- [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/grafiek_pos_testen_per_leeftijdscategorie_streamlit.py.py)
+ [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/grafiek_pos_testen_per_leeftijdscategorie_streamlit.py)
+
+* **Plot_hosp_ic_streamlit.py** - Plot the number of hospital and ICU admissions per age in time in the Netherlands
+<img width="877" alt="plothospIC" src="https://user-images.githubusercontent.com/1609141/118802804-e02a1880-b8a2-11eb-8772-cc495bf7bca8.png">
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/grafiek_pos_testen_per_leeftijdscategorie_streamlit.py)
+
+
 * **SEIR_hobbeland.py** -  Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745
 ![image](https://user-images.githubusercontent.com/1609141/112730583-adaf0f80-8f32-11eb-9517-0b2fd6443c42.png)
 
@@ -58,7 +64,8 @@ Sorry, sourcecode, input and outputfiles are mixed in one directory. If I'd do i
 * **sliding_r-number.py** - integrated in number_of_cases_interactive.py
 * **number_of_cases_interactive_IC.py** - try to calculate the number of people at the ICU. Estimate too high due, probably due to lower ICU-rates when there are more cases
 * **masterfile_covid.py** - continued in covid_dashboard_rcsmit.py
-
+* Some files without the postfix streamlit are continued in the streamlit version
+* 
 ## DATA FILES
 
 * **knmi2.csv** - weather info
