@@ -189,7 +189,7 @@ def get_data():
                 "name": "knmi",
                 "delimiter": ",",
                 "key": "YYYYMMDD",
-                "dateformat": "YYYYMMDD",
+                "dateformat": "%Y%m%d",
                 "groupby": None,
                 "fileformat": "csv",
             },
