@@ -696,14 +696,9 @@ def last_manipulations(df, what_to_drop, drop_last):
         df = df[:drop_last]  # drop last row(s)
 
     df.insert(df.shape[1], "q_biggerthansix", None)
-    df["q_biggerthansix"] = df.apply(
-        lambda x: x["specific_humidity"] if x["specific_humidity"] > 6 else None, axis=1
-    )
+    
     df.insert(df.shape[1], "q_smallerthansix", None)
-    df["q_smallerthansix"] = df.apply(
-        lambda x: x["specific_humidity"] if x["specific_humidity"] < 6 else None, axis=1
-    )
-
+    
     return df, werkdagen, weekend_
 
 
@@ -1653,8 +1648,7 @@ def main():
         "deceased_per_prev_div_days_contagious",
         "Deceased_cumm_div_prev_div_days_contagious_cumm",
         "Deceased_cumm_period_div_prev_div_days_contagious_cumm_period",
-        "q_biggerthansix",
-        "q_smallerthansix",
+     
         "reported_corrected",
         "onderrapportagefactor"
     ]
