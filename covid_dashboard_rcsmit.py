@@ -187,9 +187,9 @@ def get_data():
             {
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi3.csv",
                 "name": "knmi",
-                "delimiter": ";",
-                "key": "Datum",
-                "dateformat": "%d-%m-%Y",
+                "delimiter": ",",
+                "key": "YYYYMMDD",
+                "dateformat": "YYYYMMDD",
                 "groupby": None,
                 "fileformat": "csv",
             },
