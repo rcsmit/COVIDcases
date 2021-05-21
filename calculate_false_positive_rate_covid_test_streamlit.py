@@ -174,8 +174,10 @@ def main():
     #testen_ = [["Wikipedia", 0.67, 0.91]] #https://en.wikipedia.org/wiki/Sensitivity_and_specificity#Worked_example
 
 
-    contagious  = (st.sidebar.number_input('Contagious',None,None, 174_835))
-    population = (st.sidebar.number_input('Total population', None,None, 17_483_471))
+    #contagious  = (st.sidebar.number_input('Contagious',None,None, 174_835))
+    #st.sidebar.write("C
+    #population = (st.sidebar.number_input('Total population', None,None, 17_483_471))
+    prevalentie = st.sidebar.number_input('prevalence testpopulation in %',None,None, 10)/100
     number_of_tested_people =  (st.sidebar.number_input('Number of tested people',None,None, 100_000))
     st.sidebar.write("Attention: too small numbers give erorrs (Division by zero)")
 
@@ -213,8 +215,8 @@ def main():
     specificity = (st.sidebar.number_input('Specificity',None,None, sp, format="%.4f"))
     sensitivity = (st.sidebar.number_input('Sensitivity',None,None, se, format="%.4f"))
     testen = [name, sensitivity, specificity]
-    b = contagious
-    prevalentie = b / population
+    #b = contagious
+    #prevalentie = b / population
     fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, population, True)
 
     titel = (f"{testen[0]} - sensitivity {sensitivity} - specificity {specificity}")
@@ -229,10 +231,10 @@ def main():
     #population = 100_000
     #population = 25_000_000 # AUSTRALIA
     # (un)comment next one line to have a loop of "contagious people"
-    for b in range (int(population*0.001), population, int(population*0.001)):
-        prevalentie = b / population
+    for prevalentie in range (0,100,10):
+        #prevalentie = b / population
         fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, population, False)
-        besm.append(b)
+        besm.append(prevalentie)
         false_discovery_rate.append(fdr)
         false_positive_rate.append(fpr)
         false_negative_rate.append(for_)
@@ -248,10 +250,10 @@ def main():
             ax3 = ax.twinx()
             plt.title(titel)
 
-            ax.set_xlabel(f'aantal besmettelijken (population = {population})')
+            ax.set_xlabel(f'prevalentie testpopulation(%)')
 
             # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-            ax.plot(besm,false_discovery_rate,  'b')
+            ax.plot(prevalentie,false_discovery_rate,  'prevalentie testpopulation')
             ax.set_ylabel('blue: false discovery rate (%)')
 
 
