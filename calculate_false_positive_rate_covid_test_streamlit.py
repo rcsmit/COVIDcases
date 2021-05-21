@@ -197,7 +197,7 @@ def main():
         naam = "PCR WHO"
         se = 0.95
         sp = 0.97
-     elif scenario == "PCR Nico":
+    elif scenario == "PCR Nico":
         naam = "PCR WHO"
         se = 0.98
         sp = 0.9999
