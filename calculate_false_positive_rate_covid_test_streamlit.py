@@ -180,7 +180,7 @@ def main():
     #contagious  = (st.sidebar.number_input('Contagious',None,None, 174_835))
     #st.sidebar.write("C
     #population = (st.sidebar.number_input('Total population', None,None, 17_483_471))
-    prevalentie = st.sidebar.number_input('prevalence testpopulation in %',None,None, 10)/100
+    prevalentie = st.sidebar.number_input('prevalence testpopulation in %',None,None, 10, format="%.2f)/100
     number_of_tested_people =  (st.sidebar.number_input('Number of tested people',None,None, 100_000))
     st.sidebar.write("Attention: too small numbers give erorrs (Division by zero)")
 
