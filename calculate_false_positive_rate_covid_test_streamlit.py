@@ -181,7 +181,7 @@ def main():
 
     scenario = st.sidebar.radio(
         "Select a test",
-        ("PCR", "Sneltest Roche", "PCR WHO", "BIOSYNEX SELFTEST")
+        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "PCR WHO", "BIOSYNEX SELFTEST")
                 )
 
     if scenario == "PCR":
@@ -192,6 +192,15 @@ def main():
         naam = "PCR WHO"
         se = 0.95
         sp = 0.97
+    elif scenario == "PCR RIVM best":
+        naam = "PCR RIVM best"
+        se = 0.98
+        sp = 0.995
+    elif scenario == "PCR RIVM worst":
+        naam = "PCR RIVM worst"
+        se = 0.67
+        sp = 0.96
+        
     elif scenario == "Sneltest Roche":
         naam = "Sneltest Roche"
         se = 0.8
