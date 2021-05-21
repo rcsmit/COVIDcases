@@ -304,6 +304,11 @@ def main():
 
             # plt.show()
             st.pyplot(fig1z)
+            
+    st.header ("Read this too")
+    toelichting = ("<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a>)
+    st.markdown(toelichting, unsafe_allow_html=True)           
+                   
 
 if __name__ == "__main__":
     main()
