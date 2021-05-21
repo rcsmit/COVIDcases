@@ -306,7 +306,10 @@ def main():
             st.pyplot(fig1z)
             
     st.header ("Read this too")
-    toelichting = ("<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a>)
+    toelichting = ("<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a>"
+                  "<blockquote class='twitter-tweet'><p lang='en' dir='ltr'>88% false positive rate has some implications in Australia, where:<br>17 m tests<br>29886 positives<br>910 deaths.<br>12 % of 29886 = 3587.<br>-&gt; CFR = 25%<br>Reductio ad absurdum.<br>Suspect specificity is significantly higher than 99.8%</p>&mdash; Clayton Clent (@ClaytonClent) <a href='https://twitter.com/ClaytonClent/status/1390448827362996224?ref_src=twsrc%5Etfw'>May 6, 2021</a></blockquote> <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script>"
+                  
+                  )
     st.markdown(toelichting, unsafe_allow_html=True)           
                    
 
