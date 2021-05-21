@@ -199,7 +199,7 @@ def main():
         sp = 0.97
      elif scenario == "PCR Nico":
         naam = "PCR WHO"
-        se = 0.9
+        se = 0.98
         sp = 0.9999
     elif scenario == "PCR RIVM best":
         naam = "PCR RIVM best"
