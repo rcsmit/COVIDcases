@@ -1716,12 +1716,15 @@ def main():
 
 
     #st.write(get_duplicate_cols(df))
-    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, w2w)
+    df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen)
+    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0)
 
     lijst.extend(newcolumns_w2w) # percentage
     lijst.extend(newcolumns2_w2w) # index
 
-    df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, newcolumns_w2w)
+    df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen)
+    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w1)
+
     lijst.extend(newcolumns_w2w2) # percentage
 
     chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
