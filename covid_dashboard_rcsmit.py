@@ -1707,12 +1707,16 @@ def main():
     # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
     # WDW2=7
     # st.write(df.dtypes)
+
     w2w = [
         "Total_reported",
 
         "Deceased",
     ]
 
+    how_to_smoothen = "SMA"
+    WDW2 = 7
+    centersmooth = True
 
 
     #st.write(get_duplicate_cols(df))
@@ -1723,7 +1727,7 @@ def main():
     lijst.extend(newcolumns2_w2w) # index
 
     df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen)
-    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w1)
+    df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
 
     lijst.extend(newcolumns_w2w2) # percentage
 
@@ -1732,7 +1736,6 @@ def main():
 
     lijst.extend(chd)
     lijst.extend(mzelst)
-
     # for n in newcolumns:
     #     .write(df[n])
     # graph_daily       (df,newcolumns,None, "SMA", "line")
