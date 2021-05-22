@@ -1161,11 +1161,20 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 )
                 ax3.set_ylabel("_")
 
-        if what_to_show_r is not None:
+
             if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm = find_correlation_pair(df, b_, c_)
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
+
+            if len(what_to_show_r) == 1:
+                mean = df[what_to_show_r].mean()
+                std =df[what_to_show_r].std()
+                print (f"mean {mean}")
+                print (f"st {std}")
+                low = mean -2*std
+                up = mean +2*std
+                #ax3.set_ylim = (-100, 100)
         plt.title(title, fontsize=10)
 
     a__ = (max(df_temp["date"].tolist())).date() - (
@@ -1730,7 +1739,7 @@ def main():
     df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
 
     lijst.extend(newcolumns_w2w2) # percentage
-
+    save_df(df,"whyowyhasdf")
     chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
     mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
 
