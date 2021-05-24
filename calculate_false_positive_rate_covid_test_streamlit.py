@@ -200,20 +200,20 @@ def main():
     elif scenario == "PCR Nico":
         naam = "PCR Nico"
         se = 0.98
-        sp = 0.9999
-    elif scenario == "PCR RIVM best":
+        sp = 0.99996 # https://twitter.com/mus_nico/status/1395724466043461633
+    elif scenario == "PCR RIVM best": # https://www.rivm.nl/sites/default/files/2020-12/Toelichting%20betrouwbaarheid%20PCR.pdf
         naam = "PCR RIVM best"
         se = 0.98
         sp = 0.995
-    elif scenario == "PCR RIVM worst":
+    elif scenario == "PCR RIVM worst": # https://www.rivm.nl/sites/default/files/2020-12/Toelichting%20betrouwbaarheid%20PCR.pdf
         naam = "PCR RIVM worst"
         se = 0.67
         sp = 0.96
 
-    elif scenario == "Sneltest Roche":
+    elif scenario == "Sneltest Roche": # https://www.ftm.nl/artikelen/testsamenleving-extreem-duur-veroorzaakt-uitsluiting-gezonde-mensen
         naam = "Sneltest Roche"
-        se = 0.8
-        sp = 0.97
+        se = 0.8333
+        sp = 0.991
     elif scenario == "BIOSYNEX SELFTEST":
         naam = "BIOSYNEX SELFTEST"
         se = 0.972
