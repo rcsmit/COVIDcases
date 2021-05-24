@@ -618,9 +618,9 @@ def main():
     #     st.stop()
     start__ = "2021-03-15"
     until__ = "2021-05-31"
-    what_default = 0
+    what_default = 
     days_to_show = 180
-    what_method_default = 0
+    what_method_default = 1
 
     today = datetime.today().strftime("%Y-%m-%d")
     global from_
@@ -651,12 +651,12 @@ def main():
     #         index=what_default,
     #     )
     which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate"], index=what_method_default)
-    what_to_display = st.sidebar.selectbox("What", ["Confirmed","Deceased", "dConfirmed"], index=0)
+    what_to_display = st.sidebar.selectbox("What", ["Confirmed","Deceased", "dConfirmed"], index=2)
     statelist =  df['State'].drop_duplicates().sort_values()
 
     #st.write (statelist)
     statelist = ["Goa", "Delhi", "India"]
-    state_ = st.sidebar.selectbox("Which state",statelist, index=0)
+    state_ = st.sidebar.selectbox("Which state",statelist, index=2)
     #st.write (state_)
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
