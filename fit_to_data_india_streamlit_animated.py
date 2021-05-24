@@ -31,7 +31,7 @@ import webbrowser
 from pandas import read_csv, Timestamp, Timedelta, date_range
 from io import StringIO
 from numpy import log, exp, sqrt, clip, argmax, put
-from scipy.special import erfc, erf 
+from scipy.special import erfc, erf
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
@@ -618,7 +618,7 @@ def main():
     #     st.stop()
     start__ = "2021-03-15"
     until__ = "2021-05-31"
-    what_default = 
+    what_default = 1
     days_to_show = 180
     what_method_default = 1
 
