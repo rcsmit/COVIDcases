@@ -31,7 +31,7 @@ import webbrowser
 from pandas import read_csv, Timestamp, Timedelta, date_range
 from io import StringIO
 from numpy import log, exp, sqrt, clip, argmax, put
-from scipy.special import erfc, erf
+from scipy.special import erfc, erf 
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
