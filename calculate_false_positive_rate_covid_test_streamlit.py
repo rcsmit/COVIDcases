@@ -186,7 +186,7 @@ def main():
 
     scenario = st.sidebar.radio(
         "Select a test",
-        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST")
+        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST")
                 )
 
     if scenario == "PCR":
@@ -214,6 +214,10 @@ def main():
         naam = "Sneltest Roche"
         se = 0.8333
         sp = 0.991
+    elif scenario == "Sneltest OMT": # https://www.ftm.nl/artikelen/testsamenleving-extreem-duur-veroorzaakt-uitsluiting-gezonde-mensen
+        naam = "Sneltest OMT"
+        se = 0.8333
+        sp = 0.998
     elif scenario == "BIOSYNEX SELFTEST":
         naam = "BIOSYNEX SELFTEST"
         se = 0.972
