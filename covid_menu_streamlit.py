@@ -36,7 +36,7 @@ def main():
         import fit_to_data_streamlit
 
         fit_to_data_streamlit.main()
-     elif menu_keuze == "fit_to_data":
+    elif menu_keuze == "fit_to_data_india":
         import fit_to_data_india_streamlit_animated
 
         fit_to_data_india_streamlit_animated.main()
