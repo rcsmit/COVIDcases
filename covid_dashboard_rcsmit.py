@@ -1864,7 +1864,7 @@ def main():
     groupby_timeperiod =  st.sidebar.selectbox("GROUPBY : none, week or month", ["none", "1W", "1M"], index=0)
     if groupby_timeperiod != "none":
         groupby_how = st.sidebar.selectbox("GROUPBY : Sum / mean / max", ["sum", "mean"], index=0)
-    else
+    else:
         groupby_how = "None"
 
         if groupby_how == "sum":
