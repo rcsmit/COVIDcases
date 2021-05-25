@@ -390,7 +390,7 @@ def extra_calculations(df):
             ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
-    df["Total_rpeorted_log10"] = np.log10(df["Total_reported"])
+    df["Total_reported_log10"] = np.log10(df["Total_reported"])
     df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Total_reported_cumm"]
 
     df["Deceased_cumm"] = df["Deceased"].cumsum()
@@ -1698,6 +1698,7 @@ def main():
         "reported_corrected",
         "onderrapportagefactor",
         "Total_reported_log10",
+        
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
