@@ -1380,13 +1380,15 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
                         tl += l + " / "
                     i += 1
                 else:
-                    tl += l
+
                     if groupby_how == "sum":
                         tl += " (sum) "
                     elif groupby_how == "mean":
                         tl += " (mean) "
                     elif groupby_how == "max":
                         tl += l+" (max) "
+                    else:
+                        tl += l
 
         if what_to_show_r is not None:
             if type(what_to_show_r) == list:
@@ -1862,6 +1864,8 @@ def main():
     groupby_timeperiod =  st.sidebar.selectbox("GROUPBY : none, week or month", ["none", "1W", "1M"], index=0)
     if groupby_timeperiod != "none":
         groupby_how = st.sidebar.selectbox("GROUPBY : Sum / mean / max", ["sum", "mean"], index=0)
+    else
+        groupby_how = "None"
 
         if groupby_how == "sum":
             df = df.groupby(pd.Grouper(key="date", freq=groupby_timeperiod)).sum().reset_index()
