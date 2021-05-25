@@ -390,6 +390,7 @@ def extra_calculations(df):
             ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['UN'],x['temp_max'], 1020),axis=1)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
+    ef["Total_rpeorted_10log"]  np.log10(df["Total_reported"])
     df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Total_reported_cumm"]
 
     df["Deceased_cumm"] = df["Deceased"].cumsum()
@@ -1186,9 +1187,10 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     ax.set_xticks(df_temp["date"].index)
     ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
     xticks = ax.xaxis.get_major_ticks()
-    for i, tick in enumerate(xticks):
-        if i % 10 != 0:
-            tick.label1.set_visible(False)
+    if groupby_timeperiod == "none":
+        for i, tick in enumerate(xticks):
+            if i % 10 != 0:
+                tick.label1.set_visible(False)
     plt.xticks()
 
     # layout of the x-axis
@@ -1222,7 +1224,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     )
     if show_R_value_graph or show_R_value_RIVM:
         plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
-    add_restrictions(df, ax)
+    if groupby_timeperiod == "none":
+        add_restrictions(df, ax)
     plt.axhline(y=0, color="black", alpha=0.6, linestyle="--")
     if t == "line":
         set_xmargin(ax, left=-0.04, right=-0.04)
@@ -1347,7 +1350,10 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
         for c in what_to_show_l:
 
             #    what_to_show_r = what_to_show_r
+
+
             title += str(c) + " "
+
         t1 =wrap(title, 40)
         title = ""
         #st.write (t1)
@@ -1364,10 +1370,24 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
         if what_to_show_l is not None:
             for l in what_to_show_l:
                 if i != len(what_to_show_l) - 1:
-                    tl += l + " / "
+                    if groupby_how == "sum":
+                        tl += l+" (sum) /"
+                    elif groupby_how == "mean":
+                        tl += l+" (mean) /"
+                    elif groupby_how == "max":
+                        tl += l+" (max) /"
+                    else:
+                        tl += l + " / "
                     i += 1
                 else:
                     tl += l
+                    if groupby_how == "sum":
+                        tl += " (sum) "
+                    elif groupby_how == "mean":
+                        tl += " (mean) "
+                    elif groupby_how == "max":
+                        tl += l+" (max) "
+
         if what_to_show_r is not None:
             if type(what_to_show_r) == list:
                 what_to_show_r = what_to_show_r
@@ -1376,10 +1396,25 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
             tl += " - \n"
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
-                    tl += r + " / "
+                    if groupby_how == "sum":
+                        tl += r+" (sum) /"
+                    elif groupby_how == "mean":
+                        tl += r+" (mean) /"
+                    elif groupby_how == "max":
+                        tl += r+" (max) /"
+                    else:
+                        tl += r + " / "
                     j += 1
                 else:
-                    tl += r
+
+                    if groupby_how == "sum":
+                        tl += r+" (sum) "
+                    elif groupby_how == "mean":
+                        tl += r+" (mean) "
+                    elif groupby_how == "max":
+                        tl += r+" (max) "
+                    else:
+                        tl +=r
         tl = tl.replace("_", " ")
 
         #title = f"{tl}"
@@ -1660,6 +1695,7 @@ def main():
 
         "reported_corrected",
         "onderrapportagefactor"
+        "Total_reported_log10"
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
@@ -1710,6 +1746,7 @@ def main():
     df = drop_columns(df,["Version_x", "Version_y"])
     df = df.drop_duplicates()
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+
 
     # df,newcolumns = week_to_week(df,["Total_reported"])
 
@@ -1819,6 +1856,20 @@ def main():
     else:
         showoneday = False
         showday = 0
+    global groupby_timeperiod
+    global groupby_how
+
+    groupby_timeperiod =  st.sidebar.selectbox("GROUPBY : none, week or month", ["none", "1W", "1M"], index=0)
+    if groupby_timeperiod != "none":
+        groupby_how = st.sidebar.selectbox("GROUPBY : Sum / mean / max", ["sum", "mean"], index=0)
+
+        if groupby_how == "sum":
+            df = df.groupby(pd.Grouper(key="date", freq=groupby_timeperiod)).sum().reset_index()
+        elif groupby_how == "mean":
+            df = df.groupby(pd.Grouper(key="date", freq=groupby_timeperiod)).mean().reset_index()
+        elif groupby_how == "max" :
+            # TOFIX : gives error
+            df = df.groupby(pd.Grouper(key="date", freq=groupby_timeperiod)).max() # .reset_index()
 
     how_to_smoothen = st.sidebar.selectbox(
         "How to smooth (SMA/savgol)", ["SMA", "savgol"], index=0
@@ -1826,7 +1877,10 @@ def main():
     centersmooth =  st.sidebar.selectbox(
         "Smooth in center", [True, False], index=0
     )
-    WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 7)
+    if groupby_timeperiod == "none":
+        WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 7)
+    else:
+        WDW2 = st.sidebar.slider("Window smoothing curves (days)", 1, 45, 1)
     if how_to_smoothen == "savgol" and int(WDW2 / 2) == (WDW2 / 2):
         st.warning("When using Savgol, the window has to be uneven")
         st.stop()
