@@ -1696,8 +1696,8 @@ def main():
         "Deceased_cumm_period_div_prev_div_days_contagious_cumm_period",
 
         "reported_corrected",
-        "onderrapportagefactor"
-        "Total_reported_log10"
+        "onderrapportagefactor",
+        "Total_reported_log10",
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
