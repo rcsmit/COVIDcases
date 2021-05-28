@@ -324,7 +324,7 @@ def main():
                   "<blockquote class='twitter-tweet' data-conversation='none'><p lang='en' dir='ltr'>88% false positive rate has some implications in Australia, where:<br>17 m tests<br>29886 positives<br>910 deaths.<br>12 % of 29886 = 3587.<br>-&gt; CFR = 25%<br>Reductio ad absurdum.<br>Suspect specificity is significantly higher than 99.8%</p>&mdash; Clayton Clent (@ClaytonClent) <a href='https://twitter.com/ClaytonClent/status/1390448827362996224?ref_src=twsrc%5Etfw'>May 6, 2021</a></blockquote> <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script>"
                   "<a href= 'https://larremorelab.github.io/covid19testgroup' target='_blank'>Various calculations around tests</a>"
                    
-                   "<a href= 'https://twitter.com/mus_nico/status/1397536633227026433' target='_blank'>Diverse tweets van Nico de Mus</a>"
+                   "<a href= 'https://twitter.com/mus_nico/status/1397349689243144192' target='_blank'>Diverse tweets van Nico de Mus</a>"
                   )
     st.markdown(toelichting, unsafe_allow_html=True)
 
