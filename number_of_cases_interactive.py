@@ -69,7 +69,7 @@ def main():
 
 
 
-    showunization = st.sidebar.checkbox("Immunization", True)
+    showimmunization = st.sidebar.checkbox("Immunization", True)
 
     showSIR = st.sidebar.checkbox("Show classical SIR-model based on 100% second variant",True)
     #showSIR = False
@@ -220,7 +220,7 @@ def main():
     ic_cumm.append(ic_dayzero)
     hospital_cumm.append(hospital_dayzero)
     walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
-    showimmunization = True
+    #showimmunization = True
     if showimmunization:
         totalimmune.append(totalimmunedayzero)
 
