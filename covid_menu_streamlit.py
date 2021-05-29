@@ -1,31 +1,55 @@
 import streamlit as st
+from multiapp import MultiApp
+import welcome, fit_to_data_streamlit,covid_dashboard_rcsmit, plot_hosp_ic_streamlit, SEIR_hobbeland
+import grafiek_pos_testen_per_leeftijdscategorie_streamlit, perprovincieperleeftijd, number_of_cases_interactive
+import calculate_false_positive_rate_covid_test_streamlit
 
 
-def main():
+def main_new():
+    app = MultiApp()
+
+    # Add all your application here
+    app.add_app("Home",welcome.main())
+    app.add_app("Fit to data",fit_to_data_streamlit.main())
+    app.add_app("Covid dashboard",covid_dashboard_rcsmit.main())
+    app.add_app("Hosp/IC opnames",plot_hosp_ic_streamlit.main())
+    app.add_app("SEIR Hobbeland",SEIR_hobbeland.main())
+    app.add_app("Pos testen per leeftijdscat",grafiek_pos_testen_per_leeftijdscategorie_streamlit.main())
+    app.add_app("Per provincie per leeftijd",perprovincieperleeftijd.main())
+    app.add_app("Number of cases",number_of_cases_interactive.main())
+    app.add_app("False positive calculator",calculate_false_positive_rate_covid_test_streamlit.main())
+
+    # The main app
+    app.run()
+
+
+def main_oud():
     lijst = [
         "welcome",
-        
+
         "covid_dashboard_rcsmit",
         "plot_hosp_ic",
         "false_positive_rate_covid_test",
         "number_of_cases_interactive",
         "ifr_from_prevalence",
         "fit_to_data",
-        
-       
-        
+
+
+
         "SEIR_hobbeland",
         "grafiek_pos_testen_per_leeftijdscategorie",
         "perprovincieperleeftijd",
-         "fit_to_data_india",
 
     ]
-    st.sidebar.header("Choose a script") 
-    menu_keuze = st.sidebar.selectbox(
-        "",
-        lijst,
-        index=0,
-    )
+    st.sidebar.header("Choose a script")
+    # menu_keuze = st.sidebar.selectbox(
+    #     "",
+    #     lijst,
+    #     index=0,
+    # )
+
+    menu_keuze = st.sidebar.radio("",lijst, index=0)
+
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
     if menu_keuze == "welcome":
         import welcome
@@ -36,10 +60,6 @@ def main():
         import fit_to_data_streamlit
 
         fit_to_data_streamlit.main()
-    elif menu_keuze == "fit_to_data_india":
-        import fit_to_data_india_streamlit_animated
-
-        fit_to_data_india_streamlit_animated.main()
 
     elif menu_keuze == "covid_dashboard_rcsmit":
         import covid_dashboard_rcsmit
@@ -76,4 +96,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main_oud()
