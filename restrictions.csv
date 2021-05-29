@@ -1,4 +1,5 @@
 Date,Date_stop,Description
+2020-02-23,2020-02,25,"Carneval"
 2020-03-06,,"Noord Brabant Thuis bij hoesten"
 2020-03-12,,"Thuis werken, grote bijeenkomsten afgelast"
 2020-03-15,,"Scholen, kinderverblijven dicht, thuiswerken, anderhalvemeter"
@@ -22,8 +23,11 @@ Date,Date_stop,Description
 2020-12-15,2099-03-01,Harde lockdown
 2020-12-16,2021-02-08,Scholen dicht
 2020-12-19,2021-01-04,Schoolvakantie (19 dec)
-2021-01-23,2021-02-09,Avondklok (23 jan)
-2021-02-07,2021-02-14,Sneeuw (7 feb)
+2021-01-23,2021-02-09,Avondklok, max 1 persoon bezoek (23 jan)
+2021-02-07,2021-02-14,Strenge lockdown met basisonderwijs sneeuw (7 feb)
 2021-02-15,2021-06-14,Basisscholen open (15 feb)
-2021-03-02,2021-06-14,Kappers en winkels open (2mrt)
-2050-01-01,,"# Based on a file/code of Han-Kwang Nienhuys - MIT-licence https://twitter.com/hk_nien ######"
+2021-03-02,2021-06-14,Kappers, contactberoepen en winkels open (2mrt)
+2021-04-19,2021-06-14,buitenschoolse opvang open
+2021-04-28,2021-06-14,"afschaffen avondklok, max. 2 personen thuis 1 dag hoger onderwijs, terrassen tot 18 uur, winkels"
+2021-05-19,2021-06-14,"buitensport en individuele binnensport, cultuur en recreatie buiten, cultuurbeoefening binnen"
+2050-01-01,,# Based on a file/code of Han-Kwang Nienhuys - MIT-licence https://twitter.com/hk_nien ######
