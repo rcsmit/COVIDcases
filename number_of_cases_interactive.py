@@ -220,6 +220,7 @@ def main():
     ic_cumm.append(ic_dayzero)
     hospital_cumm.append(hospital_dayzero)
     walkingR.append((Rnew1_**(1-percentagenewversion))*(Rnew2_**(percentagenewversion)))
+    showimmunization = True
     if showimmunization:
         totalimmune.append(totalimmunedayzero)
 
