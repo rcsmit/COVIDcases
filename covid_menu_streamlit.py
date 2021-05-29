@@ -1,8 +1,8 @@
 import streamlit as st
-from multiapp import MultiApp
-import welcome, fit_to_data_streamlit,covid_dashboard_rcsmit, plot_hosp_ic_streamlit, SEIR_hobbeland
-import grafiek_pos_testen_per_leeftijdscategorie_streamlit, perprovincieperleeftijd, number_of_cases_interactive
-import calculate_false_positive_rate_covid_test_streamlit
+#from multiapp import MultiApp
+#import welcome, fit_to_data_streamlit,covid_dashboard_rcsmit, plot_hosp_ic_streamlit, SEIR_hobbeland
+#import grafiek_pos_testen_per_leeftijdscategorie_streamlit, perprovincieperleeftijd, number_of_cases_interactive
+#import calculate_false_positive_rate_covid_test_streamlit
 
 
 def main_new():
@@ -47,7 +47,7 @@ def main_oud():
     #     lijst,
     #     index=0,
     # )
-    with st.sidebar.beta_expander('MENU: Choose a script'):
+    with st.sidebar.beta_expander('MENU: Choose a script',  expanded=True):
         menu_keuze = st.radio("",lijst, index=0)
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
