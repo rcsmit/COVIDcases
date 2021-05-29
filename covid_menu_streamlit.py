@@ -41,13 +41,13 @@ def main_oud():
         "perprovincieperleeftijd",
 
     ]
-    st.sidebar.header("Choose a script")
+    #st.sidebar.header("Choose a script")
     # menu_keuze = st.sidebar.selectbox(
     #     "",
     #     lijst,
     #     index=0,
     # )
-    with st.sidebar.beta_expander('MENU'):
+    with st.sidebar.beta_expander('MENU: Choose a script'):
         menu_keuze = st.radio("",lijst, index=0)
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
