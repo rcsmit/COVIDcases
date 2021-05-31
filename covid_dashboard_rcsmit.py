@@ -494,7 +494,7 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
         how="outer",
         left_on="date",
         right_on="date_calc",
-        left_index=True,
+        #left_index=True,
     )
 
     df.loc[df["date"].isnull(), "date"] = df["date_calc"]
