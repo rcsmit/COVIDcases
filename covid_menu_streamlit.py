@@ -26,73 +26,67 @@ def main_new():
 def main_oud():
     lijst = [
         "welcome",
+        "covid dashboard",
+        "plot hosp ic",
+        "false positive rate covid test",
+        "number of cases interactive",
+        "ifr from prevalence",
+        "fit to data",
+        "SEIR hobbeland",
+        "show contactmatrix",
 
-        "covid_dashboard_rcsmit",
-        "plot_hosp_ic",
-        "false_positive_rate_covid_test",
-        "number_of_cases_interactive",
-        "ifr_from_prevalence",
-        "fit_to_data",
-
-
-
-        "SEIR_hobbeland",
-        "grafiek_pos_testen_per_leeftijdscategorie",
-        "perprovincieperleeftijd",
-
+        "grafiek pos testen per leeftijdscat",
+        "per provincie per leeftijd",
     ]
-    #st.sidebar.header("Choose a script")
-    # menu_keuze = st.sidebar.selectbox(
-    #     "",
-    #     lijst,
-    #     index=0,
-    # )
+
     with st.sidebar.beta_expander('MENU: Choose a script',  expanded=True):
         menu_keuze = st.radio("",lijst, index=0)
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
-    if menu_keuze == "welcome":
+    if menu_keuze == lijst[0]:
         import welcome
-
         welcome.main()
 
-    elif menu_keuze == "fit_to_data":
-        import fit_to_data_streamlit
+    elif menu_keuze == lijst[1]:
+        import covid_dashboard_rcsmit
+        covid_dashboard_rcsmit.main()
 
+    elif menu_keuze == lijst[2]:
+        import plot_hosp_ic_streamlit
+        plot_hosp_ic_streamlit.main()
+
+    elif menu_keuze == lijst[3]:
+        import calculate_false_positive_rate_covid_test_streamlit
+        calculate_false_positive_rate_covid_test_streamlit.main()
+
+
+    elif menu_keuze ==lijst[4]:
+        import number_of_cases_interactive
+        number_of_cases_interactive.main()
+
+    elif menu_keuze ==lijst[5]:
+        import calculate_ifr_from_prevalence_streamlit
+        calculate_ifr_from_prevalence_streamlit.main()
+
+    elif menu_keuze ==lijst[6]:
+        import fit_to_data_streamlit
         fit_to_data_streamlit.main()
 
-    elif menu_keuze == "covid_dashboard_rcsmit":
-        import covid_dashboard_rcsmit
-
-        covid_dashboard_rcsmit.main()
-    elif menu_keuze == "plot_hosp_ic":
-        import plot_hosp_ic_streamlit
-
-        plot_hosp_ic_streamlit.main()
-    elif menu_keuze == "SEIR_hobbeland":
+    elif menu_keuze == lijst[7]:
         import SEIR_hobbeland
-
         SEIR_hobbeland.main()
-    elif menu_keuze == "grafiek_pos_testen_per_leeftijdscategorie":
+
+    elif menu_keuze == lijst[8]:
+        import show_contactmatrix
+        show_contactmatrix.main()
+
+    elif menu_keuze == lijst[9]:
         import grafiek_pos_testen_per_leeftijdscategorie_streamlit
-
         grafiek_pos_testen_per_leeftijdscategorie_streamlit.main()
-    elif menu_keuze == "perprovincieperleeftijd":
+
+    elif menu_keuze == lijst[10]:
         import perprovincieperleeftijd
-
         perprovincieperleeftijd.main_per_province_per_leeftijd()
-    elif menu_keuze == "number_of_cases_interactive":
-        import number_of_cases_interactive
-
-        number_of_cases_interactive.main()
-    elif menu_keuze == "ifr_from_prevalence":
-        import calculate_ifr_from_prevalence_streamlit
-
-        calculate_ifr_from_prevalence_streamlit.main()
-    elif menu_keuze == "false_positive_rate_covid_test":
-        import calculate_false_positive_rate_covid_test_streamlit
-
-        calculate_false_positive_rate_covid_test_streamlit.main()
 
 
 if __name__ == "__main__":
