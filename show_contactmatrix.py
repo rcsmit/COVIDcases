@@ -1,7 +1,8 @@
 import csv
 import pandas as pd
 import streamlit as st
-
+import seaborn as sn
+import matplotlib.pyplot as plt
 # contact matrix retrieved from
 # https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text
 # https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material
@@ -11,6 +12,7 @@ def main():
     st.header ("CONTACTMATRIXES")
     st.write ("Retrieved from https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text")
     st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")
+    st.write ("part_age = participant age, cont_age = contact age")
     contact_type  = st.sidebar.selectbox("All, community or household", ["all", "community", "household"], index=0)
 
     df= pd.read_csv(
@@ -40,6 +42,11 @@ def main():
     st.subheader ("Verschil als ratio -- (nieuw/oud")
     result =  df__phys_dist_pivot / df_baseline_pivot
     st.write (result)
+    fig, ax = plt.subplots()
+    sn.heatmap(result, ax=ax)
+    st.write(fig)
+
+
     st.subheader("Verschil als percentage -- ((oud-nieuw)/oud)*100")
     result_perc =   (df_baseline_pivot - df__phys_dist_pivot) / df_baseline_pivot*100
     st.write (result_perc)
