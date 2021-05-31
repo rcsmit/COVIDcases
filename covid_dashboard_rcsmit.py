@@ -1243,6 +1243,11 @@ def set_xmargin(ax, left=0.0, right=0.3):
 
 
 def add_restrictions(df, ax):
+    pass
+
+def add_restrictions_original(df, ax):
+
+
     """  _ _ _ """
     # Add restrictions
     # From Han-Kwang Nienhuys - MIT-licence
