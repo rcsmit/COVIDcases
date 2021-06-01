@@ -6,3 +6,4 @@ seaborn
 lmfit
 imageio
 tabulate
+sklearn

@@ -19,6 +19,7 @@ import math
 
 _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
+from sklearn.metrics import r2_score
 import streamlit as st
 import urllib
 import urllib.request
@@ -1248,7 +1249,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             idx = np.isfinite(x_) & np.isfinite(y_)
             m, b = np.polyfit(x_[idx], y_[idx], 1)
             model = np.polyfit(x_[idx], y_[idx], 1)
-            from sklearn.metrics import r2_score
+
             predict = np.poly1d(model)
             r2 = r2_score  (y_[idx], predict(x_[idx]))
             print (r2)
