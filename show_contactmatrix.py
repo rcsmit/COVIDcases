@@ -13,7 +13,7 @@ def calculate_total(df):
 
     all1 = df['All'].tolist()
     total,total2 = 0,0
-    for n in range(0, len(all)-1):
+    for n in range(0, len(all1)-1):
         total += (all1[n]*fraction[n])
     st.write (f"Gemiddeld aantal contacten per persoon (gewogen naar populatiefractie) - totaal van links naar rechts {round(total,2)}")
 
