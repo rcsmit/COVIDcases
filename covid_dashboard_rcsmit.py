@@ -1166,7 +1166,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm = find_correlation_pair(df, b_, c_)
-                title_scatter =  f"{title} \n{str(FROM)} - {str(UNTIL)}\nCorrelation = {correlation}"
+                title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
 
             if len(what_to_show_r) == 1:
@@ -1238,14 +1238,28 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             ax = fig1xy.add_subplot(111)
             x = df_temp[what_to_show_l].values.tolist()
             y = df_temp[what_to_show_r].values.tolist()
+            x_ = np.array(df_temp[what_to_show_l])
+            y_ = np.array(df_temp[what_to_show_r])
+
             plt.scatter(x, y)
-            plt.title(title_scatter)
+
 
             #obtain m (slope) and b(intercept) of linear regression line
-            # m, b = np.polyfit(x, y, 1)
+            idx = np.isfinite(x_) & np.isfinite(y_)
+            m, b = np.polyfit(x_[idx], y_[idx], 1)
+            model = np.polyfit(x_[idx], y_[idx], 1)
+            from sklearn.metrics import r2_score
+            predict = np.poly1d(model)
+            r2 = r2_score  (y_[idx], predict(x_[idx]))
+            print (r2)
+            #m, b = np.polyfit(x_, y_, 1)
+            print (m,b)
 
             #add linear regression line to scatterplot
-            #plt.plot(x, m*x+b)
+            plt.plot(x, m*x_+b, 'r')
+            title_scatter = (f"{title_scatter}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            plt.title(title_scatter)
+
 
             ax.text(
                 1,

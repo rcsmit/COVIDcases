@@ -88,7 +88,7 @@ def main():
     ax.plot (age_groups, all_phys_dist, label = "april 2020")
 
     plt.legend()
-    plt.title("Average contacts per person")
+    plt.title("Average contacts per person per day")
 
     st.pyplot(fig2a)
 if __name__ == "__main__":
