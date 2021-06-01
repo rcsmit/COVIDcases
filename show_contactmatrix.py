@@ -8,13 +8,13 @@ import matplotlib.pyplot as plt
 
 def calculate_total(df):
         #       0-4   5-9     10-19   20-29  30-39   40-49   50-59   60-69   70-79  80+
-    pop_ =      [857000, 899000 , 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 839000]
+    #pop_ =      [857000, 899000 , 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 839000]
     fraction = [ 0.04907, 0.05148, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.04804]
 
-    all = df['All'].tolist()
+    all1 = df['All'].tolist()
     total,total2 = 0,0
     for n in range(0, len(all)-1):
-        total += (all[n]*fraction[n])
+        total += (all1[n]*fraction[n])
     st.write (f"Gemiddeld aantal contacten per persoon (gewogen naar populatiefractie) - totaal van links naar rechts {round(total,2)}")
 
     all2 = df.loc[df.index == "All"].values.flatten().tolist()
@@ -33,7 +33,7 @@ def main():
     st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")
     st.write ("participant_age = participant age, contact_agee = contact age")
     contact_type  = st.sidebar.selectbox("All, community or household", ["all", "community", "household"], index=0)
-    #test 13:40
+    #test 13:40  14:49
     df= pd.read_csv(
             "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/contactmatrix.tsv",
             # "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\contactmatrix.tsv",
@@ -79,7 +79,6 @@ def main():
 
     all_baseline = df_baseline_pivot['All'].tolist()
     all_phys_dist = df_phys_dist_pivot['All'].tolist()
-    all_result = result['All'].tolist()
     del all_baseline[-1]
     del all_phys_dist[-1]
     age_groups = ["0-4",  "5-9",  "10-19",  "20-29",  "30-39",  "40-49",  "50-59",  "60-69",  "70-79",  "80+"]
