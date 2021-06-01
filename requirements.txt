@@ -6,4 +6,4 @@ seaborn
 lmfit
 imageio
 tabulate
-sklearn
+scikit-learn
