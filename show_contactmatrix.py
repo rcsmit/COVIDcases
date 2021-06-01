@@ -12,7 +12,7 @@ def main():
     st.header ("CONTACTMATRIXES")
     st.write ("Retrieved from https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text")
     st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")
-    st.write ("part_age = participant age, cont_age = contact age")
+    st.write ("participant_age = participant age, contact_agee = contact age")
     contact_type  = st.sidebar.selectbox("All, community or household", ["all", "community", "household"], index=0)
 
     df= pd.read_csv(
@@ -24,15 +24,17 @@ def main():
         )
     # st.write (df)
     df = df.replace("[5,10)", "[05,10)")
+    df = df.rename(columns={'part_age':'participant_age'})
+    df = df.rename(columns={'cont_age':'contact_age'})
 
     #contact_type = "community" #household"  # community  all
     df_baseline =  df[(df['survey'] == "baseline"           ) & (df['contact_type'] == contact_type)]
     df_phys_dist = df[(df['survey'] == "physical distancing") & (df['contact_type'] == contact_type)]
-
-    df_baseline_pivot =  df_baseline.pivot_table(index='part_age', columns='cont_age', values="m_est", margins = True, aggfunc=sum)
+    print (df_baseline.dtypes)
+    df_baseline_pivot =  df_baseline.pivot_table(index='participant_age', columns='contact_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader("Contactmatrix 2016/-17")
     st.write (df_baseline_pivot)
-    df__phys_dist_pivot =  df_phys_dist.pivot_table(index='part_age', columns='cont_age', values="m_est", margins = True, aggfunc=sum)
+    df__phys_dist_pivot =  df_phys_dist.pivot_table(index='participant_age', columns='contact_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader("Contactmatrix april 2020")
     st.write (df__phys_dist_pivot)
 
@@ -43,7 +45,10 @@ def main():
     result =  df__phys_dist_pivot / df_baseline_pivot
     st.write (result)
     fig, ax = plt.subplots()
-    sn.heatmap(result, ax=ax)
+    #max  = result.to_numpy().mean() + ( 1* result.to_numpy().std())
+    max = st.sidebar.number_input("Max value heatmap", 0, None,2)
+    #sn.heatmap(result, ax=ax,  vmax=result.to_numpy().max())
+    sn.heatmap(result, ax=ax,  vmax=max)
     st.write(fig)
 
 
