@@ -1166,6 +1166,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm = find_correlation_pair(df, b_, c_)
+                title_scatter =  f"{title} \n{str(FROM)} - {str(UNTIL)}\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
 
             if len(what_to_show_r) == 1:
@@ -1178,58 +1179,84 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 #ax3.set_ylim = (-100, 100)
         plt.title(title, fontsize=10)
 
-    a__ = (max(df_temp["date"].tolist())).date() - (
-        min(df_temp["date"].tolist())
-    ).date()
-    freq = int(a__.days / 10)
-    ax.xaxis.set_major_locator(MultipleLocator(freq))
+        a__ = (max(df_temp["date"].tolist())).date() - (
+            min(df_temp["date"].tolist())
+        ).date()
+        freq = int(a__.days / 10)
+        ax.xaxis.set_major_locator(MultipleLocator(freq))
 
-    ax.set_xticks(df_temp["date"].index)
-    ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
-    xticks = ax.xaxis.get_major_ticks()
-    if groupby_timeperiod == "none":
-        for i, tick in enumerate(xticks):
-            if i % 10 != 0:
-                tick.label1.set_visible(False)
-    plt.xticks()
+        ax.set_xticks(df_temp["date"].index)
+        ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
+        xticks = ax.xaxis.get_major_ticks()
+        if groupby_timeperiod == "none":
+            for i, tick in enumerate(xticks):
+                if i % 10 != 0:
+                    tick.label1.set_visible(False)
+        plt.xticks()
 
-    # layout of the x-axis
-    ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
-    ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
+        # layout of the x-axis
+        ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
+        ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
 
-    left, right = ax.get_xlim()
-    ax.set_xlim(left, right)
-    fontP = FontProperties()
-    fontP.set_size("xx-small")
+        left, right = ax.get_xlim()
+        ax.set_xlim(left, right)
+        fontP = FontProperties()
+        fontP.set_size("xx-small")
 
-    plt.xlabel("date")
-    # everything in legend
-    # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
-    handles, labels = [], []
-    for ax in fig1x.axes:
-        for h, l in zip(*ax.get_legend_handles_labels()):
-            handles.append(h)
-            labels.append(l)
-    # plt.legend(handles,labels)
-    # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
-    plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=2)
-    ax.text(
-        1,
-        1.1,
-        "Created by Rene Smit — @rcsmit",
-        transform=ax.transAxes,
-        fontsize="xx-small",
-        va="top",
-        ha="right",
-    )
-    if show_R_value_graph or show_R_value_RIVM:
-        plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
-    if groupby_timeperiod == "none":
-        add_restrictions(df, ax)
-    plt.axhline(y=0, color="black", alpha=0.6, linestyle="--")
-    if t == "line":
-        set_xmargin(ax, left=-0.04, right=-0.04)
-    st.pyplot(fig1x)
+        plt.xlabel("date")
+        # everything in legend
+        # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
+        handles, labels = [], []
+        for ax in fig1x.axes:
+            for h, l in zip(*ax.get_legend_handles_labels()):
+                handles.append(h)
+                labels.append(l)
+        # plt.legend(handles,labels)
+        # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
+        plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=2)
+        ax.text(
+            1,
+            1.1,
+            "Created by Rene Smit — @rcsmit",
+            transform=ax.transAxes,
+            fontsize="xx-small",
+            va="top",
+            ha="right",
+        )
+        if show_R_value_graph or show_R_value_RIVM:
+            plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
+        if groupby_timeperiod == "none":
+            add_restrictions(df, ax)
+        plt.axhline(y=0, color="black", alpha=0.6, linestyle="--")
+        if t == "line":
+            set_xmargin(ax, left=-0.04, right=-0.04)
+        st.pyplot(fig1x)
+
+    if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add scatter plot
+        with _lock:
+            fig1xy = plt.figure()
+            ax = fig1xy.add_subplot(111)
+            x = df_temp[what_to_show_l].values.tolist()
+            y = df_temp[what_to_show_r].values.tolist()
+            plt.scatter(x, y)
+            plt.title(title_scatter)
+
+            #obtain m (slope) and b(intercept) of linear regression line
+            # m, b = np.polyfit(x, y, 1)
+
+            #add linear regression line to scatterplot
+            #plt.plot(x, m*x+b)
+
+            ax.text(
+                1,
+                1.1,
+                "Created by Rene Smit — @rcsmit",
+                transform=ax.transAxes,
+                fontsize="xx-small",
+                va="top",
+                ha="right",
+            )
+            st.pyplot(fig1xy)
 
 
 def set_xmargin(ax, left=0.0, right=0.3):
@@ -1703,7 +1730,7 @@ def main():
         "reported_corrected",
         "onderrapportagefactor",
         "Total_reported_log10",
-        
+
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
