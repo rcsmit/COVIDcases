@@ -1173,8 +1173,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             if len(what_to_show_r) == 1:
                 mean = df[what_to_show_r].mean()
                 std =df[what_to_show_r].std()
-                print (f"mean {mean}")
-                print (f"st {std}")
+                # print (f"mean {mean}")
+                # print (f"st {std}")
                 low = mean -2*std
                 up = mean +2*std
                 #ax3.set_ylim = (-100, 100)
@@ -1234,15 +1234,27 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         st.pyplot(fig1x)
 
     if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add scatter plot
-        with _lock:
+        left_sm = str(what_to_show_l[0]) + "_" + how_to_smooth_
+        right_sm = str(what_to_show_r[0]) + "_" + how_to_smooth_
+        make_scatterplot(df_temp, what_to_show_l, what_to_show_r)
+        make_scatterplot(df_temp,left_sm, right_sm)
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
+    if type(what_to_show_l) == list:
+        what_to_show_l = what_to_show_l
+    else:
+        what_to_show_l = [what_to_show_l]
+    if type(what_to_show_r) == list:
+        what_to_show_r = what_to_show_r
+    else:
+        what_to_show_r = [what_to_show_r]
+    with _lock:
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
-            x = df_temp[what_to_show_l].values.tolist()
-            y = df_temp[what_to_show_r].values.tolist()
             x_ = np.array(df_temp[what_to_show_l])
             y_ = np.array(df_temp[what_to_show_r])
 
-            plt.scatter(x, y)
+            plt.scatter(x_, y_)
+
 
 
             #obtain m (slope) and b(intercept) of linear regression line
@@ -1257,8 +1269,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             print (m,b)
 
             #add linear regression line to scatterplot
-            plt.plot(x, m*x_+b, 'r')
-            title_scatter = (f"{title_scatter}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            plt.plot(x_, m*x_+b, 'r')
+            title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
             plt.title(title_scatter)
 
 
