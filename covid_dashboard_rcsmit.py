@@ -1270,7 +1270,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
 
             #add linear regression line to scatterplot
             plt.plot(x_, m*x_+b, 'r')
-            title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
             plt.title(title_scatter)
 
 
