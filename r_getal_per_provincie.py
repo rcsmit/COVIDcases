@@ -541,7 +541,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
 
         #add_restrictions(df, ax)
-        plt.axhline(y=1, color="yellow", alpha=1, linestyle="--")
+        #plt.axhline(y=1, color="yellow", alpha=1, linestyle="--")
         if t == "line":
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
