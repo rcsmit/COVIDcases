@@ -149,10 +149,10 @@ def get_data():
             ["Utrecht",1_361_093],
             ["Noord-Holland",2_887_906],
             ["Zuid-Holland",3_726_173],
-            ["Zeeland385_379",1_782],
+            ["Zeeland", 385_379],
             ["Noord-Brabant",2_573_853],
-            ["Limburg",1_115_895]]
-            ["Total", 17_474_693]
+            ["Limburg",1_115_895],
+            ["Total", 17_474_693]]
         for p in provincies:
             column_name= "p""+"_per_inw"
             df[column_name] = df[p]/p[1]
