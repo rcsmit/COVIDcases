@@ -136,7 +136,12 @@ def get_data():
             .reset_index()
             .copy(deep=False)
         )
-        lijst = ["Noord-Holland",  "Gelderland",  "Zuid-Holland",  "Limburg",  "Drenthe",  "Groningen",  "Noord-Brabant",  "Overijssel",  "Fryslân",  "Flevoland",  "Utrecht",  "Zeeland", "Total"]
+        lijst = [ "Groningen","Fryslân",
+           "Drenthe",   "Overijssel",
+           "Gelderland",  "Flevoland",
+           "Utrecht",  "Noord-Holland",
+           "Zuid-Holland",   "Noord-Brabant",
+           "Limburg",  "Zeeland", "Total"]
 
         df_pivot = df_pivot.replace({np.nan: 0})
         df_pivot.loc[:,'Total'] = df_pivot.sum(numeric_only=True, axis=1)
