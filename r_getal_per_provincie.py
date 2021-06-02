@@ -826,7 +826,7 @@ def main():
     how_to_smoothen, how_to_display = "SMA", "line"
 
 
-    st.title("Interactive Corona Dashboard")
+    st.title("COVID cases en Re-getal per provincie")
     # st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
 
