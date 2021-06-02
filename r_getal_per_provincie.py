@@ -154,7 +154,7 @@ def get_data():
             ["Limburg",1_115_895],
             ["Total", 17_474_693]]
         for p in provincies:
-            column_name= "p""+"_per_inw"
+            column_name= p + "_per_inw"
             df[column_name] = df[p]/p[1]
             lijst.append(column_name)
 
