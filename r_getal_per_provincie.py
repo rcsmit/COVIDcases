@@ -153,9 +153,10 @@ def get_data():
             ["Noord-Brabant",2_573_853],
             ["Limburg",1_115_895],
             ["Total", 17_474_693]]
+
         for p in provincies:
             column_name= p[0] + "_per_inw"
-            df[column_name] = df[p[0]]/p[1]
+            df_pivot[column_name] = df_pivot[p[0]]/p[1]
             lijst.append(column_name)
 
 
