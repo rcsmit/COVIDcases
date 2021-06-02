@@ -172,7 +172,7 @@ def get_data():
 
         for p in provincies:
             column_name= p[0] + "_per_inw"
-            df_pivot[column_name] = df_pivot[p[0]]/p[1]
+            df[column_name] = df[p[0]]/p[1]
             lijst.append(column_name)
 
         return df, UPDATETIME, lijst
