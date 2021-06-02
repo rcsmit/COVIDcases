@@ -140,6 +140,17 @@ def get_data():
 
         df_pivot = df_pivot.replace({np.nan: 0})
         df_pivot.loc[:,'Total'] = df_pivot.sum(numeric_only=True, axis=1)
+
+
+
+
+        columnlist, t, WDW2, centersmooth,tg = lijst, "SMA", 7, True,4
+
+        df, smoothed_columns = smooth_columnlist(df_pivot, columnlist, t, WDW2, centersmooth)
+        df, column_list_r_smoothened=  add_walking_r(df, smoothed_columns, t, tg)
+        df, column_list_r_smoothened_moved =  move_column(df, column_list_r_smoothened, -8)
+        lijst.extend(column_list_r_smoothened_moved)
+
         provincies = [["Groningen",586_813],
             ["Fryslân",651_459],
             ["Drenthe",494_760],
@@ -158,17 +169,6 @@ def get_data():
             column_name= p[0] + "_per_inw"
             df_pivot[column_name] = df_pivot[p[0]]/p[1]
             lijst.append(column_name)
-
-
-
-        columnlist, t, WDW2, centersmooth,tg = lijst, "SMA", 7, True,4
-
-        df, smoothed_columns = smooth_columnlist(df_pivot, columnlist, t, WDW2, centersmooth)
-        df, column_list_r_smoothened=  add_walking_r(df, smoothed_columns, t, tg)
-        df, column_list_r_smoothened_moved =  move_column(df, column_list_r_smoothened, -8)
-        lijst.extend(column_list_r_smoothened_moved)
-
-
 
         return df, UPDATETIME, lijst
 
