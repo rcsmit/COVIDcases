@@ -34,7 +34,7 @@ def main_oud():
         "fit to data",
         "SEIR hobbeland",
         "show contactmatrix",
-        "r getal per provincie"
+        "r getal per provincie",
         "grafiek pos testen per leeftijdscat",
         "per provincie per leeftijd",
     ]
