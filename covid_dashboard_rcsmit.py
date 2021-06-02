@@ -772,10 +772,10 @@ def graph_daily_normed(
         st.warning("Choose something")
         st.stop()
 
-    df, smoothed_columns_l = smooth_columnlist(df, what_to_show_day_l, how_to_smoothen)
+    df, smoothed_columns_l = smooth_columnlist(df, what_to_show_day_l, how_to_smoothen,WDW2, centersmooth)
     df, normed_columns_l = normeren(df, smoothed_columns_l)
 
-    df, smoothed_columns_r = smooth_columnlist(df, what_to_show_day_r, how_to_smoothen)
+    df, smoothed_columns_r = smooth_columnlist(df, what_to_show_day_r, how_to_smoothen, WDW2, centersmooth)
     df, normed_columns_r = normeren(df, smoothed_columns_r)
 
     graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
@@ -834,7 +834,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
 
         n = 0  # counter to walk through the colors-list
 
-        df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth)
+        df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
 
         # CODE TO MAKE STACKED BARS - DOESNT WORK
         # stackon=""
@@ -1020,7 +1020,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                             white,
                         ]
                 # MAYBE WE CAN LEAVE THIS OUT HERE
-                df, columnlist = smooth_columnlist(df, [b], how_to_smooth)
+                df, columnlist = smooth_columnlist(df, [b], how_to_smooth, WDW2, centersmooth)
 
                 df.set_index("date")
 
@@ -1142,7 +1142,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             for a in what_to_show_r:
                 x -= 1
                 lbl = a + " (right ax)"
-                df, columnlist = smooth_columnlist(df, [a], how_to_smooth)
+                df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
                 for c_ in columnlist:
                     # smoothed
                     lbl2 = a + " (right ax)"
@@ -1264,9 +1264,9 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
 
             predict = np.poly1d(model)
             r2 = r2_score  (y_[idx], predict(x_[idx]))
-            print (r2)
+            #print (r2)
             #m, b = np.polyfit(x_, y_, 1)
-            print (m,b)
+            # print (m,b)
 
             #add linear regression line to scatterplot
             plt.plot(x_, m*x_+b, 'r')
@@ -1487,7 +1487,7 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
         graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
 
 
-def smooth_columnlist(df, columnlist, t):
+def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
     """  _ _ _ """
     c_smoothen = []
     wdw_savgol = 7
@@ -1820,6 +1820,7 @@ def main():
         "Total_reported",
 
         "Deceased",
+        "spec_humidity_knmi_derived"
     ]
 
     how_to_smoothen = "SMA"
@@ -1828,13 +1829,13 @@ def main():
 
 
     #st.write(get_duplicate_cols(df))
-    df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen)
+    df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen, WDW2, centersmooth)
     df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0)
 
     lijst.extend(newcolumns_w2w) # percentage
     lijst.extend(newcolumns2_w2w) # index
 
-    df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen)
+    df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen, WDW2, centersmooth)
     df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
 
     lijst.extend(newcolumns_w2w2) # percentage

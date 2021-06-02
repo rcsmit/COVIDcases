@@ -55,6 +55,13 @@ def derivate(x, a, b, c):
     return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + BASEVALUE
     #return a * b * c * np.exp(-b*np.exp(-c*x))*np.exp(-c*x)
 
+def interest(x, a, r):
+    ''' First derivate of the Gompertz function. Might contain an error'''
+    #return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + BASEVALUE
+    return (a * ((1+r)**x))
+
+
+
 def derivate_of_derivate(x,a,b,c):
     return a*b*c*(b*c*exp(-c*x) - c)*exp(-b*exp(-c*x) - c*x)
 
@@ -128,6 +135,27 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         except RuntimeError as e:
             str_e = str(e)
             st.error(f"Exponential fit :\n{str_e}")
+
+        try:
+            popt, pcov = curve_fit(
+            f=interest,
+            xdata=x_values,
+            ydata=y_values,
+            #p0=[4600, 11, 0.5],
+            p0 = [0,0], # IC BEDDEN MAART APRIL
+
+            bounds=(-np.inf, np.inf),
+            maxfev=10000,
+            )
+            plt.plot(
+            x_values_extra,
+            interest(x_values_extra, *popt),
+            "r-",
+            label="interest fit: a=%5.3f, r=%5.3f" % tuple(popt),
+        )
+        except RuntimeError as e:
+            str_e = str(e)
+            st.error(f"interest fit :\n{str_e}")
 
 
         try:
@@ -249,27 +277,49 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
         elif function == "derivate":
             bmodel = Model(derivate)
             formula = "a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)"
+        elif function == "interest":
+            bmodel = Model(interest)
+            formula = "a * (1+r)**x"
         elif function == "gaussian":
             bmodel = Model(gaussian_2)
             formula =  "a * np.exp(-((x - b) ** 2) / c)"
         else:
             st.write("Please choose a function")
             st.stop()
+        if function == "interest":
+            # create Parameters, giving initial values
+            #params = bmodel.make_params(a=4711, b=12, c=0.06)
+            params = bmodel.make_params(a=26660.1, b=9.01298, c=0.032198)  # IC BEDDEN MAART APRIL
+            # params = bmodel.make_params()
+            params["a"].min = 0
+            params["r"].min = 0
 
-        # create Parameters, giving initial values
-        #params = bmodel.make_params(a=4711, b=12, c=0.06)
-        params = bmodel.make_params(a=26660.1, b=9.01298, c=0.032198)  # IC BEDDEN MAART APRIL
-        # params = bmodel.make_params()
-        params["a"].min = 26660
-        params["b"].min = 9
-        params["c"].min = 0.03
+
+            # do fit, st.write result
+            result = bmodel.fit(y_values, params, x=x_values)
 
 
-        # do fit, st.write result
-        result = bmodel.fit(y_values, params, x=x_values)
-        a = round(result.params['a'].value,5)
-        b= round(result.params['b'].value,5)
-        c =round(result.params['c'].value,5)
+            a = round(result.params['a'].value,5)
+            r= round(result.params['r'].value,5)
+
+        else:
+
+            # create Parameters, giving initial values
+            #params = bmodel.make_params(a=4711, b=12, c=0.06)
+            params = bmodel.make_params(a=26660.1, b=9.01298, c=0.032198)  # IC BEDDEN MAART APRIL
+            # params = bmodel.make_params()
+            params["a"].min = 26660
+            params["b"].min = 9
+            params["c"].min = 0.03
+
+
+            # do fit, st.write result
+            result = bmodel.fit(y_values, params, x=x_values)
+
+
+            a = round(result.params['a'].value,5)
+            b= round(result.params['b'].value,5)
+            c =round(result.params['c'].value,5)
 
         #placeholder1.text(result.fit_report())
         with _lock:
@@ -279,15 +329,21 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             # plot results -- note that `best_fit` is already available
             ax1.scatter(x_values, y_values, color="#00b3b3", s=2)
             #ax1.plot(x_values, result.best_fit, "g")
-            res = (f"a: {a} / b: {b} / c: {c}")
+            if function == "interest":
+                res = (f"a: {a} / r: {r}")
+            else:
+                res = (f"a: {a} / b: {b} / c: {c}")
             plt.title(f"{title} / lmfit - {function}\n{formula}\n{res}")
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
             # use `result.eval()` to evaluate model given params and x
             ax1.plot(t, bmodel.eval(result.params, x=t), "r-", linewidth=2)
-            ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
+            if function == "interest":
+                pass
+            else:
+                ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
 
             if compare_to:
-                ax1.plot (t, derivate(t,a_,b_,c_), color = 'r', alpha=0.4)
+                ax1.plot (t, derivate(t,a_,b_,c_), color = 'yellow', alpha=0.4)
                 ax2.plot (t, derivate_of_derivate(t,a_,b_,c_), color = 'purple', alpha=0.4)
 
             ax2.axhline(linewidth=1, color='purple', alpha=0.5, linestyle="--")
@@ -324,6 +380,10 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
                     plt.plot(t, exponential(t, a,b,c))
                     function_x = "exponential"
                     formula_x = "a * np.exp(-b * np.exp(-c * x))"
+                elif function == "interest":
+                    plt.plot(t, interest(t, a,r))
+                    function_x = "interest"
+                    formula_x = "a * (1+r)**t"
 
                 else:
                     st.error("ERROR")
@@ -703,7 +763,7 @@ def main():
             "What to display", lijst,
             index=what_default,
         )
-    which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate"], index=what_method_default)
+    which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate", "interest"], index=what_method_default)
 
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 

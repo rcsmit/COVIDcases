@@ -34,7 +34,7 @@ def main_oud():
         "fit to data",
         "SEIR hobbeland",
         "show contactmatrix",
-
+        "r getal per provincie"
         "grafiek pos testen per leeftijdscat",
         "per provincie per leeftijd",
     ]
@@ -79,12 +79,14 @@ def main_oud():
     elif menu_keuze == lijst[8]:
         import show_contactmatrix
         show_contactmatrix.main()
-
-    elif menu_keuze == lijst[9]:
+    elif menu_keuze  == lijst[9]:
+        import r_getal_per_provincie
+        r_getal_per_provincie.main()
+    elif menu_keuze == lijst[10]:
         import grafiek_pos_testen_per_leeftijdscategorie_streamlit
         grafiek_pos_testen_per_leeftijdscategorie_streamlit.main()
 
-    elif menu_keuze == lijst[10]:
+    elif menu_keuze == lijst[11]:
         import perprovincieperleeftijd
         perprovincieperleeftijd.main_per_province_per_leeftijd()
 
