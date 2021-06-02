@@ -525,11 +525,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
 
-    # if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add scatter plot
-    #     left_sm = str(what_to_show_l[0]) + "_" + how_to_smooth_
-    #     right_sm = str(what_to_show_r[0]) + "_" + how_to_smooth_
-    #     make_scatterplot(df_temp, what_to_show_l, what_to_show_r)
-    #     make_scatterplot(df_temp,left_sm, right_sm)
+
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
     if type(what_to_show_l) == list:
         what_to_show_l = what_to_show_l
@@ -588,10 +584,8 @@ def set_xmargin(ax, left=0.0, right=0.3):
     ax.set_xlim(left, right)
 
 
-def add_restrictions(df, ax):
-    pass
 
-def add_restrictions_original(df, ax):
+def add_restrictions(df, ax):
 
 
     """  _ _ _ """
