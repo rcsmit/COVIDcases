@@ -140,6 +140,23 @@ def get_data():
 
         df_pivot = df_pivot.replace({np.nan: 0})
         df_pivot.loc[:,'Total'] = df_pivot.sum(numeric_only=True, axis=1)
+        provincies = [["Groningen",586_813],
+            ["Fryslân",651_459],
+            ["Drenthe",494_760],
+            ["Overijssel",1_166_478],
+            ["Flevoland",428_264],
+            ["Gelderland",2_096_620],
+            ["Utrecht",1_361_093],
+            ["Noord-Holland",2_887_906],
+            ["Zuid-Holland",3_726_173],
+            ["Zeeland385_379",1_782],
+            ["Noord-Brabant",2_573_853],
+            ["Limburg",1_115_895]]
+            ["Total", 17_474_693]
+        for p in provincies:
+            column_name= "p""+"_per_inw"
+            df[column_name] = df[p]/p[1]
+            lijst.append(column_name)
 
 
 
@@ -149,6 +166,9 @@ def get_data():
         df, column_list_r_smoothened=  add_walking_r(df, smoothed_columns, t, tg)
         df, column_list_r_smoothened_moved =  move_column(df, column_list_r_smoothened, -8)
         lijst.extend(column_list_r_smoothened_moved)
+
+
+
         return df, UPDATETIME, lijst
 
 
