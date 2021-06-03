@@ -1043,9 +1043,8 @@ def main():
         "Kliniek_Bedden",
         "IC_Nieuwe_Opnames_COVID",
         "IC_Nieuwe_Opnames_LCPS_cumm",
-        "Hospital_admission_RIVM",
-        "Hospital_admission_LCPS",
-        "Hospital_admission_GGD",
+        "Hospital_admission",
+
         "Deceased",
         "Deceased_cumm",
         "Tested_with_result",
