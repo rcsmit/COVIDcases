@@ -816,7 +816,7 @@ def get_data():
 #                 "dateformat": "%Y-%m-%d",
 #                 "groupby": None,
 #                 "fileformat": "csv",
-            },
+            # },
             # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
             # 'name'       : 'sweden',
             # 'delimiter'  : ';',
