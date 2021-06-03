@@ -1043,7 +1043,8 @@ def main():
         "Kliniek_Bedden",
         "IC_Nieuwe_Opnames_COVID",
         "IC_Nieuwe_Opnames_LCPS_cumm",
-        "Hospital_admission",
+        "Hospital_admission_x",
+        "Hospital_admission_y",
 
         "Deceased",
         "Deceased_cumm",
