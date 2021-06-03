@@ -1033,10 +1033,10 @@ def main():
     lijst = [
         "Total_reported",
         "Total_reported_cumm",
-        "IC_Bedden_COVID_x",
+        "IC_Bedden_COVID",
         "IC_Bedden_Non_COVID",
         "Kliniek_Bedden",
-        "IC_Nieuwe_Opnames_COVID_x",
+        "IC_Nieuwe_Opnames_COVID",
         "IC_Nieuwe_Opnames_LCPS_cumm",
         "Hospital_admission_RIVM",
         "Hospital_admission_LCPS",
