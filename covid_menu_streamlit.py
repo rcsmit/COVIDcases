@@ -28,7 +28,7 @@ def main_oud():
 
         # Query parameters are returned as a list to support multiselect.
         # Get the first item in the list if the query parameter exists.
-    keuze = int(query_params["keuze"][0]) if "keuze" in query_params else None
+    keuze = int(query_params["keuze"][0]) if "keuze" in query_params else 0
     lijst = [
         "0. welcome",
         "1. covid dashboard",
@@ -45,7 +45,7 @@ def main_oud():
     ]
 
     with st.sidebar.beta_expander('MENU: Choose a script',  expanded=True):
-        menu_keuze = st.radio("",lijst, index=0)
+        menu_keuze = st.radio("",lijst, index=keuze)
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
     if menu_keuze == lijst[0] or keuze == 0:
