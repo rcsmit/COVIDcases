@@ -44,7 +44,7 @@ from PIL import Image
 import glob
 
 # Functions to calculate values a,b  and c ##########################
-def exponential(x, a, b, c):
+def gompertz(x, a, b, c):
     ''' Standard gompertz function
         a = height, b= halfway point, c = growth rate
         https://en.wikipedia.org/wiki/Gompertz_function '''
@@ -56,10 +56,8 @@ def derivate(x, a, b, c):
     #return a * b * c * np.exp(-b*np.exp(-c*x))*np.exp(-c*x)
 
 def interest(x, a, r):
-    ''' First derivate of the Gompertz function. Might contain an error'''
-    #return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + BASEVALUE
+    '''Exponential growth  function.'''
     return (a * ((1+r)**x))
-
 
 
 def derivate_of_derivate(x,a,b,c):
@@ -117,7 +115,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         fig1x = plt.figure()
         try:
             popt, pcov = curve_fit(
-            f=exponential,
+            f=gompertz,
             xdata=x_values,
             ydata=y_values,
             #p0=[4600, 11, 0.5],
@@ -128,13 +126,13 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             )
             plt.plot(
             x_values_extra,
-            exponential(x_values_extra, *popt),
+            gompertz(x_values_extra, *popt),
             "r-",
-            label="exponential fit: a=%5.3f, b=%5.3f, c=%5.3f" % tuple(popt),
+            label="gompertz fit: a=%5.3f, b=%5.3f, c=%5.3f" % tuple(popt),
         )
         except RuntimeError as e:
             str_e = str(e)
-            st.error(f"Exponential fit :\n{str_e}")
+            st.error(f"gompertz fit :\n{str_e}")
 
         try:
             popt, pcov = curve_fit(
@@ -271,8 +269,8 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
         #placeholder0.subheader(f"LMFIT - {title} - {function}")
 
         # create a Model from the model function
-        if function == "exponential":
-            bmodel = Model(exponential)
+        if function == "gompertz":
+            bmodel = Model(gompertz)
             formula = "a * np.exp(-b * np.exp(-c * x))"
         elif function == "derivate":
             bmodel = Model(derivate)
@@ -288,16 +286,12 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             st.stop()
         if function == "interest":
             # create Parameters, giving initial values
-            #params = bmodel.make_params(a=4711, b=12, c=0.06)
-            params = bmodel.make_params(a=26660.1, b=9.01298, c=0.032198)  # IC BEDDEN MAART APRIL
-            # params = bmodel.make_params()
+            params = bmodel.make_params(a=0, r=0.01)
             params["a"].min = 0
             params["r"].min = 0
 
-
             # do fit, st.write result
             result = bmodel.fit(y_values, params, x=x_values)
-
 
             a = round(result.params['a'].value,5)
             r= round(result.params['r'].value,5)
@@ -371,14 +365,14 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
                 # plot results -- note that `best_fit` is already available
 
 
-                if function == "exponential":
+                if function == "gompertz":
                     plt.plot(t, derivate(t,a,b,c))
                     function_x = "derivate"
                     formula_x = "a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)"
 
                 elif function == "derivate":
-                    plt.plot(t, exponential(t, a,b,c))
-                    function_x = "exponential"
+                    plt.plot(t, gompertz(t, a,b,c))
+                    function_x = "gompertz"
                     formula_x = "a * np.exp(-b * np.exp(-c * x))"
                 elif function == "interest":
                     plt.plot(t, interest(t, a,r))
@@ -424,7 +418,7 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
     st.header("Fitting data to formulas")
 
     infox = (
-    '<br>Exponential / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
+    '<br>gompertz / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
     '<br>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
     '<br>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
     '<br>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li>'
@@ -763,7 +757,7 @@ def main():
             "What to display", lijst,
             index=what_default,
         )
-    which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate", "interest"], index=what_method_default)
+    which_method = st.sidebar.selectbox("Which method", ["gompertz", "derivate", "interest"], index=what_method_default)
 
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
