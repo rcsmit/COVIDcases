@@ -934,7 +934,7 @@ def get_data():
         df_temp = df_temp.rename(columns={firstkey: "date"})
 
         UPDATETIME = datetime.now()
-        df = splitupweekweekend(df_temp)
+        #df = splitupweekweekend(df_temp)
 
         return df, df_ungrouped, UPDATETIME
 
