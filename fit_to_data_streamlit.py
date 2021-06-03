@@ -1030,6 +1030,11 @@ def main():
         st.warning("Make sure that the end date is not before the start date")
         st.stop()
 
+    if until_ == "2023-08-23":
+        st.sidebar.error("Do you really, really, wanna do this?")
+        if st.sidebar.button("Yes I'm ready to rumble"):
+            caching.clear_cache()
+            st.success("Cache is cleared, please reload to scrape new values")
     lijst = [
         "Total_reported",
         "Total_reported_cumm",
