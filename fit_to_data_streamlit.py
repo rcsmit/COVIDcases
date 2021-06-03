@@ -7,7 +7,7 @@
 
 
 # https://www.reddit.com/r/CoronavirusUS/comments/fqx8fn/ive_been_working_on_this_extrapolation_for_the/
-# to explore : https://github.com/fcpenha/Gompertz-Makehan-Fit/blob/master/script.py
+# to explore : https://github.com/fcpenha/sigmoidal-Makehan-Fit/blob/master/script.py
 
 
 # Import required packages
@@ -44,18 +44,18 @@ from PIL import Image
 import glob
 
 # Functions to calculate values a,b  and c ##########################
-def gompertz(x, a, b, c):
-    ''' Standard gompertz function
+def sigmoidal(x, a, b, c):
+    ''' Standard sigmoidal function
         a = height, b= halfway point, c = growth rate
-        https://en.wikipedia.org/wiki/Gompertz_function '''
+        https://en.wikipedia.org/wiki/sigmoidal_function '''
     return a * np.exp(-b * np.exp(-c * x))
 
 def derivate(x, a, b, c):
-    ''' First derivate of the Gompertz function. Might contain an error'''
+    ''' First derivate of the sigmoidal function. Might contain an error'''
     return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + BASEVALUE
     #return a * b * c * np.exp(-b*np.exp(-c*x))*np.exp(-c*x)
 
-def interest(x, a, r):
+def exponential(x, a, r):
     '''Exponential growth  function.'''
     return (a * ((1+r)**x))
 
@@ -116,10 +116,10 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         st.subheader(f"Curvefit (scipy) - {title}")
 
         fig1x = plt.figure()
-        # Gompertz ##################
+        # sigmoidal ##################
         try:
             popt, pcov = curve_fit(
-            f=gompertz,
+            f=sigmoidal,
             xdata=x_values,
             ydata=y_values,
             #p0=[4600, 11, 0.5],
@@ -130,26 +130,26 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             )
 
 
-            residuals = y_values - gompertz(x_values, *popt)
+            residuals = y_values - sigmoidal(x_values, *popt)
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_values - np.mean(y_values))**2)
             r_squared = round(  1 - (ss_res / ss_tot),4)
-            l =(f"gompertz fit: a=%5.3f, b=%5.3f, c=%5.3f / r2 = {r_squared}" % tuple(popt))
+            l =(f"sigmoidal fit: a=%5.3f, b=%5.3f, c=%5.3f / r2 = {r_squared}" % tuple(popt))
             #l2 = (f"{l} / r2 = {r_squared}")
 
             plt.plot(
             x_values_extra,
-            gompertz(x_values_extra, *popt),
+            sigmoidal(x_values_extra, *popt),
             "r-",
             label = l
         )
         except RuntimeError as e:
             str_e = str(e)
-            st.info(f"gompertz fit :\n{str_e}")
-        # interest ##########
+            st.info(f"sigmoidal fit :\n{str_e}")
+        # exponential ##########
         try:
             popt_i, pcov_i = curve_fit(
-            f=interest,
+            f=exponential,
             xdata=x_values,
             ydata=y_values,
             #p0=[4600, 11, 0.5],
@@ -159,20 +159,20 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             maxfev=10000,
             )
 
-            residuals = y_values - interest(x_values, *popt_i)
+            residuals = y_values - exponential(x_values, *popt_i)
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_values - np.mean(y_values))**2)
             r_squared = round(  1 - (ss_res / ss_tot),4)
-            l = (f"interest fit: a=%5.3f, r=%5.3f / r2 = {r_squared}" % tuple(popt_i))
+            l = (f"exponential fit: a=%5.3f, r=%5.3f / r2 = {r_squared}" % tuple(popt_i))
             plt.plot(
             x_values_extra,
-            interest(x_values_extra, *popt_i),
+            exponential(x_values_extra, *popt_i),
             "y-",
             label=l
         )
         except RuntimeError as e:
             str_e = str(e)
-            st.info(f"interest fit :\n{str_e}")
+            st.info(f"exponential fit :\n{str_e}")
 
         # derivate ##############
         try:
@@ -298,14 +298,14 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
         #placeholder0.subheader(f"LMFIT - {title} - {function}")
 
         # create a Model from the model function
-        if function == "gompertz":
-            bmodel = Model(gompertz)
+        if function == "sigmoidal":
+            bmodel = Model(sigmoidal)
             formula = "a * np.exp(-b * np.exp(-c * x))"
         elif function == "derivate":
             bmodel = Model(derivate)
             formula = "a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)"
-        elif function == "interest":
-            bmodel = Model(interest)
+        elif function == "exponential":
+            bmodel = Model(exponential)
             formula = "a * (1+r)**x"
         elif function == "gaussian":
             bmodel = Model(gaussian_2)
@@ -313,7 +313,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
         else:
             st.write("Please choose a function")
             st.stop()
-        if function == "interest":
+        if function == "exponential":
             # create Parameters, giving initial values
             params = bmodel.make_params(a=0, r=0.01)
             params["a"].min = 0
@@ -352,7 +352,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             # plot results -- note that `best_fit` is already available
             ax1.scatter(x_values, y_values, color="#00b3b3", s=2)
             #ax1.plot(x_values, result.best_fit, "g")
-            if function == "interest":
+            if function == "exponential":
                 res = (f"a: {a} / r: {r}")
             else:
                 res = (f"a: {a} / b: {b} / c: {c}")
@@ -360,7 +360,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
             # use `result.eval()` to evaluate model given params and x
             ax1.plot(t, bmodel.eval(result.params, x=t), "r-", linewidth=2)
-            if function == "interest":
+            if function == "exponential":
                 pass
             else:
                 ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
@@ -394,19 +394,19 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
                 # plot results -- note that `best_fit` is already available
 
 
-                if function == "gompertz":
+                if function == "sigmoidal":
                     plt.plot(t, derivate(t,a,b,c))
                     function_x = "derivate"
                     formula_x = "a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)"
 
                 elif function == "derivate":
-                    plt.plot(t, gompertz(t, a,b,c))
-                    function_x = "gompertz"
+                    plt.plot(t, sigmoidal(t, a,b,c))
+                    function_x = "sigmoidal"
                     formula_x = "a * np.exp(-b * np.exp(-c * x))"
-                elif function == "interest":
+                elif function == "exponential":
                     pass
-                    # plt.plot(t, interest(t, a,r))
-                    # function_x = "interest"
+                    # plt.plot(t, exponential(t, a,r))
+                    # function_x = "exponential"
                     # formula_x = "a * (1+r)**t"
 
                 else:
@@ -448,8 +448,8 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
     st.header("Fitting data to formulas")
 
     infox = (
-    '<br>gompertz / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
-    '<br>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
+    '<br>sigmoidal / Standard sigmoidal function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
+    '<br>First derivate of the sigmoidal function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
     '<br>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
     '<br>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li>'
         )
@@ -1090,7 +1090,7 @@ def main():
             "What to display", lijst,
             index=what_default,
         )
-    which_method = st.sidebar.selectbox("Which method", ["gompertz", "derivate", "interest"], index=what_method_default)
+    which_method = st.sidebar.selectbox("Which method", ["sigmoidal", "derivate", "exponential"], index=what_method_default)
 
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
