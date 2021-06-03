@@ -9,8 +9,7 @@ def main():
     query_params = st.experimental_get_query_params()
     keuze = int(query_params["keuze"][0]) if "keuze" in query_params else 0
 
-    lijst = [
-       [["0. welcome","welcome"],
+    lijst = [["0. welcome","welcome"],
         ["1. covid dashboard","covid dashboard rcsmit"],
         ["2. plot hosp ic","plot hosp ic"],
         ["3. false positive rate covid test","calculate false positive rate covid test"],
