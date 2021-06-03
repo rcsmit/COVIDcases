@@ -52,8 +52,8 @@ def main():
                 st.stop()
             try:
                 module.main()
-            except:
-                st.error(f"Function 'main()' in module '{m}' not found")
+            except Exception as e:)
+                st.error(f"Function 'main()' in module '{m}' not found or error in the script\n{e})
                 st.stop()
 
 if __name__ == "__main__":
