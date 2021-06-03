@@ -954,7 +954,7 @@ def main():
     df.fillna(value=0, inplace=True)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
     df["Deceased_cumm"] = df["Deceased"].cumsum()
-    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID_x"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
     #df["total_reported_k_value"] = 1- df["Total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
     st.alert("Please ignore the error message, it has to do with some caching issues")
     DATE_FORMAT = "%m/%d/%Y"
