@@ -45,8 +45,16 @@ def main():
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
             m = options[n][1].replace(" ","_") # I was too lazy to change it in the list
-            module = dynamic_import(m)
-            module.main()
+            try:
+                module = dynamic_import(m)
+            except:
+                st.error(f"{m} not found")
+                st.stop
+            try:
+                module.main()
+            except:
+                st.error(f"Function main() in {m} not found")
+                st.stop
 
 if __name__ == "__main__":
     main()
