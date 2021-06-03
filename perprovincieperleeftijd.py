@@ -170,7 +170,7 @@ def groupeer_data():
 
     return df_merge
 
-def main_per_province_per_leeftijd():
+def main():
     local = True
     if local:
         df = download_data_file("https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_per_age_per_province.csv", "cases_per_age_per_province", ",",  "csv")
@@ -202,4 +202,4 @@ def main_per_province_per_leeftijd():
     st.write ("Er is gedeeld door de gehele bevolking van de provincie. Bij het vergelijken tussen provincies zorgt dit voor onnauwkeurigheden aangezien er verschillen van leeftijdsopbouw tussen de provincies is.")
 
 if __name__ == "__main__":
-    main_per_province_per_leeftijd()
+    main()
