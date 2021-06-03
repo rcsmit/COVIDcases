@@ -681,7 +681,13 @@ def download_data_file(url, filename, delimiter_, fileformat):
         # df_temp = df_temp.replace({pd.np.nan: None})  Let it to test
         save_df(df_temp, filename)
         return df_temp
+def save_df(df, name):
+    """  _ _ _ """
+    name_ = OUTPUT_DIR + name + ".csv"
+    compression_opts = dict(method=None, archive_name=name_)
+    df.to_csv(name_, index=False, compression=compression_opts)
 
+    print("--- Saving " + name_ + " ---")
 def init():
     """  _ _ _ """
 
