@@ -600,7 +600,7 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
             how="outer",
             left_on="date",
             right_on="date_sR",
-            left_index=True,
+            #left_index=True,
         )
         column_list_r_smoothened.append(column_name_r_smoothened)
         column_list_r_sec_smoothened.append(column_name_r_sec_smoothened)
