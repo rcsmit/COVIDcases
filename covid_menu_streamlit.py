@@ -49,7 +49,7 @@ def main_oud():
         menu_keuze = st.radio("",lijst, index=keuze)
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
-    st.experimental_set_query_params(keuze=radio.index(menu_keuze))
+    st.experimental_set_query_params(keuze=lijst.index(menu_keuze))
     if menu_keuze == lijst[0] or keuze == 0:
         import welcome
         welcome.main()
