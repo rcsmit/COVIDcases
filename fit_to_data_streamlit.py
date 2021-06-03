@@ -132,7 +132,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         )
         except RuntimeError as e:
             str_e = str(e)
-            st.error(f"gompertz fit :\n{str_e}")
+            st.info(f"gompertz fit :\n{str_e}")
 
         try:
             popt, pcov = curve_fit(
@@ -153,7 +153,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         )
         except RuntimeError as e:
             str_e = str(e)
-            st.error(f"interest fit :\n{str_e}")
+            st.info(f"interest fit :\n{str_e}")
 
 
         try:
@@ -174,7 +174,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             )
         except RuntimeError as e:
             str_e = str(e)
-            st.error(f"Derivate fit :\n{str_e}")
+            st.info(f"Derivate fit :\n{str_e}")
 
 
         # FIXIT
@@ -217,7 +217,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
 
         except RuntimeError as e:
             str_e = str(e)
-            st.error(f"Gaussian fit :\n{str_e}")
+            st.info(f"Gaussian fit :\n{str_e}")
 
 
         plt.scatter(x_values, y_values, s=20, color="#00b3b3", label="Data")
