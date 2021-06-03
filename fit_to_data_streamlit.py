@@ -682,6 +682,24 @@ def download_data_file(url, filename, delimiter_, fileformat):
         save_df(df_temp, filename)
         return df_temp
 
+def init():
+    """  _ _ _ """
+
+    global download
+
+    global INPUT_DIR
+    global OUTPUT_DIR
+
+    INPUT_DIR = (
+        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\"
+    )
+    OUTPUT_DIR = (
+        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+    )
+
+    # GLOBAL SETTINGS
+    download = True  # True : download from internet False: download from INPUT_DIR
+    # De open data worden om 15.15 uur gepubliceerd
 
 @st.cache(ttl=60 * 60 * 24)
 def get_data():
