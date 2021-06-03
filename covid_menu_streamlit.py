@@ -20,7 +20,7 @@ def main():
             ["2. plot hosp ic","plot hosp ic"],
             ["3. false positive rate covid test","calculate false positive rate covid test"],
             ["4. number of cases interactive","number of cases interactive"],
-            ["5. ifr from prevalence","ifr from prevalence streamlit"],
+            ["5. ifr from prevalence","calculate_ifr_from_prevalence_streamlit"],
             ["6. fit to data","fit to data streamlit"],
             ["7. SEIR hobbeland","SEIR hobbeland"],
             ["8. show contactmatrix","show contactmatrix"],
