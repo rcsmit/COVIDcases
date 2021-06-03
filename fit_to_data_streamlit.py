@@ -35,7 +35,7 @@ from scipy.special import erfc, erf
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
-import covid_dashboard_rcsmit
+
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
@@ -640,6 +640,280 @@ def loglognormal(df, what_to_display):
         st.pyplot(fig1yz)
 
     st.text(f"{what_to_display} at end of period shown: {int( exp(ipred[-1])-1)}.")
+
+
+@st.cache(ttl=60 * 60 * 24)
+def download_data_file(url, filename, delimiter_, fileformat):
+    """Download the external datafiles
+    IN :  url : the url
+          filename : the filename (without extension) to export the file
+          delimiter : delimiter
+          fileformat : fileformat
+    OUT : df_temp : the dataframe
+    """
+
+    # df_temp = None
+    download = True
+    with st.spinner(f"Downloading...{url}"):
+        if download:  # download from the internet
+            url = url
+        else:  # download from the local drive
+            if fileformat == "json":
+                url = INPUT_DIR + filename + ".json"
+            else:
+                url = INPUT_DIR + filename + ".csv"
+
+        if fileformat == "csv":
+            df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
+        elif fileformat == "json":
+            df_temp = pd.read_json(url)
+
+        # elif fileformat =='json_x':   # workaround for NICE IC data
+        #     pass
+        #     # with urllib.request.urlopen(url) as url_x:
+        #     #     datajson = json.loads(url_x.read().decode())
+        #     #     for a in datajson:
+        #     #         df_temp = pd.json_normalize(a)
+        else:
+            st.error("Error in fileformat")
+            st.stop()
+        df_temp = df_temp.drop_duplicates()
+        # df_temp = df_temp.replace({pd.np.nan: None})  Let it to test
+        save_df(df_temp, filename)
+        return df_temp
+
+
+@st.cache(ttl=60 * 60 * 24)
+def get_data():
+    """Get the data from various sources
+    In : -
+    Out : df        : dataframe
+         UPDATETIME : Date and time from the last update"""
+    with st.spinner(f"GETTING ALL DATA ..."):
+        init()
+        # #CONFIG
+        data = [
+            {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv",
+                "name": "COVID-19_ziekenhuisopname",
+                "delimiter": ";",
+                "key": "Date_of_statistics",
+                "dateformat": "%Y-%m-%d",
+                "groupby": "Date_of_statistics",
+                "fileformat": "csv",
+            },
+             {
+                "url": "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv",
+                "name": "COVID-19_aantallen_gemeente_per_dag",
+                "delimiter": ";",
+                "key": "Date_of_publication",
+                "dateformat": "%Y-%m-%d",
+                "groupby": "Date_of_publication",
+                "fileformat": "csv",
+            },
+            # {
+            #     "url": "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json",
+            #     "name": "rioolwater",
+            #     "delimiter": ",",
+            #     "key": "Date_measurement",
+            #     "dateformat": "%Y-%m-%d",
+            #     "groupby": "Date_measurement",
+            #     "fileformat": "json",
+            # },
+            {
+                "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
+                "name": "LCPS",
+                "delimiter": ",",
+                "key": "Datum",
+                "dateformat": "%d-%m-%Y",
+                "groupby": None,
+                "fileformat": "csv",
+            },
+
+#             {
+#                 "url": "https://raw.githubusercontent.com/Sikerdebaard/vaccinatie-orakel/main/data/ensemble.csv",
+#                 "name": "vaccinatie",
+#                 "delimiter": ",",
+#                 "key": "date",
+#                 "dateformat": "%Y-%m-%d",
+#                 "groupby": None,
+#                 "fileformat": "csv",
+#             },
+#             {
+#                 "url": "https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json",
+#                 "name": "reprogetal",
+#                 "delimiter": ",",
+#                 "key": "Date",
+#                 "dateformat": "%Y-%m-%d",
+#                 "groupby": None,
+#                 "fileformat": "json",
+#             },
+
+#             {
+#                 "url": "https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv",
+#                 "name": "COVID-19_uitgevoerde_testen",
+#                 "delimiter": ";",
+#                 "key": "Date_of_statistics",
+#                 "dateformat": "%Y-%m-%d",
+#                 "groupby": "Date_of_statistics",
+#                 "fileformat": "csv",
+#             },
+#             {
+#                 "url": "https://data.rivm.nl/covid-19/COVID-19_prevalentie.json",
+#                 "name": "prevalentie",
+#                 "delimiter": ",",
+#                 "key": "Date",
+#                 "dateformat": "%Y-%m-%d",
+#                 "groupby": None,
+#                 "fileformat": "json",
+#             },
+
+#  {
+#                 "url": "https://raw.githubusercontent.com/mzelst/covid-19/master/data-rivm/ic-datasets/ic_daily_2021-05-06.csv",
+#                 "name": "ic_daily",
+#                 "delimiter": ",",
+#                 "key": "Date_of_statistics",
+#                 "dateformat": "%Y-%m-%d",
+#                 "groupby": None,
+#                 "fileformat": "csv",
+#             },
+
+
+#             {
+#                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_deceased__ages.csv",
+#                 "name": "cases_hospital_deceased__ages",
+#                 "delimiter": ";",
+#                 "key": "pos_test_Date_statistics",
+#                 "dateformat": "%d-%m-%Y",
+#                 "groupby": None,
+#                 "fileformat": "csv",
+#             },
+
+
+#             {
+#                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv",
+#                 "name": "mobility",
+#                 "delimiter": ";",
+#                 "key": "date",
+#                 "dateformat": "%d-%m-%Y",
+#                 "groupby": None,
+#                 "fileformat": "csv",
+#             },
+#             {
+#                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi3.csv",
+#                 "name": "knmi",
+#                 "delimiter": ",",
+#                 "key": "Datum",
+#                 "dateformat": "%Y%m%d",
+#                 "groupby": None,
+#                 "fileformat": "csv",
+#             },
+#             {
+#                 "url": "https://raw.githubusercontent.com/mzelst/covid-19/master/data/all_data.csv",
+#                 "name": "all_mzelst",
+#                 "delimiter": ",",
+#                 "key": "date",
+#                 "dateformat": "%Y-%m-%d",
+#                 "groupby": None,
+#                 "fileformat": "csv",
+            },
+            # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
+            # 'name'       : 'sweden',
+            # 'delimiter'  : ';',
+            # 'key'        : 'Day',
+            # 'dateformat' : '%d-%m-%Y',
+            # 'groupby'    : None,
+            # 'fileformat' : 'csv'},
+            #  {'url'      : 'https://stichting-nice.nl/covid-19/public/new-intake/',
+            # 'name'       : 'IC_opnames_LCPS',
+            # 'delimiter'  : ',',
+            # 'key'        : 'date',
+            # 'dateformat' : '%Y-%m-%d',
+            # 'groupby'    : 'date',
+            # 'fileformat' : 'json_x'}
+            # {'url'       : 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\download_NICE.json',
+            # 'name'       : 'IC_opnames_LCPS',
+            # 'delimiter'  : ',',
+            # 'key'        : 'date',
+            # 'dateformat' : '%Y-%m-%d',
+            # 'groupby'    : 'date',
+            # 'fileformat' : 'json_y'}
+        ]
+
+        type_of_join = "outer"
+        d = 0
+
+        # Read first datafile
+        df_temp_x = download_data_file(
+            data[d]["url"], data[d]["name"], data[d]["delimiter"], data[d]["fileformat"]
+        )
+        # df_temp_x = df_temp_x.replace({pd.np.nan: None})
+        df_temp_x[data[d]["key"]] = pd.to_datetime(
+            df_temp_x[data[d]["key"]], format=data[d]["dateformat"]
+        )
+        firstkey = data[d]["key"]
+
+        if data[d]["groupby"] != None:
+            df_temp_x = (
+                df_temp_x.groupby([data[d]["key"]], sort=True).sum().reset_index()
+            )
+            df_ungrouped = df_temp_x.reset_index()
+            firstkey_ungrouped = data[d]["key"]
+        else:
+            df_temp_x = df_temp_x.sort_values(by=firstkey)
+            df_ungrouped = None
+
+        df_temp = (
+            df_temp_x  # df_temp is the base to which the other databases are merged to
+        )
+        # Read the other files
+
+        for d in range(1, len(data)):
+
+            df_temp_x = download_data_file(
+                data[d]["url"],
+                data[d]["name"],
+                data[d]["delimiter"],
+                data[d]["fileformat"],
+            )
+            # df_temp_x = df_temp_x.replace({pd.np.nan: None})
+            oldkey = data[d]["key"]
+            newkey = "key" + str(d)
+            df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
+            #st.write (df_temp_x.dtypes)
+            try:
+                df_temp_x[newkey] = pd.to_datetime(df_temp_x[newkey], format=data[d]["dateformat"]           )
+            except:
+                st.error(f"error in {oldkey} {newkey}")
+                st.stop()
+            if data[d]["groupby"] != None:
+                if df_ungrouped is not None:
+                    df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
+                    print(df_ungrouped.dtypes)
+                    print(firstkey_ungrouped)
+                    print(newkey)
+                    df_ungrouped.loc[
+                        df_ungrouped[firstkey_ungrouped].isnull(), firstkey_ungrouped
+                    ] = df_ungrouped[newkey]
+
+                else:
+                    df_ungrouped = df_temp_x.reset_index()
+                    firstkey_ungrouped = newkey
+                df_temp_x = df_temp_x.groupby([newkey], sort=True).sum().reset_index()
+
+            df_temp = pd.merge(
+                df_temp, df_temp_x, how=type_of_join, left_on=firstkey, right_on=newkey
+            )
+            df_temp.loc[df_temp[firstkey].isnull(), firstkey] = df_temp[newkey]
+            df_temp = df_temp.sort_values(by=firstkey)
+        # the tool is build around "date"
+        df_temp = df_temp.rename(columns={firstkey: "date"})
+
+        UPDATETIME = datetime.now()
+        df = splitupweekweekend(df_temp)
+
+        return df, df_ungrouped, UPDATETIME
+
 def main():
     global placeholder0, placeholder, placeholder1
 
@@ -648,7 +922,7 @@ def main():
     # df = pd.read_csv(url1, delimiter=",", low_memory=False)
 
 
-    df_getdata, df_ungrouped_, UPDATETIME = covid_dashboard_rcsmit.get_data()
+    df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
 
     #st.write (df.dtypes)
