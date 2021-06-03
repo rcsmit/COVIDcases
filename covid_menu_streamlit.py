@@ -48,12 +48,12 @@ def main():
             try:
                 module = dynamic_import(m)
             except:
-                st.error(f"Module [{m}] not found")
+                st.error(f"Module '{m}' not found")
                 st.stop()
             try:
                 module.main()
             except:
-                st.error(f"Function [main()] in module [{m}] not found")
+                st.error(f"Function 'main()' in module '{m}' not found")
                 st.stop()
 
 if __name__ == "__main__":

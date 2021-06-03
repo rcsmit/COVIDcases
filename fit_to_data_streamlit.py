@@ -148,7 +148,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             plt.plot(
             x_values_extra,
             interest(x_values_extra, *popt),
-            "r-",
+            "y-",
             label="interest fit: a=%5.3f, r=%5.3f" % tuple(popt),
         )
         except RuntimeError as e:
