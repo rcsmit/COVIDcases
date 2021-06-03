@@ -24,69 +24,74 @@ def main_new():
 
 
 def main_oud():
+    query_params = st.experimental_get_query_params()
+
+        # Query parameters are returned as a list to support multiselect.
+        # Get the first item in the list if the query parameter exists.
+    keuze = int(query_params["keuze"][0]) if "keuze" in query_params else None
     lijst = [
-        "welcome",
-        "covid dashboard",
-        "plot hosp ic",
-        "false positive rate covid test",
-        "number of cases interactive",
-        "ifr from prevalence",
-        "fit to data",
-        "SEIR hobbeland",
-        "show contactmatrix",
-        "r getal per provincie",
-        "grafiek pos testen per leeftijdscat",
-        "per provincie per leeftijd",
+        "0. welcome",
+        "1. covid dashboard",
+        "2. plot hosp ic",
+        "3. false positive rate covid test",
+        "4. number of cases interactive",
+        "5. ifr from prevalence",
+        "6. fit to data",
+        "7. SEIR hobbeland",
+        "8. show contactmatrix",
+        "9. r getal per provincie",
+        "10. grafiek pos testen per leeftijdscat",
+        "11. per provincie per leeftijd",
     ]
 
     with st.sidebar.beta_expander('MENU: Choose a script',  expanded=True):
         menu_keuze = st.radio("",lijst, index=0)
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
-    if menu_keuze == lijst[0]:
+    if menu_keuze == lijst[0] or keuze = 0:
         import welcome
         welcome.main()
 
-    elif menu_keuze == lijst[1]:
+    elif menu_keuze == lijst[1] or keuze = 1:
         import covid_dashboard_rcsmit
         covid_dashboard_rcsmit.main()
 
-    elif menu_keuze == lijst[2]:
+    elif menu_keuze == lijst[2] or keuze = 2:
         import plot_hosp_ic_streamlit
         plot_hosp_ic_streamlit.main()
 
-    elif menu_keuze == lijst[3]:
+    elif menu_keuze == lijst[3] or keuze = 3:
         import calculate_false_positive_rate_covid_test_streamlit
         calculate_false_positive_rate_covid_test_streamlit.main()
 
 
-    elif menu_keuze ==lijst[4]:
+    elif menu_keuze ==lijst[4] or keuze = 4:
         import number_of_cases_interactive
         number_of_cases_interactive.main()
 
-    elif menu_keuze ==lijst[5]:
+    elif menu_keuze ==lijst[5] or keuze = 5:
         import calculate_ifr_from_prevalence_streamlit
         calculate_ifr_from_prevalence_streamlit.main()
 
-    elif menu_keuze ==lijst[6]:
+    elif menu_keuze ==lijst[6] or keuze = 6:
         import fit_to_data_streamlit
         fit_to_data_streamlit.main()
 
-    elif menu_keuze == lijst[7]:
+    elif menu_keuze == lijst[7] or keuze = 7:
         import SEIR_hobbeland
         SEIR_hobbeland.main()
 
-    elif menu_keuze == lijst[8]:
+    elif menu_keuze == lijst[8] or keuze = 8:
         import show_contactmatrix
         show_contactmatrix.main()
-    elif menu_keuze  == lijst[9]:
+    elif menu_keuze  == lijst[9] or keuze = 9:
         import r_getal_per_provincie
         r_getal_per_provincie.main()
-    elif menu_keuze == lijst[10]:
+    elif menu_keuze == lijst[10] or keuze = 10:
         import grafiek_pos_testen_per_leeftijdscategorie_streamlit
         grafiek_pos_testen_per_leeftijdscategorie_streamlit.main()
 
-    elif menu_keuze == lijst[11]:
+    elif menu_keuze == lijst[11] or keuze = 11:
         import perprovincieperleeftijd
         perprovincieperleeftijd.main_per_province_per_leeftijd()
 
