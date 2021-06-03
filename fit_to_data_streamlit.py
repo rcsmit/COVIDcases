@@ -707,7 +707,7 @@ def init():
     download = True  # True : download from internet False: download from INPUT_DIR
     # De open data worden om 15.15 uur gepubliceerd
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
 def get_data():
     """Get the data from various sources
     In : -
