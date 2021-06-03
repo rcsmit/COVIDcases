@@ -129,15 +129,15 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             residuals = y_values - gompertz(x_values, *popt)
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_values - np.mean(y_values))**2)
-            r_squared = 1 - (ss_res / ss_tot)
-            l ="gompertz fit: a=%5.3f, b=%5.3f, c=%5.3f" % tuple(popt),
-            l2 = (f"{l} / r2 = {r_squared}")
+            r_squared = round(  1 - (ss_res / ss_tot),4)
+            l =(f"gompertz fit: a=%5.3f, b=%5.3f, c=%5.3f / r2 = {r_squared}" % tuple(popt)),
+            #l2 = (f"{l} / r2 = {r_squared}")
 
             plt.plot(
             x_values_extra,
             gompertz(x_values_extra, *popt),
             "r-",
-            label = l2
+            label = l
         )
         except RuntimeError as e:
             str_e = str(e)
