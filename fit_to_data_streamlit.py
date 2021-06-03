@@ -116,6 +116,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         st.subheader(f"Curvefit (scipy) - {title}")
 
         fig1x = plt.figure()
+        # Gompertz ##################
         try:
             popt, pcov = curve_fit(
             f=gompertz,
@@ -145,9 +146,9 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         except RuntimeError as e:
             str_e = str(e)
             st.info(f"gompertz fit :\n{str_e}")
-
+        # interest ##########
         try:
-            popt, pcov = curve_fit(
+            popt_i, pcov_i = curve_fit(
             f=interest,
             xdata=x_values,
             ydata=y_values,
@@ -158,14 +159,14 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             maxfev=10000,
             )
 
-            residuals = y_values - interest(x_values, *popt)
+            residuals = y_values - interest(x_values, *popt_i)
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_values - np.mean(y_values))**2)
             r_squared = round(  1 - (ss_res / ss_tot),4)
-            l = (f"interest fit: a=%5.3f, r=%5.3f / r2 = {r_squared}" % tuple(popt))
+            l = (f"interest fit: a=%5.3f, r=%5.3f / r2 = {r_squared}" % tuple(popt_i))
             plt.plot(
             x_values_extra,
-            interest(x_values_extra, *popt),
+            interest(x_values_extra, *popt_i),
             "y-",
             label=l
         )
@@ -173,7 +174,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             str_e = str(e)
             st.info(f"interest fit :\n{str_e}")
 
-
+        # derivate ##############
         try:
             popt_d, pcov_d = curve_fit(
                 f=derivate,
@@ -184,7 +185,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
                 bounds=(-np.inf, np.inf),
                 maxfev=10000,
             )
-            residuals = y_values - derivate(x_values, *popt)
+            residuals = y_values - derivate(x_values, *popt_d)
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_values - np.mean(y_values))**2)
             r_squared = round(  1 - (ss_res / ss_tot),4)
@@ -219,6 +220,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         # except:
         #     st.write("Error with growth model fit")
 
+        # guassian ###############
 
         try:
             popt_g, pcov_g = curve_fit(
@@ -230,7 +232,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
                 maxfev=10000,
             )
 
-            residuals = y_values - gaussian_2(x_values, *popt)
+            residuals = y_values - gaussian_2(x_values, *popt_g)
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_values - np.mean(y_values))**2)
             r_squared = round(  1 - (ss_res / ss_tot),4)
@@ -402,9 +404,10 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
                     function_x = "gompertz"
                     formula_x = "a * np.exp(-b * np.exp(-c * x))"
                 elif function == "interest":
-                    plt.plot(t, interest(t, a,r))
-                    function_x = "interest"
-                    formula_x = "a * (1+r)**t"
+                    pass
+                    # plt.plot(t, interest(t, a,r))
+                    # function_x = "interest"
+                    # formula_x = "a * (1+r)**t"
 
                 else:
                     st.error("ERROR")
