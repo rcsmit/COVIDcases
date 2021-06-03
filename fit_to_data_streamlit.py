@@ -157,11 +157,17 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             bounds=(-np.inf, np.inf),
             maxfev=10000,
             )
+
+            residuals = y_values - interest(x_values, *popt)
+            ss_res = np.sum(residuals**2)
+            ss_tot = np.sum((y_values - np.mean(y_values))**2)
+            r_squared = round(  1 - (ss_res / ss_tot),4)
+            l = (f"interest fit: a=%5.3f, r=%5.3f / r2 = {r_squared}" % tuple(popt))
             plt.plot(
             x_values_extra,
             interest(x_values_extra, *popt),
             "y-",
-            label="interest fit: a=%5.3f, r=%5.3f" % tuple(popt),
+            label=l
         )
         except RuntimeError as e:
             str_e = str(e)
@@ -178,11 +184,16 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
                 bounds=(-np.inf, np.inf),
                 maxfev=10000,
             )
+            residuals = y_values - derivate(x_values, *popt)
+            ss_res = np.sum(residuals**2)
+            ss_tot = np.sum((y_values - np.mean(y_values))**2)
+            r_squared = round(  1 - (ss_res / ss_tot),4)
+            l = (f"derivate fit: a=%5.3f, b=%5.3f, c=%5.3f / r2 = {r_squared}" % tuple(popt_d))
             plt.plot(
                 x_values_extra,
                 derivate(x_values_extra, *popt_d),
                 "g-",
-                label="derivate fit: a=%5.3f, b=%5.3f, c=%5.3f" % tuple(popt_d),
+                label=l
             )
         except RuntimeError as e:
             str_e = str(e)
@@ -219,12 +230,16 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
                 maxfev=10000,
             )
 
-
+            residuals = y_values - gaussian_2(x_values, *popt)
+            ss_res = np.sum(residuals**2)
+            ss_tot = np.sum((y_values - np.mean(y_values))**2)
+            r_squared = round(  1 - (ss_res / ss_tot),4)
+            l = (f"gaussian fit: a=%5.3f, b=%5.3f, c=%5.3f  / r2 = {r_squared}" % tuple(popt_g))
             plt.plot(
                 x_values_extra,
                 gaussian_2(x_values_extra, *popt_g),
                 "b-",
-                label="gaussian fit: a=%5.3f, b=%5.3f, c=%5.3f" % tuple(popt_g),
+                label=l
             )
 
         except RuntimeError as e:
