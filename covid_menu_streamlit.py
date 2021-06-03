@@ -44,6 +44,7 @@ def main_oud():
         "11. per provincie per leeftijd",
     ]
 
+
     with st.sidebar.beta_expander('MENU: Choose a script',  expanded=True):
         menu_keuze = st.radio("",lijst, index=keuze)
 
