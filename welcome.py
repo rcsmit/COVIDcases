@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-def mainx():
+def main():
     st.header ("Welcome!")
     toelichting = (
         "<p>Here you'll find the scripts I made in the last months regarding to COVID-19 in the Netherlands.</p>"
