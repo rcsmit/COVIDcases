@@ -109,6 +109,9 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
     Use the curve-fit from scipy.
     IN : x- and y-values. The ___-extra are for "predicting" the curve
     """
+
+    # R squared might not be a good idea: https://github.com/scipy/scipy/issues/8439
+    # https://stackoverflow.com/a/37899817/4173718
     with _lock:
         st.subheader(f"Curvefit (scipy) - {title}")
 
@@ -130,7 +133,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
             ss_res = np.sum(residuals**2)
             ss_tot = np.sum((y_values - np.mean(y_values))**2)
             r_squared = round(  1 - (ss_res / ss_tot),4)
-            l =(f"gompertz fit: a=%5.3f, b=%5.3f, c=%5.3f / r2 = {r_squared}" % tuple(popt)),
+            l =(f"gompertz fit: a=%5.3f, b=%5.3f, c=%5.3f / r2 = {r_squared}" % tuple(popt))
             #l2 = (f"{l} / r2 = {r_squared}")
 
             plt.plot(
