@@ -956,7 +956,7 @@ def main():
     df["Deceased_cumm"] = df["Deceased"].cumsum()
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
     #df["total_reported_k_value"] = 1- df["Total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
-    st.alert("Please ignore the error message, it has to do with some caching issues")
+    #st.alert("Please ignore the error message, it has to do with some caching issues")
     DATE_FORMAT = "%m/%d/%Y"
     global start__
     global OUTPUT_DIR
