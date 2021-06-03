@@ -931,7 +931,7 @@ def get_data():
             df_temp.loc[df_temp[firstkey].isnull(), firstkey] = df_temp[newkey]
             df_temp = df_temp.sort_values(by=firstkey)
         # the tool is build around "date"
-        df_temp = df_temp.rename(columns={firstkey: "date"})
+        df = df_temp.rename(columns={firstkey: "date"})
 
         UPDATETIME = datetime.now()
         #df = splitupweekweekend(df_temp)
