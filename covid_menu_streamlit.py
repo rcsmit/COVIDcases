@@ -33,7 +33,7 @@ def main():
     st.experimental_set_query_params(keuze=lijst.index(menu_keuze))
     for n, l in enumerate(lijst):
         if menu_keuze == lijst[n][0]:
-            module = dynamic_import(lijst[n][1)
+            module = dynamic_import(lijst[n][1])
             module.main()
 
     # if menu_keuze == lijst[0] or keuze == 0:
