@@ -360,7 +360,7 @@ def extra_calculations(df):
         (df["Total_reported"] * (df["Percentage_positive"] / 12.8)), 2
     )
     # 12.8 is percentage positief getest in week 1-2021
-
+    df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
 
     df["Total_reported_moved_5"] = df["Total_reported"].shift(5)
     df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
@@ -1714,6 +1714,7 @@ def main():
         "Tested_with_result",
         "Tested_positive",
         "Percentage_positive",
+        "reported_div_tested",
         "prev_avg",
         "total_vaccinations",
         "people_vaccinated",
