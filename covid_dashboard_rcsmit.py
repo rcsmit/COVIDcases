@@ -185,8 +185,10 @@ def get_data():
                 "groupby": None,
                 "fileformat": "csv",
             },
+
             {
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/knmi3.csv",
+                # https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_260.zip
                 "name": "knmi",
                 "delimiter": ",",
                 "key": "Datum",
@@ -1684,6 +1686,13 @@ def main():
             "IC_Bedden_COVID_x": "IC_Bedden_COVID",
             "IC_Bedden_Non_COVID_x":"IC_Bedden_Non_COVID",
             "Kliniek_Bedden_x":"Kliniek_Bedden",
+            "retail_and_recreation_percent_change_from_baseline":  "retail_and_recreation",
+            "grocery_and_pharmacy_percent_change_from_baseline": "grocery_and_pharmacy",
+            "parks_percent_change_from_baseline" :  "parks",
+            "transit_stations_percent_change_from_baseline",
+            "workplaces_percent_change_from_baseline":   "workplaces",
+            "residential_percent_change_from_baseline":  "residential",
+
         },
         inplace=True,
     )
@@ -1718,9 +1727,6 @@ def main():
         "transit_stations",
         "workplaces",
         "residential",
-        "apple_driving",
-        "apple_transit",
-        "apple_walking",
         "temp_min",
         "temp_etmaal",
         "temp_max",
@@ -2098,7 +2104,6 @@ def main():
 
         "<br><br><i>retail_and_recreation, grocery_and_pharmacy, parks, transit_stations, workplaces, "
         "residential</i> - Mobiliteitsdata van Google"
-        "<br><i>apple_driving, apple_transit, apple_walking</i> - Mobiliteitsdata van Apple"
 
         "<br><br><i>temp_etmaal</i> - Etmaalgemiddelde temperatuur (in graden Celsius)"
         "<br><i>temp_max</i> - Maximale temperatuur (in graden Celsius)"
@@ -2161,7 +2166,7 @@ def main():
         "Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. "
         ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
         "For the moment most of the data is be updated automatically every 24h."
-        ' The <a href=/"https://www.knmi.nl/nederland-nu/klimatologie/daggegevens/" target=/"_blank/">KNMI</a>, Google and Apple data will be updated manually at a lower frequency.<br><br>'
+        ' The <a href=/"https://www.knmi.nl/nederland-nu/klimatologie/daggegevens/" target=/"_blank/">KNMI</a> and  Google  data will be updated manually at a lower frequency.<br><br>'
         "<b>Feel free to contact me for any wishes, added fields or calculations</b>"
     )
 
