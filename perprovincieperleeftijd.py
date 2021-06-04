@@ -155,7 +155,7 @@ def groupeer_data():
     df_1 = drop_columns(df_1, to_drop)
     df_1['Count']=1
     df_2 =  df_1.groupby(["Date_statistics", "Agegroup", "Province"], sort=True).sum().reset_index()
-    save_df(df_2, "gevallenperprovincieperleeftijdsgrope")
+    save_df(df_2, "cases_per_age_per_provincex.csv")
 
     df_prov = download_data_file("provincies.csv", "provincies", ",", "csv")
     df_merge = pd.merge(
@@ -166,7 +166,7 @@ def groupeer_data():
     df_merge["date"] = df_merge["Date_statistics"]
     df_merge["date"] = pd.to_datetime(
              df_merge["date"] , format="%Y-%m-%d")
-    save_df(df_merge, "inclusiefinwonertal")
+    save_df(df_merge, "cases_per_age_per_province.csv")
 
     return df_merge
 
