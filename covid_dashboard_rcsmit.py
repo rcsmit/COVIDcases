@@ -1689,7 +1689,7 @@ def main():
             "retail_and_recreation_percent_change_from_baseline":  "retail_and_recreation",
             "grocery_and_pharmacy_percent_change_from_baseline": "grocery_and_pharmacy",
             "parks_percent_change_from_baseline" :  "parks",
-            "transit_stations_percent_change_from_baseline",
+            "transit_stations_percent_change_from_baseline" : "transit_stations",
             "workplaces_percent_change_from_baseline":   "workplaces",
             "residential_percent_change_from_baseline":  "residential",
 
