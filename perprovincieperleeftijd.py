@@ -125,6 +125,7 @@ def show_graph(df_new):
         ax.set_xticks(df_new["date"].index)
 
         xticks = ax.xaxis.get_major_ticks()
+
         for i, tick in enumerate(xticks):
             if i % 10 != 0:
                 tick.label1.set_visible(False)
@@ -133,10 +134,11 @@ def show_graph(df_new):
 
         ax =  df_new["rolling"].plot( label = "label")
         ax.yaxis.grid(True, which="major", alpha=0.4)
+
         ax.set_xticklabels(df_new["date"], fontsize=6, rotation=90)
         ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
                     transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
-        plt.title(f"per province per agegroup" , fontsize=10)
+        plt.title(f"gevallen per province per agegroup\nper 100k inwoners" , fontsize=10)
         plt.tight_layout()
         plt.show()
         st.pyplot(fig1y)
@@ -178,7 +180,7 @@ def main():
         df = groupeer_data()
 
     print (df)
-    provincielijst = ["Groningen","Friesland","Drenthe","Overijssel","Flevoland","Gelderland","Utrecht","Noord-Holland","Zuid-Holland","Zeeland","Noord-Brabant","Limburg"]
+    provincielijst = ["Groningen","Fryslân","Drenthe","Overijssel","Flevoland","Gelderland","Utrecht","Noord-Holland","Zuid-Holland","Zeeland","Noord-Brabant","Limburg"]
     leeftijdslijst = ["0-9","10-19","20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80-89", "90+"]
 
     prov_1 = st.sidebar.selectbox(
@@ -194,7 +196,7 @@ def main():
         )
 
     df1 = df[(df['Agegroup'] == leeftijd1) & (df['provincie'] ==prov_1 )]
-    df1.rename(columns={"Date_statistics": "date"},
+    df1.rename(columns={"Date_statistics": "date_x"},
         inplace=True,
     )
     #st.write(df1.dtypes)
