@@ -202,6 +202,8 @@ def main():
     #st.write(df1.dtypes)
     show_graph(df1)
     st.write ("Er is gedeeld door de gehele bevolking van de provincie. Bij het vergelijken tussen provincies zorgt dit voor onnauwkeurigheden aangezien er verschillen van leeftijdsopbouw tussen de provincies is.")
+    if st.sidebar.button("Clear cache"):
+            caching.clear_cache()
 
 if __name__ == "__main__":
     main()
