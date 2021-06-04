@@ -196,7 +196,7 @@ def main():
         )
 
     df1 = df[(df['Agegroup'] == leeftijd1) & (df['provincie'] ==prov_1 )]
-    df1.rename(columns={"Date_statistics": "date_x"},
+    df1.rename(columns={"Date_statistics": "date"},
         inplace=True,
     )
     #st.write(df1.dtypes)
