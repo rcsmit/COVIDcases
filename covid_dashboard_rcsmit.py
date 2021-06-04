@@ -1188,7 +1188,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         freq = int(a__.days / 10)
         ax.xaxis.set_major_locator(MultipleLocator(freq))
         if what_to_show_l == ["reported_div_tested"]:
-            plt.set_ylim(0,0.3)
+            ax.set_ylim(0,0.3)
         ax.set_xticks(df_temp["date"].index)
         ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
         xticks = ax.xaxis.get_major_ticks()
