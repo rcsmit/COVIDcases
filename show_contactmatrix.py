@@ -5,15 +5,16 @@ import matplotlib.pyplot as plt
 # contact matrix retrieved from
 # https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text
 # https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material
+# https://www.eurosurveillance.org/docserver/fulltext/eurosurveillance/26/8/20-00994_BACKER_Supplement2.pdf?expires=1622904589&id=id&accname=guest&checksum=D4271340B23924AA59899E444B283F63
 
-def calculate_total(df, df_name):
+def calculate_total(df, df_name, contact_type):
         #       0-4   5-9     10-19   20-29  30-39   40-49   50-59   60-69   70-79  80+
     #pop_ =      [857000, 899000 , 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 839000]
     fraction = [ 0.04907, 0.05148, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.04804]
 
     all1 = df['All'].tolist()
     total,total2 = 0,0
-    st.markdown (f"Gemiddeld aantal contacten per persoon _{df_name}_ (gewogen naar populatiefractie)")
+    st.markdown (f"Gemiddeld aantal contacten  per persoon _{contact_type}_ _{df_name}_ (gewogen naar populatiefractie)")
     for n in range(0, len(all1)-1):
         total += (all1[n]*fraction[n])
     st.markdown (f"Van links naar rechts __{round(total,2)}__")
@@ -32,9 +33,6 @@ def main():
 
         # average number of contacts perday
     st.header ("CONTACTMATRIXES")
-    st.write ("Retrieved from https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text")
-    st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")
-    st.write ("participant_age = participant age, contact_agee = contact age")
     contact_type  = st.sidebar.selectbox("All, community or household", ["all", "community", "household"], index=0)
     df1  = st.sidebar.selectbox("First dataframe", ["2016/-17", "April2020", "June2020"], index=0)
     df2  = st.sidebar.selectbox("Second dataframe",["2016/-17", "April2020", "June2020"], index=1)
@@ -59,12 +57,12 @@ def main():
     df_first_pivot =  df_first.pivot_table(index='participant_age', columns='contact_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader(f"Contactmatrix {df1}")
     st.write (df_first_pivot)
-    calculate_total (df_first_pivot, df1)
+    calculate_total (df_first_pivot, df1, contact_type)
 
     df_second_pivot =  df_second.pivot_table(index='participant_age', columns='contact_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader(f"Contactmatrix {df2}")
     st.write (df_second_pivot)
-    calculate_total (df_second_pivot, df2)
+    calculate_total (df_second_pivot, df2, contact_type)
 
 
     st.subheader (f"Verschil als ratio -- ({df2}/{df1}")
@@ -106,5 +104,13 @@ def main():
     plt.title("Average contacts per person per day")
 
     st.pyplot(fig2a)
+
+
+    with st.sidebar.beta_expander('Data sources',  expanded=False):
+        st.write ("Retrieved from https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text")
+        st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")
+        st.write ("https://www.eurosurveillance.org/docserver/fulltext/eurosurveillance/26/8/20-00994_BACKER_Supplement2.pdf?expires=1622904589&id=id&accname=guest&checksum=D4271340B23924AA59899E444B283F63")
+        st.write ("participant_age = participant age, contact_agee = contact age")
+
 if __name__ == "__main__":
     main()
