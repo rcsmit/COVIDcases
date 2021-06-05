@@ -17,13 +17,13 @@ def calculate_total(df, df_name, contact_type):
     st.markdown (f"Gemiddeld aantal contacten  per persoon _{contact_type}_ _{df_name}_ (gewogen naar populatiefractie)")
     for n in range(0, len(all1)-1):
         total += (all1[n]*fraction[n])
-    st.markdown (f"Van links naar rechts __{round(total,2)}__")
+    st.markdown (f"Van boven naar beneden  __{round(total,2)}__")
 
     all2 = df.loc[df.index == "All"].values.flatten().tolist()
 
     for n in range(0, len(all2)-1):
         total2 += (all2[n]*fraction[n])
-    st.markdown (f"Van boven naar beneden __{round(total2,2)}__")
+    st.markdown (f"Van links naar rechts __{round(total2,2)}__")
     st.markdown (f"Gemiddeld van beide __{round(((total+total2)/2),2)}__")
 
 
@@ -50,16 +50,19 @@ def main():
     df = df.rename(columns={'part_age':'participant_age'})
     df = df.rename(columns={'cont_age':'contact_age'})
 
+
     #contact_type = "community" #household"  # community  all
     df_first =  df[(df['survey'] == df1) & (df['contact_type'] == contact_type)]
     df_second = df[(df['survey'] == df2) & (df['contact_type'] == contact_type)]
 
-    df_first_pivot =  df_first.pivot_table(index='participant_age', columns='contact_age', values="m_est", margins = True, aggfunc=sum)
+    st.write ("Rijlabels = contact age / Kolomlabels = participant age")
+
+    df_first_pivot =  df_first.pivot_table(index='contact_age', columns='participant_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader(f"Contactmatrix {df1}")
     st.write (df_first_pivot)
     calculate_total (df_first_pivot, df1, contact_type)
 
-    df_second_pivot =  df_second.pivot_table(index='participant_age', columns='contact_age', values="m_est", margins = True, aggfunc=sum)
+    df_second_pivot =  df_second.pivot_table(index='contact_age', columns='participant_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader(f"Contactmatrix {df2}")
     st.write (df_second_pivot)
     calculate_total (df_second_pivot, df2, contact_type)
@@ -67,6 +70,7 @@ def main():
 
     st.subheader (f"Verschil als ratio -- ({df2}/{df1}")
     df_difference_as_ratio =  df_second_pivot / df_first_pivot
+
     st.write (df_difference_as_ratio)
     fig, ax = plt.subplots()
     #max  = result.to_numpy().mean() + ( 1* result.to_numpy().std())
@@ -107,10 +111,11 @@ def main():
 
 
     with st.sidebar.beta_expander('Data sources',  expanded=False):
-        st.write ("Retrieved from https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text")
-        st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")
+        #st.write ("Retrieved from https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text")
+
+        #st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")
+        st.write ("Retrieved from https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2021.26.8.2000994#f4")
         st.write ("https://www.eurosurveillance.org/docserver/fulltext/eurosurveillance/26/8/20-00994_BACKER_Supplement2.pdf?expires=1622904589&id=id&accname=guest&checksum=D4271340B23924AA59899E444B283F63")
-        st.write ("participant_age = participant age, contact_agee = contact age")
 
 if __name__ == "__main__":
     main()
