@@ -407,9 +407,7 @@ def extra_calculations(df):
     df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"]
     df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"]
     df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
-
-    save_df(df, "percentage_positief")
-
+    df["Rt_corr_transit"] = df["Rt_avg"] * (1/ (1-(-1* df["transit_stations"]/100) ))
 
     return df
 
@@ -420,6 +418,9 @@ def extra_calculations_period(df):
     df["Hospital_admission_RIVM_cumm_period"] = df["Hospital_admission_RIVM"].cumsum()
     df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
     df["Deceased_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["Deceased_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
+    first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
+    df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
+
     return df
 
 ###################################################
@@ -1765,7 +1766,8 @@ def main():
         "reported_corrected",
         "onderrapportagefactor",
         "Total_reported_log10",
-
+        "Rt_corr_transit",
+        "Rt_corr_transit_period"
     ]
     # "SWE_retail_and_recreation", "SWE_grocery_and_pharmacy", "SWE_residential",
     # "SWE_transit_stations", "SWE_parks", "SWE_workplaces", "SWE_total_cases",
@@ -2141,7 +2143,8 @@ def main():
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
-
+        "<br><br><i>Rt_corr_transit</i> -  Rt_avg * (1/ (1- transit_stations)). What would the R-number be if people don't change the number of contacts? Assumed is that the number of contacts between people is in direct correlation with the Google Transit. "
+        "<br><i>Rt_corr_transit_period</i> -  Rt_avg * (1/ (1- transit_stations)) for the period chosen"
         "<h2>Toelichting bij de opties</h2>"
         "<h3>What to plot</h3>"
         "<i>Line</i> - Line graph"
