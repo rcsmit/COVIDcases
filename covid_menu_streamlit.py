@@ -48,7 +48,7 @@ def main():
             m = options[n][1].replace(" ","_") # I was too lazy to change it in the list
             try:
                 module = dynamic_import(m)
-            except:
+            except Exception as e:
                 st.error(f"Module '{m}' not found or error in the script\n{e}")
                 st.stop()
             try:
