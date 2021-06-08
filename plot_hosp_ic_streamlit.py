@@ -518,6 +518,12 @@ def main():
         st.error ("ERROR")
         st.stop
 
+     if hospital_or_ic == "hospital":
+            st.subheader("Ziekenhuisopnames (aantallen)")
+            st.write (df_pivot_hospital)
+        else:
+            st.subheader("Ziekenhuisopnames (aantallen)")
+            st.write(df_pivot_ic)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"

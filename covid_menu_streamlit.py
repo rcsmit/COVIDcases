@@ -9,7 +9,7 @@ def dynamic_import(module):
 
     Returns:
         the module you want
-    """    
+    """
     return importlib.import_module(module)
 
 def main():
@@ -17,7 +17,7 @@ def main():
        #    [n. name in menu, module name]
     options = [["0. welcome","welcome"],
             ["1. covid dashboard","covid dashboard rcsmit"],
-            ["2. plot hosp ic","plot hosp ic streamlit"],
+            ["2. plot hosp ic per age","plot hosp ic streamlit"],
             ["3. false positive rate covid test","calculate false positive rate covid test streamlit"],
             ["4. number of cases interactive","number of cases interactive"],
             ["5. ifr from prevalence","calculate_ifr_from_prevalence_streamlit"],
