@@ -49,7 +49,7 @@ def main():
             try:
                 module = dynamic_import(m)
             except:
-                st.error(f"Module '{m}' not found")
+                st.error(f"Module '{m}' not found or error in the script\n{e}")
                 st.stop()
             try:
                 module.main()
