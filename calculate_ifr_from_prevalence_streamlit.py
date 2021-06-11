@@ -13,9 +13,9 @@ import streamlit as st
 def main():
     inhabitants = (st.sidebar.number_input('Total population', 17_483_471))
 
-    days = (st.sidebar.number_input('Number of days contagious', 8))
+    days = (st.sidebar.number_input('Number of days contagious', None,None, 8))
 
-    deaths = (st.sidebar.number_input('Number of deaths', 30_000))
+    deaths = (st.sidebar.number_input('Number of deaths', None,None, 30_000))
 
     url = "https://data.rivm.nl/covid-19/COVID-19_prevalentie.json"
     df = pd.read_json(url)
