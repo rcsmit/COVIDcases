@@ -39,8 +39,8 @@ def main():
 
     st.subheader("Aantal COVID besmettingen en IFR berekening")
     st.write("Berekenen van percentage vd bevolking dat COVID heeft gehad adh van de prevalentie vanaf 17 februari 2020 zoals gemeld in https://data.rivm.nl/covid-19/COVID-19_prevalentie.json")
-    st.write("De cummulatieve prevelantie wordt gedeeld door het aantal dagen dat men gemiddeld besmettelijk is")
-    st.write("Tevens berekening van IFR")
+    st.write("De cummulatieve prevelantie wordt gedeeld door het aantal dagen dat men gemiddeld besmettelijk is (instelbaar in het linkermenu)")
+    st.write("Tevens berekening van IFR (aantal overledenen instelbaar in het linkermenu)")
 
     data = {'_':["Low", "Avg", "High"],
             'Number': [number_low, number_avg, number_up],
