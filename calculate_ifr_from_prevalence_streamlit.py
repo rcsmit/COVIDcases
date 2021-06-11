@@ -38,7 +38,7 @@ def main():
     ifr_up = round(deaths / (df["prev_up_cum"].max() /days) * 100,4)
 
     st.subheader("Aantal COVID besmettingen en IFR berekening")
-    st.write("Berekenen van percentage vd bevolking dat COVID heeft gehad adh van de prevalentie")
+    st.write("Berekenen van percentage vd bevolking dat COVID heeft gehad adh van de prevalentie vanaf 17 februari 2020 zoals gemeld in https://data.rivm.nl/covid-19/COVID-19_prevalentie.json")
     st.write("De cummulatieve prevelantie wordt gedeeld door het aantal dagen dat men gemiddeld besmettelijk is")
     st.write("Tevens berekening van IFR")
 
