@@ -677,7 +677,7 @@ def loglognormal(df, what_to_display):
 
 
 ###################################################################
-@st.cache(ttl=60 * 60 * 24)
+@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
 def getdata():
     if platform.processor() != "":
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\owid-covid-data.csv"
