@@ -62,6 +62,11 @@ def exponential(x, a, r):
     return (a * ((1+r)**x))
 
 
+def lineair(x, a, b):
+    '''Lineair growth  function.'''
+    return (a + (b*x))
+
+
 def derivate_of_derivate(x,a,b,c):
     return a*b*c*(b*c*exp(-c*x) - c)*exp(-b*exp(-c*x) - c*x)
 
@@ -176,6 +181,34 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
         except RuntimeError as e:
             str_e = str(e)
             st.info(f"exponential fit :\n{str_e}")
+
+        # lineair ##########
+        try:
+            popt_i, pcov_i = curve_fit(
+            f=lineair,
+            xdata=x_values,
+            ydata=y_values,
+            #p0=[4600, 11, 0.5],
+            p0 = [0,0], # IC BEDDEN MAART APRIL
+
+            bounds=(-np.inf, np.inf),
+            maxfev=10000,
+            )
+
+            residuals = y_values - lineair(x_values, *popt_i)
+            ss_res = np.sum(residuals**2)
+            ss_tot = np.sum((y_values - np.mean(y_values))**2)
+            r_squared = round(  1 - (ss_res / ss_tot),4)
+            l = (f"lineair fit: a=%5.3f, b=%5.3f / r2 = {r_squared}" % tuple(popt_i))
+            plt.plot(
+            x_values_extra,
+            lineair(x_values_extra, *popt_i),
+            "purple",
+            label=l
+        )
+        except RuntimeError as e:
+            str_e = str(e)
+            st.info(f"lineair fit :\n{str_e}")
 
         # derivate ##############
         try:
@@ -307,6 +340,9 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
         elif function == "derivate":
             bmodel = Model(derivate)
             formula = "a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)"
+        elif function == "lineair":
+            bmodel = Model(lineair)
+            formula = " a + (b*x)"
         elif function == "exponential":
             bmodel = Model(exponential)
             formula = "a * (1+r)**x"
@@ -327,6 +363,17 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
 
             a = round(result.params['a'].value,5)
             r= round(result.params['r'].value,5)
+        elif function == "lineair":
+            # create Parameters, giving initial values
+            params = bmodel.make_params(a=0, b=0.01)
+            params["a"].min = 0
+            params["b"].min = 0
+
+            # do fit, st.write result
+            result = bmodel.fit(y_values, params, x=x_values)
+
+            a = round(result.params['a'].value,5)
+            b = round(result.params['b'].value,5)
 
         else:
 
@@ -357,13 +404,15 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             #ax1.plot(x_values, result.best_fit, "g")
             if function == "exponential":
                 res = (f"a: {a} / r: {r}")
+            elif function == "lineair":
+                res = (f"a: {a} / b: {b}")
             else:
                 res = (f"a: {a} / b: {b} / c: {c}")
             plt.title(f"{title} / lmfit - {function}\n{formula}\n{res}")
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
             # use `result.eval()` to evaluate model given params and x
             ax1.plot(t, bmodel.eval(result.params, x=t), "r-", linewidth=2)
-            if function == "exponential":
+            if function == "exponential" or function =="lineair":
                 pass
             else:
                 ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
@@ -406,7 +455,9 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
                     plt.plot(t, sigmoidal(t, a,b,c))
                     function_x = "sigmoidal"
                     formula_x = "a * np.exp(-b * np.exp(-c * x))"
-                elif function == "exponential":
+                elif function == "exponential" or function =="lineair":
+                    function_x = ""
+                    formula_x  = ""
                     pass
                     # plt.plot(t, exponential(t, a,r))
                     # function_x = "exponential"
@@ -449,13 +500,17 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
 
     """
     # Here we go !
-    st.header("Fitting data to formulas")
+    st.header("Fitting data from Our World in Data to formulas")
 
     infox = (
-    '<br>Exponential / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
-    '<br>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
-    '<br>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
-    '<br>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li>'
+    '<ul><li>Sigmoidal / Standard gompertz function : <i>a * exp(-b * np.exp(-c * x))</i></li>'
+    '<li>First derivate of the Gompertz function :  <i>a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)</i></li>'
+    '<li>Gaussian : <i>a * exp(-((x - b) ** 2) / c)</i></li>'
+    '<li>Lineair :  <i>a + (b*x) </i></li>'
+    '<li>Exponential :   <i>a * ((1+r)**x) </i></li>'
+
+
+    '<li>Working on growth model: <i>(a * 0.5 ^ (x / (4 * (math.log(0.5) / math.log(b)))))</i> (b will be the Rt-number)</li></ul>'
         )
 
     st.markdown(infox, unsafe_allow_html=True)
@@ -745,7 +800,8 @@ def main():
             "What to display", lijst,
             index=what_default,
         )
-    which_method = st.sidebar.selectbox("Which method", ["exponential", "derivate"], index=what_method_default)
+    which_method = st.sidebar.selectbox("Which method (lmfit)", [ "sigmoidal", "derivate", "exponential","lineair", "gaussian"], index=what_method_default)
+
     #what_to_display = st.sidebar.selectbox("What", ["Confirmed","Deceased", "dConfirmed"], index=2)
 
     countrylist =  df['location'].drop_duplicates().sort_values().tolist()
@@ -801,7 +857,7 @@ def main():
 
     global a_,b_,c_, compare_to
 
-    compare_to  = st.sidebar.selectbox("Make comparison (in lmfit-plot", [True, False], index=1)
+    compare_to  = st.sidebar.selectbox("Make comparison (in lmfit-plot)", [True, False], index=1)
     if compare_to:
 
         st.sidebar.write("Compare to:")
