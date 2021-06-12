@@ -26,8 +26,10 @@ def main():
             ["8. show contactmatrix","show contactmatrix"],
             ["9. r getal per provincie","r getal per provincie"],
             ["10. Cases from suspectibles", "cases_from_susp_streamlit"],
-            ["11. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
-            ["12. per provincie per leeftijd","perprovincieperleeftijd"]]
+            ["11. Fit to data OWID", "fit_to_data_owid_streamlit_animated"],
+            ["12. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
+            ["13. per provincie per leeftijd","perprovincieperleeftijd"]]
+
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
     choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value

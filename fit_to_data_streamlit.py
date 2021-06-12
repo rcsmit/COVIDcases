@@ -1115,7 +1115,7 @@ def main():
     to_do_list = [[what_to_display, values_to_fit]]
     global a_,b_,c_, compare_to
 
-    compare_to  = st.sidebar.selectbox("Make comparison", [True, False], index=1)
+    compare_to  = st.sidebar.selectbox("Make comparison (in lmfit-plot)", [True, False], index=1)
     if compare_to:
 
         st.sidebar.write("Compare to:")
