@@ -465,7 +465,7 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
     placeholder1  = st.empty()
     el = st.empty()
     for v in to_do_list:
-        title = v[0]
+        title = (f"{country_}  - {v[0]}")
         y_values = v[1]
         max_y_values = max(y_values)
 
@@ -714,7 +714,7 @@ def main():
     start__ = "2021-05-15"
     until__ = "2021-06-12"
     what_default = 1
-    days_to_show = 180
+    days_to_show = 45
     what_method_default = 1
 
     today = datetime.today().strftime("%Y-%m-%d")
@@ -752,11 +752,12 @@ def main():
 
     #st.write (statelist)
     # statelist = ["Goa", "Delhi", "India"]
-    state_ = st.sidebar.selectbox("Which country",countrylist, 216)
+    global country_
+    country_ = st.sidebar.selectbox("Which country",countrylist, 216)
 
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
-    df = df.loc[df['location'] == state_]
+    df = df.loc[df['location'] == country_]
 
     # df['dConfirmed'] =  df['Confirmed'].shift(-1) - df['Confirmed']
 
