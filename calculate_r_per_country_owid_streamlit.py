@@ -11,12 +11,12 @@
 
 
 # Import required packages
-import matplotlib as mpl
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.dates as mdates
-import copy, math
+import math
 from lmfit import Model
 import pandas as pd
 import streamlit as st
@@ -32,11 +32,8 @@ from pandas import read_csv, Timestamp, Timedelta, date_range
 from io import StringIO
 from numpy import log, exp, sqrt, clip, argmax, put
 from scipy.special import erfc, erf
-from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
-from matplotlib.backends.backend_agg import RendererAgg
-
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 from streamlit import caching
@@ -60,7 +57,7 @@ def derivate(x, a, b, c, d):
 def cases_from_r (x, r, d):
     return d * (r**(x/4))
 
-def fit_the_values(country_, y_values , total_days, daterange, graph, output):
+def fit_the_values(country_, y_values , total_days, graph, output):
     """
     We are going to fit the values
 
@@ -98,21 +95,13 @@ def fit_the_values(country_, y_values , total_days, daterange, graph, output):
         deriv_0 = derivate(0, a,b,c,d)
         deriv_last = derivate(number_of_y_values,a,b,c,d)
         r_0_last_formula = (deriv_last/deriv_0)**(4/number_of_y_values)
+        #r_0_last_cases = (y_values[number_of_y_values-1]/ y_values[0])**(4/number_of_y_values)
         r_total = 0
         for i in range(1,number_of_y_values):
             r_total += (derivate(i, a,b,c,d) / derivate(i-1, a,b,c,d))**(4/1)
         r_avg_formula = r_total/(number_of_y_values-1)
         r_cases_list = []
-        r_cases_total = 0
-        for i in range(1,number_of_y_values):
-            try:
-                R_v = (y_values[i] / y_values[i-1])**(4/1)
-            except:
-                R_v = 0
 
-            r_cases_list.append(R_v)
-            r_cases_total += R_v
-        r_cases_avg = r_cases_total/(number_of_y_values-1)
 
         if output == True:
             #st.write (f"{country_} : {x_values} / {y_values}/ base {base_value} /  a {a} / b {b} / c {c} / d {d} / r2 {r_squared}")
@@ -124,9 +113,10 @@ def fit_the_values(country_, y_values , total_days, daterange, graph, output):
             #st.write (f"Number of R-values {len(r_cases_list)}")
             st.write (f"R from average values from formula day by day {r_avg_formula} (purple)")
 
-            st.write (f"R from average values from cases day by day {r_cases_avg} (yellow)")
+            #st.write (f"R from average values from cases day by day {r_cases_avg} (yellow)")
 
             st.write (f"R getal from formula from day 0 to day {number_of_y_values}: {r_0_last_formula} (red)")
+            #st.write (f"R getal from cases from day 0 to day {number_of_y_values}: {r_0_last_cases} (orange)")
 
 
         if graph == True:
@@ -145,6 +135,12 @@ def fit_the_values(country_, y_values , total_days, daterange, graph, output):
                             "r-",
                             label=(f"cases_from_r_0_last_formula ({round(r_0_last_formula,2)})")
                         )
+                # plt.plot(
+                #             x_values,
+                #             cases_from_r(x_values, r_0_last_cases,deriv_0),
+                #             "orange",
+                #             label=(f"cases_from_r_0_last_cases ({round(r_0_last_cases,2)})")
+                #         )
 
                 plt.plot(
                             x_values,
@@ -152,12 +148,12 @@ def fit_the_values(country_, y_values , total_days, daterange, graph, output):
                             "purple",
                             label=(f"cases_from_r_avg_formula  ({round(r_avg_formula,2)})")
                         )
-                plt.plot(
-                            x_values,
-                            cases_from_r(x_values, r_cases_avg,deriv_0),
-                            "yellow",
-                            label=(f"cases_from_r_avg_cases ({round(r_cases_avg,2)})")
-                        )
+                # plt.plot(
+                #             x_values,
+                #             cases_from_r(x_values, r_cases_avg,deriv_0),
+                #             "yellow",
+                #             label=(f"cases_from_r_avg_cases ({round(r_cases_avg,2)})")
+                #         )
                 plt.scatter(x_values, y_values, s=20, color="#00b3b3", label="Data")
 
                 plt.legend()
@@ -179,9 +175,6 @@ def fit_the_values(country_, y_values , total_days, daterange, graph, output):
         r_avg_formula = None
 
     return r_avg_formula
-
-
-
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
@@ -268,7 +261,7 @@ def main():
             "What to display", lijst,
             index=what_default,
         )
-    which_method = st.sidebar.selectbox("Which method (lmfit)", [ "sigmoidal", "derivate", "exponential","lineair", "gaussian"], index=what_method_default)
+    #which_method = st.sidebar.selectbox("Which method (lmfit)", [ "sigmoidal", "derivate", "exponential","lineair", "gaussian"], index=what_method_default)
 
 
     countrylist =  df['location'].drop_duplicates().sort_values().tolist()
@@ -318,7 +311,7 @@ def main():
         df_to_use = select_period(df_to_fit, FROM, UNTIL)
         df_to_use.fillna(value=0, inplace=True)
         values_to_fit = df_to_use[what_to_fit].tolist()
-        R_value_country = fit_the_values(country_, values_to_fit, total_days, daterange, True, True)
+        R_value_country = fit_the_values(country_, values_to_fit, total_days,  True, True)
 
     else:
         df_country_r = pd.DataFrame(columns=['country', "R_value"])
@@ -329,7 +322,7 @@ def main():
 
             values_to_fit = df_to_use[what_to_fit].tolist()
             if len(values_to_fit) != 0:
-                R_value_country = fit_the_values(country_, values_to_fit, total_days, daterange, False, False)
+                R_value_country = fit_the_values(country_, values_to_fit, total_days,  False, False)
                 if R_value_country != None  :
                     if R_value_country<5:
                         st.write (f"{country_}  - {R_value_country}")
