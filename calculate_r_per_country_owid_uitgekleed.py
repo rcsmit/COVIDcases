@@ -1,14 +1,3 @@
-# FIT DATA TO A CURVE
-# René Smit - MIT Licence
-
-# inspired by @dimgrr. Based on
-# https://towardsdatascience.com/basic-curve-fitting-of-scientific-data-with-python-9592244a2509?gi=9c7c4ade0880
-# https://github.com/venkatesannaveen/python-science-tutorial/blob/master/curve-fitting/curve-fitting-tutorial.ipynb
-
-
-# https://www.reddit.com/r/CoronavirusUS/comments/fqx8fn/ive_been_working_on_this_extrapolation_for_the/
-# to explore : https://github.com/fcpenha/Gompertz-Makehan-Fit/blob/master/script.py
-
 import numpy as np
 from scipy.optimize import curve_fit
 import pandas as pd
@@ -19,7 +8,6 @@ import time
 def derivate(x, a, b, c, d):
     ''' First derivate of the sigmoidal function. Might contain an error'''
     return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + d
-    #return a * b * c * np.exp(-b*np.exp(-c*x))*np.exp(-c*x)
 
 def fit_the_values(country_, y_values):
     try:
@@ -27,16 +15,7 @@ def fit_the_values(country_, y_values):
         # some preperations
         number_of_y_values = len(y_values)
         x_values = np.linspace(start=0, stop=number_of_y_values - 1, num=number_of_y_values)
-
-        popt_d, pcov_d = curve_fit(
-            f=derivate,
-            xdata=x_values,
-            ydata=y_values,
-            #p0=[0, 0, 0],
-            p0 = [26660, 9, 0.03, base_value],  # IC BEDDEN MAART APRIL
-            bounds=(-np.inf, np.inf),
-            maxfev=10000,
-        )
+        popt_d, pcov_d = curve_fit(            f=derivate,            xdata=x_values,            ydata=y_values,               p0 = [26660, 9, 0.03, base_value],             bounds=(-np.inf, np.inf),            maxfev=10000,        )
         residuals = y_values - derivate(x_values, *popt_d)
         ss_res = np.sum(residuals**2)
         ss_tot = np.sum((y_values - np.mean(y_values))**2)
@@ -47,11 +26,7 @@ def fit_the_values(country_, y_values):
         for i in range(1,number_of_y_values):
             r_total += (derivate(i, a,b,c,d) / derivate(i-1, a,b,c,d))**(4/1)
         r_avg_formula = r_total/(number_of_y_values-1)
-        r_cases_list = []
-
     except RuntimeError as e:
-        #str_e = str(e)
-        #st.info(f"Could not find derivate fit :\n{str_e}")
         pass
     try:
         a = 1* r_avg_formula
@@ -59,14 +34,6 @@ def fit_the_values(country_, y_values):
         r_avg_formula = None
 
     return r_avg_formula
-
-def select_period(df, show_from, show_until):
-    """ _ _ _ """
-
-    mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
-    df = df.loc[mask]
-    df = df.reset_index()
-    return df
 
 #################################################################
 def getdata():
@@ -92,9 +59,10 @@ def main():
     df_country_r = pd.DataFrame(columns=['country', "R_value"])
     for country_ in countrylist:
         df_to_fit = df.loc[df['location'] == country_]
-        df_to_use = select_period(df_to_fit, FROM, UNTIL)
+        mask = (df_to_fit["date"].dt.date >= FROM) & (df_to_fit["date"].dt.date <= UNTIL)
+        df_to_fit = df_to_fit.loc[mask]
+        df_to_use = df_to_fit.reset_index()
         df_to_use.fillna(value=0, inplace=True)
-
         values_to_fit = df_to_use[what_to_fit].tolist()
         if len(values_to_fit) != 0:
             R_value_country = fit_the_values(country_, values_to_fit)
