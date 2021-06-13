@@ -16,7 +16,6 @@ import datetime as dt
 import platform
 import time
 
-
 def derivate(x, a, b, c, d):
     ''' First derivate of the sigmoidal function. Might contain an error'''
     return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + d
@@ -68,7 +67,6 @@ def select_period(df, show_from, show_until):
     df = df.loc[mask]
     df = df.reset_index()
     return df
-
 
 #################################################################
 def getdata():
