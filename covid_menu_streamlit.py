@@ -27,8 +27,9 @@ def main():
             ["9. r getal per provincie","r getal per provincie"],
             ["10. Cases from suspectibles", "cases_from_susp_streamlit"],
             ["11. Fit to data OWID", "fit_to_data_owid_streamlit_animated"],
-            ["12. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
-            ["13. per provincie per leeftijd","perprovincieperleeftijd"]]
+            ["12. Calculate R per country owid", "calculate_r_per_country_owid_streamlit.py"]
+            ["13. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
+            ["14. per provincie per leeftijd","perprovincieperleeftijd"]]
 
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
