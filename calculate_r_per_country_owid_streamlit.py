@@ -115,13 +115,13 @@ def fit_the_values(country_, y_values , total_days, daterange, graph, output):
         r_cases_avg = r_cases_total/(number_of_y_values-1)
 
         if output == True:
-            st.write (f"{country_} : {x_values} / {y_values}/ base {base_value} /  a {a} / b {b} / c {c} / d {d} / r2 {r_squared}")
+            #st.write (f"{country_} : {x_values} / {y_values}/ base {base_value} /  a {a} / b {b} / c {c} / d {d} / r2 {r_squared}")
+            st.write (f"{country_} : / base {base_value} /  a {a} / b {b} / c {c} / d {d} / r2 {r_squared}")
+
+            #st.write (f"Number of Y values {number_of_y_values}")
 
 
-            st.write (f"Number of Y values {number_of_y_values}")
-
-
-            st.write (f"Number of R-values {len(r_cases_list)}")
+            #st.write (f"Number of R-values {len(r_cases_list)}")
             st.write (f"R from average values from formula day by day {r_avg_formula} (purple)")
 
             st.write (f"R from average values from cases day by day {r_cases_avg} (yellow)")
