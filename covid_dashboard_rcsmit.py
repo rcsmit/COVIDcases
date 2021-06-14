@@ -205,6 +205,18 @@ def get_data():
                 "groupby": None,
                 "fileformat": "csv",
             },
+
+            # {
+            #     "url": "https://raw.githubusercontent.com/ActiveConclusion/COVID19_mobility/master/waze_reports/Waze_Country-Level_Data.csv",
+            #     "name": "waze",
+            #     "delimiter": ",",
+            #     "key": "Date",
+            #     "dateformat": "%b %d, %Y",
+            #     "groupby": None,
+            #     "fileformat": "csv",
+            # },
+
+
             # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
             # 'name'       : 'sweden',
             # 'delimiter'  : ';',
@@ -1730,6 +1742,7 @@ def main():
         "transit_stations",
         "workplaces",
         "residential",
+        "driving_waze",
         "temp_min",
         "temp_etmaal",
         "temp_max",

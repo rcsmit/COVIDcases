@@ -51,8 +51,11 @@ def sigmoidal(x, a, b, c):
 
 def derivate(x, a, b, c, d):
     ''' First derivate of the sigmoidal function. Might contain an error'''
-    return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + d
-    #return a * b * c * np.exp(-b*np.exp(-c*x))*np.exp(-c*x)
+    #return  (np.exp(b * (-1 * np.exp(-c * x)) - c * x) * a * b * c ) + d
+
+    return ( a * x**3) +( b*x**2) +( c*x) +d
+
+
 
 def cases_from_r (x, r, d):
     return d * (r**(x/4))
@@ -89,7 +92,7 @@ def fit_the_values(country_, y_values , total_days, graph, output):
         ss_res = np.sum(residuals**2)
         ss_tot = np.sum((y_values - np.mean(y_values))**2)
         r_squared = round(  1 - (ss_res / ss_tot),4)
-        l = (f"derivate fit: a=%5.3f, b=%5.3f, c=%5.3f, d=%5.3f / r2 = {r_squared}" % tuple(popt_d))
+        l = (f"polynome fit: a=%5.3f, b=%5.3f, c=%5.3f, d=%5.3f / r2 = {r_squared}" % tuple(popt_d))
 
         a,b,c,d = popt_d
         deriv_0 = derivate(0, a,b,c,d)
@@ -97,9 +100,11 @@ def fit_the_values(country_, y_values , total_days, graph, output):
         r_0_last_formula = (deriv_last/deriv_0)**(4/number_of_y_values)
         #r_0_last_cases = (y_values[number_of_y_values-1]/ y_values[0])**(4/number_of_y_values)
         r_total = 0
-        for i in range(1,number_of_y_values):
+        #for i in range(1,number_of_y_values):
+        for i in range(number_of_y_values-5,number_of_y_values):
             r_total += (derivate(i, a,b,c,d) / derivate(i-1, a,b,c,d))**(4/1)
-        r_avg_formula = r_total/(number_of_y_values-1)
+        #r_avg_formula = r_total/(number_of_y_values-1)
+        r_avg_formula = r_total/6
         r_cases_list = []
 
 
