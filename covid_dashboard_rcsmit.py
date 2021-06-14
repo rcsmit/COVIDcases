@@ -206,15 +206,17 @@ def get_data():
                 "fileformat": "csv",
             },
 
-            # {
-            #     "url": "https://raw.githubusercontent.com/ActiveConclusion/COVID19_mobility/master/waze_reports/Waze_Country-Level_Data.csv",
-            #     "name": "waze",
-            #     "delimiter": ",",
-            #     "key": "Date",
-            #     "dateformat": "%b %d, %Y",
-            #     "groupby": None,
-            #     "fileformat": "csv",
-            # },
+
+            {
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/waze.csv",
+                #  # https://raw.githubusercontent.com/ActiveConclusion/COVID19_mobility/master/waze_reports/waze_mobility.csv
+                "name": "waze",
+                "delimiter": ",",
+                "key": "date",
+                "dateformat":  "%Y-%m-%d",
+                "groupby": None,
+                "fileformat": "csv",
+            },
 
 
             # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
