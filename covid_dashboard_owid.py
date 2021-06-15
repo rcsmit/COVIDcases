@@ -157,7 +157,8 @@ def get_data():
                     "where_criterium": "country"
                 },
                 {
-                    "url": "https://raw.github.com/rcsmit/COVIDcases/blob/main/google_mob_world.csv",
+                    "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/google_mob_world.csv",
+                   
                     #  https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
                     "name": "googlemobility",
                     "delimiter": ",",
