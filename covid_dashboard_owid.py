@@ -29,7 +29,7 @@ from streamlit import caching
 from inspect import currentframe, getframeinfo
 
 ###################################################################
-@st.cache(ttl=60 * 60 * 24)
+
 def download_data_file(url, filename, delimiter_, fileformat):
     """Download the external datafiles
     IN :  url : the url
