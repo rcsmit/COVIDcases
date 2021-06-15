@@ -323,11 +323,26 @@ def move_column(df, column_, days):
         column_ = column_
     else:
         column_ = [column_]
-
+   
     for column in column_:
         new_column = column + "_moved_" + str(days)
         df[new_column] = df[column].shift(days)
+      
     return df, new_column
+
+def move_columnlist(df, column_, days):
+    """  _ _ _ """
+    if type(column_) == list:
+        column_ = column_
+    else:
+        column_ = [column_]
+    moved_columns = []
+    for column in column_:
+        new_column = column + "_moved_" + str(days)
+        df[new_column] = df[column].shift(days)
+        moved_columns.append(new_column)
+    return df, moved_columns
+
 
 
 def drop_columns(df, what_to_drop):
@@ -1359,31 +1374,44 @@ def isNaN(num):
         return True
 
 def google_or_waze(df___):
-    to_compare_ = ["transit_stations", "driving_waze"]
-    df__, to_compare_sma = smooth_columnlist(df___, to_compare_, "SMA",7 , True)
-    to_compare = to_compare_ + to_compare_sma
-    header = ["_"] + to_compare + ["Who_wins"]
+    move_r_number = st.sidebar.slider("Move the R-rate (days", -21, 21, -7)
 
+    
+  
     #df_output = pd.DataFrame(columns=header)
     output=[]
+    to_compare_ = ["transit_stations", "driving_waze"]
+    
     countrylist =  df___['location'].drop_duplicates().sort_values().tolist()
-    google_wins,waze_wins = 0, 0
+   
+    header = ["_"] + ["transit_stations", "driving_waze"] +  ["transit_stations_SMA", "driving_waze_SMA"] + ["Who_wins"]
+    
     text = "Welcome to the first day... of the rest... of your life"
-
+    #to_compare_corr = ["transit_stations", "driving_waze", "transit_stations_SMA", "driving_waze_SMA"]
 
     t = st.empty()
     l = len(countrylist)
+    google_wins,waze_wins = 0, 0
+    
     for i, country in enumerate(countrylist):
+        
         # progress = ("#" * i) + ("_" * (l-i))
         # if i % 30 == 0:
         #     progress += "\n"
         # t.markdown(progress)
         NumberofNotaNumber = 0
-        df = df__.loc[df__['location'] ==country].copy(deep=False)
+        
+        df = df___.loc[df___['location'] ==country].copy(deep=False)
+        df, to_compare_sma = smooth_columnlist(df, to_compare_, "SMA",7 , True)
+        df, moved_column_repr_rate = move_column(df, "reproduction_rate", move_r_number )
+        
+        to_compare_corr = to_compare_ + to_compare_sma
+        
         output_ = [country]
-
-        for f in to_compare:
-            correlation = find_correlation_pair(df, "reproduction_rate", f)
+    	
+        for f in to_compare_corr: 
+            
+            correlation = find_correlation_pair(df,  moved_column_repr_rate, f)
             if isNaN(correlation):
                 NumberofNotaNumber += 1
 
@@ -1402,7 +1430,7 @@ def google_or_waze(df___):
             output.append(output_)
 
         df_output=pd.DataFrame(output,columns=header)
-        save_df(df_output, "Google_or_waze.csv")
+    save_df(df_output, "Google_or_waze.csv")
 
         #df_output = df_output.append(output, ignore_index=True)
     st.write (df_output)
@@ -1517,7 +1545,7 @@ def dashboard(df___):
     country_ = st.sidebar.selectbox("Which country",countrylist, 216)
     df = df___.loc[df___['location'] ==country_].copy(deep=False)
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-
+   
 
     # df,newcolumns = week_to_week(df,["Total_reported"])
     global show_R_value_graph, show_R_value_RIVM, show_scenario
