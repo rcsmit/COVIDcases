@@ -1,3 +1,4 @@
+from numpy.core.numeric import NaN
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -69,7 +70,7 @@ def download_data_file(url, filename, delimiter_, fileformat):
         return df_temp
 
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache(ttl=60 * 60 * 24, suppress_st_warning=True)
 def get_data():
     """Get the data from various sources
     In : -
@@ -117,6 +118,8 @@ def get_data():
                     "dateformat":  "%Y-%m-%d",
                     "groupby": None,
                     "fileformat": "csv",
+                    "where_field": None,
+                    "where_criterium": None
 
                 },
 
@@ -154,7 +157,7 @@ def get_data():
                     "where_criterium": "country"
                 },
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\google_mob_world.csv",
+                    "url": "https://raw.github.com/rcsmit/COVIDcases/blob/main/google_mob_world.csv",
                     #  https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
                     "name": "googlemobility",
                     "delimiter": ",",
@@ -163,6 +166,8 @@ def get_data():
                     "dateformat":  "%Y-%m-%d",
                     "groupby": None,
                     "fileformat": "csv",
+                    "where_field": None,
+                    "where_criterium": None
 
                 },
 
@@ -218,6 +223,7 @@ def get_data():
             oldkey2 = data[d]["key2"]
             newkey2 = "key2_" + str(d)
             df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
+            df_temp_x = df_temp_x.rename(columns={oldkey2: newkey2})
             #st.write (df_temp_x.dtypes)
             try:
                 df_temp_x[newkey] = pd.to_datetime(df_temp_x[newkey], format=data[d]["dateformat"]           )
@@ -473,6 +479,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         what_to_show_l_ = what_to_show_l
     else:
         what_to_show_l_ = [what_to_show_l]
+
+    if type(what_to_show_r) == list:
+        what_to_show_r_ = what_to_show_r
+    else:
+        what_to_show_r_ = [what_to_show_r]
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
 
@@ -515,6 +526,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         n = 0  # counter to walk through the colors-list
 
         df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
+        df, columnlist_sm_r = smooth_columnlist(df, what_to_show_r_, how_to_smooth, WDW2, centersmooth)
 
         # CODE TO MAKE STACKED BARS - DOESNT WORK
         # stackon=""
@@ -849,6 +861,16 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 correlation_sm = find_correlation_pair(df, b_, c_)
                 title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
+            else:
+                for left in what_to_show_l:
+                    for right in what_to_show_r:
+                        correlation = find_correlation_pair(df, left, right)
+                        st.write(f"Correlation: {left} - {right} : {correlation}")
+
+                for left_sm in columnlist_sm_l:
+                    for right_sm in columnlist_sm_r:
+                        correlation = find_correlation_pair(df, left_sm, right_sm)
+                        st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
 
             if len(what_to_show_r) == 1:
                 mean = df[what_to_show_r].mean()
@@ -917,9 +939,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add scatter plot
         left_sm = str(what_to_show_l[0]) + "_" + how_to_smooth_
         right_sm = str(what_to_show_r[0]) + "_" + how_to_smooth_
-        make_scatterplot(df_temp, what_to_show_l, what_to_show_r)
-        make_scatterplot(df_temp,left_sm, right_sm)
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
+        make_scatterplot(df_temp, what_to_show_l, what_to_show_r, False)
+        make_scatterplot(df_temp,left_sm, right_sm, True)
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
     if type(what_to_show_l) == list:
         what_to_show_l = what_to_show_l
     else:
@@ -951,7 +973,11 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
 
             #add linear regression line to scatterplot
             plt.plot(x_, m*x_+b, 'r')
-            title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            if smoothed:
+                title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            else:
+                title_scatter = (f"Smoothed: {what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+
             plt.title(title_scatter)
 
 
@@ -1325,6 +1351,63 @@ def get_locations(df_ungrouped, field):
 def get_duplicate_cols(df: pd.DataFrame) -> pd.Series:
     return pd.Series(df.columns).value_counts()[lambda x: x>1]
 
+def isNaN(num):
+    if float('-inf') < float(num) < float('inf'):
+        return False
+    else:
+        return True
+
+def google_or_waze(df___):
+    to_compare_ = ["transit_stations", "driving_waze"]
+    df__, to_compare_sma = smooth_columnlist(df___, to_compare_, "SMA",7 , True)
+    to_compare = to_compare_ + to_compare_sma
+    header = ["_"] + to_compare + ["Who_wins"]
+
+    #df_output = pd.DataFrame(columns=header)
+    output=[]
+    countrylist =  df___['location'].drop_duplicates().sort_values().tolist()
+    google_wins,waze_wins = 0, 0
+    text = "Welcome to the first day... of the rest... of your life"
+
+
+    t = st.empty()
+    l = len(countrylist)
+    for i, country in enumerate(countrylist):
+        # progress = ("#" * i) + ("_" * (l-i))
+        # if i % 30 == 0:
+        #     progress += "\n"
+        # t.markdown(progress)
+        NumberofNotaNumber = 0
+        df = df__.loc[df__['location'] ==country].copy(deep=False)
+        output_ = [country]
+
+        for f in to_compare:
+            correlation = find_correlation_pair(df, "reproduction_rate", f)
+            if isNaN(correlation):
+                NumberofNotaNumber += 1
+
+            output_.append(correlation)
+
+        if NumberofNotaNumber <2:
+            if abs(output_[1])>abs(output_[2]):
+                output_.append("Google")
+                google_wins +=1
+            elif abs(output_[1])<abs(output_[2]):
+                output_.append("Waze")
+                waze_wins +=1
+            else:
+                output_.append("Equal")
+
+            output.append(output_)
+
+        df_output=pd.DataFrame(output,columns=header)
+        save_df(df_output, "Google_or_waze.csv")
+
+        #df_output = df_output.append(output, ignore_index=True)
+    st.write (df_output)
+    st.write(f"Google wins {google_wins} - Waze wins {waze_wins}")
+
+
 def main():
     """  _ _ _ """
     global FROM
@@ -1344,11 +1427,14 @@ def main():
     global show_R_value_graph, show_R_value_RIVM, centersmooth
     global OUTPUT_DIR
     global INPUT_DIR
+    global UPDATETIME
     global country_
+    WDW2 = 7
+    centersmooth = True
     init()
-
+    show_scenario = False
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
-    df___ = df_getdata.copy(deep=False)
+    df = df_getdata.copy(deep=False)
     if df_ungrouped_ is not None:
         df_ungrouped = df_ungrouped_.copy(deep=False)
 
@@ -1357,12 +1443,23 @@ def main():
 
     # #CONFIG
 
-    countrylist =  df___['location'].drop_duplicates().sort_values().tolist()
 
-    country_ = st.sidebar.selectbox("Which country",countrylist, 216)
-    df = df___.loc[df___['location'] ==country_].copy(deep=False)
 
+    df.rename(
+        columns={
+
+            "retail_and_recreation_percent_change_from_baseline":  "retail_and_recreation",
+            "grocery_and_pharmacy_percent_change_from_baseline": "grocery_and_pharmacy",
+            "parks_percent_change_from_baseline" :  "parks",
+            "transit_stations_percent_change_from_baseline" : "transit_stations",
+            "workplaces_percent_change_from_baseline":   "workplaces",
+            "residential_percent_change_from_baseline":  "residential",
+
+        },
+        inplace=True,
+    )
     lijst = df.columns.tolist()
+
 
     del lijst[0:4]
 
@@ -1376,7 +1473,7 @@ def main():
     what_to_show_day_l = None
 
     DATE_FORMAT = "%m/%d/%Y"
-    start_ = "2021-01-01"
+    start_ = "2020-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
     from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
 
@@ -1408,13 +1505,23 @@ def main():
 
 
     df = df.drop_duplicates()
+    google_or_waze(df)
+    dashboard(df)
+
+
+def dashboard(df___):
+    global country_
+    countrylist =  df___['location'].drop_duplicates().sort_values().tolist()
+
+    country_ = st.sidebar.selectbox("Which country",countrylist, 216)
+    df = df___.loc[df___['location'] ==country_].copy(deep=False)
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
 
     # df,newcolumns = week_to_week(df,["Total_reported"])
+    global show_R_value_graph, show_R_value_RIVM, show_scenario
+    show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
 
-    # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
-    # WDW2=7
     # st.write(df.dtypes)
 
     w2w = [
@@ -1422,10 +1529,10 @@ def main():
     ]
 
     how_to_smoothen = "SMA"
-    WDW2 = 7
+
     centersmooth = True
 
-
+    WDW2 = 7
     #st.write(get_duplicate_cols(df))
     df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen, WDW2, centersmooth)
     df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0)
@@ -1437,12 +1544,8 @@ def main():
     df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
 
     lijst.extend(newcolumns_w2w2) # percentage
-    save_df(df,"whyowyhasdf")
-    chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
-    mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
 
-    lijst.extend(chd)
-    lijst.extend(mzelst)
+
     # for n in newcolumns:
     #     .write(df[n])
     # graph_daily       (df,newcolumns,None, "SMA", "line")
@@ -1463,7 +1566,7 @@ def main():
             "What to show left-axis (multiple possible)", lijst, ["reproduction_rate"]
         )
         what_to_show_day_r = st.sidebar.multiselect(
-            "What to show right-axis (multiple possible)", lijst, ["driving_waze"]
+            "What to show right-axis (multiple possible)", lijst, ["driving_waze", "transit_stations"]
         )
         if what_to_show_day_l == None:
             st.warning("Choose something")
@@ -1664,6 +1767,9 @@ def main():
         st.error("Choose what to show")
 
     # EXTRA POSSIBLE CALCULATIONS - INTERFACE HAS TO BE WRITTEN
+
+    if st.sidebar.button("Google or Waze"):
+        google_or_waze(df)
 
     if st.sidebar.button("Find Correlations"):
         treshhold = st.sidebar.slider("R-number first variant", 0.0, 1.0, 0.8)
