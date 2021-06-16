@@ -877,16 +877,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 correlation_sm = find_correlation_pair(df, b_, c_)
                 title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
-            else:
-                for left in what_to_show_l:
-                    for right in what_to_show_r:
-                        correlation = find_correlation_pair(df, left, right)
-                        st.write(f"Correlation: {left} - {right} : {correlation}")
-
-                for left_sm in columnlist_sm_l:
-                    for right_sm in columnlist_sm_r:
-                        correlation = find_correlation_pair(df, left_sm, right_sm)
-                        st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
+            
 
             if len(what_to_show_r) == 1:
                 mean = df[what_to_show_r].mean()
@@ -952,6 +943,15 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
 
+    for left in what_to_show_l:
+        for right in what_to_show_r:
+            correlation = find_correlation_pair(df, left, right)
+            st.write(f"Correlation: {left} - {right} : {correlation}")
+
+    for left_sm in columnlist_sm_l:
+        for right_sm in columnlist_sm_r:
+            correlation = find_correlation_pair(df, left_sm, right_sm)
+            st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
     if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add scatter plot
         left_sm = str(what_to_show_l[0]) + "_" + how_to_smooth_
         right_sm = str(what_to_show_r[0]) + "_" + how_to_smooth_
@@ -969,11 +969,18 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
     with _lock:
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
-            x_ = np.array(df_temp[what_to_show_l])
-            y_ = np.array(df_temp[what_to_show_r])
-
+            # st.write (x_)
+            # print (type(x_))
+            
+            x_ = df_temp[what_to_show_l].values.tolist()
+            y_ = df_temp[what_to_show_r].values.tolist()
+            
             plt.scatter(x_, y_)
-
+            x_ = np.array(df_temp[what_to_show_l])
+            
+           
+            y_ = np.array(df_temp[what_to_show_r]) 
+           
 
 
             #obtain m (slope) and b(intercept) of linear regression line
@@ -989,10 +996,12 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
 
             #add linear regression line to scatterplot
             plt.plot(x_, m*x_+b, 'r')
+            plt.xlabel (what_to_show_l)
+            plt.ylabel (what_to_show_r)
             if smoothed:
-                title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-            else:
                 title_scatter = (f"Smoothed: {what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            else:
+                title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
             plt.title(title_scatter)
 
@@ -1435,8 +1444,19 @@ def google_or_waze(df___):
         #df_output = df_output.append(output, ignore_index=True)
     st.write (df_output)
     st.write(f"Google wins {google_wins} - Waze wins {waze_wins}")
-
-
+   
+    #url ="C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\COVIDcases\\motorvehicles.csv"
+    url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/motorvehicles.csv"
+    # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
+    df_motorveh = pd.read_csv(url, delimiter=";", low_memory=False)
+    
+    df_temp = pd.merge(
+                df_output, df_motorveh, how="left", left_on="_", right_on="country"
+            )
+    
+    make_scatterplot(df_temp, "driving_waze", "transit_stations", False)
+    make_scatterplot(df_temp,  "motorvehicles","driving_waze", False),
+    make_scatterplot(df_temp, "motorvehicles", "transit_stations", False)
 def main():
     """  _ _ _ """
     global FROM
@@ -1600,7 +1620,7 @@ def dashboard(df___):
         if what_to_show_day_l == None:
             st.warning("Choose something")
             st.stop()
-        move_right = st.sidebar.slider("Move curves at right axis (days)", -14, 14, 0)
+        move_right = st.sidebar.slider("Move curves at right axis (days)", -14, 14, 7)
     else:
         move_right = 0
     showR = False
@@ -1721,7 +1741,7 @@ def dashboard(df___):
 
         if week_or_day == "day":
             if move_right != 0 and len(what_to_show_day_r) != 0:
-                df, what_to_show_day_r = move_column(df, what_to_show_day_r, move_right)
+                df, what_to_show_day_r = move_columnlist(df, what_to_show_day_r, move_right)
             if how_to_display == "line":
                 graph_daily(
                     df,
