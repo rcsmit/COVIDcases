@@ -1554,7 +1554,7 @@ def main():
 
 
     df = df.drop_duplicates()
-    google_or_waze(df)
+    #google_or_waze(df)
     dashboard(df)
 
 
@@ -1823,7 +1823,7 @@ def dashboard(df___):
     if st.sidebar.button("Find Correlations"):
         treshhold = st.sidebar.slider("R-number first variant", 0.0, 1.0, 0.8)
         find_correlations(df, treshhold, lijst)
-
+ 
     # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
 
