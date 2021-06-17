@@ -375,7 +375,7 @@ def extra_calculations(df):
     # 12.8 is percentage positief getest in week 1-2021
 
     )
-     df["reported_corrected2"] = round(
+    df["reported_corrected2"] = round(
         (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].iloc[0])), 2
 
 
