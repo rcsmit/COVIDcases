@@ -439,7 +439,7 @@ def extra_calculations_period(df):
     first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
     df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
     df["reported_corrected2"] = round(
-        (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].iloc[0])), 2
+        (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
     )
     return df
 
