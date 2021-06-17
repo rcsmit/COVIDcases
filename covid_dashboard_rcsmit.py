@@ -372,7 +372,15 @@ def extra_calculations(df):
         pass
     df["reported_corrected"] = round(
         (df["Total_reported"] * (df["Percentage_positive"] / 12.8)), 2
+    # 12.8 is percentage positief getest in week 1-2021
+
     )
+     df["reported_corrected2"] = round(
+        (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].iloc[0])), 2
+
+
+    )
+
     # 12.8 is percentage positief getest in week 1-2021
     df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
 
@@ -1779,6 +1787,7 @@ def main():
         "Deceased_cumm_period_div_prev_div_days_contagious_cumm_period",
 
         "reported_corrected",
+        "reported_corrected2",
         "onderrapportagefactor",
         "Total_reported_log10",
         "Rt_corr_transit",
@@ -2154,6 +2163,8 @@ def main():
         "<br><i>Deceased_cumm_period_div_prev_div_days_contagious_cumm_period</i> -"
 
         "<br><br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
+        "<br><i>reported_corrected</i> - Total_reported * (getest_positief / 1e waarde van getest_postief in tijdsperiode) "
+
         "<br><i>onderrapportagefactor</i> - prev_div_days_contagious_cumm / Total_reported_cumm"
         "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
