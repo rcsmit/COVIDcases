@@ -97,14 +97,18 @@ def main():
     global numberofdays_
     numberofdays_ = NUMBEROFDAYS
 
-    Rstart = st.sidebar.slider('R-number first variant', 0.1, 10.0, 2.5)
-
+    scenarioname = (st.sidebar.text_input('Scenarioname'))
+    #Rstart = st.sidebar.slider('R-number variant', 0.1, 10.0, 2.5)
+    Rstart =  st.sidebar.number_input('R number', 0.00, 10.00, 2.50)
+    ifr = (st.sidebar.number_input('ifr in %', 0.0, 100.0, 0.60))/100
 
     incubationtime = (st.sidebar.slider('Incubatietijd (1/alfa)', 1, 30, 3))
 
     infectioustime = (st.sidebar.slider('Average days infectious (1/gamma)', 1, 30, 2))
 
-    start_day_vaccination = (st.sidebar.slider('Day on which the vaccination starts\n(set on max for no vaccination)', 1, NUMBEROFDAYS, int(NUMBEROFDAYS*0.2)))
+    #start_day_vaccination = (st.sidebar.slider('Day on which the vaccination starts\n(set on max for no vaccination)', 1, NUMBEROFDAYS, int(NUMBEROFDAYS*0.2)))
+    start_day_vaccination = (st.sidebar.slider('Day on which the vaccination starts\n(set on max for no vaccination)', 1, NUMBEROFDAYS,NUMBEROFDAYS ))
+
     days_needed_for_vaccination = (st.sidebar.slider('Days needed for vaccination', 1, 3650, 365))
 
     totalpopulation_ = (st.sidebar.text_input('Total population', 10_000_000))
@@ -161,9 +165,10 @@ def main():
     I0, R0 = int(numberofcasesdayz), totalimmunedayzero
     E0 = 0
     V0 = 0
+    D0 = 0
 
     # Everyone else, S0, is susceptible to infection initially.
-    S0 = N - I0 -  R0 - E0
+    S0 = N - I0 -  R0 - E0 - D0
 
     C0 = I0
     days = NUMBEROFDAYS
@@ -196,8 +201,8 @@ def main():
 
     # The SIR model differential equations.
     # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
-    def deriv(y, t, N, beta, gamma):
-        S, V, E, I, C, R = y
+    def deriv(y, t, N, beta, gamma, ifr):
+        S, V, E, I, C, R, D = y
         if V >= N:
             dVdt = 0
         else:
@@ -215,15 +220,17 @@ def main():
         dEdt = beta * S * I / N  - alfa * E
         dIdt = alfa * E - gamma * I
         dCdt = alfa * E
-        dRdt = gamma * I
+        dDdt = (ifr*gamma) * I
+        dRdt = (gamma * I) -  (ifr*gamma) * I
 
-        return dSdt, dVdt, dEdt, dIdt, dRdt, dCdt
+
+        return dSdt, dVdt, dEdt, dIdt, dRdt, dDdt, dCdt
 
     # Initial conditions vector
-    y0 = S0, V0, E0, I0, C0, R0
+    y0 = S0, V0, E0, I0, C0, R0, D0
     # Integrate the SIR equations over the time grid, t.
-    ret = odeint(deriv, y0, t, args=(N, beta, gamma))
-    S, V, E, I, C, R  = ret.T
+    ret = odeint(deriv, y0, t, args=(N, beta, gamma, ifr))
+    S, V, E, I, R, D,  C  = ret.T
 
     Tg = Tg_
     d = 1
@@ -282,17 +289,20 @@ def main():
     ax.plot(x, I, 'r', alpha=0.5, lw=2, label='Infected')
     ax.plot(x, Cnew, 'orange', alpha=0.5, lw=2, label='New Cases')
     ax.plot(x, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
+    ax.plot(x, D, 'black', alpha=0.5, lw=2, label='Death')
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('Number')
     ax.yaxis.set_tick_params(length=0)
     ax.xaxis.set_tick_params(length=0)
 
-    titlex = 'SIR based on cases first day'
+    titlex = (f'SEIR - {scenarioname}')
     configgraph(titlex,x,b,datediff)
     plt.show()
     st.pyplot(fig2a)
 
     st.write  ("attack rate classical SIR model : " + str(int(C[days-1])) + " mensen / "+ str(round(100*((C[days-1])        /N),2))+ " %")
+    st.write (f"Number of deaths: {round(C[days-1])} * {ifr} = {round(C[days-1]*ifr)}")
+
     st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
     st.write ("Attack rate = final size of the epidemic (FSE) ")
 

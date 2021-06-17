@@ -121,7 +121,8 @@ def get_data():
                     "where_field": None,
                     "where_criterium": None
 
-                },
+                }
+                
 
             ]
 
@@ -996,8 +997,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
 
             #add linear regression line to scatterplot
             plt.plot(x_, m*x_+b, 'r')
-            plt.xlabel (what_to_show_l)
-            plt.ylabel (what_to_show_r)
+            plt.xlabel (what_to_show_l[0])
+            plt.ylabel (what_to_show_r[0])
             if smoothed:
                 title_scatter = (f"Smoothed: {what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
             else:
@@ -1393,7 +1394,7 @@ def google_or_waze(df___):
     
     countrylist =  df___['location'].drop_duplicates().sort_values().tolist()
    
-    header = ["_"] + ["transit_stations", "driving_waze"] +  ["transit_stations_SMA", "driving_waze_SMA"] + ["Who_wins"]
+    header = ["_", "transit_stations", "driving_waze", "transit_stations_SMA", "driving_waze_SMA", "GoogleWazeIndex", "Who_wins"]
     
     text = "Welcome to the first day... of the rest... of your life"
     #to_compare_corr = ["transit_stations", "driving_waze", "transit_stations_SMA", "driving_waze_SMA"]
@@ -1427,6 +1428,11 @@ def google_or_waze(df___):
             output_.append(correlation)
 
         if NumberofNotaNumber <2:
+            try:
+                output_.append(output_[1]/output_[2])
+            except:
+                output_.append(None)
+
             if abs(output_[1])>abs(output_[2]):
                 output_.append("Google")
                 google_wins +=1
@@ -1435,9 +1441,9 @@ def google_or_waze(df___):
                 waze_wins +=1
             else:
                 output_.append("Equal")
-
+            
             output.append(output_)
-
+        
         df_output=pd.DataFrame(output,columns=header)
     save_df(df_output, "Google_or_waze.csv")
 
@@ -1450,13 +1456,28 @@ def google_or_waze(df___):
     # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
     df_motorveh = pd.read_csv(url, delimiter=";", low_memory=False)
     
-    df_temp = pd.merge(
+    df_temp1 = pd.merge(
                 df_output, df_motorveh, how="left", left_on="_", right_on="country"
             )
     
+    url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/GDPpercapita.csv"
+    # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
+    df_gdp_per_capita = pd.read_csv(url, delimiter=",", low_memory=False)
+    for column in df_gdp_per_capita:
+        if column !="Country Name":
+            df_gdp_per_capita.rename(columns={column:'GDP_'+column}, inplace=True)
+    
+    #df_gdp_per_capita = df_gdp_per_capita[["Country Name", "2019"]]
+    df_temp = pd.merge(
+                df_temp1, df_gdp_per_capita, how="left", left_on="_", right_on="Country Name"
+            )
+    
+
     make_scatterplot(df_temp, "driving_waze", "transit_stations", False)
+    make_scatterplot(df_temp, "motorvehicles", "GoogleWazeIndex", False)
     make_scatterplot(df_temp,  "motorvehicles","driving_waze", False),
     make_scatterplot(df_temp, "motorvehicles", "transit_stations", False)
+    make_scatterplot(df_temp, "GDP_2019", "GoogleWazeIndex", False)
 def main():
     """  _ _ _ """
     global FROM
@@ -1554,7 +1575,7 @@ def main():
 
 
     df = df.drop_duplicates()
-    #google_or_waze(df)
+    google_or_waze(df)
     dashboard(df)
 
 
