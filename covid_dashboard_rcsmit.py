@@ -378,7 +378,6 @@ def extra_calculations(df):
 
 
 
-    # 12.8 is percentage positief getest in week 1-2021
     df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
 
     df["Total_reported_moved_5"] = df["Total_reported"].shift(5)
