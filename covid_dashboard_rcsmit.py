@@ -375,11 +375,8 @@ def extra_calculations(df):
     # 12.8 is percentage positief getest in week 1-2021
 
     )
-    df["reported_corrected2"] = round(
-        (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].iloc[0])), 2
 
 
-    )
 
     # 12.8 is percentage positief getest in week 1-2021
     df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
@@ -442,7 +439,9 @@ def extra_calculations_period(df):
     df["Deceased_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["Deceased_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
     first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
     df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
-
+    df["reported_corrected2"] = round(
+        (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].iloc[0])), 2
+    )
     return df
 
 ###################################################
