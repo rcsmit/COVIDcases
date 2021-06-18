@@ -1296,6 +1296,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
             #  In dit voorbeeld betekent R square dus dat de totale variatie in vetpercentages voor 66% verklaard
             #    kan worden door de lineaire regressie c.q. de verschillen in leeftijd.
             # https://wikistatistiek.amc.nl/index.php/Lineaire_regressie
+            
             #print (r2)
             #m, b = np.polyfit(x_, y_, 1)
             # print (m,b)
@@ -1316,7 +1317,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
                 ha="right",
             )
             st.pyplot(fig1xy)
-            st.write(model)
+            
 
 
 def set_xmargin(ax, left=0.0, right=0.3):
