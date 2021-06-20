@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.dates as mdates
 from textwrap import wrap
-
+import matplotlib.cm as cm
 # import seaborn as sn
 from scipy import stats
 import datetime as dt
@@ -1274,10 +1274,32 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
     with _lock:
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
+
+            showmonth = True
+
+            if showmonth==True:
+                num_months = (UNTIL.year - FROM.year) * 12 + (UNTIL.month - FROM.month)
+                colors=cm.rainbow(np.linspace(0,1,num_months+1))
+
+                for y in range (2020,2022):
+                    for m,c in zip(range (1,13),colors):
+
+
+                        df_temp_month = df_temp[(df_temp['date'].dt.month==m) & (df_temp['date'].dt.year==y)]
+                        x__ = df_temp_month[what_to_show_l].values.tolist()
+                        y__ = df_temp_month[what_to_show_r].values.tolist()
+
+
+                        plt.scatter(x__, y__,  s=2,color=c)
+            else:
+                x_ = np.array(df_temp[what_to_show_l])
+                y_ = np.array(df_temp[what_to_show_r])
+
+
+                plt.scatter(x_, y_)
+
             x_ = np.array(df_temp[what_to_show_l])
             y_ = np.array(df_temp[what_to_show_r])
-
-            plt.scatter(x_, y_)
 
 
 
@@ -1296,7 +1318,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
             #  In dit voorbeeld betekent R square dus dat de totale variatie in vetpercentages voor 66% verklaard
             #    kan worden door de lineaire regressie c.q. de verschillen in leeftijd.
             # https://wikistatistiek.amc.nl/index.php/Lineaire_regressie
-            
+
             #print (r2)
             #m, b = np.polyfit(x_, y_, 1)
             # print (m,b)
@@ -1317,7 +1339,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
                 ha="right",
             )
             st.pyplot(fig1xy)
-            
+
 
 
 def set_xmargin(ax, left=0.0, right=0.3):
@@ -1724,7 +1746,9 @@ def main():
             "transit_stations_percent_change_from_baseline" : "transit_stations",
             "workplaces_percent_change_from_baseline":   "workplaces",
             "residential_percent_change_from_baseline":  "residential",
-
+            "UG": "RH_avg",
+            "UX": "RH_max",
+            "UN": "RH_min",
         },
         inplace=True,
     )
@@ -1767,6 +1791,9 @@ def main():
         "zonneschijnduur",
         "globale_straling",
         "spec_humidity_knmi_derived",
+        "RH_avg",
+        "RH_max",
+        "RH_min",
         "neerslag",
         "RNA_per_ml",
         "RNA_flow_per_100000",

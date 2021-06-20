@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.cm as cm
 import matplotlib.dates as mdates
 from textwrap import wrap
 
@@ -971,12 +972,19 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
             # st.write (x_)
+            
+            
             # print (type(x_))
             
+          
+
             x_ = df_temp[what_to_show_l].values.tolist()
             y_ = df_temp[what_to_show_r].values.tolist()
             
             plt.scatter(x_, y_)
+
+
+
             x_ = np.array(df_temp[what_to_show_l])
             
            
@@ -1427,12 +1435,12 @@ def google_or_waze(df___):
 
             output_.append(correlation)
 
-        if NumberofNotaNumber <2:
-            try:
-                output_.append(output_[1]/output_[2])
-            except:
-                output_.append(None)
-
+        #if NumberofNotaNumber <2:
+        try:
+            output_.append(output_[1]/output_[2])
+        except:
+            output_.append(None)
+        try:
             if abs(output_[1])>abs(output_[2]):
                 output_.append("Google")
                 google_wins +=1
@@ -1441,8 +1449,10 @@ def google_or_waze(df___):
                 waze_wins +=1
             else:
                 output_.append("Equal")
-            
-            output.append(output_)
+        except:
+            output_.append(None)
+        
+        output.append(output_)
         
         df_output=pd.DataFrame(output,columns=header)
     save_df(df_output, "Google_or_waze.csv")
