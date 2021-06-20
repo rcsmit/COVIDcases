@@ -1792,8 +1792,9 @@ def main():
         "globale_straling",
         "spec_humidity_knmi_derived",
         "RH_avg",
-        "RH_max",
+
         "RH_min",
+        "RH_max",
         "neerslag",
         "RNA_per_ml",
         "RNA_flow_per_100000",
@@ -2174,7 +2175,7 @@ def main():
         "<br><i>Globale straling</i> - Globale straling in (in J//cm2) "
         "<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) "
         "<br><i>Specific_humidity_KNMI_derived</i> - Specific humidity in g/kg, calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
-
+        "<br><i>RH_avg, RH_max, RH_min</i> - Relatieve luchtvochtigheid - 24 uurs gemiddelde, minimaal en maximaal"
         "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
         "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
