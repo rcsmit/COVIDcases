@@ -1792,7 +1792,6 @@ def main():
         "globale_straling",
         "spec_humidity_knmi_derived",
         "RH_avg",
-
         "RH_min",
         "RH_max",
         "neerslag",
