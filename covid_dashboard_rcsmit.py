@@ -425,7 +425,7 @@ def extra_calculations(df):
     df["Deceased_cumm_div_prev_div_days_contagious_cumm"] =  df["Deceased_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
     df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     df["Hospital_admission_RIVM_cumm"] = df["Hospital_admission_RIVM"].cumsum()
-    df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
+    #df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
     df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
     df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
 
@@ -1779,10 +1779,10 @@ def main():
         "Percentage_positive",
         "reported_div_tested",
         "prev_avg",
-        "total_vaccinations",
+        #"total_vaccinations",
         "people_vaccinated",
         "people_fully_vaccinated",
-        "total_vaccinations_diff",
+        #"total_vaccinations_diff",
         "people_vaccinated_diff",
         "people_fully_vaccinated_diff",
         "retail_and_recreation",
