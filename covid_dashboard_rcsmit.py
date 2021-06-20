@@ -343,7 +343,7 @@ def week_to_week(df, column_):
 
 def rh2ah (rh, t ):
     # https://carnotcycle.wordpress.com/2012/08/04/how-to-convert-relative-humidity-to-absolute-humidity/
-    ah =( 6.112 ×  math.exp((17.67 × t)/(t+243.5)) × rh × 2.1674) /     (273.15+t)
+    ah =( 6.112 *  math.exp((17.67 * t)/(t+243.5)) * rh * 2.1674) /     (273.15+t)
     return ah
 
 def rh2q (rh, t, p ):
