@@ -341,6 +341,11 @@ def week_to_week(df, column_):
             df.at[n, newname2] = waarde2
     return df, newcolumns, newcolumns2
 
+def rh2ah (rh, t ):
+    # https://carnotcycle.wordpress.com/2012/08/04/how-to-convert-relative-humidity-to-absolute-humidity/
+    ah =( 6.112 ×  math.exp((17.67 × t)/(t+243.5)) × rh × 2.1674) /     (273.15+t)
+    return ah
+
 def rh2q (rh, t, p ):
     # https://archive.eol.ucar.edu/projects/ceop/dm/documents/refdata_report/eqns.html
 
@@ -411,6 +416,7 @@ def extra_calculations(df):
             ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
 
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
+    df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
     df["Total_reported_log10"] = np.log10(df["Total_reported"])
     df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Total_reported_cumm"]
@@ -1792,6 +1798,7 @@ def main():
         "zonneschijnduur",
         "globale_straling",
         "spec_humidity_knmi_derived",
+        "abs_humidity_knmi_derived",
         "RH_avg",
         "RH_min",
         "RH_max",
@@ -2175,6 +2182,9 @@ def main():
         "<br><i>Globale straling</i> - Globale straling in (in J//cm2) "
         "<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) "
         "<br><i>Specific_humidity_KNMI_derived</i> - Specific humidity in g/kg, calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
+        "<br><i>Absolute_humidity_KNMI_derived</i> - Absolute humidity in g/kg, calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>Absolute Humidity (grams/m3) = (6.112 × e^[(17.67 × T)/(T+243.5)] × rh × 2.1674) / (273.15+T)"
+
+
         "<br><i>RH_avg, RH_max, RH_min</i> - Relatieve luchtvochtigheid - 24 uurs gemiddelde, minimaal en maximaal"
         "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
