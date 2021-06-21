@@ -146,7 +146,7 @@ def color_value(val):
         # else:
         #     color = '#ffffff'
     except:
-        color = '0,0,0'
+        color = '255,255,255'
         opacity = 1
 
     #return f'background-color: {color}; '
