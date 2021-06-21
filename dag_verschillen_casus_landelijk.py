@@ -240,7 +240,9 @@ def main():
     column_list = df_pivot.columns.tolist()
 
     column_list = column_list[1:]
-    df_pivot,df_new, newcolumns,= day_to_day(df_pivot, column_list, 1)
+    numberofdays = st.sidebar.slider("Vergelijken met x dagen ervoor", 0, 21, 7)
+    df_pivot,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
+    st.write("Attention : slow script!!!")
     #df_new["date"] = pd.to_datetime(df_new["date"], format="%Y-%m-%d")
     df_new.set_index('date')
     save_df(df_new, "daily_changes_casus_landelijk_age")
