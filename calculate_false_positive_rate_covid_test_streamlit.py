@@ -189,39 +189,39 @@ def main():
         ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST")
                 )
 
-    if scenario == "PCR":
-        naam = "PCR"
-        se = 0.998
-        sp = 0.95
-    elif scenario == "PCR WHO":
-        naam = "PCR WHO"
-        se = 0.95
-        sp = 0.97
+    if scenario == "BIOSYNEX SELFTEST":
+        naam = "BIOSYNEX SELFTEST"
+        se = 0.972
+        sp = 1.000
     elif scenario == "PCR Nico":
         naam = "PCR Nico"
         se = 0.98
         sp = 0.99996 # https://twitter.com/mus_nico/status/1395724466043461633
-    elif scenario == "PCR RIVM best": # https://www.rivm.nl/sites/default/files/2020-12/Toelichting%20betrouwbaarheid%20PCR.pdf
+    elif scenario == "PCR RIVM best":
         naam = "PCR RIVM best"
         se = 0.98
         sp = 0.995
-    elif scenario == "PCR RIVM worst": # https://www.rivm.nl/sites/default/files/2020-12/Toelichting%20betrouwbaarheid%20PCR.pdf
+    elif scenario == "PCR RIVM worst":
         naam = "PCR RIVM worst"
         se = 0.67
         sp = 0.96
 
-    elif scenario == "Sneltest Roche": # https://www.ftm.nl/artikelen/testsamenleving-extreem-duur-veroorzaakt-uitsluiting-gezonde-mensen
-        naam = "Sneltest Roche"
-        se = 0.8333
-        sp = 0.991
-    elif scenario == "Sneltest OMT": # https://www.ftm.nl/artikelen/testsamenleving-extreem-duur-veroorzaakt-uitsluiting-gezonde-mensen
+    elif scenario == "PCR WHO":
+        naam = "PCR WHO"
+        se = 0.95
+        sp = 0.97
+    elif scenario == "PCR":
+        naam = "PCR"
+        se = 0.998
+        sp = 0.95
+    elif scenario == "Sneltest OMT":
         naam = "Sneltest OMT"
         se = 0.8333
         sp = 0.998
-    elif scenario == "BIOSYNEX SELFTEST":
-        naam = "BIOSYNEX SELFTEST"
-        se = 0.972
-        sp = 1.000
+    elif scenario == "Sneltest Roche":
+        naam = "Sneltest Roche"
+        se = 0.8333
+        sp = 0.991
     name = (st.sidebar.text_input('Name', naam))
     specificity = (st.sidebar.number_input('Specificity',None,None, sp, format="%.4f"))
     sensitivity = (st.sidebar.number_input('Sensitivity',None,None, se, format="%.4f"))
@@ -234,16 +234,16 @@ def main():
     besm = []
     false_discovery_rate = []
     false_negative_rate = []
-    chance_to_be_tested_positive = []
-    false_positive_rate = []
-
     #population = 17_500_000 # The Netherlands
     #population = 9_000_000   # Israel
     #population = 100_000
     #population = 25_000_000 # AUSTRALIA
     # (un)comment next one line to have a loop of "contagious people"
     graph = False
-    if graph :
+    if graph:
+        chance_to_be_tested_positive = []
+        false_positive_rate = []
+
         for prevalentie in range (0,100,10):
             #prevalentie = b / population
             fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people,  False)
@@ -323,7 +323,7 @@ def main():
     toelichting = ("<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a>"
                   "<blockquote class='twitter-tweet' data-conversation='none'><p lang='en' dir='ltr'>88% false positive rate has some implications in Australia, where:<br>17 m tests<br>29886 positives<br>910 deaths.<br>12 % of 29886 = 3587.<br>-&gt; CFR = 25%<br>Reductio ad absurdum.<br>Suspect specificity is significantly higher than 99.8%</p>&mdash; Clayton Clent (@ClaytonClent) <a href='https://twitter.com/ClaytonClent/status/1390448827362996224?ref_src=twsrc%5Etfw'>May 6, 2021</a></blockquote> <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script>"
                   "<a href= 'https://larremorelab.github.io/covid19testgroup' target='_blank'>Various calculations around tests</a>"
-                   
+
                    "<a href= 'https://twitter.com/mus_nico/status/1397349689243144192' target='_blank'>Diverse tweets van Nico de Mus</a>"
                   )
     st.markdown(toelichting, unsafe_allow_html=True)

@@ -15,7 +15,6 @@ def main():
 
     pop_ =      [1756000, 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 839000]
     fraction = [0.10055, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.04804]
-
  #           0-9     10-19  20-29  30-39    40-49   50-59   60-69   70-79  80+
 
     #x_tot = 0
@@ -81,7 +80,7 @@ def main():
 
     st.subheader ("Aantallen")
     df_calculated = pd.DataFrame()
-    for i in range (0, len(pop_)):
+    for i in range(len(pop_)):
 
         df_calculated = df_calculated.append(
             {

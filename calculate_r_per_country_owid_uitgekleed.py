@@ -22,9 +22,11 @@ def fit_the_values(country_, y_values):
         r_squared = round(  1 - (ss_res / ss_tot),4)
         l = (f"derivate fit: a=%5.3f, b=%5.3f, c=%5.3f, d=%5.3f / r2 = {r_squared}" % tuple(popt_d))
         a,b,c,d = popt_d
-        r_total = 0
-        for i in range(1,number_of_y_values):
-            r_total += (derivate(i, a,b,c,d) / derivate(i-1, a,b,c,d))**(4/1)
+        r_total = sum(
+            (derivate(i, a, b, c, d) / derivate(i - 1, a, b, c, d)) ** (4 / 1)
+            for i in range(1, number_of_y_values)
+        )
+
         r_avg_formula = r_total/(number_of_y_values-1)
     except RuntimeError as e:
         pass
@@ -41,8 +43,7 @@ def getdata():
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\owid-covid-data.csv"
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
-    df = pd.read_csv(url1, delimiter=",", low_memory=False)
-    return df
+    return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
     s1 = (int(time.time()))
@@ -66,10 +67,9 @@ def main():
         values_to_fit = df_to_use[what_to_fit].tolist()
         if len(values_to_fit) != 0:
             R_value_country = fit_the_values(country_, values_to_fit)
-            if R_value_country != None  :
-                if R_value_country<5:
-                    print (f"{country_}  - {R_value_country}")
-                    df_country_r = df_country_r.append({'country': country_, "R_value": R_value_country}, ignore_index=True)
+            if R_value_country != None and R_value_country < 5:
+                print (f"{country_}  - {R_value_country}")
+                df_country_r = df_country_r.append({'country': country_, "R_value": R_value_country}, ignore_index=True)
     df_country_r.sort_values(by='R_value', ascending=False)
     print (df_country_r)
     s3 = (int(time.time()))

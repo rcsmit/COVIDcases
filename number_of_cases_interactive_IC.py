@@ -74,8 +74,8 @@ turning = st.sidebar.checkbox("Turning point", True)
 turning_2 = False
 
 if turning:
-   
-    
+
+
     turningpointdate = st.sidebar.text_input('Turning point date (mm/dd/yyyy) 1', "03/15/2021")
     turningdays = st.sidebar.slider('Number of days needed to reach new R values 1', 1, 90, 3)
     try:
@@ -131,7 +131,7 @@ else:
     hospital_days_stay = 21
     from_test_to_hospital = 5
     percentage_test_hospital = 4
-    
+
 
 
 st.sidebar.write ("No need to touch this")
@@ -143,14 +143,14 @@ Tg_=Tg
 if showcummulative or showSIR or showimmunization:
     totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 3_600_000))
     totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
-    
+
     testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 5.0, 2.5)
     try:
         totalimmunedayzero = int(totalimmunedayzero_)
     except:
         st.error("Please enter a number for the number of immune people on day zero")
         st.stop()
-    
+
     try:
         totalpopulation = int(totalpopulation_)
     except:
@@ -225,8 +225,6 @@ terugk= []
 ry2 = Rnew2_
 terugk.append(numberofpositivetests)
 
- # prevent an [divide by zero]-error
-
 if ry2 == 1:
     ry2 = 1.000001
 if ry2 <= 0:
@@ -292,7 +290,7 @@ erbij_=[]
 eraf_=[]
 erbij_.append(ic_dayzero)
 eraf_.append(0)
-for t in range(0, NUMBEROFDAYS):
+for t in range(NUMBEROFDAYS):
     lijstje.append(0)
 #print (lijstje)
 
@@ -301,47 +299,44 @@ for t in range(0, NUMBEROFDAYS):
 
 for t in range(1, NUMBEROFDAYS):
     erbij = 0
-    eraf = 0   
+    eraf = 0
     delta_hospital = 0
-    delta_ic = 0 
+    delta_ic = 0
     if not turning:
         if showimmunization:
             immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
             ry1_ = ry1x[0]*(immeratio**lambdaa)
             ry2_ = ry2x[0]*(immeratio**lambdaa)
             immeratio_.append(immeratio)
-            
+
             r1 = ry2_
             ry2__ = ry2_
         else:
             ry1_ = ry1x[0]
             ry2_ = ry2x[0]
-            pass
-
-    if turning :
+    if turning:
         r1 = ry2x[0]
-        r2 = newrnumber 
+        r2 = newrnumber
         tp = turningpoint
         tptd = turningpoint + turningdays
         ry2__ = ry2x[0]
 
         tp2 = turning_2point
         tptd2 = turning_2point + turning_2days
-        
-        r3 = newrnumber2 
+
+        r3 = newrnumber2
         if t<=tp:
             immeratio = (1-( (totalimmune[t-1]-totalimmune[0])/(totalpopulation-totalimmune[0])))
             ry2__ = ry2x[0]*immeratio
-            pass
         if ((t>tp) and t<=(tptd)):
             if turningdays==0:   
                 ry2__ = r2
             else:
                 fraction =  (((t-tp)/turningdays)) 
-                                 
+
                 ry2__ = ry2x[tp] + ((r2 -ry2x[tp] )*fraction)
                 fractionlist.append(fraction)
-        
+
         if (t>tptd) and t<=tp2:
             if totalimmune[tptd] > totalpopulation  or totalpopulation == totalimmune[tptd]:
                     immeratio = 0.0001
@@ -355,7 +350,7 @@ for t in range(1, NUMBEROFDAYS):
             else:
                 fraction2 =  (((t-tp2)/turning_2days)) 
                 ry2__ = ry2x[tp2] + ((r3 -ry2x[tp2] )*fraction2)
-                
+
         if t>tptd2: 
                 if totalimmune[tptd2] > totalpopulation  or totalpopulation == totalimmune[tptd2]:
                     immeratio = 0.0001
@@ -363,26 +358,20 @@ for t in range(1, NUMBEROFDAYS):
                     immeratio = (1-( (totalimmune[t-1]-totalimmune[tptd2])/(totalpopulation-totalimmune[tptd2])))
                 ry2__ = ry2x[tptd2]*(immeratio**lambdaa)
         immeratio_.append(immeratio)
-        
-      
-    
-    if vaccination:
-        if t>7:
-            if t<(VACTIME+7) :
-         
-                ry2 = ry2__ * ((1-((t-7)/(VACTIME))))
-            else:
-                # vaccination is done, everybody is immune
-               
-                ry2 = ry2__ * 0.0000001
-        else:
-            # it takes 7 days before vaccination works
-            ry1 = ry1__
-            ry2 = ry2__
+
+
+
+    if vaccination and t > 7 and t < (VACTIME + 7):
+
+        ry2 = ry2__ * ((1-((t-7)/(VACTIME))))
+    elif vaccination and t > 7:
+        # vaccination is done, everybody is immune
+
+        ry2 = ry2__ * 0.0000001
     else:
+        # it takes 7 days before vaccination works
         ry1 = ry1__
         ry2 = ry2__
-
     # prevent an [divide by zero]-error
     if ry1 == 1:    
         ry1 = 1.000001
@@ -395,7 +384,7 @@ for t in range(1, NUMBEROFDAYS):
 
     thalf1 = Tg * math.log(0.5) / math.log(ry1)
     thalf2 = Tg * math.log(0.5) / math.log(ry2)
-    
+
     pt1 = (positivetests1[t-1] * (0.5**(1/thalf1)))
     pt2 = (positivetests2[t-1] * (0.5**(1/thalf2)))
     positivetests1.append(pt1)
@@ -414,7 +403,7 @@ for t in range(1, NUMBEROFDAYS):
         cpt1 = (cummulative1[t-1]+  pt1)
         cpt2 = (cummulative2[t-1]+  pt2 )
         cpt12 =  (cummulative12[t-1]+ pt1 + pt2)
-        
+
         if cpt1>=totalpopulation:
             cpt1 = totalpopulation
         if cpt2>=totalpopulation:
@@ -444,17 +433,16 @@ for t in range(1, NUMBEROFDAYS):
         if t>averagedayssick:
             infected.append (infected[t-1]+(((pt1+pt2))*testimmunefactor) -
                                (( positivetests1[t-averagedayssick]+ positivetests2[t-averagedayssick])*testimmunefactor )
-                             ) 
-            suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
+                             )
             recovered.append(recovered[t-1]+ 
                           (( positivetests1[t-averagedayssick]+positivetests2[t-averagedayssick])
-                               * testimmunefactor ) ) 
+                               * testimmunefactor ) )
         else:
             infected.append ( infected[t-1]+((pt1+pt2)*testimmunefactor) - 
-                              (infected[0]/averagedayssick))  
-            suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
+                              (infected[0]/averagedayssick))
             recovered.append(recovered[t-1]+  (infected[0]/averagedayssick))
-            
+
+        suspectible.append(suspectible[t-1]-(((pt1+pt2))*testimmunefactor) )
     ry1x.append(ry1)
     ry2x.append(ry2)
     walkingR.append((ry1**(1-ratio_))*(ry2**(ratio_)))
@@ -463,21 +451,20 @@ for t in range(1, NUMBEROFDAYS):
         hospital.append(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
     else:
         hospital.append(None)
-    
-    
 
-    
+
+
+
     if t < hospital_days_stay:
-        delta_hospital += -1 * (hospital_dayzero / hospital_days_stay) 
+        delta_hospital += -1 * (hospital_dayzero / hospital_days_stay)
     else:
-        hospital_temp = hospital[t-hospital_days_stay] 
-        if hospital_temp == None:
+        hospital_temp = hospital[t-hospital_days_stay]
+        if hospital_temp is None:
             hospital_temp = 0
         delta_hospital += -1 * hospital_temp    
-          
+
     if t> from_test_to_hospital:
         delta_hospital +=(positivetests12[t-from_test_to_hospital]*(percentage_test_hospital/100))
-
    # ERAF
     if t <= ic_days_stay:
         delta_ic += -1 * (ic_dayzero / ic_days_stay) 
@@ -489,10 +476,10 @@ for t in range(1, NUMBEROFDAYS):
         #print (delta_ic) 
         #print (str(xy) + " "+ str(delta_ic)) 
     else:
-        ic_temp = ic_opnames[t-ic_days_stay] 
-        if ic_temp == None:
+        ic_temp = ic_opnames[t-ic_days_stay]
+        if ic_temp is None:
             ic_temp = 0
-        delta_ic += -1 * ic_temp  
+        delta_ic += -1 * ic_temp
         eraf += ic_temp  
 
     #delta_ic -=lijstje[t]
@@ -502,7 +489,7 @@ for t in range(1, NUMBEROFDAYS):
         ic_opnames.append(positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
         delta_ic +=      (positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
         erbij +=         (positivetests12[t-from_test_to_ic]*(percentage_test_ic/100))
-      
+
     else:
         #ic_opnames.append(None)
         xy = 1+((t-ic_days_stay) * -1)
@@ -510,10 +497,10 @@ for t in range(1, NUMBEROFDAYS):
         delta_ic +=      (terugk[xy]*(percentage_test_ic/100)) 
         erbij +=         (terugk[xy]*(percentage_test_ic/100)) 
         #erbij += (terugk[xy]*(percentage_test_ic/100)) 
-        
-    
 
-                 
+
+
+
     erbij_.append(erbij)
     eraf_.append(eraf)
 

@@ -57,11 +57,10 @@ def download_data_file(url, filename, delimiter_, fileformat):
     with st.spinner(f"Downloading...{url}"):
         if download:  # download from the internet
             url = url
-        else:  # download from the local drive
-            if fileformat == "json":
-                url = INPUT_DIR + filename + ".json"
-            else:
-                url = INPUT_DIR + filename + ".csv"
+        elif fileformat == "json":
+            url = INPUT_DIR + filename + ".json"
+        else:
+            url = INPUT_DIR + filename + ".csv"
 
         if fileformat == "csv":
             df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)

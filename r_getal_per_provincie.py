@@ -43,11 +43,10 @@ def download_data_file(url, filename, delimiter_, fileformat):
     with st.spinner(f"Downloading...{url}"):
         if download:  # download from the internet
             url = url
-        else:  # download from the local drive
-            if fileformat == "json":
-                url = INPUT_DIR + filename + ".json"
-            else:
-                url = INPUT_DIR + filename + ".csv"
+        elif fileformat == "json":
+            url = INPUT_DIR + filename + ".json"
+        else:
+            url = INPUT_DIR + filename + ".csv"
 
         if fileformat == "csv":
             df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
@@ -181,10 +180,7 @@ def get_data():
 
 def move_column(df, column_, days):
     """  _ _ _ """
-    if type(column_) == list:
-        column_ = column_
-    else:
-        column_ = [column_]
+    column_ = column_ if type(column_) == list else [column_]
     moved = []
     for column in column_:
         new_column = column + "_moved_" + str(days)
@@ -205,6 +201,9 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     column_list_r_smoothened = []
 
     WDW3 , WDW4 = 7, 4
+    d = WDW4
+    d2 = 2
+    r_sec = []
     for base in smoothed_columns:
         column_name_R = "R_value_from_" + base + "_tg" + str(tg)
 
@@ -226,11 +225,8 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
             {"date_sR": [], column_name_R: []}
         )
 
-        d = WDW4
-        d2 = 2
-        r_sec = []
         df = df.replace({np.nan: 0})
-        for i in range(0, len(df)):
+        for i in range(len(df)):
 
             if df.iloc[i][base] != None:
                 date_ = pd.to_datetime(df.iloc[i]["date"], format="%Y-%m-%d")
@@ -279,10 +275,10 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2020-1-1"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2030-1-1"
 
     mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
@@ -318,7 +314,7 @@ def normeren(df, what_to_norm):
         maxvalue = (df[column].max()) / 100
         firstvalue = df[column].iloc[int(WDW2 / 2)] / 100
         name = f"{column}_normed"
-        for i in range(0, len(df)):
+        for i in range(len(df)):
             if how_to_norm == "max":
                 df.loc[i, name] = df.loc[i, column] / maxvalue
             else:
@@ -397,14 +393,13 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
 
         ]
 
-        n = 0  # counter to walk through the colors-list
         columnlist, t, WDW2, centersmooth,tg = lijst, "SMA", 7, True,4
 
         df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
 
 
 
-        for b in what_to_show_l_:
+        for n, b in enumerate(what_to_show_l_):
             # if type(a) == list:
             #     a_=a
             # else:
@@ -424,13 +419,10 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             # print (df_temp)
             # save_df(df_temp,"whatisdftemp2")
 
-            if t == "bar":
-                pass
-
-            else:  # t = line
+            if t != "bar":  # t = line
                 df_temp = df
 
-                if how_to_smooth == None:
+                if how_to_smooth is None:
                     how_to_smooth_ = "unchanged_"
                 else:
                     how_to_smooth_ = how_to_smooth + "_" + str(WDW2)
@@ -445,9 +437,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                     #alpha=0.9,
                     #linewidth=0.8,
                 )
-            n += 1
-
-
         if what_to_show_r != None:
             if type(what_to_show_r) == list:
                 what_to_show_r = what_to_show_r
@@ -480,13 +469,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 )
                 ax3.set_ylabel("_")
 
-
-            if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
-                pass
-                # correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
-                # correlation_sm = find_correlation_pair(df, b_, c_)
-                # title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
-                # title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
 
             if len(what_to_show_r) == 1:
                 mean = df[what_to_show_r].mean()
@@ -629,7 +611,7 @@ def add_restrictions(df, ax):
 
     ymin, ymax = ax.get_ylim()
     y_lab = ymin
-    for i in range(0, len(df_restrictions)):
+    for i in range(len(df_restrictions)):
         d_ = df_restrictions.iloc[i]["Date"]  # string
         d__ = dt.datetime.strptime(d_, "%Y-%m-%d").date()  # to dateday
 
@@ -651,12 +633,12 @@ def add_restrictions(df, ax):
 
 def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
     """  _ _ _ """
+    title = ""
     if t == "bar":
         if type(what_to_show_l) == list:
             what_to_show_l = what_to_show_l
         else:
             what_to_show_l = [what_to_show_l]
-        title = ""
         for c in what_to_show_l:
 
             #    what_to_show_r = what_to_show_r
@@ -665,19 +647,14 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
             title += str(c) + " "
 
         t1 =wrap(title, 40)
-        title = ""
-        #st.write (t1)
-        for tx in t1:
-            title += tx + "\n"
+        title = "".join(tx + "\n" for tx in t1)
         print (f"titel 1277{title}")
 
-        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
     else:
         tl = ""
         tr = ""
-        i = 0
-        j = 0
         if what_to_show_l is not None:
+            i = 0
             for l in what_to_show_l:
                 if i != len(what_to_show_l) - 1:
                     i += 1
@@ -690,6 +667,7 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
             else:
                 what_to_show_r = [what_to_show_r]
             tl += " - \n"
+            j = 0
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
 
@@ -702,11 +680,10 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
 
         #title = f"{tl}"
         t1 =wrap(tl, 80)
-        title = ""
-
         for t in t1:
             title += t + "\n"
-        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
+
+    graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
 
 
 def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
@@ -721,11 +698,7 @@ def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
     # show_scenario = False
 
     if columnlist is not None:
-        if type(columnlist) == list:
-            columnlist_ = columnlist
-        else:
-            columnlist_ = columnlist
-            # print (columnlist)
+        columnlist_ = columnlist
         for c in columnlist_:
             print(f"Smoothening {c}")
             if t == "SMA":
@@ -742,7 +715,7 @@ def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
                 print("Generating " + new_column + "...")
                 df[new_column] = df[c].transform(lambda x: savgol_filter(x, WDW2, 2))
 
-            elif t == None:
+            elif t is None:
                 new_column = c + "_unchanged_"
                 df[new_column] = df[c]
                 print("Added " + new_column + "...~")
@@ -823,9 +796,6 @@ def main():
 
 
 
-    how_to_smoothen, how_to_display = "SMA", "line"
-
-
     st.title("COVID cases en Re-getal per provincie")
     # st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
@@ -871,7 +841,7 @@ def main():
     what_to_show_day_r = st.sidebar.multiselect(
         "What to show right-axis (multiple possible)", lijst,
     )
-    if what_to_show_day_l == None:
+    if what_to_show_day_l is None:
         st.warning("Choose something")
         st.stop()
 
@@ -888,6 +858,9 @@ def main():
 
     if what_to_show_day_l is not None:
 
+
+
+        how_to_smoothen, how_to_display = "SMA", "line"
 
 
         graph_daily(

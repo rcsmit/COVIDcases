@@ -407,6 +407,9 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     # https://twitter.com/hk_nien/status/1320671955796844546
     column_list_r_smoothened = []
     column_list_r_sec_smoothened = []
+    d= 1
+    d2=2
+    r_sec = []
     for base in smoothed_columns:
         column_name_R = 'R_value_from_'+ base +'_tg'+str(tg)
         column_name_R_sec = 'R_value_(hk)_from_'+ base
@@ -420,10 +423,7 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
         sliding_r_df= pd.DataFrame({'date_sR': [],
                 column_name_R: [],column_name_R_sec: []})
 
-        d= 1
-        d2=2
-        r_sec = []
-        for i in range(0, len(df)):
+        for i in range(len(df)):
             if df.iloc[i][base] != None:
                 date_ = pd.to_datetime(df.iloc[i]['date'], format="%Y-%m-%d")
                 date_ = df.iloc[i]['date']
@@ -459,7 +459,7 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
         # df.set_index('date')
 
         sliding_r_df = sliding_r_df.reset_index()
-        #save_df(df,"lastchrismas")
+            #save_df(df,"lastchrismas")
     return df, column_list_r_smoothened, column_list_r_sec_smoothened
 
 def agg_week(df, how):
@@ -502,10 +502,10 @@ def drop_columns(what_to_drop):
             df = df.drop(columns=['d'],axis=1)
 def select_period(df, show_from, show_until):
 
-    if show_from == None:
+    if show_from is None:
         show_from = '2020-1-1'
 
-    if show_until == None:
+    if show_until is None:
         show_until = '2030-1-1'
     mask = (df['date'] >= show_from) & (df['date'] <= show_until)
     df = (df.loc[mask])
@@ -596,7 +596,7 @@ def normeren(df, what_to_norm):
         firstvalue = df[column].iloc[0]/100
         name = (f"{column}_normed")
 
-        for i in range(0,len(df)):
+        for i in range(len(df)):
             df.loc[i, name] = df.loc[i,column]/firstvalue
         normed_columns.append(name)
         print (f"{name} generated")
@@ -612,7 +612,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
     # print (df)
 
     show_variant = False  # show lines coming from the growth formula
-    if show_variant == True:
+    if show_variant:
         df, ry1, ry2 = calculate_cases(df)
     #print (df.dtypes)
     """  _ _ _ """
@@ -644,15 +644,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
 
     color_list =["#02A6A8","#4E9148","#F05225","#024754","#FBAA27","#302823","#F07826"]
 
-    #color_list = [ operamauve, bittersweet, minion_yellow, COLOR_weekday, mariagold,falu_red,'y',  COLOR_weekend ,green_pigment]
-    #plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
-    #mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=color_list)
-    n = 0  # counter to walk through the colors-list
-
-
     df, columnlist_sm_l = smooth_columnlist(df,what_to_show_l_,how_to_smooth)
     # df, R_smooth = add_walking_r(df, columnlist, how_to_smooth)
-    for b in what_to_show_l_:
+    for n, b in enumerate(what_to_show_l_):
     # if type(a) == list:
     #     a_=a
     # else:
@@ -771,8 +765,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
             df_temp[b].plot(label='_nolegend_', color = color_list[n],linestyle='dotted',alpha=.8,linewidth=.8)
         else:
             print ("ERROR in graph_day")
-        n +=1
-    if show_variant == True:
+    if show_variant:
         l1 = (f"R = {ry1}")
         l2 = (f"R = {ry2}")
         ax = df["variant_1"].plot(label=l1, color = color_list[4],linestyle='dotted',linewidth=1, alpha=1)
@@ -804,7 +797,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title,t):
             for b_ in columnlist: #smoothed
                 lbl2 = b_ + " (right ax)"
                 ax3 = df_temp[b_].plot(secondary_y=True, label=lbl, color = color_list[x], linestyle='--', linewidth=.8) #abel = lbl2 voor uitgebreid label
-            pass # ax3=df_temp[a].plot(secondary_y=True, linestyle='dotted', color = color_list[x], linewidth=.8, '_nolegend_')
             ax3.set_ylabel('_')
 
     # layout of the x-axis
@@ -867,7 +859,7 @@ def add_restrictions(df,ax):
 
     ymin, ymax = ax.get_ylim()
     y_lab = ymin
-    for i in range(0, len(df_restrictions)):
+    for i in range(len(df_restrictions)):
         d_ = df_restrictions.iloc[i]['Date'] #string
         d__ = dt.datetime.strptime(d_,'%Y-%m-%d').date()  # to dateday
 
@@ -942,9 +934,8 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
     if t == "line":
         tl =""
         tr=""
-        i=0
-        j=0
         if what_to_show_l is not None:
+            i=0
             for l in what_to_show_l:
                 if i != len(what_to_show_l) - 1:
                     tl += l + " / "
@@ -953,6 +944,7 @@ def graph_daily(df, what_to_show_l, what_to_show_r,how_to_smooth,t):
                     tl += l
         if what_to_show_r is not None:
             tl += " - "
+            j=0
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
                     tl += r + " / "
@@ -1007,20 +999,14 @@ def find_correlations(df):
         for j in column_list:
             #paar = [j, i]
             paar = str(i)+str(j)
-            if paar not in al_gehad:
-                if i == j:
-                    pass
-                else:
-                    try:
-                        c = round(df[i].corr(df[j]),3)
-                        if c > 0.8:
-                            print (f"{i} - {j} - {str(c)}")
+            if paar not in al_gehad and i != j:
+                try:
+                    c = round(df[i].corr(df[j]),3)
+                    if c > 0.8:
+                        print (f"{i} - {j} - {str(c)}")
 
-                    except:
-                        pass
-            else:
-                #print ("algehad")
-                pass
+                except:
+                    pass
             al_gehad.append(str(j)+str(i))
             #print ("toegevoegd" )
             #print (paar)

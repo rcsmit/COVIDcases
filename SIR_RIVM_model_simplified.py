@@ -6,7 +6,8 @@ from scipy.integrate import solve_ivp
 import numpy as np
 import matplotlib.pyplot as plt
 
-import seaborn; seaborn.set();
+import seaborn
+seaborn.set();
 
 
 
@@ -32,7 +33,7 @@ RSI_  = [ 1.000,  3.051,  5.751,  3.538,  3.705,  4.365,  5.688,  5.324,  7.211]
 
 pop, h, i1, i2, d, dic, dhic, r, ric, LE, RSI = 0,0,0,0,0,0,0,0,0,0,0
 
-for x in range (0, len(fraction)):
+for x in range(len(fraction)):
     h += h_[x] * fraction[x]
     i1+= i1_[x] * fraction[x]
     i2+= i2_[x] * fraction[x]

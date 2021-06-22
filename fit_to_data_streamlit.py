@@ -322,7 +322,6 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             # do fit, st.write result
             result = bmodel.fit(y_values, params, x=x_values)
 
-            a = round(result.params['a'].value,5)
             r= round(result.params['r'].value,5)
 
         else:
@@ -340,10 +339,10 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             result = bmodel.fit(y_values, params, x=x_values)
 
 
-            a = round(result.params['a'].value,5)
             b= round(result.params['b'].value,5)
             c =round(result.params['c'].value,5)
 
+        a = round(result.params['a'].value,5)
         #placeholder1.text(result.fit_report())
         with _lock:
             #fig1y = plt.figure()
@@ -360,9 +359,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
             # use `result.eval()` to evaluate model given params and x
             ax1.plot(t, bmodel.eval(result.params, x=t), "r-", linewidth=2)
-            if function == "exponential":
-                pass
-            else:
+            if function != "exponential":
                 ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
 
             if compare_to:
@@ -403,13 +400,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
                     plt.plot(t, sigmoidal(t, a,b,c))
                     function_x = "sigmoidal"
                     formula_x = "a * np.exp(-b * np.exp(-c * x))"
-                elif function == "exponential":
-                    pass
-                    # plt.plot(t, exponential(t, a,r))
-                    # function_x = "exponential"
-                    # formula_x = "a * (1+r)**t"
-
-                else:
+                elif function != "exponential":
                     st.error("ERROR")
                     st.stop()
                 plt.title(f"{title} / {function_x}\n{formula_x}\n{res}")
@@ -429,15 +420,14 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
     return filename
 
 def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i, max_y_values):
-        x_values_extra = np.linspace(
-            start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
-        )
-        x_values = x_values[:i]
-        y_values = y_values[:i]
-        if prepare_for_animation == False:
-            use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
-        filename = use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
-        return filename
+    x_values_extra = np.linspace(
+        start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
+    )
+    x_values = x_values[:i]
+    y_values = y_values[:i]
+    if prepare_for_animation == False:
+        use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
+    return use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
 
 def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for_animation):
     """
@@ -471,8 +461,8 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
         TOTAL_DAYS_IN_GRAPH = total_days  # number of total days
         x_values = np.linspace(start=0, stop=number_of_y_values - 1, num=number_of_y_values)
 
-        filenames = []
         if prepare_for_animation == True:
+            filenames = []
             for i in range(5, len(x_values)):
                 filename = fit_the_values_really(x_values,  y_values, which_method,  title, daterange, i, max_y_values)
                 filenames.append(filename)
@@ -497,10 +487,10 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2020-2-27"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2020-4-1"
 
     mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
@@ -687,11 +677,10 @@ def download_data_file(url, filename, delimiter_, fileformat):
     with st.spinner(f"Downloading...{url}"):
         if download:  # download from the internet
             url = url
-        else:  # download from the local drive
-            if fileformat == "json":
-                url = INPUT_DIR + filename + ".json"
-            else:
-                url = INPUT_DIR + filename + ".csv"
+        elif fileformat == "json":
+            url = INPUT_DIR + filename + ".json"
+        else:
+            url = INPUT_DIR + filename + ".csv"
 
         if fileformat == "csv":
             df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
@@ -783,7 +772,6 @@ def get_data():
                 "groupby": None,
                 "fileformat": "csv",
             },
-
 #             {
 #                 "url": "https://raw.githubusercontent.com/Sikerdebaard/vaccinatie-orakel/main/data/ensemble.csv",
 #                 "name": "vaccinatie",
@@ -802,7 +790,6 @@ def get_data():
 #                 "groupby": None,
 #                 "fileformat": "json",
 #             },
-
 #             {
 #                 "url": "https://data.rivm.nl/covid-19/COVID-19_uitgevoerde_testen.csv",
 #                 "name": "COVID-19_uitgevoerde_testen",
@@ -821,7 +808,6 @@ def get_data():
 #                 "groupby": None,
 #                 "fileformat": "json",
 #             },
-
 #  {
 #                 "url": "https://raw.githubusercontent.com/mzelst/covid-19/master/data-rivm/ic-datasets/ic_daily_2021-05-06.csv",
 #                 "name": "ic_daily",
@@ -831,8 +817,6 @@ def get_data():
 #                 "groupby": None,
 #                 "fileformat": "csv",
 #             },
-
-
 #             {
 #                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_deceased__ages.csv",
 #                 "name": "cases_hospital_deceased__ages",
@@ -842,8 +826,6 @@ def get_data():
 #                 "groupby": None,
 #                 "fileformat": "csv",
 #             },
-
-
 #             {
 #                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv",
 #                 "name": "mobility",
@@ -907,16 +889,16 @@ def get_data():
         )
         firstkey = data[d]["key"]
 
-        if data[d]["groupby"] != None:
+        if data[d]["groupby"] is None:
+            df_temp_x = df_temp_x.sort_values(by=firstkey)
+            df_ungrouped = None
+
+        else:
             df_temp_x = (
                 df_temp_x.groupby([data[d]["key"]], sort=True).sum().reset_index()
             )
             df_ungrouped = df_temp_x.reset_index()
             firstkey_ungrouped = data[d]["key"]
-        else:
-            df_temp_x = df_temp_x.sort_values(by=firstkey)
-            df_ungrouped = None
-
         df_temp = (
             df_temp_x  # df_temp is the base to which the other databases are merged to
         )

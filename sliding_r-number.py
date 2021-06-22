@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # Total population, N.
 N = 1000
-   
+
 # Initial number of infected and recovered individuals, I0 and R0.
 I0, R0 = 7,0
 # Everyone else, S0, is susceptible to infection initially.
@@ -32,15 +32,14 @@ Tg = 4
 d = 1
 
 # reproductionrate = beta / gamma
-beta = Rt0*gamma 
+beta = Rt0*gamma
 print ("beta : "+  str(beta) + "/ gamma : " + str(gamma))
 
 # A grid of time points (in days)
 t = np.linspace(0, days, days)
 
 
-slidingR=[]
-slidingR.append(None)
+slidingR = [None]
 
 # The SIR model differential equations. Added dCdt to calculate number of cases
 def deriv(y, t, N, beta, gamma):

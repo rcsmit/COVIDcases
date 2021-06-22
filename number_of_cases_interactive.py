@@ -416,13 +416,11 @@ def main():
     #        'Inspired by <a href=\'https://twitter.com/RichardBurghout/status/1357044694149128200\' target=\'_blank\'>this tweet</a>.<br> '
 
     def th2r(rz):
-        th = int( Tg_ * math.log(0.5) / math.log(rz))
-        return th
+        return int( Tg_ * math.log(0.5) / math.log(rz))
 
     def r2th(th):
-        r = int(10**((Tg_*mat.log(2))/th))
         # HK is using  r = 2**(Tg_/th)
-        return r
+        return int(10**((Tg_*mat.log(2))/th))
 
     def getsecondax():
         # get second y axis

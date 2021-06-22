@@ -240,6 +240,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
 
     TODO: Make all graphs in one graph
     """
+    a_start, b_start, c_start = 0,0,0
     for function in functionlist:
         #placeholder0.subheader(f"LMFIT - {title} - {function}")
 
@@ -257,7 +258,6 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             st.write("Please choose a function")
             st.stop()
 
-        a_start, b_start, c_start = 0,0,0
         # create Parameters, giving initial values
         #params = bmodel.make_params(a=4711, b=12, c=0.06)
         params = bmodel.make_params(a=a_start, b=b_start, c=c_start)  # IC BEDDEN MAART APRIL
@@ -340,15 +340,14 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
     return filename
 
 def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i, max_y_values):
-        x_values_extra = np.linspace(
-            start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
-        )
-        x_values = x_values[:i]
-        y_values = y_values[:i]
-        if prepare_for_animation == False:
-            use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
-        filename = use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
-        return filename
+    x_values_extra = np.linspace(
+        start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
+    )
+    x_values = x_values[:i]
+    y_values = y_values[:i]
+    if prepare_for_animation == False:
+        use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
+    return use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
 
 def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for_animation):
     """
@@ -382,8 +381,8 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
         TOTAL_DAYS_IN_GRAPH = total_days  # number of total days
         x_values = np.linspace(start=0, stop=number_of_y_values - 1, num=number_of_y_values)
 
-        filenames = []
         if prepare_for_animation == True:
+            filenames = []
             for i in range(5, len(x_values)):
                 filename = fit_the_values_really(x_values,  y_values, which_method,  title, daterange, i, max_y_values)
                 filenames.append(filename)
@@ -408,10 +407,10 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2020-2-27"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2020-4-1"
 
     mask = (df[DATEFIELD].dt.date >= show_from) & (df[DATEFIELD].dt.date <= show_until)

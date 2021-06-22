@@ -103,6 +103,16 @@ def main():
     #testen_ = [["Dimgrr", 1.0, 0.7], ["ROCHE SELFTEST", 0.8, 0.97],["BIOSYNEX SELFTEST", 0.972, 1.000],
     #  ["PCR TEST", 0.95, 0.998], ["PCR TEST WHO", 0.95, 0.97]]
     testen_ =  [["PCR TEST", 0.95, 0.998]]
+    population = 17_500_000 # The Netherlands
+    #population = 9_000_000   # Israel
+    #population = 100_000
+    # (un)comment next one line to have a loop of "contagious people"
+    #for b in range (5_000, 17_500_000, 100_000):
+
+    # (un)comment next two lines to have 1 value of 'contagious people'
+    #b = 200 # aantal besmettelijken
+    b = 175_0
+    graph = True
     #testen_ = [["ROCHE SELFTEST", 0.8, 0.97]] #, ["PCR TEST", 0.95, 0.998]]
     #testen_ = [["538 TEST", 0.8, 0.999], ["PCR TEST", 0.95, 0.998]]
     #testen_ = [["538 TEST", 0.8, 0.7], ["PCR TEST", 0.95, 0.96]]
@@ -112,19 +122,8 @@ def main():
         titel = (f"{testen[0]} - sensitivity {testen[1]} - specificity {testen[2]}")
         besm = []
         false_discovery_rate = []
-        false_negative_rate = []
-        chance_to_be_tested_positive = []
         false_positive_rate = []
 
-        population = 17_500_000 # The Netherlands
-        #population = 9_000_000   # Israel
-        #population = 100_000
-        # (un)comment next one line to have a loop of "contagious people"
-        #for b in range (5_000, 17_500_000, 100_000):
-
-        # (un)comment next two lines to have 1 value of 'contagious people'
-        #b = 200 # aantal besmettelijken
-        b = 175_0
         if b != None: # line added to keep the code indented
 
             number_of_tested_people = 20000  # don't make too small to prevent rouding errors
@@ -134,10 +133,8 @@ def main():
             besm.append(b)
             false_discovery_rate.append(fdr)
             false_positive_rate.append(fpr)
-            false_negative_rate.append(for_)
-            chance_to_be_tested_positive.append(pos)
-
-        graph = True
+            false_negative_rate = [for_]
+            chance_to_be_tested_positive = [pos]
         if graph :
             fig = plt.figure()
             ax = fig.add_subplot(111)

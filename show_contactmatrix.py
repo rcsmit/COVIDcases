@@ -15,13 +15,13 @@ def calculate_total(df, df_name, contact_type):
     all1 = df['All'].tolist()
     total,total2 = 0,0
     st.markdown (f"Gemiddeld aantal contacten  per persoon _{contact_type}_ _{df_name}_ (gewogen naar populatiefractie)")
-    for n in range(0, len(all1)-1):
+    for n in range(len(all1)-1):
         total += (all1[n]*fraction[n])
     st.markdown (f"Van boven naar beneden  __{round(total,2)}__")
 
     all2 = df.loc[df.index == "All"].values.flatten().tolist()
 
-    for n in range(0, len(all2)-1):
+    for n in range(len(all2)-1):
         total2 += (all2[n]*fraction[n])
     st.markdown (f"Van links naar rechts __{round(total2,2)}__")
     st.markdown (f"Gemiddeld van beide __{round(((total+total2)/2),2)}__")
@@ -90,9 +90,11 @@ def main():
     age_groups = ["0-4",  "5-9",  "10-19",  "20-29",  "30-39",  "40-49",  "50-59",  "60-69",  "70-79",  "80+"]
     relative_s_2_i = [ 1.000, 1.000, 3.051, 5.751, 3.538, 3.705, 4.365, 5.688, 5.324, 7.211]
 
-    s = 0
-    for i in range(0,len(age_groups)-1):
-        s += round((all_diff_ratio[i]*relative_s_2_i[i])/ len(age_groups),2)
+    s = sum(
+        round((all_diff_ratio[i] * relative_s_2_i[i]) / len(age_groups), 2)
+        for i in range(len(age_groups) - 1)
+    )
+
     # st.write (f"Relative reduction of contacs = {s}")
 
     st.subheader(f"Verschil als percentage -- ({df1}-{df2})/{df1} * 100" )
