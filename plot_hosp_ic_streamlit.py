@@ -288,6 +288,9 @@ def prepare_data():
         .reset_index()
         .copy(deep=False)
     )
+
+    save_df(df_pivot_hospital,"df_pivot_hospital")
+    save_df(df_pivot_ic,"df_pivot_ic")
     if delete_last_row == True:
         df_pivot_hospital = df_pivot_hospital[:-1]
         df_pivot_ic = df_pivot_ic[:-1]
@@ -348,6 +351,7 @@ def calculate_percentages(df, lijst):
     return df, lijst_perc
 
 def calculate_cumm(df, lijst, all_or_period):
+    """ Calculate walking cummulative """
     cumlist = []
     for l in lijst:
         if all_or_period == "all":
@@ -365,6 +369,74 @@ def calculate_per_capita(df, lijst, population):
         df[name] = df[l] / population[i]
         capitalist.append(name)
     return df, capitalist
+
+def color_value(val):
+    try:
+        v = abs(val)
+        opacity = 1 if v >100 else v/100
+        # color = 'green' if val >0 else 'red'
+        if val > 0 :
+             color = '255, 0, 0'
+        elif val < 0:
+            color = '76, 175, 80'
+        else:
+            color = '255,255,255'
+    except:
+        # give cells with eg. text or dates a white background
+        color = '255,255,255'
+        opacity = 1
+    return f'background: rgba({color}, {opacity})'
+
+
+
+def do_the_rudi(df):
+    """Calculate the fractions per age group. Calculate the difference related to day 0 as a % of day 0.
+    Made for Rudi Lousberg
+    Inspired by Ian Denton https://twitter.com/IanDenton12/status/1407379429526052866
+
+    Args:
+        df (df): table with numbers
+
+    Returns:
+        df : table with the percentual change of the fracctions
+    """
+    # calculate the sum
+    df = df.drop(columns="index", axis=1)
+
+    df["sum"] = df. sum(axis=1)
+
+    # make a new df with the fraction, row-wize  df_fractions A
+    nr_of_columns = len (df.columns)
+    nr_of_rows = len(df)
+    column_list = df.columns.tolist()
+
+    # calculate the fraction of each age group
+    data  = []
+    for r in range (0,nr_of_rows):
+        row_data = []
+        for c in range (0,nr_of_columns):
+            try:
+                row_data.append(round((df.iat[r,c]/df.at[r,"sum"]*100),2))
+            except:
+                row_data.append( df.iat[r,c])
+        data.append(row_data)
+    df_fractions = pd.DataFrame(data, columns=column_list)
+
+    # calculate the percentual change of the fractions
+    data  = []
+    for r in range (0,nr_of_rows):
+        row_data = []
+        for c in range (0,nr_of_columns):
+            try:
+                row_data.append( round(((df_fractions.iat[r,c]  -  df_fractions.iat[0,c]  )/df_fractions.iat[0,c]*100),2))
+            except:
+                row_data.append(  df_fractions.iat[r,c])
+        data.append(row_data)
+    df_rudi = pd.DataFrame(data, columns=column_list)
+    df_rudi['Date_of_statistics_week_start'] = df['Date_of_statistics_week_start'].dt.date
+    df_rudi.rename(columns={"Date_of_statistics_week_start": "date"},  inplace=True)
+    return df_rudi
+
 
 def main():
 
@@ -421,6 +493,15 @@ def main():
     delete_last_row =  st.sidebar.selectbox("Delete last week/row of complete dataset", [True, False], index=0)
 
     df_pivot_hospital, df_pivot_ic  = prepare_data()
+
+
+    df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
+    df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
+
+    df_pivot_hospital_basic = df_pivot_hospital.copy(deep=False)
+    df_pivot_ic_basic =  df_pivot_ic.copy(deep=False)
+
+
     df_pivot_hospital = agg_ages(df_pivot_hospital)
     df_pivot_ic = agg_ages(df_pivot_ic)
 
@@ -436,8 +517,7 @@ def main():
     df_pivot_ic, lijst_per_capita = calculate_per_capita(df_pivot_ic, lijst, population)
 
 
-    df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
-    df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
+
 
     df_pivot_hospital, lijst_cumm_period =  calculate_cumm(df_pivot_hospital, lijst, "period")
     df_pivot_ic, lijst_cumm_period =  calculate_cumm(df_pivot_ic, lijst, "period")
@@ -520,10 +600,20 @@ def main():
 
     if hospital_or_ic == "hospital":
             st.subheader("Ziekenhuisopnames (aantallen)")
-            st.write (df_pivot_hospital)
+
+            st.write (df_pivot_hospital_basic)
+
+            df_new = do_the_rudi(df_pivot_hospital_basic)
+
+
+            st.write(df_new.style.format(None, na_rep="-").applymap(color_value).set_precision(2))
+
+            #st.dataframe(df_new.style.applymap(color_value))
     else:
             st.subheader("Ziekenhuisopnames (aantallen)")
-            st.write(df_pivot_ic)
+            st.write(df_pivot_ic_basic)
+            df_new = do_the_rudi(df_pivot_ic_basic)
+            st.dataframe(df_new.style.applymap(color_value))
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"

@@ -124,8 +124,6 @@ def get_data():
     return df
 
 def color_value(val):
-
-
     try:
         v = abs(val)
         opacity = 1 if v >100 else v/100
@@ -136,21 +134,12 @@ def color_value(val):
             color = '76, 175, 80'
         else:
             color = '255,255,255'
-
-        # if val == NaN:
-        #     color = 'white'
-        # elif val > 0.0:
-        #     color = 'green'
-        # elif val<0.0 :
-        #     color = '#ff0000'
-        # else:
-        #     color = '#ffffff'
     except:
+        # give cells with eg. text or dates a white background
         color = '255,255,255'
         opacity = 1
-
-    #return f'background-color: {color}; '
     return f'background: rgba({color}, {opacity})'
+
 
 def main():
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
@@ -177,33 +166,33 @@ def main():
         .copy(deep=False)
     )
 
-    # df_pivot_hospital = (
-    #     pd.pivot_table(
-    #         df_hospital,
-    #         values="count",
-    #         index=["Date_statistics"],
-    #         columns=["Agegroup"],
-    #         aggfunc=np.sum,
-    #     )
-    #     .reset_index()
-    #     .copy(deep=False)
-    # )
+    df_pivot_hospital = (
+        pd.pivot_table(
+            df_hospital,
+            values="count",
+            index=["Date_statistics"],
+            columns=["Agegroup"],
+            aggfunc=np.sum,
+        )
+        .reset_index()
+        .copy(deep=False)
+    )
 
-    # df_pivot_deceased = (
-    #     pd.pivot_table(
-    #         df_deceased,
-    #         values="count",
-    #         index=["Date_statistics"],
-    #         columns=["Agegroup"],
-    #         aggfunc=np.sum,
-    #     )
-    #     .reset_index()
-    #     .copy(deep=False)
-    # )
+    df_pivot_deceased = (
+        pd.pivot_table(
+            df_deceased,
+            values="count",
+            index=["Date_statistics"],
+            columns=["Agegroup"],
+            aggfunc=np.sum,
+        )
+        .reset_index()
+        .copy(deep=False)
+    )
 
     df_pivot = df_pivot.add_prefix("pos_test_")
-    # df_pivot_hospital = df_pivot_hospital.add_prefix("hosp_")
-    # df_pivot_deceased = df_pivot_deceased.add_prefix("deceased_")
+    df_pivot_hospital = df_pivot_hospital.add_prefix("hosp_")
+    df_pivot_deceased = df_pivot_deceased.add_prefix("deceased_")
 
     todrop = [
         "Date_statistics_type",
@@ -218,8 +207,8 @@ def main():
     save_df(df, "landelijk_leeftijd_2")
 
     save_df(df_pivot, "landelijk_leeftijd_pivot")
-    # save_df(df_pivot_hospital, "landelijk_leeftijd_pivot_hospital")
-    # save_df(df_pivot_deceased, "landelijk_leeftijd_pivot_deceased")
+    save_df(df_pivot_hospital, "landelijk_leeftijd_pivot_hospital")
+    save_df(df_pivot_deceased, "landelijk_leeftijd_pivot_deceased")
 
     # df_temp = pd.merge(
     #     df_pivot,
@@ -243,24 +232,8 @@ def main():
     numberofdays = st.sidebar.slider("Vergelijken met x dagen ervoor", 0, 21, 7)
     df_pivot,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
-    #df_new["date"] = pd.to_datetime(df_new["date"], format="%Y-%m-%d")
-    df_new.set_index('date')
+    
     save_df(df_new, "daily_changes_casus_landelijk_age")
-    # fig, ax = plt.subplots(figsize=(11, 9))
-
-    #ax.set_xticklabels(df_new['date'].dt.strftime('%Y-%m-%d'))
-    #df_new['date'] = df_new.date.date().astype('string')
-    # df_new = df_new.drop(columns="date", axis=1)
-    # sn.heatmap(df_new, annot=True, annot_kws={"fontsize": 7}, vmax=100, vmin = -100)
-    # plt.show()
-
-
-
-
-    # cm = sn.light_palette("green", as_cmap=True)
-
-    # df_new.style.background_gradient(cmap=cm)
-
     st.dataframe(df_new.style.applymap(color_value))
 if __name__ == "__main__":
     main()
