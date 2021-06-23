@@ -83,22 +83,25 @@ def regroup_df(kids_split_up):
     df_new= pd.DataFrame({'date': [],'cat_oud': [],
                     'cat_nieuw': [], "positief_testen": [],"totaal_testen": [], "methode":[]})
 
-    for i in range(0, len(df)):
+    for i in range(len(df)):
         print(i, end = '')
         d =  df.loc[i, "datum"]
-        for x in range(0,len(cat_oud)-1):
+        for x in range(len(cat_oud)-1):
             c_o,c,p,t,m = None,None,None,None,None
             if df.loc[i, "methode"] == "oud":
                 if df.loc[i, "leeftijdscat"] == cat_oud[x]:
                     c = cat_oud_vervanging[x]
             elif df.loc[i, "methode"] == "nieuw":
-                if x <= len(cat_nieuw)-1 :
-                    if df.loc[i, "leeftijdscat"] == cat_nieuw[x]:
-                        c =  cat_nieuw_vervanging[x]
-            else:
-                if x <= len(cat_nieuw)-1 :
-                    if df.loc[i, "leeftijdscat"] == cat_nieuwst[x]:
-                        c =  cat_nieuwst_vervanging[x]
+                if (
+                    x <= len(cat_nieuw) - 1
+                    and df.loc[i, "leeftijdscat"] == cat_nieuw[x]
+                ):
+                    c =  cat_nieuw_vervanging[x]
+            elif (
+                x <= len(cat_nieuw) - 1
+                and df.loc[i, "leeftijdscat"] == cat_nieuwst[x]
+            ):
+                c =  cat_nieuwst_vervanging[x]
             c_o =  df.loc[i, "leeftijdscat"]
             p =df.loc[i, "totaal_pos"]
             t = df.loc[i, "totaal_getest"]

@@ -248,9 +248,7 @@ def agg_ages(df):
 @st.cache(ttl=60 * 60 * 24)
 def load_data():
     url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
-    df = pd.read_csv(url1, delimiter=";", low_memory=False)
-
-    return df
+    return pd.read_csv(url1, delimiter=";", low_memory=False)
 
 def prepare_data():
     #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
@@ -313,7 +311,7 @@ def normeren(df, what_to_norm):
             firstvalue = df[column].iloc[0] / 100
             name = f"{column}_index"
 
-            for i in range(0, len(df)):
+            for i in range(len(df)):
                 if how_to_norm == "max":
                     df.loc[i, name] = df.loc[i, column] / maxvalue
                 else:
@@ -325,16 +323,16 @@ def normeren(df, what_to_norm):
                         st.alert("dividebyzero")
             normed_columns.append(name)
 
-        #print(f"{name} generated")
-        #print (df)
+            #print(f"{name} generated")
+            #print (df)
     return df, normed_columns
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2021-1-1"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2030-1-1"
 
     mask = (df["Date_of_statistics_week_start"].dt.date >= show_from) & (df["Date_of_statistics_week_start"].dt.date <= show_until)
@@ -354,10 +352,7 @@ def calculate_cumm(df, lijst, all_or_period):
     """ Calculate walking cummulative """
     cumlist = []
     for l in lijst:
-        if all_or_period == "all":
-            name = l + "_cumm_all"
-        else:
-            name = l + "_cumm_period"
+        name = l + "_cumm_all" if all_or_period == "all" else l + "_cumm_period"
         df[name] = df[l].cumsum()
         cumlist.append(name)
     return df, cumlist
@@ -412,9 +407,9 @@ def do_the_rudi(df):
 
     # calculate the fraction of each age group
     data  = []
-    for r in range (0,nr_of_rows):
+    for r in range(nr_of_rows):
         row_data = []
-        for c in range (0,nr_of_columns):
+        for c in range(nr_of_columns):
             try:
                 row_data.append(round((df.iat[r,c]/df.at[r,"sum"]*100),2))
             except:
@@ -424,9 +419,9 @@ def do_the_rudi(df):
 
     # calculate the percentual change of the fractions
     data  = []
-    for r in range (0,nr_of_rows):
+    for r in range(nr_of_rows):
         row_data = []
-        for c in range (0,nr_of_columns):
+        for c in range(nr_of_columns):
             try:
                 row_data.append( round(((df_fractions.iat[r,c]  -  df_fractions.iat[0,c]  )/df_fractions.iat[0,c]*100),2))
             except:
@@ -535,10 +530,7 @@ def main():
         age_groups = ["0-29","30-49","50-69","70-89","90+", "TOTAAL"]
         absolute_or_index = st.sidebar.selectbox(f"Absolute | percentages of TOTAAL |\n index (start = 100) | per capita | cummulatief from 2020-1-1 | cummulatief from {FROM}", ["absolute",  "percentages", "index",  "per_capita", "cummulatief_all", "cummulatief_period"], index=0)
 
-        if absolute_or_index == "index":
-            normed = True
-        else:
-            normed = False
+        normed = absolute_or_index == "index"
         if absolute_or_index  == "percentages":
             ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst_perc, default_age_groups_perc)

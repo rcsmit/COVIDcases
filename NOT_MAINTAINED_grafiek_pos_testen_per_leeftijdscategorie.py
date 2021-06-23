@@ -63,9 +63,9 @@ def main():
     df_new= pd.DataFrame({'date': [],'cat_oud': [],
                     'cat_nieuw': [], "positief_testen": [],"totaal_testen": [], "methode":[]})
 
-    for i in range(0, len(df)):
+    for i in range(len(df)):
         d =  df.loc[i, "datum"]
-        for x in range(0,len(cat_oud)-1):
+        for x in range(len(cat_oud)-1):
             c_o,c,p,t,m = None,None,None,None,None
             if df.loc[i, "methode"] == "oud":
                 # print (df.loc[i, "leeftijdscat"])
@@ -81,16 +81,17 @@ def main():
                     m = df.loc[i, "methode"] == "oud"
                     df_new = df_new.append({ 'date': d, 'cat_oud': c_o, 'cat_nieuw': c,  "positief_testen": p,"totaal_testen":t, "methode": m}, ignore_index= True)
                     c_o,c,p,t,m = None,None,None,None,None
-            else:
-                if x <= len(cat_nieuwstx)-1 :
-                    if df.loc[i, "leeftijdscat"] == cat_nieuwstx[x]:
-                        c_o =  df.loc[i, "leeftijdscat"]
-                        c =  df.loc[i, "leeftijdscat"]
-                        p =df.loc[i, "totaal_pos"]
-                        t = df.loc[i, "totaal_getest"]
-                        m = df.loc[i, "methode"]
-                        df_new = df_new.append({ 'date': d, 'cat_oud': c_o, 'cat_nieuw': c,  "positief_testen": p,"totaal_testen":t, "methode": m}, ignore_index= True)
-                        c_o,c,p,t,m = None,None,None,None,None
+            elif (
+                x <= len(cat_nieuwstx) - 1
+                and df.loc[i, "leeftijdscat"] == cat_nieuwstx[x]
+            ):
+                c_o =  df.loc[i, "leeftijdscat"]
+                c =  df.loc[i, "leeftijdscat"]
+                p =df.loc[i, "totaal_pos"]
+                t = df.loc[i, "totaal_getest"]
+                m = df.loc[i, "methode"]
+                df_new = df_new.append({ 'date': d, 'cat_oud': c_o, 'cat_nieuw': c,  "positief_testen": p,"totaal_testen":t, "methode": m}, ignore_index= True)
+                c_o,c,p,t,m = None,None,None,None,None
 
     df_new = df_new.groupby(['date','cat_nieuw'], sort=True).sum().reset_index()
 

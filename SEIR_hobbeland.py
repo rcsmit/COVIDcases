@@ -22,13 +22,11 @@ from scipy.integrate import odeint
 
 
 def th2r(rz):
-    th = int( Tg_ * math.log(0.5) / math.log(rz))
-    return th
+    return int( Tg_ * math.log(0.5) / math.log(rz))
 
 def r2th(th):
-    r = int(10**((Tg_*mat.log(2))/th))
     # HK is using  r = 2**(Tg_/th)
-    return r
+    return int(10**((Tg_*mat.log(2))/th))
 
 def getsecondax():
     # get second y axis
@@ -203,20 +201,13 @@ def main():
     # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
     def deriv(y, t, N, beta, gamma, ifr):
         S, V, E, I, C, R, D = y
-        if V >= N:
+        if V < N and t > start_day_vaccination:
+            zulu_= copy.deepcopy(zulu)
+            N_=copy.deepcopy(N)
+            dVdt = zulu_ * N_
+        else:
             dVdt = 0
-        else:
-            if t>start_day_vaccination:
-                zulu_= copy.deepcopy(zulu)
-                N_=copy.deepcopy(N)
-                dVdt = zulu_ * N_
-            else:
-                dVdt = 0
-        if S<=0:
-            dSdt = 0
-        else:
-            dSdt = (-beta * S * I / N)  - (dVdt) # aantal zieke mensen x aantal gezonde mensen x beta
-
+        dSdt = 0 if S<=0 else (-beta * S * I / N)  - (dVdt)
         dEdt = beta * S * I / N  - alfa * E
         dIdt = alfa * E - gamma * I
         dCdt = alfa * E

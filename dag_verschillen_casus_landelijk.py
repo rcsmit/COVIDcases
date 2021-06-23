@@ -53,10 +53,7 @@ def drop_columns(df, what_to_drop):
     return df
 
 def day_to_day(df, column_, numberofdays):
-    if type(column_) == list:
-        column_ = column_
-    else:
-        column_ = [column_]
+    column_ = column_ if type(column_) == list else [column_]
     newcolumns = []   # percentuele verandering
     newcolumns2 = []  # index
     df_new =  pd.DataFrame()
@@ -92,10 +89,7 @@ def day_to_day(df, column_, numberofdays):
     return df, df_new, newcolumns
 
 def week_to_week(df, column_):
-    if type(column_) == list:
-        column_ = column_
-    else:
-        column_ = [column_]
+    column_ = column_ if type(column_) == list else [column_]
     newcolumns = []
     newcolumns2 = []
 
@@ -171,9 +165,9 @@ def do_the_rudi(df):
 
     # calculate the fraction of each age group
     data  = []
-    for r in range (0,nr_of_rows):
+    for r in range(nr_of_rows):
         row_data = []
-        for c in range (0,nr_of_columns):
+        for c in range(nr_of_columns):
             try:
                 row_data.append(round((df.iat[r,c]/df.at[r,"sum"]*100),2))
             except:
@@ -183,24 +177,22 @@ def do_the_rudi(df):
 
     # calculate the percentual change of the fractions
     data  = []
-    for r in range (0,nr_of_rows):
+    for r in range(nr_of_rows):
         row_data = []
-        for c in range (0,nr_of_columns):
+        for c in range(nr_of_columns):
             try:
                 row_data.append( round(((df_fractions.iat[r,c]  -  df_fractions.iat[0,c]  )/df_fractions.iat[0,c]*100),2))
             except:
                 row_data.append(  df_fractions.iat[r,c])
         data.append(row_data)
-    df_rudi = pd.DataFrame(data, columns=column_list)
-
-    return df_rudi
+    return pd.DataFrame(data, columns=column_list)
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2021-1-1"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2030-1-1"
 
     mask = (df["Date_statistics"].dt.date >= show_from) & (df["Date_statistics"].dt.date <= show_until)

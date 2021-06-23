@@ -99,10 +99,11 @@ def fit_the_values(country_, y_values , total_days, graph, output):
         deriv_last = derivate(number_of_y_values,a,b,c,d)
         r_0_last_formula = (deriv_last/deriv_0)**(4/number_of_y_values)
         #r_0_last_cases = (y_values[number_of_y_values-1]/ y_values[0])**(4/number_of_y_values)
-        r_total = 0
-        #for i in range(1,number_of_y_values):
-        for i in range(number_of_y_values-5,number_of_y_values):
-            r_total += (derivate(i, a,b,c,d) / derivate(i-1, a,b,c,d))**(4/1)
+        r_total = sum(
+            (derivate(i, a, b, c, d) / derivate(i - 1, a, b, c, d)) ** (4 / 1)
+            for i in range(number_of_y_values - 5, number_of_y_values)
+        )
+
         #r_avg_formula = r_total/(number_of_y_values-1)
         r_avg_formula = r_total/6
         r_cases_list = []
@@ -183,10 +184,10 @@ def fit_the_values(country_, y_values , total_days, graph, output):
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2020-2-27"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2020-4-1"
 
     mask = (df[DATEFIELD].dt.date >= show_from) & (df[DATEFIELD].dt.date <= show_until)
@@ -205,8 +206,7 @@ def getdata():
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
 
-    df = pd.read_csv(url1, delimiter=",", low_memory=False)
-    return df
+    return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
     global placeholder0, placeholder, placeholder1
@@ -328,12 +328,11 @@ def main():
             values_to_fit = df_to_use[what_to_fit].tolist()
             if len(values_to_fit) != 0:
                 R_value_country = fit_the_values(country_, values_to_fit, total_days,  False, False)
-                if R_value_country != None  :
-                    if R_value_country<5:
-                        st.write (f"{country_}  - {R_value_country}")
+                if R_value_country != None and R_value_country < 5:
+                    st.write (f"{country_}  - {R_value_country}")
 
 
-                        df_country_r = df_country_r.append({'country': country_, "R_value": R_value_country}, ignore_index=True)
+                    df_country_r = df_country_r.append({'country': country_, "R_value": R_value_country}, ignore_index=True)
         df_country_r.sort_values(by='R_value', ascending=False)
         st.dataframe(df_country_r, 500,2000)
 

@@ -48,10 +48,10 @@ b = datetime.today().strftime('%m/%d/%Y')
 st.sidebar.title('Parameters')
 numberofcasesdayzero = st.sidebar.number_input('Total number of positive test 100k/7days',None,None,277)
 numberofcasesdaytotzero = st.sidebar.number_input('Total number of pos. test per day',None,None,6086)  
-    
-numberofhospitaldayzero = st.sidebar.number_input('Total number of hospital',None,None,75)  
+
+numberofhospitaldayzero = st.sidebar.number_input('Total number of hospital',None,None,75)
 numberofICdayzero = st.sidebar.number_input('Total number of IC',None,None,34) 
- 
+
 st.markdown("<hr>", unsafe_allow_html=True)
 a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 150, 60)
@@ -62,12 +62,11 @@ TURNINGPOINTDAY = st.sidebar.slider('Number of days needed to go to new R', 1, 3
 # Some manipulation of the x-values
 
 try:
-    startx = dt.datetime.strptime(a,'%m/%d/%Y').date() 
+    startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
 except:
     st.markdown("Please make sure that the date is in format mm/dd/yyyy")
-    pass
 then = startx + dt.timedelta(days=NUMBEROFDAYS)
-x = mdates.drange(startx,then,dt.timedelta(days=1)) 
+x = mdates.drange(startx,then,dt.timedelta(days=1))
 # x = dagnummer gerekend vanaf 1 januari 1970 (?)
 # y = aantal gevallen
 # z = dagnummer van 1 tot NUMBEROFDAYS
@@ -80,8 +79,8 @@ inIC=[]
 
 # START CALCULATING --------------------------------------------------------------------
 
-positiveteststot.append (numberofcasesdaytotzero) 
-positivetests.append (numberofcasesdayzero) 
+positiveteststot.append (numberofcasesdaytotzero)
+positivetests.append (numberofcasesdayzero)
 inhospital.append(numberofhospitaldayzero)
 inIC.append(numberofICdayzero)
 
@@ -90,7 +89,7 @@ for t in range(1, NUMBEROFDAYS):
         Ry = Rold - (t/TURNINGPOINTDAY * (Rold - Rnew))
     else:
         Ry = Rnew
-    
+
     if Ry == 1:
         # prevent an [divide by zero]-error
         Ry = 1.000001
@@ -155,9 +154,9 @@ with _lock:
     plt.gca().set_title(titlex , fontsize=10)
 
     st.pyplot(fig1)
-          
-          
-          
+
+
+
 # POS TESTS / 7days ################################
 with _lock:
     fig1b, ax = plt.subplots()

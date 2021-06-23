@@ -56,7 +56,7 @@ for n in range (len(df)):
     cumm_getest_metkids +=  (df.loc[n]['getest'])
     cumm_positief_metkids += (df.loc[n]['positief'])
 
-    if df.loc[n]['tot'] ==3 or  df.loc[n]['tot'] ==12 or  df.loc[n]['tot'] ==12 or df.loc[n]['tot'] ==99:
+    if df.loc[n]['tot'] in [3, 12, 99]:
         getest_weg +=  (df.loc[n]['getest'])
         positief_weg += (df.loc[n]['positief'])
     else:

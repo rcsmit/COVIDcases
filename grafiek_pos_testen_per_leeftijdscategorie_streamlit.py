@@ -217,7 +217,7 @@ def show_graph_ages_percentage(df_new, ages_to_show_in_graph, what_to_show_l, wh
     #with _lock:
     testmeout = False
     #TODO : New graph with grouped barcharts
-    if testmeout == True:
+    if testmeout:
         st.write(df_temp_x)
 
         df_pivot_0 = df_temp_x.pivot_table( values='percentage', index=['date'],
@@ -240,11 +240,11 @@ def show_graph_ages_percentage(df_new, ages_to_show_in_graph, what_to_show_l, wh
         # aantaldata = len(df_new)
         aantaldata= len(ages_to_show_in_graph)
         ax = df_pivot_transpose.plot.bar()
+        width = 1
+
         for i,l in enumerate(ages_to_show_in_graph):
 
             a = i/aantaldata
-            width = 1
-
             #ax.bar(df_pivot.index+ (i*width), df_pivot[l], width, align = 'center')
             ax = df_pivot.plot.bar(rot=0)
             #ax.set_xticks(df_pivot.index + width) # sets the x-ticks to the middle of the cluster of bars
@@ -254,22 +254,22 @@ def show_graph_ages_percentage(df_new, ages_to_show_in_graph, what_to_show_l, wh
 
 
 
-            # if what_to_show_l== "percentage positieve testen":
-            #     list_percentage = df_temp["percentage"].tolist()
-            #     ax =  df_temp["percentage"].plot(label = l)
-            # elif what_to_show_l== "aantal positieve testen":
-            #     list_percentage = df_temp["positief_testen"].tolist()
-            #     ax =  df_temp["positief_testen"].plot(label = l)
-            # elif what_to_show_l== "totaal testen gedaan":
-            #     list_percentage = df_temp["totaal_testen"].tolist()
-            #     ax =  df_temp["totaal_testen"].plot(label = l)
-            # else:
-            #     print ("error")
+                    # if what_to_show_l== "percentage positieve testen":
+                    #     list_percentage = df_temp["percentage"].tolist()
+                    #     ax =  df_temp["percentage"].plot(label = l)
+                    # elif what_to_show_l== "aantal positieve testen":
+                    #     list_percentage = df_temp["positief_testen"].tolist()
+                    #     ax =  df_temp["positief_testen"].plot(label = l)
+                    # elif what_to_show_l== "totaal testen gedaan":
+                    #     list_percentage = df_temp["totaal_testen"].tolist()
+                    #     ax =  df_temp["totaal_testen"].plot(label = l)
+                    # else:
+                    #     print ("error")
 
-            #print (list_dates)
+                    #print (list_dates)
 
-            # ax =  df_temp["percentage"].plot(label = l)
-            #plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
+                    # ax =  df_temp["percentage"].plot(label = l)
+                    #plt.plot(list_dates, list_percentage, color = color_list[i], label = l)
         #labelLines(plt.gca().get_lines(),align=False,fontsize=8)
 
         # ticks = [tick.get_text() for tick in ax.get_xticklabels()]

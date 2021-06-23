@@ -43,11 +43,10 @@ def download_data_file(url, filename, delimiter_, fileformat):
     with st.spinner(f"Downloading...{url}"):
         if download:  # download from the internet
             url = url
-        else:  # download from the local drive
-            if fileformat == "json":
-                url = INPUT_DIR + filename + ".json"
-            else:
-                url = INPUT_DIR + filename + ".csv"
+        elif fileformat == "json":
+            url = INPUT_DIR + filename + ".json"
+        else:
+            url = INPUT_DIR + filename + ".csv"
 
         if fileformat == "csv":
             df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
@@ -318,10 +317,7 @@ def get_data():
 
 
 def week_to_week(df, column_):
-    if type(column_) == list:
-        column_ = column_
-    else:
-        column_ = [column_]
+    column_ = column_ if type(column_) == list else [column_]
     newcolumns = []
     newcolumns2 = []
 
@@ -341,20 +337,19 @@ def week_to_week(df, column_):
             df.at[n, newname2] = waarde2
     return df, newcolumns, newcolumns2
 
-def rh2ah (rh, t ):
-    # https://carnotcycle.wordpress.com/2012/08/04/how-to-convert-relative-humidity-to-absolute-humidity/
-    ah =( 6.112 *  math.exp((17.67 * t)/(t+243.5)) * rh * 2.1674) /     (273.15+t)
-    return ah
+def rh2ah(rh, t ):
+    return (6.112 * math.exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (
+        273.15 + t
+    )
 
-def rh2q (rh, t, p ):
+def rh2q(rh, t, p ):
     # https://archive.eol.ucar.edu/projects/ceop/dm/documents/refdata_report/eqns.html
 
     #Td = math.log(e/6.112)*243.5/(17.67-math.log(e/6.112))
     es = 6.112 * math.exp((17.67 * t)/(t + 243.5))
     e = es * (rh / 100)
     q_ = (0.622 * e)/(p - (0.378 * e)) * 1000
-    q= round(q_,2)
-    return q
+    return round(q_,2)
 
 
 def extra_calculations(df):
@@ -556,6 +551,8 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     # https://twitter.com/hk_nien/status/1364943234934390792/photo/1
     column_list_r_smoothened = []
     column_list_r_sec_smoothened = []
+    d2 = 2
+    r_sec = []
     for base in smoothed_columns:
         column_name_R = "R_value_from_" + base + "_tg" + str(tg)
         column_name_R_sec = "R_value_(hk)_from_" + base
@@ -589,9 +586,7 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
         )
 
         d = WDW4
-        d2 = 2
-        r_sec = []
-        for i in range(0, len(df)):
+        for i in range(len(df)):
             if df.iloc[i][base] != None:
                 date_ = pd.to_datetime(df.iloc[i]["date"], format="%Y-%m-%d")
                 date_ = df.iloc[i]["date"]
@@ -600,10 +595,9 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
                         ((df.iloc[i][base] / df.iloc[i - d][base]) ** (tg / d)), 2
                     )
 
-                    slidingR_sec = None  # slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
                 else:
                     slidingR_ = None
-                    slidingR_sec = None
+                slidingR_sec = None  # slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
                 sliding_r_df = sliding_r_df.append(
                     {
                         "date_sR": date_,
@@ -641,11 +635,7 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
 
 def move_column(df, column_, days):
     """  _ _ _ """
-    if type(column_) == list:
-        column_ = column_
-    else:
-        column_ = [column_]
-
+    column_ = column_ if type(column_) == list else [column_]
     for column in column_:
         new_column = column + "_moved_" + str(days)
         df[new_column] = df[column].shift(days)
@@ -664,10 +654,10 @@ def drop_columns(df, what_to_drop):
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2020-1-1"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2030-1-1"
 
     mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
@@ -691,7 +681,7 @@ def agg_week(df, how):
         df["date"].dt.year.astype(str) + "-" + df["date"].dt.week.astype(str)
     )
 
-    for i in range(0, len(df)):
+    for i in range(len(df)):
         if df.iloc[i]["weekalt"] == "2021-53":
             df.iloc[i]["weekalt"] = "2020-53"
 
@@ -782,7 +772,7 @@ def normeren(df, what_to_norm):
         maxvalue = (df[column].max()) / 100
         firstvalue = df[column].iloc[int(WDW2 / 2)] / 100
         name = f"{column}_normed"
-        for i in range(0, len(df)):
+        for i in range(len(df)):
             if how_to_norm == "max":
                 df.loc[i, name] = df.loc[i, column] / maxvalue
             else:
@@ -979,51 +969,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                     ]
 
                 if showoneday:
-                    if showday == 6:
+                    if showday == 0:
                         color_x = [
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                            bittersweet,
-                        ]
-                    elif showday == 5:
-                        color_x = [
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                            bittersweet,
-                            white,
-                        ]
-                    elif showday == 4:
-                        color_x = [
-                            white,
-                            white,
-                            white,
-                            white,
                             bittersweet,
                             white,
                             white,
-                        ]
-                    elif showday == 3:
-                        color_x = [
-                            white,
-                            white,
-                            white,
-                            bittersweet,
-                            white,
-                            white,
-                            white,
-                        ]
-                    elif showday == 2:
-                        color_x = [
-                            white,
-                            white,
-                            bittersweet,
                             white,
                             white,
                             white,
@@ -1039,15 +989,55 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                             white,
                             white,
                         ]
-                    elif showday == 0:
+                    elif showday == 2:
                         color_x = [
+                            white,
+                            white,
                             bittersweet,
                             white,
                             white,
                             white,
                             white,
+                        ]
+                    elif showday == 3:
+                        color_x = [
                             white,
                             white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                        ]
+                    elif showday == 4:
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                        ]
+                    elif showday == 5:
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                        ]
+                    elif showday == 6:
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
                         ]
                 # MAYBE WE CAN LEAVE THIS OUT HERE
                 df, columnlist = smooth_columnlist(df, [b], how_to_smooth, WDW2, centersmooth)
@@ -1097,7 +1087,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                                 # correctie R waarde, moet naar links ivm 2x smoothen
                                 df, Rn = move_column(df, R, MOVE_WR)
 
-                                if teller == 1:
+                                if teller == 0:
+                                    dfmin = Rn
+                                elif teller == 1:
                                     if show_R_value_graph:
                                         ax3 = df[Rn].plot(
                                             secondary_y=True,
@@ -1106,12 +1098,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                                             color=falu_red,
                                             linewidth=1.2,
                                         )
-                                else:
-                                    if teller == 0:
-                                        dfmin = Rn
-                                    if teller == 2:
-                                        dfmax = Rn
-                                        # print (dfmax)
+                                elif teller == 2:
+                                    dfmax = Rn
                                 teller += 1
                             for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
                                 # correctie R waarde, moet naar links ivm 2x smoothen

@@ -37,10 +37,7 @@ def main():
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
     choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value
 
-    menuchoicelist = [] # making another list with the options to be shown
-
-    for n, l in enumerate(options):
-        menuchoicelist.append(options[n][0])
+    menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
     with st.sidebar.beta_expander('MENU: Choose a script',  expanded=True):
         menu_choice = st.radio("",menuchoicelist, index=choice)

@@ -361,7 +361,6 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             # do fit, st.write result
             result = bmodel.fit(y_values, params, x=x_values)
 
-            a = round(result.params['a'].value,5)
             r= round(result.params['r'].value,5)
         elif function == "lineair":
             # create Parameters, giving initial values
@@ -372,7 +371,6 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             # do fit, st.write result
             result = bmodel.fit(y_values, params, x=x_values)
 
-            a = round(result.params['a'].value,5)
             b = round(result.params['b'].value,5)
 
         else:
@@ -390,10 +388,10 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             result = bmodel.fit(y_values, params, x=x_values)
 
 
-            a = round(result.params['a'].value,5)
             b= round(result.params['b'].value,5)
             c =round(result.params['c'].value,5)
 
+        a = round(result.params['a'].value,5)
         #placeholder1.text(result.fit_report())
         with _lock:
             #fig1y = plt.figure()
@@ -412,9 +410,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
             # use `result.eval()` to evaluate model given params and x
             ax1.plot(t, bmodel.eval(result.params, x=t), "r-", linewidth=2)
-            if function == "exponential" or function =="lineair":
-                pass
-            else:
+            if function not in ["exponential", "lineair"]:
                 ax2.plot (t, derivate_of_derivate(t,a,b,c), color = 'purple')
 
             if compare_to:
@@ -455,13 +451,12 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
                     plt.plot(t, sigmoidal(t, a,b,c))
                     function_x = "sigmoidal"
                     formula_x = "a * np.exp(-b * np.exp(-c * x))"
-                elif function == "exponential" or function =="lineair":
+                elif function in ["exponential", "lineair"]:
                     function_x = ""
                     formula_x  = ""
-                    pass
-                    # plt.plot(t, exponential(t, a,r))
-                    # function_x = "exponential"
-                    # formula_x = "a * (1+r)**t"
+                                    # plt.plot(t, exponential(t, a,r))
+                                    # function_x = "exponential"
+                                    # formula_x = "a * (1+r)**t"
 
                 else:
                     st.error("ERROR")
@@ -484,15 +479,14 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
 
 
 def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i, max_y_values):
-        x_values_extra = np.linspace(
-            start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
-        )
-        x_values = x_values[:i]
-        y_values = y_values[:i]
-        if prepare_for_animation == False:
-            use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
-        filename = use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
-        return filename
+    x_values_extra = np.linspace(
+        start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
+    )
+    x_values = x_values[:i]
+    y_values = y_values[:i]
+    if prepare_for_animation == False:
+        use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i)
+    return use_lmfit(x_values,y_values, [which_method], title,i, max_y_values)
 
 def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for_animation):
     """
@@ -530,8 +524,8 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
         TOTAL_DAYS_IN_GRAPH = total_days  # number of total days
         x_values = np.linspace(start=0, stop=number_of_y_values - 1, num=number_of_y_values)
 
-        filenames = []
         if prepare_for_animation == True:
+            filenames = []
             for i in range(5, len(x_values)):
                 filename = fit_the_values_really(x_values,  y_values, which_method,  title, daterange, i, max_y_values)
                 filenames.append(filename)
@@ -556,10 +550,10 @@ def fit_the_values(to_do_list , total_days, daterange, which_method, prepare_for
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
-    if show_from == None:
+    if show_from is None:
         show_from = "2020-2-27"
 
-    if show_until == None:
+    if show_until is None:
         show_until = "2020-4-1"
 
     mask = (df[DATEFIELD].dt.date >= show_from) & (df[DATEFIELD].dt.date <= show_until)
@@ -739,8 +733,7 @@ def getdata():
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
 
-    df = pd.read_csv(url1, delimiter=",", low_memory=False)
-    return df
+    return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
     global placeholder0, placeholder, placeholder1
