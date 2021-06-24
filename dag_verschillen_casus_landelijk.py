@@ -83,7 +83,67 @@ def get_data():
     df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
     return df
 
-def do_the_rudi(df):
+
+
+def accumulate_first_rows(df, x):
+    """Accumulate the first X rows
+
+    Args:
+        df (df): table with numbers
+
+    Returns:
+        df : table with the first x rows accumulated
+
+    """
+    # calculate the sum
+    #df = df.drop(columns="index", axis=1)
+
+    # df['Date_statistics'] = df['Date_statistics'].dt.date # from 2021-01-01T00:00:00+01:00 to yyyy-mm-dd
+    # make a new df with the fraction, row-wize  df_fractions A
+    nr_of_columns = len (df.columns)
+    nr_of_rows = len(df)
+    column_list = df.columns.tolist()
+
+    # calculate the fraction of each age group
+    data  = []
+    first_row_values = []
+    first_row_sums = []
+    number_of_first_rows = st.sidebar.slider("Eerste x aantal dagen samenvoegen", 0, 21, 7)
+    first_row_data = []
+    for c in range(nr_of_columns):
+        first_row_sums.append(0.0)
+
+    first_row_data.append( df.iat[number_of_first_rows-1,0]) # date of row number_of_first_rows
+    for r in range(nr_of_rows):
+        if r < number_of_first_rows:
+
+            for c in range(1,nr_of_columns):
+                first_row_sums[c] += df.iat[r,c]
+
+
+            if  r == number_of_first_rows-1:
+                for t in range(1,len(first_row_sums)):
+                    first_row_data.append(first_row_sums[t])
+
+                data.append(first_row_data)
+        else:
+            row_data = []
+            for c in range(nr_of_columns):
+                try:
+                    row_data.append(df.iat[r,c])
+                except:
+                    # date
+                    row_data.append( df.iat[r,c])
+            data.append(row_data)
+
+    df_accumulated = pd.DataFrame(data, columns=column_list)
+    with st.beta_expander('First rows accumulated',  expanded=False):
+        st.subheader (f"The first {number_of_first_rows} rows accumated")
+        st.write (df_accumulated)
+    return df_accumulated
+
+
+def do_the_rudi(df_):
     """Calculate the fractions per age group. Calculate the difference related to day 0 as a % of day 0.
     Made for Rudi Lousberg
     Inspired by Ian Denton https://twitter.com/IanDenton12/status/1407379429526052866
@@ -96,6 +156,8 @@ def do_the_rudi(df):
     """
     # calculate the sum
     #df = df.drop(columns="index", axis=1)
+    df__ = accumulate_first_rows(df_,7)
+    df = df__.copy(deep=False)
 
     df["sum"] = df. sum(axis=1)
     df['Date_statistics'] = df['Date_statistics'].dt.date # from 2021-01-01T00:00:00+01:00 to yyyy-mm-dd
@@ -106,17 +168,23 @@ def do_the_rudi(df):
 
     # calculate the fraction of each age group
     data  = []
+
     for r in range(nr_of_rows):
-        row_data = []
-        for c in range(nr_of_columns):
-            try:
-                row_data.append(round((df.iat[r,c]/df.at[r,"sum"]*100),2))
-            except:
-                row_data.append( df.iat[r,c])
-        data.append(row_data)
+            row_data = []
+            for c in range(nr_of_columns):
+                try:
+                    row_data.append(round((df.iat[r,c]/df.at[r,"sum"]*100),2))
+                except:
+                    # date
+                    row_data.append( df.iat[r,c])
+            data.append(row_data)
     df_fractions = pd.DataFrame(data, columns=column_list)
-    st.subheader ("The fractions")
-    st.write (df_fractions)
+    with st.beta_expander('The fractions',  expanded=False):
+        st.subheader ("The fractions")
+        st.write (df_fractions)
+
+
+
     # calculate the percentual change of the fractions
     data  = []
     for r in range(nr_of_rows):
@@ -182,7 +250,10 @@ def main():
         .reset_index()
         .copy(deep=False)
     )
-
+    # option to drop agegroup 0-9 due to changes in testbeleid en -bereidheid
+    drop_0_9  = st.sidebar.selectbox("Delete agegroup 0-9", [True, False], index=1)
+    if drop_0_9 == True:
+        df_pivot = df_pivot.drop(columns="0-9", axis=1)
     df_pivot_original = df_pivot.copy(deep=False)
 
     df_pivot = df_pivot.add_prefix("pos_test_")
@@ -200,21 +271,23 @@ def main():
 
     column_list = column_list[1:]
     numberofdays = st.sidebar.slider("Vergelijken met x dagen ervoor", 0, 21, 7)
-    st.subheader("Number of cases per age")
-    df_pivot['pos_test_Date_statistics'] = df_pivot['pos_test_Date_statistics'].dt.date
-    df_pivot.rename(columns={"pos_test_Date_statistics": "date"},  inplace=True)
-    st.write (df_pivot)
+    with st.beta_expander('Number of cases',  expanded=True):
+        st.subheader("Number of cases per age")
+        df_pivot['pos_test_Date_statistics'] = df_pivot['pos_test_Date_statistics'].dt.date
+        df_pivot.rename(columns={"pos_test_Date_statistics": "date"},  inplace=True)
+        st.write (df_pivot)
     df_pivot_2,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
     df_new.reset_index(drop=True)
-
-    st.subheader(f"Percentual change with {numberofdays} days before")
-    st.write(df_new.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+    with st.beta_expander('Percentual changes of cases',  expanded=False):
+        st.subheader(f"Percentual change with {numberofdays} days before")
+        st.write(df_new.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
     df_new_rudi = do_the_rudi(df_pivot_original)
 
-    st.subheader("Percentual change of the fractions per agegroup with day 0 - under construction")
-    st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+    with st.beta_expander('Percentual changes of fractions',  expanded=False):
+        st.subheader("Percentual change of the fractions per agegroup with the first day(s)")
+        st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
 if __name__ == "__main__":
     main()
