@@ -289,5 +289,15 @@ def main():
         st.subheader("Percentual change of the fractions per agegroup with the first day(s)")
         st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
+
+    tekst = (
+        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
+        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/edit/main/dag_verschillen_casus_landelijk.py" target="_blank">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
+        'On the request of  <a href="https://twitter.com/LousbergRudi" target="_blank">Rudi Lousberg</a><br>'
+        'Inspired by <a href="https://twitter.com/IanDenton12/status/1407734030926336008" target="_blank">Ian Denton</a></div>'
+    )
+    st.sidebar.markdown(tekst, unsafe_allow_html=True)
 if __name__ == "__main__":
     main()
