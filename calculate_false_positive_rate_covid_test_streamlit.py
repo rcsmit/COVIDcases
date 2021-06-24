@@ -222,6 +222,8 @@ def main():
         naam = "Sneltest Roche"
         se = 0.8333
         sp = 0.991
+    # # https://www.ftm.nl/artikelen/testsamenleving-extreem-duur-veroorzaakt-uitsluiting-gezonde-mensen
+    # https://www.rivm.nl/sites/default/files/2020-12/Toelichting%20betrouwbaarheid%20PCR.pdf
     name = (st.sidebar.text_input('Name', naam))
     specificity = (st.sidebar.number_input('Specificity',None,None, sp, format="%.4f"))
     sensitivity = (st.sidebar.number_input('Sensitivity',None,None, se, format="%.4f"))

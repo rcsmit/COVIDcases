@@ -1,22 +1,4 @@
-# PREPARE A CSV-FILE TO ENABLE AN STACKED PLOT FOR POSITIVE TESTS, HOSPITALIZATIONS AND DECEASED
-# Hospitalizations and deceased are not lagged in time, the date of the result of the "desease onset", positieve test or notification is leading
-# https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724
-
-# MARCH 2021, Rene Smit (@rcsmit) - MIT license
-
-# Fields in
-# Date_file;Date_statistics;Date_statistics_type;Agegroup;Sex;
-# Province;Hospital_admission;Deceased;Week_of_death;Municipal_health_service
-
-# Fields out
-# pos_test_Date_statistics,pos_test_0-9,pos_test_10-19,pos_test_20-29,pos_test_30-39,
-# pos_test_40-49,pos_test_50-59,pos_test_60-69,pos_test_70-79,pos_test_80-89,pos_test_90+,
-# pos_test_<50,pos_test_Unknown,hosp_Date_statistics,hosp_0-9,hosp_10-19,hosp_20-29,hosp_30-39,
-# hosp_40-49,hosp_50-59,hosp_60-69,hosp_70-79,hosp_80-89,hosp_90+,hosp_<50,hosp_Unknown,
-# deceased_Date_statistics,deceased_0-9,deceased_10-19,deceased_20-29,deceased_30-39,
-# deceased_40-49,deceased_50-59,deceased_60-69,deceased_70-79,deceased_80-89,deceased_90+,
-# deceased_<50,deceased_Unknown
-
+# Bereken het percentuele verschil tov een x-aantal dagen ervoor
 import matplotlib.pyplot as plt
 
 import pandas as pd
@@ -27,30 +9,10 @@ import datetime
 import datetime as dt
 import streamlit as st
 from streamlit import caching
-
+from helpers import cell_background, select_period, save_df, drop_columns
 from datetime import datetime
 
 
-def save_df(df, name):
-    """  save dataframe on harddisk """
-    OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
-    )
-
-    name_ = OUTPUT_DIR + name + ".csv"
-    compression_opts = dict(method=None, archive_name=name_)
-    df.to_csv(name_, index=False, compression=compression_opts)
-
-    print("--- Saving " + name_ + " ---")
-
-
-def drop_columns(df, what_to_drop):
-    """  drop columns. what_to_drop : list """
-    if what_to_drop != None:
-        print("dropping " + str(what_to_drop))
-        for d in what_to_drop:
-            df = df.drop(columns=[d], axis=1)
-    return df
 
 def day_to_day(df, column_, numberofdays):
     column_ = column_ if type(column_) == list else [column_]
@@ -121,27 +83,6 @@ def get_data():
     df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
     return df
 
-def color_value(val):
-    try:
-        v = abs(val)
-        opacity = 1 if v >100 else v/100
-        # color = 'green' if val >0 else 'red'
-        if val > 0 :
-             color = '255, 0, 0'
-        elif val < 0:
-            color = '76, 175, 80'
-        else:
-            color = '255,255,255'
-    except:
-        # give cells with eg. text or dates a white background
-        color = '255,255,255'
-        opacity = 1
-    return f'background: rgba({color}, {opacity})'
-
-
-
-
-
 def do_the_rudi(df):
     """Calculate the fractions per age group. Calculate the difference related to day 0 as a % of day 0.
     Made for Rudi Lousberg
@@ -187,25 +128,9 @@ def do_the_rudi(df):
         data.append(row_data)
     return pd.DataFrame(data, columns=column_list)
 
-def select_period(df, show_from, show_until):
-    """ _ _ _ """
-    if show_from is None:
-        show_from = "2021-1-1"
-
-    if show_until is None:
-        show_until = "2030-1-1"
-
-    mask = (df["Date_statistics"].dt.date >= show_from) & (df["Date_statistics"].dt.date <= show_until)
-    df = df.loc[mask]
-    df = df.reset_index()
-    return df
-
 
 def main():
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-
-
-
     # DAILY STATISTICS ################
 
     start_ = "2021-01-01"
@@ -334,7 +259,7 @@ def main():
     st.sidebar.write("Attention : slow script!!!")
 
     # save_df(df_new, "daily_changes_casus_landelijk_age")
-    #st.dataframe(df_new.style.applymap(color_value))
+    #st.dataframe(df_new.style.applymap(cell_background))
 
     #df_new['date'] = df_new['date'].date
     #df_new.rename(columns={"Date_statistics": "date"},  inplace=True)
@@ -342,7 +267,7 @@ def main():
     # st.write(df_new)
     # st.write(df_new.dtypes)
     st.subheader(f"Percentual change with {numberofdays} days before")
-    st.write(df_new.style.format(None, na_rep="-").applymap(color_value).set_precision(2))
+    st.write(df_new.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
     #df_pivot_2['date'] = df_pivot_2['date'].dt.date
 
@@ -350,7 +275,7 @@ def main():
     #df_new_rudi['pos_test_Date_statistics'] = df_new_rudi['pos_test_Date_statistics'].dt.date
     #df_new_rudi.rename(columns={"pos_test_Date_statistics": "date"},  inplace=True)
     st.subheader("Percentual change of the fractions per agegroup with day 0 - under construction")
-    st.write(df_new_rudi.style.format(None, na_rep="-").applymap(color_value).set_precision(2))
+    st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
 if __name__ == "__main__":
     main()
