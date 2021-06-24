@@ -115,7 +115,8 @@ def do_the_rudi(df):
                 row_data.append( df.iat[r,c])
         data.append(row_data)
     df_fractions = pd.DataFrame(data, columns=column_list)
-
+    st.subheader ("The fractions")
+    st.write (df_fractions)
     # calculate the percentual change of the fractions
     data  = []
     for r in range(nr_of_rows):
