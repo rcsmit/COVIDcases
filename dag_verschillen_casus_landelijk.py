@@ -183,7 +183,7 @@ def main():
         .copy(deep=False)
     )
 
-    df_pivot_original = df_pivot_original.copy(deep=False)
+    df_pivot_original = df_pivot.copy(deep=False)
 
     df_pivot = df_pivot.add_prefix("pos_test_")
     todrop = [
