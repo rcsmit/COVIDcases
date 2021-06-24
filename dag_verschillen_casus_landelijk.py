@@ -188,6 +188,8 @@ def main():
         .copy(deep=False)
     )
 
+    df_pivot_original = df_pivot_original.copy(deep=False)
+
     # df_pivot_hospital = (
     #     pd.pivot_table(
     #         df_hospital,
@@ -272,7 +274,7 @@ def main():
 
     #df_pivot_2['date'] = df_pivot_2['date'].dt.date
 
-    df_new_rudi = do_the_rudi(df_pivot)
+    df_new_rudi = do_the_rudi(df_pivot_original)
     #df_new_rudi['pos_test_Date_statistics'] = df_new_rudi['pos_test_Date_statistics'].dt.date
     #df_new_rudi.rename(columns={"pos_test_Date_statistics": "date"},  inplace=True)
     st.subheader("Percentual change of the fractions per agegroup with day 0 - under construction")
