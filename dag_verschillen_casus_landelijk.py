@@ -9,7 +9,7 @@ import datetime
 import datetime as dt
 import streamlit as st
 from streamlit import caching
-from helpers import cell_background, select_period, save_df, drop_columns
+from helpers import *  # cell_background, select_period, save_df, drop_columns
 from datetime import datetime
 
 
@@ -131,9 +131,6 @@ def do_the_rudi(df):
 
 
 def main():
-    # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-    # DAILY STATISTICS ################
-
     start_ = "2021-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
     global from_
@@ -173,8 +170,6 @@ def main():
         },
         inplace=True,
     )
-    # df_hospital = df[df["Hospital_admission"] == True].copy(deep=False)
-    # df_deceased = df[df["Deceased"] == True].copy(deep=False)
 
     df_pivot = (
         pd.pivot_table(
@@ -190,34 +185,7 @@ def main():
 
     df_pivot_original = df_pivot_original.copy(deep=False)
 
-    # df_pivot_hospital = (
-    #     pd.pivot_table(
-    #         df_hospital,
-    #         values="count",
-    #         index=["Date_statistics"],
-    #         columns=["Agegroup"],
-    #         aggfunc=np.sum,
-    #     )
-    #     .reset_index()
-    #     .copy(deep=False)
-    # )
-
-    # df_pivot_deceased = (
-    #     pd.pivot_table(
-    #         df_deceased,
-    #         values="count",
-    #         index=["Date_statistics"],
-    #         columns=["Agegroup"],
-    #         aggfunc=np.sum,
-    #     )
-    #     .reset_index()
-    #     .copy(deep=False)
-    # )
-
     df_pivot = df_pivot.add_prefix("pos_test_")
-    # df_pivot_hospital = df_pivot_hospital.add_prefix("hosp_")
-    # df_pivot_deceased = df_pivot_deceased.add_prefix("deceased_")
-
     todrop = [
         "Date_statistics_type",
         "Sex",
@@ -228,28 +196,6 @@ def main():
         "Municipal_health_service",
     ]
     df = drop_columns(df, todrop)
-    # save_df(df, "landelijk_leeftijd_2")
-
-    # save_df(df_pivot, "landelijk_leeftijd_pivot")
-    # save_df(df_pivot_hospital, "landelijk_leeftijd_pivot_hospital")
-    # save_df(df_pivot_deceased, "landelijk_leeftijd_pivot_deceased")
-
-    # df_temp = pd.merge(
-    #     df_pivot,
-    #     df_pivot_hospital,
-    #     how="outer",
-    #     left_on="pos_test_Date_statistics",
-    #     right_on="hosp_Date_statistics",
-    # )
-    # df_temp = pd.merge(
-    #     df_temp,
-    #     df_pivot_deceased,
-    #     how="outer",
-    #     left_on="pos_test_Date_statistics",
-    #     right_on="deceased_Date_statistics",
-    # )
-    # save_df(df_temp, "final_result")
-
     column_list = df_pivot.columns.tolist()
 
     column_list = column_list[1:]
@@ -260,23 +206,13 @@ def main():
     st.write (df_pivot)
     df_pivot_2,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
-
-    # save_df(df_new, "daily_changes_casus_landelijk_age")
-    #st.dataframe(df_new.style.applymap(cell_background))
-
-    #df_new['date'] = df_new['date'].date
-    #df_new.rename(columns={"Date_statistics": "date"},  inplace=True)
     df_new.reset_index(drop=True)
-    # st.write(df_new)
-    # st.write(df_new.dtypes)
+
     st.subheader(f"Percentual change with {numberofdays} days before")
     st.write(df_new.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
-    #df_pivot_2['date'] = df_pivot_2['date'].dt.date
-
     df_new_rudi = do_the_rudi(df_pivot_original)
-    #df_new_rudi['pos_test_Date_statistics'] = df_new_rudi['pos_test_Date_statistics'].dt.date
-    #df_new_rudi.rename(columns={"pos_test_Date_statistics": "date"},  inplace=True)
+
     st.subheader("Percentual change of the fractions per agegroup with day 0 - under construction")
     st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
