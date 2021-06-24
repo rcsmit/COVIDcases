@@ -98,7 +98,7 @@ def do_the_rudi(df):
     #df = df.drop(columns="index", axis=1)
 
     df["sum"] = df. sum(axis=1)
-
+    df['pos_test_Date_statistics'] = df['pos_test_Date_statistics'].dt.date
     # make a new df with the fraction, row-wize  df_fractions A
     nr_of_columns = len (df.columns)
     nr_of_rows = len(df)
