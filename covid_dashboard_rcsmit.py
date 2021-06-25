@@ -1715,7 +1715,7 @@ def main():
     init()
 
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
-    df = df_getdata".copy(deep=False)"
+    df = df_getdata.copy(deep=False)
     df_ungrouped = df_ungrouped_.copy(deep=False)
 
     # rioolwaterplaatsen = (get_locations(df_ungrouped, "RWZI_AWZI_name"))
