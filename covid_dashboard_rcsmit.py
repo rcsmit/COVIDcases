@@ -1109,23 +1109,24 @@ def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
         if t == "line":
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
+    if what_to_show_r_ != None:
 
-    for left in what_to_show_l:
-        for right in what_to_show_r:
-            correlation = find_correlation_pair(df, left, right)
-            st.write(f"Correlation: {left} - {right} : {correlation}")
+        for left in what_to_show_l:
+            for right in what_to_show_r:
+                correlation = find_correlation_pair(df, left, right)
+                st.write(f"Correlation: {left} - {right} : {correlation}")
 
-    for left_sm in columnlist_sm_l:
-        for right_sm in columnlist_sm_r:
-            correlation = find_correlation_pair(df, left_sm, right_sm)
-            st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
-            
-    for l in what_to_show_l:
-        for r in what_to_show_r:
-            left_sm = str(l) + "_" + how_to_smooth_
-            right_sm = str(r) + "_" + how_to_smooth_
-            make_scatterplot(df_temp, l, r , True, False)
-            make_scatterplot(df_temp,left_sm, right_sm, True, False)
+        for left_sm in columnlist_sm_l:
+            for right_sm in columnlist_sm_r:
+                correlation = find_correlation_pair(df, left_sm, right_sm)
+                st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
+                
+        for l in what_to_show_l:
+            for r in what_to_show_r:
+                left_sm = str(l) + "_" + how_to_smooth_
+                right_sm = str(r) + "_" + how_to_smooth_
+                make_scatterplot(df_temp, l, r , True, False)
+                make_scatterplot(df_temp,left_sm, right_sm, True, False)
 
 def set_xmargin(ax, left=0.0, right=0.3):
     ax.set_xmargin(0)
