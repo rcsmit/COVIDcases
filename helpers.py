@@ -1,3 +1,13 @@
+from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import matplotlib.dates as mdates
+
+import matplotlib.cm as cm
+
+
 def cell_background(val):
     """Creates the CSS code for a cell with a certain value to create a heatmap effect
     Args:
@@ -60,7 +70,7 @@ def drop_columns(df, what_to_drop):
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, show_month, smoothed):
     what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
-    
+
     with _lock:
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
