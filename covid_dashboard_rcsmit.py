@@ -1234,9 +1234,14 @@ def graph_week(df, what_to_show_l_, how_l, what_to_show_r_, how_r):
 
 def graph_daily(df, what_to_show_l_, what_to_show_r_, how_to_smooth, t):
     """  _ _ _ """
-    if t == "bar":
+    if what_to_show_l_ is not None:
         what_to_show_l = what_to_show_l_ if type(what_to_show_l_) == list else [what_to_show_l_]
+    else:
+        st.error("Choose someting for left")
+        st.stop()
 
+    if t == "bar":
+        
         title = ""
         for c in what_to_show_l:
 
