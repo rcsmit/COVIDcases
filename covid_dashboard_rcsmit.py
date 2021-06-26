@@ -12,13 +12,12 @@ from datetime import datetime, timedelta
 
 import json
 from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
 
-
+_lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
 import streamlit as st
@@ -27,7 +26,6 @@ import urllib.request
 from pathlib import Path
 from streamlit import caching
 from inspect import currentframe, getframeinfo
-from helpers import *
 
 ###################################################################
 @st.cache(ttl=60 * 60 * 24)
@@ -68,6 +66,7 @@ def download_data_file(url, filename, delimiter_, fileformat):
         # df_temp = df_temp.replace({pd.np.nan: None})  Let it to test
         save_df(df_temp, filename)
         return df_temp
+
 
 @st.cache(ttl=60 * 60 * 24)
 def get_data():
@@ -164,6 +163,7 @@ def get_data():
                 "fileformat": "csv",
             },
 
+
             {
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_deceased__ages.csv",
                 "name": "cases_hospital_deceased__ages",
@@ -173,6 +173,7 @@ def get_data():
                 "groupby": None,
                 "fileformat": "csv",
             },
+
 
             {
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv",
@@ -204,6 +205,7 @@ def get_data():
                 "fileformat": "csv",
             },
 
+
             {
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/waze.csv",
                 #  # https://raw.githubusercontent.com/ActiveConclusion/COVID19_mobility/master/waze_reports/waze_mobility.csv
@@ -214,6 +216,7 @@ def get_data():
                 "groupby": None,
                 "fileformat": "csv",
             },
+
 
             # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
             # 'name'       : 'sweden',
@@ -312,8 +315,9 @@ def get_data():
 
         return df, df_ungrouped, UPDATETIME
 
-def week_to_week(df, column):
-    column_ = column if type(column) == list else [column]
+
+def week_to_week(df, column_):
+    column_ = column_ if type(column_) == list else [column_]
     newcolumns = []
     newcolumns2 = []
 
@@ -347,6 +351,7 @@ def rh2q(rh, t, p ):
     q_ = (0.622 * e)/(p - (0.378 * e)) * 1000
     return round(q_,2)
 
+
 def extra_calculations(df):
     """Extra calculations
     IN  : df
@@ -370,6 +375,8 @@ def extra_calculations(df):
     # 12.8 is percentage positief getest in week 1-2021
 
     )
+
+
 
     df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
 
@@ -396,6 +403,7 @@ def extra_calculations(df):
     except:
         df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / 8)
     df["prev_div_days_contagious_cumm"] = df["prev_div_days_contagious"].cumsum()
+
 
     df["deceased_per_prev_div_days_contagious"] = ( df["Deceased"] / df["prev_div_days_contagious"] )*100
 
@@ -518,6 +526,7 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
     df.loc[df["date"].isnull(), "date"] = df["date_calc"]
     return df
 
+
 def splitupweekweekend(df):
     """SPLIT UP IN WEEKDAY AND WEEKEND
     IN  : df
@@ -530,6 +539,7 @@ def splitupweekweekend(df):
         df["WEEKDAY"].isin([5, 6]), "weekend"
     ] = 1  # 5 and 6 correspond to Sat and Sun
     return df
+
 
 def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     """  _ _ _ """
@@ -601,6 +611,8 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
             sliding_r_df.iloc[:, 1].rolling(window=WDW3, center=True).mean(), 2
         )
 
+
+
         sliding_r_df[column_name_r_sec_smoothened] = round(
             sliding_r_df.iloc[:, 2].rolling(window=WDW3, center=True).mean(), 2
         )
@@ -620,13 +632,15 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
         sliding_r_df = sliding_r_df.reset_index()
     return df, column_list_r_smoothened, column_list_r_sec_smoothened
 
-def move_column(df, column, days):
+
+def move_column(df, column_, days):
     """  _ _ _ """
-    column_ = column if type(column) == list else [column]
+    column_ = column_ if type(column_) == list else [column_]
     for column in column_:
         new_column = column + "_moved_" + str(days)
         df[new_column] = df[column].shift(days)
     return df, new_column
+
 
 def drop_columns(df, what_to_drop):
     """  _ _ _ """
@@ -636,6 +650,7 @@ def drop_columns(df, what_to_drop):
 
             df = df.drop(columns=[d], axis=1)
     return df
+
 
 def select_period(df, show_from, show_until):
     """ _ _ _ """
@@ -651,6 +666,7 @@ def select_period(df, show_from, show_until):
     df = df.reset_index()
 
     return df
+
 
 def agg_week(df, how):
     """  _ _ _ """
@@ -683,6 +699,7 @@ def agg_week(df, how):
         st.stop()
     return df, dfweek
 
+
 def last_manipulations(df, what_to_drop, drop_last):
     """  _ _ _ """
     df = drop_columns(df, what_to_drop)
@@ -706,6 +723,7 @@ def last_manipulations(df, what_to_drop, drop_last):
 
     return df, werkdagen, weekend_
 
+
 def save_df(df, name):
     """  _ _ _ """
     name_ = OUTPUT_DIR + name + ".csv"
@@ -713,6 +731,7 @@ def save_df(df, name):
     df.to_csv(name_, index=False, compression=compression_opts)
 
     print("--- Saving " + name_ + " ---")
+
 
 ##########################################################
 def correlation_matrix(df, werkdagen, weekend_):
@@ -740,6 +759,7 @@ def correlation_matrix(df, werkdagen, weekend_):
     # sn.regplot(y="Rt_avg", x="Kliniek_Nieuwe_Opnames_COVID", data=df)
     # plt.show()
 
+
 def normeren(df, what_to_norm):
     """In : columlijst
     Bewerking : max = 1
@@ -761,6 +781,7 @@ def normeren(df, what_to_norm):
         print(f"{name} generated")
     return df, normed_columns
 
+
 def graph_daily_normed(
     df, what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display
 ):
@@ -779,6 +800,7 @@ def graph_daily_normed(
 
     graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
 
+
 def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     """  _ _ _ """
     #st.write(f"t = {t}")
@@ -787,12 +809,10 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         st.warning("Choose something")
         st.stop()
 
-    what_to_show_l_ = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
-    if what_to_show_r != None:
-        what_to_show_r_ = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
-
-
-
+    if type(what_to_show_l) == list:
+        what_to_show_l_ = what_to_show_l
+    else:
+        what_to_show_l_ = [what_to_show_l]
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
 
@@ -835,8 +855,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         n = 0  # counter to walk through the colors-list
 
         df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
-        if what_to_show_r != None:
-            df, columnlist_sm_r = smooth_columnlist(df, what_to_show_r_, how_to_smooth, WDW2, centersmooth)
 
         # CODE TO MAKE STACKED BARS - DOESNT WORK
         # stackon=""
@@ -857,7 +875,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         # ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
         for b in what_to_show_l_:
-            # (a) == list:
+            # if type(a) == list:
             #     a_=a
             # else:
             #     a_=[a]
@@ -880,35 +898,147 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 # weekends have a different color
                 firstday = df.iloc[0]["WEEKDAY"]  # monday = 0
                 if firstday == 0:
-                       color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, ]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                    ]
                 elif firstday == 1:
-                    color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, ]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 2:
-                    color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, ]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 3:
-                    color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, ]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 4:
-                    color_x = [ COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, ]
+                    color_x = [
+                        COLOR_weekday,
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 5:
-                    color_x = [ COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, ]
+                    color_x = [
+                        COLOR_weekend,
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                    ]
                 elif firstday == 6:
-                    color_x = [ COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, ]
+                    color_x = [
+                        COLOR_weekend,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekday,
+                        COLOR_weekend,
+                    ]
 
                 if showoneday:
                     if showday == 0:
-                        color_x = [bittersweet,  white, white, white, white, white, white, ]
+                        color_x = [
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                        ]
                     elif showday == 1:
-                        color_x = [white, bittersweet,  white, white, white, white, white, ]
+                        color_x = [
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                        ]
                     elif showday == 2:
-                        color_x = [white, white, bittersweet,  white, white, white, white, ]
+                        color_x = [
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                            white,
+                        ]
                     elif showday == 3:
-                        color_x = [white, white, white, bittersweet,  white, white, white, ]
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                            white,
+                        ]
                     elif showday == 4:
-                        color_x = [white, white, white, white, bittersweet,  white, white, ]
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                            white,
+                        ]
                     elif showday == 5:
-                        color_x = [white, white, white, white, white, bittersweet,  white, ]
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                            white,
+                        ]
                     elif showday == 6:
-                        color_x = [white, white, white, white, white, white, bittersweet,  ]
+                        color_x = [
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            white,
+                            bittersweet,
+                        ]
                 # MAYBE WE CAN LEAVE THIS OUT HERE
                 df, columnlist = smooth_columnlist(df, [b], how_to_smooth, WDW2, centersmooth)
 
@@ -1019,6 +1149,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 label="TOTAL", color=color_list[6], linestyle="--", linewidth=1, alpha=1
             )
 
+        if what_to_show_r != None:
+            if type(what_to_show_r) == list:
+                what_to_show_r = what_to_show_r
+            else:
+                what_to_show_r = [what_to_show_r]
 
             n = len(color_list)
             x = n
@@ -1046,15 +1181,18 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 )
                 ax3.set_ylabel("_")
 
-            if len(what_to_show_l_) == 1 and len(what_to_show_r_) == 1:  # add correlation
-                correlation = find_correlation_pair(df, what_to_show_l_, what_to_show_r_)
+
+            if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
+                correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm = find_correlation_pair(df, b_, c_)
                 title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
 
-            if len(what_to_show_r_) == 1:
+            if len(what_to_show_r) == 1:
                 mean = df[what_to_show_r].mean()
                 std =df[what_to_show_r].std()
+                # print (f"mean {mean}")
+                # print (f"st {std}")
                 low = mean -2*std
                 up = mean +2*std
                 #ax3.set_ylim = (-100, 100)
@@ -1113,24 +1251,91 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         if t == "line":
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
-    if what_to_show_r_ != None:
 
-        for left in what_to_show_l_:
-            for right in what_to_show_r_:
-                correlation = find_correlation_pair(df, left, right)
-                st.write(f"Correlation: {left} - {right} : {correlation}")
+    if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add scatter plot
+        left_sm = str(what_to_show_l[0]) + "_" + how_to_smooth_
+        right_sm = str(what_to_show_r[0]) + "_" + how_to_smooth_
+        make_scatterplot(df_temp, what_to_show_l, what_to_show_r)
+        make_scatterplot(df_temp,left_sm, right_sm)
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
+    if type(what_to_show_l) == list:
+        what_to_show_l = what_to_show_l
+    else:
+        what_to_show_l = [what_to_show_l]
+    if type(what_to_show_r) == list:
+        what_to_show_r = what_to_show_r
+    else:
+        what_to_show_r = [what_to_show_r]
+    with _lock:
+            fig1xy = plt.figure()
+            ax = fig1xy.add_subplot(111)
 
-        for left_sm in columnlist_sm_l:
-            for right_sm in columnlist_sm_r:
-                correlation = find_correlation_pair(df, left_sm, right_sm)
-                st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
+            showmonth = True
 
-        for l in what_to_show_l_:
-            for r in what_to_show_r_:
-                left_sm = str(l) + "_" + how_to_smooth_
-                right_sm = str(r) + "_" + how_to_smooth_
-                make_scatterplot(df_temp, l, r , True, False)
-                make_scatterplot(df_temp,left_sm, right_sm, True, False)
+            if showmonth==True:
+                num_months = (UNTIL.year - FROM.year) * 12 + (UNTIL.month - FROM.month)
+                colors=cm.rainbow(np.linspace(0,1,num_months+1))
+
+                for y in range (2020,2022):
+                    for m,c in zip(range (1,13),colors):
+
+
+                        df_temp_month = df_temp[(df_temp['date'].dt.month==m) & (df_temp['date'].dt.year==y)]
+                        x__ = df_temp_month[what_to_show_l].values.tolist()
+                        y__ = df_temp_month[what_to_show_r].values.tolist()
+
+
+                        plt.scatter(x__, y__,  s=2,color=c)
+            else:
+                x_ = np.array(df_temp[what_to_show_l])
+                y_ = np.array(df_temp[what_to_show_r])
+
+
+                plt.scatter(x_, y_)
+
+            x_ = np.array(df_temp[what_to_show_l])
+            y_ = np.array(df_temp[what_to_show_r])
+
+
+
+            #obtain m (slope) and b(intercept) of linear regression line
+            idx = np.isfinite(x_) & np.isfinite(y_)
+            m, b = np.polyfit(x_[idx], y_[idx], 1)
+            model = np.polyfit(x_[idx], y_[idx], 1)
+
+            predict = np.poly1d(model)
+            r2 = r2_score  (y_[idx], predict(x_[idx]))
+
+            # De kolom 'R square' is een zogenaamde goodness-of-fit maat.
+            # Deze maat geeft uitdrukking aan hoe goed de geobserveerde data clusteren rond de geschatte regressielijn.
+            # In een enkelvoudige lineaire regressie is dat het kwadraat van de correlatie.
+            # De proportie wordt meestal in een percentage ‘verklaarde variantie’ uitgedrukt.
+            #  In dit voorbeeld betekent R square dus dat de totale variatie in vetpercentages voor 66% verklaard
+            #    kan worden door de lineaire regressie c.q. de verschillen in leeftijd.
+            # https://wikistatistiek.amc.nl/index.php/Lineaire_regressie
+
+            #print (r2)
+            #m, b = np.polyfit(x_, y_, 1)
+            # print (m,b)
+
+            #add linear regression line to scatterplot
+            plt.plot(x_, m*x_+b, 'r')
+            title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            plt.title(title_scatter)
+
+
+            ax.text(
+                1,
+                1.1,
+                "Created by Rene Smit — @rcsmit",
+                transform=ax.transAxes,
+                fontsize="xx-small",
+                va="top",
+                ha="right",
+            )
+            st.pyplot(fig1xy)
+
+
 
 def set_xmargin(ax, left=0.0, right=0.3):
     ax.set_xmargin(0)
@@ -1141,10 +1346,12 @@ def set_xmargin(ax, left=0.0, right=0.3):
     right = lim[1] + delta * right
     ax.set_xlim(left, right)
 
+
 def add_restrictions(df, ax):
     pass
 
 def add_restrictions_original(df, ax):
+
 
     """  _ _ _ """
     # Add restrictions
@@ -1180,7 +1387,8 @@ def add_restrictions_original(df, ax):
             )
             # plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
 
-def graph_week(df, what_to_show_l_, how_l, what_to_show_r_, how_r):
+
+def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     """  _ _ _ """
 
     # SHOW A GRAPH IN TIME / WEEK
@@ -1193,7 +1401,10 @@ def graph_week(df, what_to_show_l_, how_l, what_to_show_r_, how_r):
     if what_to_show_r != None:
         df_r, dfweek_r = agg_week(df, how_r)
 
-    what_to_show_l = what_to_show_l_ if type(what_to_show_l_) == list else [what_to_show_l_]
+    if type(what_to_show_l) == list:
+        what_to_show_l = what_to_show_l
+    else:
+        what_to_show_l = [what_to_show_l]
 
     for show_l in what_to_show_l:
         fig1y = plt.figure()
@@ -1237,20 +1448,19 @@ def graph_week(df, what_to_show_l_, how_l, what_to_show_r_, how_r):
         st.pyplot(fig1y)
         # plt.show()
 
-def graph_daily(df, what_to_show_l_, what_to_show_r_, how_to_smooth, t):
+
+def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
     """  _ _ _ """
-    if what_to_show_l_ is not None:
-        what_to_show_l = what_to_show_l_ if type(what_to_show_l_) == list else [what_to_show_l_]
-    else:
-        st.error("Choose someting for left")
-        st.stop()
-
     if t == "bar":
-
+        if type(what_to_show_l) == list:
+            what_to_show_l = what_to_show_l
+        else:
+            what_to_show_l = [what_to_show_l]
         title = ""
         for c in what_to_show_l:
 
             #    what_to_show_r = what_to_show_r
+
 
             title += str(c) + " "
 
@@ -1290,9 +1500,11 @@ def graph_daily(df, what_to_show_l_, what_to_show_r_, how_to_smooth, t):
                     else:
                         tl += l
 
-        if what_to_show_r_ is not None:
-            what_to_show_r = what_to_show_r_ if type(what_to_show_r_) == list else [what_to_show_r_]
-
+        if what_to_show_r is not None:
+            if type(what_to_show_r) == list:
+                what_to_show_r = what_to_show_r
+            else:
+                what_to_show_r = [what_to_show_r]
             tl += " - \n"
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
@@ -1325,6 +1537,7 @@ def graph_daily(df, what_to_show_l_, what_to_show_r_, how_to_smooth, t):
             title += t + "\n"
         graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
 
+
 def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
     """  _ _ _ """
     c_smoothen = []
@@ -1336,7 +1549,10 @@ def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
     # centersmooth = False
     # show_scenario = False
     if columnlist is not None:
-        columnlist_ = columnlist if type(columnlist) == list else  [columnlist]
+        if type(columnlist) == list:
+            columnlist_ = columnlist
+        else:
+            columnlist_ = [columnlist]
             # print (columnlist)
         for c in columnlist_:
             print(f"Smoothening {c}")
@@ -1363,6 +1579,7 @@ def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
                 st.stop()
             c_smoothen.append(new_column)
     return df, c_smoothen
+
 
 ###################################################################
 def find_correlations(df, treshold, fields):
@@ -1391,15 +1608,23 @@ def find_correlations(df, treshold, fields):
                 pass  # ("algehad")
             al_gehad.append(str(j) + str(i))
 
+
 def find_correlation_pair(df, first, second):
     al_gehad = []
     paar = []
-    if type(first) is not list : first = [first]
-    if type(second) is not list : second = [second]
+    if type(first) == list:
+        first = first
+    else:
+        first = [first]
+    if type(second) == list:
+        second = second
+    else:
+        second = [second]
     for i in first:
         for j in second:
             c = round(df[i].corr(df[j]), 3)
     return c
+
 
 def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     b = what_happens_first
@@ -1433,6 +1658,7 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     graph_daily(df, [a], [max_column], "SMA", "line")
     # if the optimum is negative, the second one is that x days later
 
+
 def init():
     """  _ _ _ """
 
@@ -1451,6 +1677,7 @@ def init():
     # GLOBAL SETTINGS
     download = True  # True : download from internet False: download from INPUT_DIR
     # De open data worden om 15.15 uur gepubliceerd
+
 
 def get_locations(df_ungrouped, field):
     """ Get a list of the Municipalities """
@@ -1574,6 +1801,7 @@ def main():
         "IC_adm_per_reported_moved_5",
         "Deceased_per_reported_moved_14",
 
+
         "Total_reported_cumm",
         "Hospital_admission_RIVM_cumm",
         "Deceased_cumm",
@@ -1646,6 +1874,7 @@ def main():
     df = df.drop_duplicates()
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
+
     # df,newcolumns = week_to_week(df,["Total_reported"])
 
     # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
@@ -1662,6 +1891,7 @@ def main():
     how_to_smoothen = "SMA"
     WDW2 = 7
     centersmooth = True
+
 
     #st.write(get_duplicate_cols(df))
     df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen, WDW2, centersmooth)
@@ -1941,6 +2171,7 @@ def main():
         "<br><i>Neerslag</i> - Etmaalsom van de neerslag (in 0.1 mm) (-1 voor  minder dan 0.05 mm) "
         "<br><i>Specific_humidity_KNMI_derived</i> - Specific humidity in g/kg, calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000 // [p = 1020]"
         "<br><i>Absolute_humidity_KNMI_derived</i> - Absolute humidity in g/kg, calculated with the 24-hours values of <i>De Bilt</i> from the KNMI : RH<sub>min</sub> and Temp<sub>max</sub>  with the formulas : <br><i>Absolute Humidity (grams/m3) = (6.112 × e^[(17.67 × T)/(T+243.5)] × rh × 2.1674) / (273.15+T)"
+
 
         "<br><i>RH_avg, RH_max, RH_min</i> - Relatieve luchtvochtigheid - 24 uurs gemiddelde, minimaal en maximaal"
         "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
