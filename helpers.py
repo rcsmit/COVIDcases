@@ -97,8 +97,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show
 
                 plt.scatter(x_, y_)
 
-                x_ = np.array(df_temp[what_to_show_l])
-                y_ = np.array(df_temp[what_to_show_r])
+            x_ = np.array(df_temp[what_to_show_l])
+            y_ = np.array(df_temp[what_to_show_r])
 
 
 
