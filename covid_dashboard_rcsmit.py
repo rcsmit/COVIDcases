@@ -778,7 +778,7 @@ def graph_daily_normed(
 
     graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
 
-def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
+def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     """  _ _ _ """
     #st.write(f"t = {t}")
     df_temp = pd.DataFrame(columns=["date"])
@@ -787,6 +787,10 @@ def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
         st.stop()
 
     what_to_show_l_ = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
+    if what_to_show_r != None:
+        what_to_show_r_ = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
+    
+
     
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
@@ -830,6 +834,8 @@ def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
         n = 0  # counter to walk through the colors-list
 
         df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
+        if what_to_show_r != None:
+            df, columnlist_sm_r = smooth_columnlist(df, what_to_show_r_, how_to_smooth, WDW2, centersmooth)
 
         # CODE TO MAKE STACKED BARS - DOESNT WORK
         # stackon=""
@@ -1012,10 +1018,7 @@ def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
                 label="TOTAL", color=color_list[6], linestyle="--", linewidth=1, alpha=1
             )
 
-        if what_to_show_r_ != None:
-            what_to_show_r = what_to_show_r_ if type(what_to_show_r_) == list else [what_to_show_r_]
-    
-
+      
             n = len(color_list)
             x = n
             for a in what_to_show_r:
@@ -1042,13 +1045,13 @@ def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
                 )
                 ax3.set_ylabel("_")
 
-            if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
-                correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
+            if len(what_to_show_l_) == 1 and len(what_to_show_r_) == 1:  # add correlation
+                correlation = find_correlation_pair(df, what_to_show_l_, what_to_show_r_)
                 correlation_sm = find_correlation_pair(df, b_, c_)
                 title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
 
-            if len(what_to_show_r) == 1:
+            if len(what_to_show_r_) == 1:
                 mean = df[what_to_show_r].mean()
                 std =df[what_to_show_r].std()
                 low = mean -2*std
@@ -1111,8 +1114,8 @@ def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
         st.pyplot(fig1x)
     if what_to_show_r_ != None:
 
-        for left in what_to_show_l:
-            for right in what_to_show_r:
+        for left in what_to_show_l_:
+            for right in what_to_show_r_:
                 correlation = find_correlation_pair(df, left, right)
                 st.write(f"Correlation: {left} - {right} : {correlation}")
 
@@ -1121,8 +1124,8 @@ def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
                 correlation = find_correlation_pair(df, left_sm, right_sm)
                 st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
                 
-        for l in what_to_show_l:
-            for r in what_to_show_r:
+        for l in what_to_show_l_:
+            for r in what_to_show_r_:
                 left_sm = str(l) + "_" + how_to_smooth_
                 right_sm = str(r) + "_" + how_to_smooth_
                 make_scatterplot(df_temp, l, r , True, False)
