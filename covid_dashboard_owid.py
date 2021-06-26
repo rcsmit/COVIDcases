@@ -28,6 +28,7 @@ import urllib.request
 from pathlib import Path
 from streamlit import caching
 from inspect import currentframe, getframeinfo
+from helpers import *
 
 ###################################################################
 
@@ -69,7 +70,6 @@ def download_data_file(url, filename, delimiter_, fileformat):
         save_df(df_temp, filename)
         return df_temp
 
-
 @st.cache(ttl=60 * 60 * 24, suppress_st_warning=True)
 def get_data():
     """Get the data from various sources
@@ -95,7 +95,6 @@ def get_data():
                     "where_field": None,
                     "where_criterium": None
                 },
-
 
                 {
                     "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\waze_mobility.csv",
@@ -123,11 +122,9 @@ def get_data():
 
                 }
 
-
             ]
 
         else:
-
 
             data = [
 
@@ -143,7 +140,6 @@ def get_data():
                     "where_field": None,
                     "where_criterium": None
                 },
-
 
                 {
                     "url": "https://raw.githubusercontent.com/ActiveConclusion/COVID19_mobility/master/waze_reports/waze_mobility.csv",
@@ -173,8 +169,6 @@ def get_data():
 
                 },
 
-
-
             ]
 
         type_of_join = "outer"
@@ -190,7 +184,6 @@ def get_data():
         )
         firstkey = data[d]["key"]
         firstkey2 = data[d]["key2"]
-
 
         if data[d]["where_field"] != None:
             where_field = data[d]["where_field"]
@@ -262,7 +255,6 @@ def get_data():
 
         UPDATETIME = datetime.now()
 
-
         return df, df_ungrouped, UPDATETIME
 
 def prepare_google_mob_worlddata():
@@ -279,7 +271,6 @@ def prepare_google_mob_worlddata():
     compression_opts = dict(method=None, archive_name=name_)
     df.to_csv(name_, index=False, compression=compression_opts)
     print("--- Saving " + name_ + " ---")
-
 
 def week_to_week(df, column_):
     column_ = column_ if type(column_) == list else [column_]
@@ -311,9 +302,6 @@ def rh2q(rh, t, p ):
     q_ = (0.622 * e)/(p - (0.378 * e)) * 1000
     return round(q_,2)
 
-
-
-
 def move_column(df, column_, days):
     """  _ _ _ """
     column_ = column_ if type(column_) == list else [column_]
@@ -334,31 +322,6 @@ def move_columnlist(df, column_, days):
     return df, moved_columns
 
 
-
-def drop_columns(df, what_to_drop):
-    """  _ _ _ """
-    if what_to_drop != None:
-        for d in what_to_drop:
-            print("dropping " + d)
-
-            df = df.drop(columns=[d], axis=1)
-    return df
-
-
-def select_period(df, show_from, show_until):
-    """ _ _ _ """
-    if show_from is None:
-        show_from = "2020-1-1"
-
-    if show_until is None:
-        show_until = "2030-1-1"
-
-    mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
-    df = df.loc[mask]
-
-    df = df.reset_index()
-
-    return df
 
 
 def agg_week(df, how):
@@ -392,10 +355,6 @@ def agg_week(df, how):
         st.stop()
     return df, dfweek
 
-
-
-
-
 def save_df(df, name):
     """  _ _ _ """
     name_ = OUTPUT_DIR + name + ".csv"
@@ -403,7 +362,6 @@ def save_df(df, name):
     df.to_csv(name_, index=False, compression=compression_opts)
 
     print("--- Saving " + name_ + " ---")
-
 
 ##########################################################
 def correlation_matrix(df, werkdagen, weekend_):
@@ -431,7 +389,6 @@ def correlation_matrix(df, werkdagen, weekend_):
     # sn.regplot(y="Rt_avg", x="Kliniek_Nieuwe_Opnames_COVID", data=df)
     # plt.show()
 
-
 def normeren(df, what_to_norm):
     """In : columlijst
     Bewerking : max = 1
@@ -453,7 +410,6 @@ def normeren(df, what_to_norm):
         print(f"{name} generated")
     return df, normed_columns
 
-
 def graph_daily_normed(
     df, what_to_show_day_l, what_to_show_day_r, how_to_smoothen, how_to_display
 ):
@@ -471,7 +427,6 @@ def graph_daily_normed(
     df, normed_columns_r = normeren(df, smoothed_columns_r)
 
     graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
-
 
 def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     """  _ _ _ """
@@ -859,13 +814,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 )
                 ax3.set_ylabel("_")
 
-
             if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm = find_correlation_pair(df, b_, c_)
                 title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
-
 
             if len(what_to_show_r) == 1:
                 mean = df[what_to_show_r].mean()
@@ -940,78 +893,13 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         for right_sm in columnlist_sm_r:
             correlation = find_correlation_pair(df, left_sm, right_sm)
             st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
-    if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add scatter plot
-        left_sm = str(what_to_show_l[0]) + "_" + how_to_smooth_
-        right_sm = str(what_to_show_r[0]) + "_" + how_to_smooth_
-        make_scatterplot(df_temp, what_to_show_l, what_to_show_r, False)
-        make_scatterplot(df_temp,left_sm, right_sm, True)
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
-    if type(what_to_show_l) == list:
-        what_to_show_l = what_to_show_l
-    else:
-        what_to_show_l = [what_to_show_l]
-    if type(what_to_show_r) == list:
-        what_to_show_r = what_to_show_r
-    else:
-        what_to_show_r = [what_to_show_r]
-    with _lock:
-            fig1xy = plt.figure()
-            ax = fig1xy.add_subplot(111)
-            # st.write (x_)
-            
-            
-            # print (type(x_))
-            
-          
 
-            x_ = df_temp[what_to_show_l].values.tolist()
-            y_ = df_temp[what_to_show_r].values.tolist()
-            
-            plt.scatter(x_, y_)
-
-
-
-            x_ = np.array(df_temp[what_to_show_l])
-            
-           
-            y_ = np.array(df_temp[what_to_show_r]) 
-           
-
-
-            #obtain m (slope) and b(intercept) of linear regression line
-            idx = np.isfinite(x_) & np.isfinite(y_)
-            m, b = np.polyfit(x_[idx], y_[idx], 1)
-            model = np.polyfit(x_[idx], y_[idx], 1)
-
-            predict = np.poly1d(model)
-            r2 = r2_score  (y_[idx], predict(x_[idx]))
-            #print (r2)
-            #m, b = np.polyfit(x_, y_, 1)
-            # print (m,b)
-
-            #add linear regression line to scatterplot
-            plt.plot(x_, m*x_+b, 'r')
-            plt.xlabel (what_to_show_l[0])
-            plt.ylabel (what_to_show_r[0])
-            if smoothed:
-                title_scatter = (f"Smoothed: {what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-            else:
-                title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-
-            plt.title(title_scatter)
-
-
-            ax.text(
-                1,
-                1.1,
-                "Created by Rene Smit — @rcsmit",
-                transform=ax.transAxes,
-                fontsize="xx-small",
-                va="top",
-                ha="right",
-            )
-            st.pyplot(fig1xy)
-
+    for l in what_to_show_l:
+    for r in what_to_show_r:
+        left_sm = str(l) + "_" + how_to_smooth_
+        right_sm = str(r) + "_" + how_to_smooth_
+        make_scatterplot(df_temp, l, r , True, False)
+        make_scatterplot(df_temp,left_sm, right_sm, True, False)
 
 def set_xmargin(ax, left=0.0, right=0.3):
     ax.set_xmargin(0)
@@ -1022,12 +910,10 @@ def set_xmargin(ax, left=0.0, right=0.3):
     right = lim[1] + delta * right
     ax.set_xlim(left, right)
 
-
 def add_restrictions(df, ax):
     pass
 
 def add_restrictions_original(df, ax):
-
 
     """  _ _ _ """
     # Add restrictions
@@ -1063,7 +949,6 @@ def add_restrictions_original(df, ax):
             )
             # plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
 
-
 def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     """  _ _ _ """
 
@@ -1077,10 +962,8 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     if what_to_show_r != None:
         df_r, dfweek_r = agg_week(df, how_r)
 
-    if type(what_to_show_l) == list:
-        what_to_show_l = what_to_show_l
-    else:
-        what_to_show_l = [what_to_show_l]
+    what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
+
 
     for show_l in what_to_show_l:
         fig1y = plt.figure()
@@ -1124,19 +1007,15 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         st.pyplot(fig1y)
         # plt.show()
 
-
 def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
     """  _ _ _ """
     if t == "bar":
-        if type(what_to_show_l) == list:
-            what_to_show_l = what_to_show_l
-        else:
-            what_to_show_l = [what_to_show_l]
+        what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
+
         title = (f"{country_} | ")
         for c in what_to_show_l:
 
             #    what_to_show_r = what_to_show_r
-
 
             title += str(c) + " "
 
@@ -1210,11 +1089,9 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
         title = (f"{country_} | ")
         t1 =wrap(tl, 80)
 
-
         for t in t1:
             title += t + "\n"
         graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
-
 
 def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
     """  _ _ _ """
@@ -1258,7 +1135,6 @@ def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
             c_smoothen.append(new_column)
     return df, c_smoothen
 
-
 ###################################################################
 def find_correlations(df, treshold, fields):
     al_gehad = []
@@ -1286,7 +1162,6 @@ def find_correlations(df, treshold, fields):
                 pass  # ("algehad")
             al_gehad.append(str(j) + str(i))
 
-
 def find_correlation_pair(df, first, second):
     al_gehad = []
     paar = []
@@ -1302,7 +1177,6 @@ def find_correlation_pair(df, first, second):
         for j in second:
             c = round(df[i].corr(df[j]), 3)
     return c
-
 
 def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     b = what_happens_first
@@ -1336,7 +1210,6 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     graph_daily(df, [a], [max_column], "SMA", "line")
     # if the optimum is negative, the second one is that x days later
 
-
 def init():
     """  _ _ _ """
 
@@ -1355,7 +1228,6 @@ def init():
     # GLOBAL SETTINGS
     download = True  # True : download from internet False: download from INPUT_DIR
     # De open data worden om 15.15 uur gepubliceerd
-
 
 def get_locations(df_ungrouped, field):
     """ Get a list of the Municipalities """
@@ -1380,41 +1252,41 @@ def isNaN(num):
 def google_or_waze(df___):
     move_r_number = st.sidebar.slider("Move the R-rate (days", -21, 21, -7)
 
-    
-  
+
+
     #df_output = pd.DataFrame(columns=header)
     output=[]
     to_compare_ = ["transit_stations", "driving_waze"]
-    
+
     countrylist =  df___['location'].drop_duplicates().sort_values().tolist()
-   
+
     header = ["_", "transit_stations", "driving_waze", "transit_stations_SMA", "driving_waze_SMA", "GoogleWazeIndex", "Who_wins"]
-    
+
     text = "Welcome to the first day... of the rest... of your life"
     #to_compare_corr = ["transit_stations", "driving_waze", "transit_stations_SMA", "driving_waze_SMA"]
 
     t = st.empty()
     l = len(countrylist)
     google_wins,waze_wins = 0, 0
-    
+
     for i, country in enumerate(countrylist):
-        
+
         # progress = ("#" * i) + ("_" * (l-i))
         # if i % 30 == 0:
         #     progress += "\n"
         # t.markdown(progress)
         NumberofNotaNumber = 0
-        
+
         df = df___.loc[df___['location'] ==country].copy(deep=False)
         df, to_compare_sma = smooth_columnlist(df, to_compare_, "SMA",7 , True)
         df, moved_column_repr_rate = move_column(df, "reproduction_rate", move_r_number )
-        
+
         to_compare_corr = to_compare_ + to_compare_sma
-        
+
         output_ = [country]
-    	
-        for f in to_compare_corr: 
-            
+
+        for f in to_compare_corr:
+
             correlation = find_correlation_pair(df,  moved_column_repr_rate, f)
             if isNaN(correlation):
                 NumberofNotaNumber += 1
@@ -1437,43 +1309,43 @@ def google_or_waze(df___):
                 output_.append("Equal")
         except:
             output_.append(None)
-        
+
         output.append(output_)
-        
+
         df_output=pd.DataFrame(output,columns=header)
     save_df(df_output, "Google_or_waze.csv")
 
         #df_output = df_output.append(output, ignore_index=True)
     st.write (df_output)
     st.write(f"Google wins {google_wins} - Waze wins {waze_wins}")
-   
+
     #url ="C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\COVIDcases\\motorvehicles.csv"
     url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/motorvehicles.csv"
     # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
     df_motorveh = pd.read_csv(url, delimiter=";", low_memory=False)
-    
+
     df_temp1 = pd.merge(
                 df_output, df_motorveh, how="left", left_on="_", right_on="country"
             )
-    
+
     url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/GDPpercapita.csv"
     # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
     df_gdp_per_capita = pd.read_csv(url, delimiter=",", low_memory=False)
     for column in df_gdp_per_capita:
         if column !="Country Name":
             df_gdp_per_capita.rename(columns={column:'GDP_'+column}, inplace=True)
-    
+
     #df_gdp_per_capita = df_gdp_per_capita[["Country Name", "2019"]]
     df_temp = pd.merge(
                 df_temp1, df_gdp_per_capita, how="left", left_on="_", right_on="Country Name"
             )
-    
 
-    make_scatterplot(df_temp, "driving_waze", "transit_stations", False)
-    make_scatterplot(df_temp, "motorvehicles", "GoogleWazeIndex", False)
-    make_scatterplot(df_temp,  "motorvehicles","driving_waze", False),
-    make_scatterplot(df_temp, "motorvehicles", "transit_stations", False)
-    make_scatterplot(df_temp, "GDP_2019", "GoogleWazeIndex", False)
+
+    make_scatterplot(df_temp, "driving_waze", "transit_stations", False, False)
+    make_scatterplot(df_temp, "motorvehicles", "GoogleWazeIndex", False, False)
+    make_scatterplot(df_temp,  "motorvehicles","driving_waze", False, False)
+    make_scatterplot(df_temp, "motorvehicles", "transit_stations", False, False)
+    make_scatterplot(df_temp, "GDP_2019", "GoogleWazeIndex", False, False)
 def main():
     """  _ _ _ """
     global FROM
@@ -1506,10 +1378,7 @@ def main():
 
     # rioolwaterplaatsen = (get_locations(df_ungrouped, "RWZI_AWZI_name"))
 
-
     # #CONFIG
-
-
 
     df.rename(
         columns={
@@ -1526,9 +1395,7 @@ def main():
     )
     lijst = df.columns.tolist()
 
-
     del lijst[0:4]
-
 
     st.title("Interactive Corona Dashboard OWID/waze")
     # st.header("")
@@ -1569,11 +1436,9 @@ def main():
 
     df = select_period(df, FROM, UNTIL)
 
-
     df = df.drop_duplicates()
     google_or_waze(df)
     dashboard(df)
-
 
 def dashboard(df___):
     global country_
@@ -1582,7 +1447,7 @@ def dashboard(df___):
     country_ = st.sidebar.selectbox("Which country",countrylist, 216)
     df = df___.loc[df___['location'] ==country_].copy(deep=False)
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-   
+
 
     # df,newcolumns = week_to_week(df,["Total_reported"])
     global show_R_value_graph, show_R_value_RIVM, show_scenario
@@ -1610,7 +1475,6 @@ def dashboard(df___):
     df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
 
     lijst.extend(newcolumns_w2w2) # percentage
-
 
     # for n in newcolumns:
     #     .write(df[n])
@@ -1840,7 +1704,7 @@ def dashboard(df___):
     if st.sidebar.button("Find Correlations"):
         treshhold = st.sidebar.slider("R-number first variant", 0.0, 1.0, 0.8)
         find_correlations(df, treshhold, lijst)
- 
+
     # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
 

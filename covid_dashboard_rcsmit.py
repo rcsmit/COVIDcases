@@ -873,147 +873,35 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 # weekends have a different color
                 firstday = df.iloc[0]["WEEKDAY"]  # monday = 0
                 if firstday == 0:
-                    color_x = [
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekend,
-                        COLOR_weekend,
-                    ]
+                       color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, ]
                 elif firstday == 1:
-                    color_x = [
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekend,
-                        COLOR_weekend,
-                        COLOR_weekday,
-                    ]
+                    color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, ]
                 elif firstday == 2:
-                    color_x = [
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekend,
-                        COLOR_weekend,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                    ]
+                    color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, ]
                 elif firstday == 3:
-                    color_x = [
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekend,
-                        COLOR_weekend,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                    ]
+                    color_x = [ COLOR_weekday, COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, ]
                 elif firstday == 4:
-                    color_x = [
-                        COLOR_weekday,
-                        COLOR_weekend,
-                        COLOR_weekend,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                    ]
+                    color_x = [ COLOR_weekday, COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, ]
                 elif firstday == 5:
-                    color_x = [
-                        COLOR_weekend,
-                        COLOR_weekend,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                    ]
+                    color_x = [ COLOR_weekend, COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, ]
                 elif firstday == 6:
-                    color_x = [
-                        COLOR_weekend,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekday,
-                        COLOR_weekend,
-                    ]
+                    color_x = [ COLOR_weekend, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekday, COLOR_weekend, ]
 
                 if showoneday:
                     if showday == 0:
-                        color_x = [
-                            bittersweet,
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                        ]
+                        color_x = [bittersweet,  white, white, white, white, white, white, ]
                     elif showday == 1:
-                        color_x = [
-                            white,
-                            bittersweet,
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                        ]
+                        color_x = [white, bittersweet,  white, white, white, white, white, ]
                     elif showday == 2:
-                        color_x = [
-                            white,
-                            white,
-                            bittersweet,
-                            white,
-                            white,
-                            white,
-                            white,
-                        ]
+                        color_x = [white, white, bittersweet,  white, white, white, white, ]
                     elif showday == 3:
-                        color_x = [
-                            white,
-                            white,
-                            white,
-                            bittersweet,
-                            white,
-                            white,
-                            white,
-                        ]
+                        color_x = [white, white, white, bittersweet,  white, white, white, ]
                     elif showday == 4:
-                        color_x = [
-                            white,
-                            white,
-                            white,
-                            white,
-                            bittersweet,
-                            white,
-                            white,
-                        ]
+                        color_x = [white, white, white, white, bittersweet,  white, white, ]
                     elif showday == 5:
-                        color_x = [
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                            bittersweet,
-                            white,
-                        ]
+                        color_x = [white, white, white, white, white, bittersweet,  white, ]
                     elif showday == 6:
-                        color_x = [
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                            white,
-                            bittersweet,
-                        ]
+                        color_x = [white, white, white, white, white, white, bittersweet,  ]
                 # MAYBE WE CAN LEAVE THIS OUT HERE
                 df, columnlist = smooth_columnlist(df, [b], how_to_smooth, WDW2, centersmooth)
 
