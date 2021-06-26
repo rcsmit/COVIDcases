@@ -1253,7 +1253,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
 
-    if len(what_to_show_l) >= 1 and len(what_to_show_r) >= 1:  # add scatter plot
+    #if len(what_to_show_l) >= 1 and len(what_to_show_r) >= 1:  # add scatter plot
+    if what_to_show_l is not None and what_to_show_r is not None:  
         for l in what_to_show_l:
             for r in what_to_show_r:
 
