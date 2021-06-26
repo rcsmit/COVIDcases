@@ -1384,8 +1384,8 @@ def find_correlations(df, treshold, fields):
 def find_correlation_pair(df, first, second):
     al_gehad = []
     paar = []
-    if type(first) =! list : first = [first]
-    if type(second) =! list second = [second]
+    if type(first) is not list : first = [first]
+    if type(second) is not list second = [second]
     for i in first:
         for j in second:
             c = round(df[i].corr(df[j]), 3)
