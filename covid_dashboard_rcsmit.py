@@ -12,12 +12,13 @@ from datetime import datetime, timedelta
 
 import json
 from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
 
-_lock = RendererAgg.lock
+
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
 import streamlit as st
@@ -789,9 +790,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     what_to_show_l_ = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     if what_to_show_r != None:
         what_to_show_r_ = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
-    
 
-    
+
+
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
 
@@ -1018,7 +1019,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 label="TOTAL", color=color_list[6], linestyle="--", linewidth=1, alpha=1
             )
 
-      
+
             n = len(color_list)
             x = n
             for a in what_to_show_r:
@@ -1123,7 +1124,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             for right_sm in columnlist_sm_r:
                 correlation = find_correlation_pair(df, left_sm, right_sm)
                 st.write(f"Correlation: {left_sm} - {right_sm} : {correlation}")
-                
+
         for l in what_to_show_l_:
             for r in what_to_show_r_:
                 left_sm = str(l) + "_" + how_to_smooth_
@@ -1245,7 +1246,7 @@ def graph_daily(df, what_to_show_l_, what_to_show_r_, how_to_smooth, t):
         st.stop()
 
     if t == "bar":
-        
+
         title = ""
         for c in what_to_show_l:
 
