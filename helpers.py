@@ -125,7 +125,7 @@ def RGBtoHexConverion(R, G, B):
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show_month, smoothed):
     what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
-
+    colorlegenda=""
     with _lock:
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
@@ -144,9 +144,11 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show
 
 
                         plt.scatter(x__, y__,  s=2,color=c)
-                        st.write(c)
-                        r,g,b,z = c
-                        st.write (f"{m} {y} - {RGBtoHexConverion(r,g,b)}")
+
+                #         r,g,b,z = c
+                #         colorlegenda += (f"<font color ='{RGBtoHexConverion(int(r*255),int(g*255),int(b*255))}'>{m}-{y}</font> | ")
+                # st.markdown(colorlegenda, unsafe_allow_html=True)
+
             else:
                 x_ = np.array(df_temp[what_to_show_l])
                 y_ = np.array(df_temp[what_to_show_r])
