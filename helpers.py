@@ -68,6 +68,22 @@ def drop_columns(df, what_to_drop):
             df = df.drop(columns=[d], axis=1)
     return df
 
+def find_correlation_pair(df, first, second):
+    al_gehad = []
+    paar = []
+    if type(first) == list:
+        first = first
+    else:
+        first = [first]
+    if type(second) == list:
+        second = second
+    else:
+        second = [second]
+    for i in first:
+        for j in second:
+            c = round(df[i].corr(df[j]), 3)
+    return c
+
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show_month, smoothed):
     what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
