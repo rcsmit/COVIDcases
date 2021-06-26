@@ -1175,7 +1175,7 @@ def add_restrictions_original(df, ax):
             )
             # plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
 
-def graph_week(df, what_to_show_l_, how_l, what_to_show_r+, how_r):
+def graph_week(df, what_to_show_l_, how_l, what_to_show_r_, how_r):
     """  _ _ _ """
 
     # SHOW A GRAPH IN TIME / WEEK
