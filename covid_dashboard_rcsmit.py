@@ -312,7 +312,7 @@ def get_data():
         return df, df_ungrouped, UPDATETIME
 
 def week_to_week(df, column):
-    column_ = column if type(column_) == list else [column]
+    column_ = column if type(column) == list else [column]
     newcolumns = []
     newcolumns2 = []
 
