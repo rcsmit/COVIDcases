@@ -311,8 +311,8 @@ def get_data():
 
         return df, df_ungrouped, UPDATETIME
 
-def week_to_week(df, column_):
-    column_ = column_ if type(column_) == list else [column_]
+def week_to_week(df, column):
+    column_ = column if type(column_) == list else [column]
     newcolumns = []
     newcolumns2 = []
 
@@ -619,9 +619,9 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
         sliding_r_df = sliding_r_df.reset_index()
     return df, column_list_r_smoothened, column_list_r_sec_smoothened
 
-def move_column(df, column_, days):
+def move_column(df, column, days):
     """  _ _ _ """
-    column_ = column_ if type(column_) == list else [column_]
+    column_ = column if type(column) == list else [column]
     for column in column_:
         new_column = column + "_moved_" + str(days)
         df[new_column] = df[column].shift(days)
@@ -778,7 +778,7 @@ def graph_daily_normed(
 
     graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
 
-def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
+def graph_day(df, what_to_show_l_, what_to_show_r_, how_to_smooth, title, t):
     """  _ _ _ """
     #st.write(f"t = {t}")
     df_temp = pd.DataFrame(columns=["date"])
@@ -786,7 +786,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         st.warning("Choose something")
         st.stop()
 
-    what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
+    what_to_show_l = what_to_show_l_ if type(what_to_show_l_) == list else [what_to_show_l_]
     
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
@@ -850,7 +850,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         # ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
         for b in what_to_show_l_:
-            # if type(a) == list:
+            # 
+
+(a) == list:
             #     a_=a
             # else:
             #     a_=[a]
@@ -1012,8 +1014,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 label="TOTAL", color=color_list[6], linestyle="--", linewidth=1, alpha=1
             )
 
-        if what_to_show_r != None:
-            what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
+        if what_to_show_r_ != None:
+            what_to_show_r = what_to_show_r_ if type(what_to_show_r_) == list else [what_to_show_r_]
     
 
             n = len(color_list)
@@ -1175,7 +1177,7 @@ def add_restrictions_original(df, ax):
             )
             # plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
 
-def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
+def graph_week(df, what_to_show_l_, how_l, what_to_show_r+, how_r):
     """  _ _ _ """
 
     # SHOW A GRAPH IN TIME / WEEK
@@ -1188,7 +1190,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
     if what_to_show_r != None:
         df_r, dfweek_r = agg_week(df, how_r)
 
-    what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
+    what_to_show_l = what_to_show_l_ if type(what_to_show_l_) == list else [what_to_show_l_]
 
     for show_l in what_to_show_l:
         fig1y = plt.figure()
@@ -1232,11 +1234,11 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         st.pyplot(fig1y)
         # plt.show()
 
-def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
+def graph_daily(df, what_to_show_l_, what_to_show_r_, how_to_smooth, t):
     """  _ _ _ """
     if t == "bar":
-        what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
-    
+        what_to_show_l = what_to_show_l_ if type(what_to_show_l_) == list else [what_to_show_l_]
+
         title = ""
         for c in what_to_show_l:
 
@@ -1280,9 +1282,9 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
                     else:
                         tl += l
 
-        if what_to_show_r is not None:
-            what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
-    
+        if what_to_show_r_ is not None:
+            what_to_show_r = what_to_show_r_ if type(what_to_show_r_) == list else [what_to_show_r_]
+
             tl += " - \n"
             for r in what_to_show_r:
                 if j != len(what_to_show_r) - 1:
