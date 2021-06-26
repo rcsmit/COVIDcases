@@ -1259,8 +1259,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
 
                 left_sm = str(l) + "_" + how_to_smooth_
                 right_sm = str(r) + "_" + how_to_smooth_
-                make_scatterplot(df_temp, l,r, True, False)
-                make_scatterplot(df_temp,left_sm, right_sm, True, True)
+                make_scatterplot(df_temp, l,r, FROM, UNTIL,  True, False)
+                make_scatterplot(df_temp,left_sm, right_sm, FROM, UNTIL, True, True)
 def make_scatterplot_DELETE(df_temp, what_to_show_l, what_to_show_r):
     if type(what_to_show_l) == list:
         what_to_show_l = what_to_show_l

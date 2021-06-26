@@ -68,7 +68,7 @@ def drop_columns(df, what_to_drop):
             df = df.drop(columns=[d], axis=1)
     return df
 
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, show_month, smoothed):
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show_month, smoothed):
     what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
 
@@ -76,21 +76,21 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, show_month, smooth
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
 
-            # if show_month==True:
-            #     num_months = (UNTIL.year - FROM.year) * 12 + (UNTIL.month - FROM.month)
-            #     colors=cm.rainbow(np.linspace(0,1,num_months+1))
+            if show_month==True:
+                num_months = (UNTIL.year - FROM.year) * 12 + (UNTIL.month - FROM.month)
+                colors=cm.rainbow(np.linspace(0,1,num_months+1))
 
-            #     for y in range (2020,2022):
-            #         for m,c in zip(range (1,13),colors):
-
-
-            #             df_temp_month = df_temp[(df_temp['date'].dt.month==m) & (df_temp['date'].dt.year==y)]
-            #             x__ = df_temp_month[what_to_show_l].values.tolist()
-            #             y__ = df_temp_month[what_to_show_r].values.tolist()
+                for y in range (2020,2022):
+                    for m,c in zip(range (1,13),colors):
 
 
-            #             plt.scatter(x__, y__,  s=2,color=c)
-            # else:
+                        df_temp_month = df_temp[(df_temp['date'].dt.month==m) & (df_temp['date'].dt.year==y)]
+                        x__ = df_temp_month[what_to_show_l].values.tolist()
+                        y__ = df_temp_month[what_to_show_r].values.tolist()
+
+
+                        plt.scatter(x__, y__,  s=2,color=c)
+            else:
             x_ = np.array(df_temp[what_to_show_l])
             y_ = np.array(df_temp[what_to_show_r])
 
