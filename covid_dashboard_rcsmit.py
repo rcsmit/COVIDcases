@@ -778,7 +778,7 @@ def graph_daily_normed(
 
     graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
 
-def graph_day(df, what_to_show_l_, what_to_show_r_, how_to_smooth, title, t):
+def graph_day(df, what_to_show_l, what_to_show_r_, how_to_smooth, title, t):
     """  _ _ _ """
     #st.write(f"t = {t}")
     df_temp = pd.DataFrame(columns=["date"])
@@ -786,7 +786,7 @@ def graph_day(df, what_to_show_l_, what_to_show_r_, how_to_smooth, title, t):
         st.warning("Choose something")
         st.stop()
 
-    what_to_show_l = what_to_show_l_ if type(what_to_show_l_) == list else [what_to_show_l_]
+    what_to_show_l_ = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
@@ -850,9 +850,7 @@ def graph_day(df, what_to_show_l_, what_to_show_r_, how_to_smooth, title, t):
         # ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
         for b in what_to_show_l_:
-            # 
-
-(a) == list:
+            # (a) == list:
             #     a_=a
             # else:
             #     a_=[a]
