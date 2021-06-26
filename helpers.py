@@ -84,6 +84,44 @@ def find_correlation_pair(df, first, second):
             c = round(df[i].corr(df[j]), 3)
     return c
 
+def decimalToHexa(n):
+    hexaDecimalNumber = ['0'] * 100
+    i = 0
+    while (n != 0):
+        _temp = 0
+        _temp = n % 16
+        if (_temp < 10):
+            hexaDecimalNumber[i] = chr(_temp + 48)
+            i = i + 1
+        else:
+            hexaDecimalNumber[i] = chr(_temp + 55)
+            i = i + 1
+        n = int(n / 16)
+    hexadecimalCode = ""
+    if (i == 2):
+        hexadecimalCode = hexadecimalCode + hexaDecimalNumber[0]
+        hexadecimalCode = hexadecimalCode + hexaDecimalNumber[1]
+    elif (i == 1):
+        hexadecimalCode = "0"
+        hexadecimalCode = hexadecimalCode + hexaDecimalNumber[0]
+    elif (i == 0):
+        hexadecimalCode = "00"
+    return hexadecimalCode
+
+
+# Function to convert the RGB to Hexadecimal color code
+def RGBtoHexConverion(R, G, B):
+    if ((R >= 0 and R <= 255) and
+            (G >= 0 and G <= 255) and
+            (B >= 0 and B <= 255)):
+        hexadecimalCode = "#"
+        hexadecimalCode = hexadecimalCode + decimalToHexa(R)
+        hexadecimalCode = hexadecimalCode + decimalToHexa(G)
+        hexadecimalCode = hexadecimalCode + decimalToHexa(B)
+        return hexadecimalCode
+    else:
+        return "-1"    # If the hexadecimal color code does not exist, return -1
+
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show_month, smoothed):
     what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
@@ -106,7 +144,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show
 
 
                         plt.scatter(x__, y__,  s=2,color=c)
-                        st.write (f"{m} {y} - {c}")
+                        st.write (f"{m} {y} - {RGBtoHexConverion(c)}")
             else:
                 x_ = np.array(df_temp[what_to_show_l])
                 y_ = np.array(df_temp[what_to_show_r])
