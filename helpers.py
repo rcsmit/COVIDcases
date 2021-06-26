@@ -7,7 +7,7 @@ import matplotlib.dates as mdates
 import numpy as np
 import streamlit as st
 import matplotlib.cm as cm
-
+from sklearn.metrics import r2_score
 
 def cell_background(val):
     """Creates the CSS code for a cell with a certain value to create a heatmap effect
