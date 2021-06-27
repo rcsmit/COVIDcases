@@ -27,20 +27,18 @@ def main():
     rh = st.number_input("Relative humidity (%)", None, None, 36)
     p = st.number_input("Pressure (mbar)", None, None, 1020)
 
-    tekst = (f"<div style='background-color: lightblue;padding:20px;'>Specific humidity (q) = {round(rh2q(rh, t, p ),1)} g/kg<br>Absolute humidity  = {round(rh2ah(rh, t),1)} grams/m3</div>")
+    tekst = (f"<div style='background-color: lightblue;padding:20px;'>Specific humidity (q) = <b>{round(rh2q(rh, t, p ),1)}</b> g/kg<br><br>Absolute humidity  = <b>{round(rh2ah(rh, t),1)}</b> grams/m<sup>3</sup></div>")
 
     st.markdown(tekst, unsafe_allow_html=True)
 
-    # st.write(f"Specific humidity (q) = {round(rh2q(rh, t, p ),1)} g/kg")
-    # st.write(f"Absolute humidity  = {round(rh2ah(rh, t),1)} grams/m3")
 
     st.subheader("Formula for specific humidity")
-    st.write(
-        "es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000"
+    st.markdown(
+        "es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000", unsafe_allow_html=True
     )
     st.subheader("Formula for absolute humidity")
-    st.write(
-        "ah = 6.112 * exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (273.15 + t)"
+    st.markdown(
+        "ah = 6.112 * exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (273.15 + t)", unsafe_allow_html=True
     )
 
 if __name__ == "__main__":
