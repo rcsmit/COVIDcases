@@ -30,7 +30,9 @@ def main():
             ["12. Calculate R per country owid", "calculate_r_per_country_owid_streamlit"],
             ["13. Covid dashboard OWID/Google or Waze","covid dashboard owid"],
             ["14. Dag verschillen per leeftijd", "dag_verschillen_casus_landelijk"],
-            ["15. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
+            ["15. Calculate spec./abs. humidity from rel. hum", "rh2q"],
+
+            ["16. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
             ["16. per provincie per leeftijd","perprovincieperleeftijd"]]
 
 
