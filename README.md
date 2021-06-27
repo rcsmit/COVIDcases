@@ -2,6 +2,8 @@
 
 Various files with models and graphs concerning COVID-19. 
 
+Accessible at https://share.streamlit.io/rcsmit/covidcases/main/covid_menu_streamlit.py
+
 Sorry, sourcecode, input and outputfiles are mixed in one directory. If I'd do it again, I would split it up and make an utils.py file also. 
 
 ## Interesting files/scripts
