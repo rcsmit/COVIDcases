@@ -3,7 +3,6 @@ import math
 
 
 def rh2q(rh, t, p):
-
     # https://github.com/PecanProject/pecan/blob/master/modules/data.atmosphere/R/metutils.R#L45
     es = 6.112 * math.exp((17.67 * t) / (t + 243.5)) # Saturation Vapor Pressure
     e = es * (rh / 100) # vapor pressure
@@ -22,24 +21,29 @@ def rh2ah(rh, t):
     return (6.112 * math.exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (273.15 + t)
 
 def main():
-    st.header("Calculate specfiic and absolute humidity")
-    t = st.number_input("Temperature (Celcius)", None, None, 25)
-    rh = st.number_input("Relative humidity (%)", None, None, 36)
-    p = st.number_input("Pressure (mbar)", None, None, 1020)
+    st.header("Calculate specific and absolute humidity")
+    col1, col2, col3 = st.beta_columns(3)
+    with col1:
+        t = st.number_input("Temperature (Celcius)", None, None, 25)
+    with col2:
+        rh = st.number_input("Relative humidity (%)", None, None, 36)
+    with col3:
+        p = st.number_input("Pressure (mbar)", None, None, 1020)
 
     tekst = (f"<div style='background-color: lightblue;padding:20px;'>Specific humidity (q) = <b>{round(rh2q(rh, t, p ),1)}</b> g/kg<br><br>Absolute humidity  = <b>{round(rh2ah(rh, t),1)}</b> grams/m<sup>3</sup></div>")
-
     st.markdown(tekst, unsafe_allow_html=True)
 
-
     st.subheader("Formula for specific humidity")
-    st.markdown(
-        "es = 6.112 * exp((17.67 * t)/(t + 243.5))<br>e = es * (rh / 100)<br>q = (0.622 * e)/(p - (0.378 * e)) * 1000", unsafe_allow_html=True
-    )
+    r'''$$es = 6.112 * e^{\frac{17.67 * t}{t + 243.5}} (e = 2,71828..)\\$$
+	$$e = es * \frac{rh}{100}\\$$
+	$$q = {\frac{0.622 * e}{p - (0.378 * e)}}*1000$$'''
+    link =('<a href="https://github.com/PecanProject/pecan/blob/master/modules/data.atmosphere/R/metutils.R#L45" target="_blank">source</a>')
+    st.markdown(link, unsafe_allow_html=True)
+
     st.subheader("Formula for absolute humidity")
-    st.markdown(
-        "ah = 6.112 * exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (273.15 + t)", unsafe_allow_html=True
-    )
+    r'''$$ah = \frac{6.112 * e^{\frac{17.67 * t}{t + 243.5}} * rh * 2.1674}{273.15 + t} (e = 2,71828..)$$'''
+    link2 =('<a href="https://carnotcycle.wordpress.com/2012/08/04/how-to-convert-relative-humidity-to-absolute-humidity/" target="_blank">source</a>')
+    st.markdown(link2, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

@@ -2140,6 +2140,9 @@ def main():
     if st.sidebar.button("Find Correlations"):
         treshhold = st.sidebar.slider("R-number first variant", 0.0, 1.0, 0.8)
         find_correlations(df, treshhold, lijst)
+    # import base64
+    # coded_data = base64.b64encode(df.to_csv(index=False).encode()).decode()
+    # st.markdown(f'<a href="data:file/csv;base64,{coded_data}" download="data.csv">Download Data<a>', unsafe_allow_html = True)
 
     # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
