@@ -23,10 +23,9 @@ def rh2ah(rh, t):
 
 def main():
     st.header("Calculate specfiic and absolute humidity")
-    t = st.sidebar.number_input("Temperature (Celcius)", None, None, 25)
-    rh = st.sidebar.number_input("Relative humidity %", None, None, 36)
-    t = st.sidebar.number_input("Temperature (Celcius)", None, None, 8000)
-    p = st.sidebar.number_input("Presure", None, None, 1020)
+    t = st.number_input("Temperature (Celcius)", None, None, 25)
+    rh = st.number_input("Relative humidity (%)", None, None, 36)
+    p = st.number_input("Pressure (mbar)", None, None, 1020)
 
     st.write(f"Specific humidity (q) = {round(rh2q(rh, t, p ),1)} g/kg")
     st.write(f"Absolute humidity  = {round(rh2ah(rh, t),1)} grams/m3")
