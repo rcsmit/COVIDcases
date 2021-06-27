@@ -27,8 +27,7 @@ def main():
     rh = st.number_input("Relative humidity (%)", None, None, 36)
     p = st.number_input("Pressure (mbar)", None, None, 1020)
 
-tekst = (        f"<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
-        "<div class='infobox'>Specific humidity (q) = {round(rh2q(rh, t, p ),1)} g/kg<br>Absolute humidity  = {round(rh2ah(rh, t),1)} grams/m3</div>")
+    tekst = (        f"<style> .infobox {  background-color: lightblue; padding: 5px;}</style><div class='infobox'>Specific humidity (q) = {round(rh2q(rh, t, p ),1)} g/kg<br>Absolute humidity  = {round(rh2ah(rh, t),1)} grams/m3</div>")
 
     st.markdown(tekst, unsafe_allow_html=True)
 
