@@ -299,6 +299,7 @@ def main():
         "Week_of_death",
         "Municipal_health_service",
     ]
+
     df = drop_columns(df, todrop)
     column_list = df_pivot.columns.tolist()
 
