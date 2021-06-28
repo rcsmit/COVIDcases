@@ -31,7 +31,7 @@ def cell_background_number_of_cases(val):
                         [100.0,0.50],
                         [200.0,0.625],
                         [400.0,0.75],
-                        [800.0,0.825],
+                        [800.0,0.875],
                         [1600.0,1]]
         for vt in value_table:
             #print (f"{v} - {vt[0]}")
