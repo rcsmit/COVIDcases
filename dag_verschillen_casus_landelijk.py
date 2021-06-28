@@ -12,6 +12,37 @@ from streamlit import caching
 from helpers import *  # cell_background, select_period, save_df, drop_columns
 from datetime import datetime
 
+def cell_background_number_of_cases(val):
+    """Creates the CSS code for a cell with a certain value to create a heatmap effect
+    Args:
+        val ([int]): the value of the cell
+
+    Returns:
+        [string]: the css code for the cell
+    """
+    opacity = 0
+    try:
+        v = abs(val)
+        color = '193, 57, 43'
+        value_table = [ [0,0],
+                        [10.0,0.125],
+                        [25.0,0.25],
+                        [50.0,0.375],
+                        [100.0,0.50],
+                        [200.0,0.625],
+                        [400.0,0.75],
+                        [800.0,0.825],
+                        [1600.0,1]]
+        for vt in value_table:
+            #print (f"{v} - {vt[0]}")
+            if v > vt[0] :
+                opacity = vt[1]
+                #print (f"{v} - {vt[0]} YES")
+    except:
+        # give cells with eg. text or dates a white background
+        color = '255,255,255'
+        opacity = 1
+    return f'background: rgba({color}, {opacity})'
 
 
 def day_to_day(df, column_, numberofdays):
@@ -251,12 +282,14 @@ def main():
         .copy(deep=False)
     )
     # option to drop agegroup 0-9 due to changes in testbeleid en -bereidheid
+    df_pivot = df_pivot.drop(columns="<50", axis=1)
+    df_pivot=df_pivot.fillna(0)
     drop_0_9  = st.sidebar.selectbox("Delete agegroup 0-9", [True, False], index=1)
     if drop_0_9 == True:
         df_pivot = df_pivot.drop(columns="0-9", axis=1)
     df_pivot_original = df_pivot.copy(deep=False)
 
-    df_pivot = df_pivot.add_prefix("pos_test_")
+    #df_pivot = df_pivot.add_prefix("pos_test_")
     todrop = [
         "Date_statistics_type",
         "Sex",
@@ -273,9 +306,16 @@ def main():
     numberofdays = st.sidebar.slider("Vergelijken met x dagen ervoor", 0, 21, 7)
     with st.beta_expander('Number of cases',  expanded=True):
         st.subheader("Number of cases per age")
-        df_pivot['pos_test_Date_statistics'] = df_pivot['pos_test_Date_statistics'].dt.date
-        df_pivot.rename(columns={"pos_test_Date_statistics": "date"},  inplace=True)
-        st.write (df_pivot)
+        st.write ("Er wordt teruggerekend naar eeste ziektedag")
+        #df_pivot['pos_test_Date_statistics'] = df_pivot['pos_test_Date_statistics'].dt.date
+        df_pivot['Date_statistics'] = df_pivot['Date_statistics'].dt.date
+        df_pivot.rename(columns={"Date_statistics": "date"},  inplace=True)
+        st.write (df_pivot.style.format(None, na_rep="-").applymap(cell_background_number_of_cases).set_precision(0))
+
+        d = {'legenda': [0, 10,25,50,100,200,400,800,1600]}
+        df_legenda = pd.DataFrame(data=d)
+        st.write (df_legenda.style.format(None, na_rep="-").applymap(cell_background_number_of_cases).set_precision(0))
+
     df_pivot_2,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
     df_new.reset_index(drop=True)
