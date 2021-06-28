@@ -12,7 +12,7 @@ from streamlit import caching
 from helpers import *  # cell_background, select_period, save_df, drop_columns
 from datetime import datetime
 
-def cell_background_number_of_cases(val):
+def cell_background_number_of_cases(val,max):
     """Creates the CSS code for a cell with a certain value to create a heatmap effect
     Args:
         val ([int]): the value of the cell
@@ -25,17 +25,19 @@ def cell_background_number_of_cases(val):
         v = abs(val)
         color = '193, 57, 43'
         value_table = [ [0,0],
-                        [10.0,0.125],
-                        [25.0,0.25],
-                        [50.0,0.375],
-                        [100.0,0.50],
-                        [200.0,0.625],
-                        [400.0,0.75],
-                        [800.0,0.875],
-                        [1600.0,1]]
+                        [0.00390625,0.0625],
+                        [0.0078125, 0.125],
+                        [0.015625,0.25],
+                        [0.03125,0.375],
+                        [0.0625,0.50],
+                        [0.125,0.625],
+                        [0.25,0.75],
+                        [0.50,0.875],
+                        [0.75,0.9375],
+                        [1,1]]
         for vt in value_table:
             #print (f"{v} - {vt[0]}")
-            if v > vt[0] :
+            if v >= round(vt[0]*max) :
                 opacity = vt[1]
                 #print (f"{v} - {vt[0]} YES")
     except:
@@ -115,6 +117,38 @@ def get_data():
     return df
 
 
+def calculate_fraction(df):
+    nr_of_columns = len (df.columns)
+    nr_of_rows = len(df)
+    column_list = df.columns.tolist()
+    max_waarde = 0
+    data = []
+     #              0-9     10-19     20-29    30-39   40-49   50-59   60-69      70-79    80-89    90+
+    pop_ =      [1756000, 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 709000, 130000]  # tot 17 464 000
+    fraction =  [0.10055, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.0405978, 0.0074438846]
+
+    for r in range(nr_of_rows):
+            row_data = []
+            for c in range(0,nr_of_columns):
+                if c==0 :
+                    row_data.append( df.iat[r,c])
+                else:
+                #try
+                    waarde = df.iat[r,c]/pop_[c-1] * 100_000
+                    row_data.append(waarde)
+                    if waarde > max_waarde:
+                        max_waarde = waarde
+
+                #except:
+
+                    # date
+                    # row_data.append( df.iat[r,c])
+                 #   pass
+            data.append(row_data)
+
+    df_fractie = pd.DataFrame(data, columns=column_list)
+
+    return df_fractie, max_waarde
 
 def accumulate_first_rows(df, x):
     """Accumulate the first X rows
@@ -228,6 +262,15 @@ def do_the_rudi(df_):
         data.append(row_data)
     return pd.DataFrame(data, columns=column_list)
 
+def  make_legenda(max_value):
+        stapfracties =   [0, 0.00390625, 0.0078125, 0.015625,  0.03125,  0.0625 , 0.125,  0.25,  0.50, 0.75,  1]
+        stapjes =[]
+        for i in range(len(stapfracties)):
+            stapjes.append((stapfracties[i]*max_value))
+        d = {'legenda': stapjes}
+
+        df_legenda = pd.DataFrame(data=d)
+        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
 
 def main():
     start_ = "2021-01-01"
@@ -282,7 +325,8 @@ def main():
         .copy(deep=False)
     )
     # option to drop agegroup 0-9 due to changes in testbeleid en -bereidheid
-    df_pivot = df_pivot.drop(columns="<50", axis=1)
+    #st.write(df_pivot.dtypes)
+    df_pivot = df_pivot.drop(columns=["<50", "Unknown"], axis=1)
     df_pivot=df_pivot.fillna(0)
     drop_0_9  = st.sidebar.selectbox("Delete agegroup 0-9", [True, False], index=1)
     if drop_0_9 == True:
@@ -302,20 +346,24 @@ def main():
 
     df = drop_columns(df, todrop)
     column_list = df_pivot.columns.tolist()
-
+    df_pivot['Date_statistics'] = df_pivot['Date_statistics'].dt.date
+    df_pivot.rename(columns={"Date_statistics": "date"},  inplace=True)
     column_list = column_list[1:]
     numberofdays = st.sidebar.slider("Vergelijken met x dagen ervoor", 0, 21, 7)
     with st.beta_expander('Number of cases',  expanded=True):
         st.subheader("Number of cases per age")
         st.write ("Er wordt teruggerekend naar eeste ziektedag")
         #df_pivot['pos_test_Date_statistics'] = df_pivot['pos_test_Date_statistics'].dt.date
-        df_pivot['Date_statistics'] = df_pivot['Date_statistics'].dt.date
-        df_pivot.rename(columns={"Date_statistics": "date"},  inplace=True)
-        st.write (df_pivot.style.format(None, na_rep="-").applymap(cell_background_number_of_cases).set_precision(0))
+        max_value = 1600
+        st.write (df_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(0))
 
-        d = {'legenda': [0, 10,25,50,100,200,400,800,1600]}
-        df_legenda = pd.DataFrame(data=d)
-        st.write (df_legenda.style.format(None, na_rep="-").applymap(cell_background_number_of_cases).set_precision(0))
+        make_legenda(max_value)
+
+        st.subheader("Number of cases per age / number of people per age * 100.000")
+
+        df_naar_fractie, max_waarde = calculate_fraction(df_pivot)
+        st.write (df_naar_fractie.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_waarde)).set_precision(2))
+        make_legenda(max_waarde)
 
     df_pivot_2,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
@@ -328,6 +376,7 @@ def main():
 
     with st.beta_expander('Percentual changes of fractions',  expanded=False):
         st.subheader("Percentual change of the fractions per agegroup with the first day(s)")
+        st.write ("fraction = cases in an agegroup / total cases")
         st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
 
 
