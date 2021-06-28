@@ -328,7 +328,7 @@ def main():
     #st.write(df_pivot.dtypes)
     df_pivot = df_pivot.drop(columns=["<50"], axis=1)
     try:
-        df_pivot = df_pivot.drop(columns=["Unknown", axis=1)
+        df_pivot = df_pivot.drop(columns=["Unknown"], axis=1)
     df_pivot=df_pivot.fillna(0)
     drop_0_9  = st.sidebar.selectbox("Delete agegroup 0-9", [True, False], index=1)
     if drop_0_9 == True:
