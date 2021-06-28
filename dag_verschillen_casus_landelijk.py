@@ -123,6 +123,7 @@ def calculate_fraction(df):
     column_list = df.columns.tolist()
     max_waarde = 0
     data = []
+    waardes = []
      #              0-9     10-19     20-29    30-39   40-49   50-59   60-69      70-79    80-89    90+
     pop_ =      [1756000, 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 709000, 130000]  # tot 17 464 000
     fraction =  [0.10055, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.0405978, 0.0074438846]
@@ -136,6 +137,7 @@ def calculate_fraction(df):
                 #try
                     waarde = df.iat[r,c]/pop_[c-1] * 100_000
                     row_data.append(waarde)
+                    waardes.append(waarde)
                     if waarde > max_waarde:
                         max_waarde = waarde
 
@@ -146,9 +148,16 @@ def calculate_fraction(df):
                  #   pass
             data.append(row_data)
 
-    df_fractie = pd.DataFrame(data, columns=column_list)
 
-    return df_fractie, max_waarde
+    df_fractie = pd.DataFrame(data, columns=column_list)
+    top_waarde = 0.975*max_waarde
+    return df_fractie, top_waarde
+
+def st_dev(test_list):
+    mean = sum(test_list) / len(test_list)
+    variance = sum([((x - mean) ** 2) for x in test_list]) / len(test_list)
+    res = variance ** 0.5
+    return mean, res
 
 def accumulate_first_rows(df, x):
     """Accumulate the first X rows
@@ -365,9 +374,9 @@ def main():
 
         st.subheader("Number of cases per age / number of people per age * 100.000")
 
-        df_naar_fractie, max_waarde = calculate_fraction(df_pivot)
-        st.write (df_naar_fractie.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_waarde)).set_precision(2))
-        make_legenda(max_waarde)
+        df_naar_fractie, top_waarde = calculate_fraction(df_pivot)
+        st.write (df_naar_fractie.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,top_waarde)).set_precision(2))
+        make_legenda(top_waarde)
 
     df_pivot_2,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
