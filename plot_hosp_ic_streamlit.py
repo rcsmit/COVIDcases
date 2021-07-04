@@ -367,12 +367,17 @@ def prepare_data():
         df_pivot_ic = df_pivot_ic[:-1]
     return df_pivot_hospital, df_pivot_ic
 
-def get_data_per_total_reported():
+def get_data_per_total_reported(what):
 
     import pandas as pd
     sheet_id = "1trUoOPbDjBo8Q8XKg7BuJnawVDPvapnhuJjBfD6ehG0"
-    sheet_name_hosp = "hospital/casus*100"
-    sheet_name_IC = "IC/casus*100"
+    if what== "normal":
+
+        sheet_name_hosp = "hospital/casus*100"
+        sheet_name_IC = "IC/casus*100"
+    else:
+        sheet_name_hosp = "hospital/casus-1*100"
+        sheet_name_IC = "IC/casus-1*100"
     url_hosp = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_hosp}"
     url_IC = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_IC}"
     df_hosp_per_cases = pd.read_csv(url_hosp)
@@ -617,9 +622,9 @@ def main():
 
     df_pivot_hospital, lijst_cumm_period =  calculate_cumm(df_pivot_hospital, lijst, "period")
     df_pivot_ic, lijst_cumm_period =  calculate_cumm(df_pivot_ic, lijst, "period")
-    df_hosp_per_cases, df_IC_per_cases = get_data_per_total_reported()
+
     hospital_or_ic = st.sidebar.selectbox("Hospital or IC", ["hospital", "icu"], index=0)
-    what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line", "per_total_reported"], index=1)
+    what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line"], index=1)
 
     #default_age_groups = ["0-29","30-49","50-69","70-89","90+"]
     default_age_groups = [ "0-19" , "20-29" , "30-39" , "40-49" , "50-59" , "60-69" , "70-79" , "80-89" , "90+"]
@@ -646,8 +651,16 @@ def main():
             ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst_per_capita, default_age_groups_per_capita)
         elif  absolute_or_index == "per_total_reported":
+            w= st.sidebar.selectbox(
+                    "Use cases of week before", ["No", "Yes"] , index=1)
+            if w == "No":
+                what = "normal"
+            else:
+                what = "oneweekbefore"
             ages_to_show = st.sidebar.multiselect(
                     "Ages to show (multiple possible)", lijst, default_age_groups)
+
+            df_hosp_per_cases, df_IC_per_cases = get_data_per_total_reported(what)
         else:
             # absolute
             ages_to_show = st.sidebar.multiselect(
@@ -667,10 +680,10 @@ def main():
 
     if  absolute_or_index  == "per_total_reported":
         if hospital_or_ic == "hospital":
-            make_age_graph_per_total_reported(df_hosp_per_cases, ages_to_show, "ziekenhuisopnames per total reported (%)")
+            make_age_graph_per_total_reported(df_hosp_per_cases, ages_to_show, f"ziekenhuisopnames per total reported ({what})(%)")
         else:
             make_age_graph_per_total_reported(df_IC_per_cases, ages_to_show, "IC opnames per total reported (%)")
-        st.write("Let op: Ziekenhuisopnames worden vergeleken met de total reported van dezelfde week, wat eigenlijk onjuist is.")
+        st.write("Let op: Veranderingen in kleine aantallen geven hoge percentages (bijv. zomer 2020)")
         st.write("Plot is gemaakt met data verkregen via een omweg en wordt handmatig geupdate. Laatste update 2 juli 2021")
 
     if what_to_do == "stack":
