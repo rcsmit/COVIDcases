@@ -326,10 +326,11 @@ def main():
                 st.pyplot(fig1z)
 
     st.header ("Read this too")
-    toelichting = ("Attention: prevalention is an output what normally can't be used as an input. Besides take note of the difference of the prevalence in the population in general and the testpopulation<br><br>"
+    toelichting = ("Attention: prevalention is an output what normally can't be used as an input. Besides take note of the difference of the prevalence in the population in general and the testpopulation. There is also a difference between the different rates of the test itself and the testprocess as whole.<br><br>"
 
-                    "<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a>"
                   "<blockquote class='twitter-tweet' data-conversation='none'><p lang='en' dir='ltr'>88% false positive rate has some implications in Australia, where:<br>17 m tests<br>29886 positives<br>910 deaths.<br>12 % of 29886 = 3587.<br>-&gt; CFR = 25%<br>Reductio ad absurdum.<br>Suspect specificity is significantly higher than 99.8%</p>&mdash; Clayton Clent (@ClaytonClent) <a href='https://twitter.com/ClaytonClent/status/1390448827362996224?ref_src=twsrc%5Etfw'>May 6, 2021</a></blockquote> <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script><br>"
+                    "<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a>"
+
                   "<a href= 'https://larremorelab.github.io/covid19testgroup' target='_blank'>Various calculations around tests</a><br>"
 
                    "<a href= 'https://twitter.com/mus_nico/status/1397349689243144192' target='_blank'>Diverse tweets van Nico de Mus</a><br>"
