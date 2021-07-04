@@ -240,9 +240,9 @@ def select_period(df, field, show_from, show_until):
     df = df.reset_index()
     return df
 
-def main():
-    # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+###################################################################
+@st.cache(ttl=60 * 60 * 24)
+def load_data():
 
     if platform.processor() != "":
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
@@ -253,6 +253,12 @@ def main():
     df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
     df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
 
+
+def main():
+    # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
+
+    df_getdata = load_data()
+    df = df_getdata.copy(deep=False)  # prevent an error [Return value of `prepare_data()` was mutated between runs.]
 
     start_ = "2021-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
