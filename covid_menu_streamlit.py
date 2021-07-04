@@ -41,7 +41,7 @@ def main():
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
-    with st.sidebar.beta_expander('MENU: Choose a script',  expanded=True):
+    with st.sidebar.beta_expander('MENU: Choose a script | scroll down for options/parameters',  expanded=True):
         menu_choice = st.radio("",menuchoicelist, index=choice)
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
