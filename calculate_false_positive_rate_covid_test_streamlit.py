@@ -121,11 +121,11 @@ def calculate(test, prevalentie, number_of_tested_people,  output):
 
         st.text(tabulate(data, headers=["#", "'Person is\nSick' (+)\nSensitivity (TPR)", "'Person is\nHealthy' (-)\nSpecificity (TNR)", "Total"]))
 
-        st.text(f"True positive : round({true_positive})")
-        st.text(f"True negative :  round({true_negative})")
+        st.text(f"True positive : {round(true_positive})")
+        st.text(f"True negative : {round(true_negative})")
 
-        st.text(f"False positive :  round({false_positive})")
-        st.text(f"False negative :  round({false_negative})")
+        st.text(f"False positive : {round(false_positive})")
+        st.text(f"False negative : {round(false_negative})")
 
 
         st.text(
