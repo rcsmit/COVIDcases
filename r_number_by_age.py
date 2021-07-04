@@ -243,17 +243,17 @@ def select_period(df, field, show_from, show_until):
 ###################################################################
 @st.cache(ttl=60 * 60 * 24)
 def load_data():
+    with st.spinner(f"Downloading...(it will take some time!)"):
+        if platform.processor() != "":
+            url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+        else:
+            url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
 
-    if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
-    else:
-        url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
+        df = pd.read_csv(url1, delimiter=";", low_memory=False)
+        df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
+        df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
 
-    df = pd.read_csv(url1, delimiter=";", low_memory=False)
-    df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
-    df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
-
-
+    return df
 def main():
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
 
