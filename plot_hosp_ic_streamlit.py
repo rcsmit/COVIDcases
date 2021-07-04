@@ -612,8 +612,6 @@ def main():
     df_pivot_hospital, lijst_cumm_all =  calculate_cumm(df_pivot_hospital, lijst, "all")
     df_pivot_ic, lijst_cumm_all =  calculate_cumm(df_pivot_ic, lijst, "all")
 
-
-
     df_pivot_hospital, lijst_per_capita = calculate_per_capita(df_pivot_hospital, lijst, population)
     df_pivot_ic, lijst_per_capita = calculate_per_capita(df_pivot_ic, lijst, population)
 
