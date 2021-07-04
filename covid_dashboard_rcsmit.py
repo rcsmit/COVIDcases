@@ -467,7 +467,7 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
     suspectible_0 = population - immune_day_zero
     cumm_cases = 0
     #df["date"]= df["date"].strftime("%Y-%m-%d")
-    
+
     cases_1 = ((100 - sec_variant) / 100) * total_cases_0
     cases_2 = (sec_variant / 100) * total_cases_0
     temp_1 = cases_1
@@ -490,7 +490,7 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
     max_value = column.max()
     #min_index = df.idxmin()
     df = df.fillna(0)
-  
+
     for day_x in range(1, datediff):
         #print (f"{day_x}  - {immeratio = }")
         if day_x>dag_versoepelingen1:
@@ -525,7 +525,7 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
 
         cumm_cases += pt1 + pt2
         cumm_cases_corr = cumm_cases * 2.5
-        
+
         if day_x>15:
             # we assume that the vaccinations work after 15 days
             day_xx = day_x-15
@@ -535,8 +535,8 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
             people_vaccinated = 0
             people_fully_vaccinated = 0
 
-        
-            
+
+
         if show_vaccination:
             immeratio = 1 - ((cumm_cases_corr +((people_vaccinated-people_fully_vaccinated)*0.5)+(people_fully_vaccinated*0.95)) / suspectible_0)
         else:
@@ -1286,7 +1286,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         st.pyplot(fig1x)
 
     #if len(what_to_show_l) >= 1 and len(what_to_show_r) >= 1:  # add scatter plot
-    if what_to_show_l is not None and what_to_show_r is not None:  
+    if what_to_show_l is not None and what_to_show_r is not None:
         for l in what_to_show_l:
             for r in what_to_show_r:
 
@@ -2289,7 +2289,7 @@ def main():
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
-        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/edit/main/covid_dashboard_rcsmit.py" target="_blank">github.com/rcsmit</a><br>'
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/covid_dashboard_rcsmit.py" target="_blank">github.com/rcsmit</a><br>'
         'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
         'Restrictions by <a href="https://twitter.com/hk_nien" target="_blank">Han-Kwang Nienhuys</a> (MIT-license).</div>'
     )
