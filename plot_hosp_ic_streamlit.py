@@ -661,9 +661,6 @@ def main():
         ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst, default_age_groups)
 
-
-
-
     if len(ages_to_show) == 0:
         st.warning("Choose ages to show")
         st.stop()
@@ -679,7 +676,6 @@ def main():
         st.write("Plot is gemaakt met data verkregen via een omweg en wordt handmatig geupdate. Laatste update 2 juli 2021")
 
     if what_to_do == "stack":
-
         #  SHOW STACKGRAPHS
         if hospital_or_ic == "hospital":
 
