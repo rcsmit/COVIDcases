@@ -11,7 +11,18 @@ _lock = RendererAgg.lock
 
 
 def calculate(test, prevalentie, number_of_tested_people,  output):
+    """calculates the values. Made as a function to be able to make graphs
+    with various prevalences
 
+    Args:
+        test (list): list with the name, sensitivity and specificity of the test
+        prevalentie (float): prevalentie of the virus
+        number_of_tested_people (int)): how many people to test
+        output (boolean): Shows the output as text or not
+
+    Returns:
+        fdr,for_, pos, fpr - see code
+    """
     name = test[0]
     sensitivity = test[1]
     specificity = test[2]
