@@ -295,9 +295,10 @@ def main():
         },
         inplace=True,
     )
-    df_hospital = df[df["Hospital_admission"] == "Yes"].copy(deep=False)
-    df_deceased = df[df["Deceased"] == "Yes"].copy(deep=False)
+    # df_hospital = df[df["Hospital_admission"] == "Yes"].copy(deep=False)
+    # df_deceased = df[df["Deceased"] == "Yes"].copy(deep=False)
     df = select_period(df,"Date_statistics", FROM, UNTIL)
+    df_pivot["TOTAAL"] = df_pivot["0-9"]+df_pivot[ "10-19" ]+df_pivot[ "20-29" ]+df_pivot[ "30-39" ]+df_pivot[ "40-49" ]+df_pivot[ "50-59" ]+df_pivot[ "60-69" ]+df_pivot[ "70-79" ]+df_pivot[ "80-89" ]+df_pivot[ "90+"]
     df_pivot = (
         pd.pivot_table(
             df,
@@ -378,7 +379,7 @@ def main():
     #save_df(df_temp, "final_result")
     #save_df(df_temp_per_week, "final_result_per_week")
 
-    lijst = ["0-9", "10-19" , "20-29" , "30-39" , "40-49" , "50-59" , "60-69" , "70-79" , "80-89" , "90+"]
+    lijst = ["0-9", "10-19" , "20-29" , "30-39" , "40-49" , "50-59" , "60-69" , "70-79" , "80-89" , "90+", "TOTAAL"]
     ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst, lijst)
     global WDW2
