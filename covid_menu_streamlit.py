@@ -31,9 +31,9 @@ def main():
             ["13. Covid dashboard OWID/Google or Waze","covid dashboard owid"],
             ["14. Dag verschillen per leeftijd", "dag_verschillen_casus_landelijk"],
             ["15. Calculate spec./abs. humidity from rel. hum", "rh2q"],
-
-            ["16. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
-            ["16. per provincie per leeftijd","perprovincieperleeftijd"]]
+            ["16. R getal per leeftijdscategorie", "r_number_by_age"]
+            ["17. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
+            ["18. per provincie per leeftijd","perprovincieperleeftijd"]]
 
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
