@@ -256,11 +256,10 @@ def load_data():
     return df
 def main():
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-
     df_getdata = load_data()
     df = df_getdata.copy(deep=False)  # prevent an error [Return value of `prepare_data()` was mutated between runs.]
 
-    start_ = "2021-01-01"
+    start_ = "2021-05-01"
     today = datetime.today().strftime("%Y-%m-%d")
     global from_, FROM, UNTIL
     from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
@@ -298,7 +297,6 @@ def main():
     # df_hospital = df[df["Hospital_admission"] == "Yes"].copy(deep=False)
     # df_deceased = df[df["Deceased"] == "Yes"].copy(deep=False)
     df = select_period(df,"Date_statistics", FROM, UNTIL)
-    df_pivot["TOTAAL"] = df_pivot["0-9"]+df_pivot[ "10-19" ]+df_pivot[ "20-29" ]+df_pivot[ "30-39" ]+df_pivot[ "40-49" ]+df_pivot[ "50-59" ]+df_pivot[ "60-69" ]+df_pivot[ "70-79" ]+df_pivot[ "80-89" ]+df_pivot[ "90+"]
     df_pivot = (
         pd.pivot_table(
             df,
@@ -310,6 +308,7 @@ def main():
         .reset_index()
         .copy(deep=False)
     )
+    df_pivot["TOTAAL"] = df_pivot["0-9"]+df_pivot[ "10-19" ]+df_pivot[ "20-29" ]+df_pivot[ "30-39" ]+df_pivot[ "40-49" ]+df_pivot[ "50-59" ]+df_pivot[ "60-69" ]+df_pivot[ "70-79" ]+df_pivot[ "80-89" ]+df_pivot[ "90+"]
 
     # df_pivot_hospital = (
     #     pd.pivot_table(
