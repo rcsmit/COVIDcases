@@ -57,8 +57,8 @@ def main():
         },
         inplace=True,
     )
-    df_hospital = df[df["Hospital_admission"] == True].copy(deep=False)
-    df_deceased = df[df["Deceased"] == True].copy(deep=False)
+    df_hospital = df[df["Hospital_admission"] == "Yes"].copy(deep=False)
+    df_deceased = df[df["Deceased"] == "Yes"].copy(deep=False)
 
     df_pivot = (
         pd.pivot_table(
@@ -98,6 +98,7 @@ def main():
 
     df_pivot = df_pivot.add_prefix("pos_test_")
     df_pivot_hospital = df_pivot_hospital.add_prefix("hosp_")
+    save_df(df_pivot_hospital, "df_hospital_per_dag")
     df_pivot_deceased = df_pivot_deceased.add_prefix("deceased_")
     print(df_pivot_deceased.dtypes)
     todrop = [
@@ -130,7 +131,13 @@ def main():
         left_on="pos_test_Date_statistics",
         right_on="deceased_Date_statistics",
     )
+
+    df_temp_per_week = df_temp.groupby(pd.Grouper(key='pos_test_Date_statistics', freq='W')).sum()
+    df_temp_per_week.index -= pd.Timedelta(days=6)
+    print(df_temp_per_week)
+    df_temp_per_week["weekstart"]= df_temp_per_week.index
     save_df(df_temp, "final_result")
+    save_df(df_temp_per_week, "final_result_per_week")
 
 
 main()

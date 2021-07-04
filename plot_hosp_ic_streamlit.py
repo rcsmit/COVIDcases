@@ -27,7 +27,13 @@ _lock = RendererAgg.lock
 from streamlit import caching
 
 def save_df(df, name):
-    """  _ _ _ """
+    """[sla df op]
+
+    Args:
+        df ([dataframe]): [df-naam]
+        name ([filename]): [bestandsnaam]
+    """
+
     OUTPUT_DIR = (
           "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
     )
@@ -155,6 +161,64 @@ def make_age_graph(df, d, columns_original, legendanames, titel):
         # plt.tight_layout()
         # plt.show()
         st.pyplot(fig1y)
+
+
+def make_age_graph_per_total_reported(df,  d, titel):
+    if d is None:
+        st.warning("Choose ages to show")
+        st.stop()
+    with _lock:
+        color_list = [    "#3e5c76",  # blue 6,
+                        "#ff6666",  # reddish 0
+                        "#ac80a0",  # purple 1
+                        "#3fa34d",  # green 2
+                        "#EAD94C",  # yellow 3
+                        "#EFA00B",  # orange 4
+                        "#7b2d26",  # red 5
+                        "#e49273" , # dark salmon 7
+                        "#1D2D44",  # 8
+                        "#02A6A8",
+                        "#4E9148",
+                        "#F05225",
+                        "#024754",
+                        "#FBAA27",
+                        "#302823",
+                        "#F07826",
+                        ]
+
+
+        # df = agg_ages(df)
+        fig1y, ax = plt.subplots()
+        for i, d_ in enumerate(d):
+
+            #if d_ == "TOTAAL_index":
+            if d_[:6] == "TOTAAL":
+                ax.plot(df["weekstart"], df[d_], color = color_list[0], label = d[i], linestyle="--", linewidth=2)
+                ax.plot(df["weekstart"], df[d[i]], color = color_list[0], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
+            else:
+                ax.plot(df["weekstart"], df[d_], color = color_list[i+1], label = d[i])
+                ax.plot(df["weekstart"], df[d[i]], color = color_list[i+1], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
+        plt.legend()
+        if y_zero == True:
+            ax.set_ylim(bottom = 0)
+        titel_ = titel + " (weekcijfers)"
+        plt.title(titel_)
+        plt.xticks(rotation=270)
+
+        ax.text(
+        1,
+        1.1,
+        "Created by Rene Smit — @rcsmit",
+        transform=ax.transAxes,
+        fontsize="xx-small",
+        va="top",
+        ha="right",
+    )
+        # plt.tight_layout()
+        # plt.show()
+        st.pyplot(fig1y)
+
+
 def show_age_graph (df,d, titel):
     df, columnlist_df, columnlist_sma_df, columnlist_sma, columnlist_ages_legenda, columnlist_original = smooth(df, d)
     make_age_graph(df,  columnlist_sma, columnlist_original, columnlist_ages_legenda, titel)
@@ -241,6 +305,15 @@ def agg_ages(df):
     df["60-79"] =  df["60-64"] + df["65-69"] +  df["70-74"] + df["75-79"]
     df["80+"] =  df["80-84"] + df["85-89"] + df["90+"]
 
+     # indeling RIVM
+    df["0-19"] = df["0-14"] + df["15-19"]
+    df["20-29"] = df["20-24"] + df["25-29"]
+    df["30-39"] = df["30-34"] + df["35-39"]
+    df["40-49"] = df["40-44"] + df["45-49"]
+    df["50-59"] = df["50-54"] + df["55-59"]
+    df["60-69"] = df["60-64"] + df["65-69"]
+    df["70-79"] = df["70-74"] + df["75-79"]
+    df["80-89"] = df["80-84"] + df["85-89"]
 
     df["TOTAAL"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"] + df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"] + df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"] + df["70-74"] + df["75-79"] +  df["80-84"] + df["85-89"] +  df["90+"]+ df["Unknown"]
     return df
@@ -294,6 +367,32 @@ def prepare_data():
         df_pivot_ic = df_pivot_ic[:-1]
     return df_pivot_hospital, df_pivot_ic
 
+def get_data_per_total_reported():
+
+    import pandas as pd
+    sheet_id = "1trUoOPbDjBo8Q8XKg7BuJnawVDPvapnhuJjBfD6ehG0"
+    sheet_name_hosp = "hospital/casus*100"
+    sheet_name_IC = "IC/casus*100"
+    url_hosp = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_hosp}"
+    url_IC = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_IC}"
+    df_hosp_per_cases = pd.read_csv(url_hosp)
+
+    df_IC_per_cases = pd.read_csv(url_IC)
+    df_hosp_per_cases["weekstart"] = pd.to_datetime(df_hosp_per_cases["weekstart"], format="%d-%m-%Y")
+
+    df_IC_per_cases["weekstart"] = pd.to_datetime(df_IC_per_cases["weekstart"], format="%d-%m-%Y")
+
+    df_hosp_per_cases = select_period(df_hosp_per_cases, "weekstart", FROM, UNTIL)
+    df_IC_per_cases = select_period(df_IC_per_cases, "weekstart", FROM, UNTIL)
+
+    columns = [ "0-19" , "20-29" , "30-39" , "40-49" , "50-59" , "60-69" , "70-79" , "80-89" , "90+"]
+    for c in columns:
+        df_hosp_per_cases[c] = [str(val).replace(',', '.') for val in df_hosp_per_cases[c]]
+        df_hosp_per_cases[c] = df_hosp_per_cases[c].astype(float)
+        df_IC_per_cases[c] = [str(val).replace(',', '.') for val in df_IC_per_cases[c]]
+        df_IC_per_cases[c] = df_IC_per_cases[c].astype(float)
+
+    return df_hosp_per_cases, df_IC_per_cases
 def normeren(df, what_to_norm):
     """In : columlijst
     Bewerking : max = 1
@@ -327,7 +426,7 @@ def normeren(df, what_to_norm):
             #print (df)
     return df, normed_columns
 
-def select_period(df, show_from, show_until):
+def select_period(df, field, show_from, show_until):
     """ _ _ _ """
     if show_from is None:
         show_from = "2021-1-1"
@@ -335,7 +434,7 @@ def select_period(df, show_from, show_until):
     if show_until is None:
         show_until = "2030-1-1"
 
-    mask = (df["Date_of_statistics_week_start"].dt.date >= show_from) & (df["Date_of_statistics_week_start"].dt.date <= show_until)
+    mask = (df[field].dt.date >= show_from) & (df[field].dt.date <= show_until)
     df = df.loc[mask]
     df = df.reset_index()
     return df
@@ -441,13 +540,20 @@ def main():
              "60-64", "65-69", "70-74", "75-79", "80-84",
              "85-89", "90+", "Unknown",
              "0-29","30-49","50-69","70-89","90+",
-             "30-69", "0-39", "40-59", "60-79", "80+", "TOTAAL"]
+             "30-69", "0-39", "40-59", "60-79", "80+",
+
+             "0-19" , "20-29" , "30-39" , "40-49" , "50-59" , "60-69" , "70-79" , "80-89" , "90+",
+              "TOTAAL"]
+
     population = [2707000,1029000,1111000,1134000,1124000,
                   1052000,1033000,1131000,1285000,1263000,
                   1138000,1003000,971000,644000,450000,
                   259000,130000,10,
                   5981000,4340000,4689000,2324000,130000,
-                  9029000,8157000,4712000,3756000,839000,17464000]
+                  9029000,8157000,4712000,3756000,839000,
+                  1756000, 1980000, 2245000, 2176000, 2164000,
+
+                   2548000, 2141000, 1615000, 709000, 130000, 17464000]  # tot 17 464 000
 
     st.header("Hospital / ICU admissions in the Netherlands")
     st.subheader("Please send feedback to @rcsmit")
@@ -456,7 +562,7 @@ def main():
 
     start_ = "2021-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
-    global from_
+    global from_, FROM, UNTIL
     from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
 
     try:
@@ -490,8 +596,8 @@ def main():
     df_pivot_hospital, df_pivot_ic  = prepare_data()
 
 
-    df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
-    df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
+    df_pivot_hospital = select_period(df_pivot_hospital,"Date_of_statistics_week_start", FROM, UNTIL)
+    df_pivot_ic = select_period(df_pivot_ic, "Date_of_statistics_week_start",FROM, UNTIL)
 
     df_pivot_hospital_basic = df_pivot_hospital.copy(deep=False)
     df_pivot_ic_basic =  df_pivot_ic.copy(deep=False)
@@ -511,16 +617,14 @@ def main():
     df_pivot_hospital, lijst_per_capita = calculate_per_capita(df_pivot_hospital, lijst, population)
     df_pivot_ic, lijst_per_capita = calculate_per_capita(df_pivot_ic, lijst, population)
 
-
-
-
     df_pivot_hospital, lijst_cumm_period =  calculate_cumm(df_pivot_hospital, lijst, "period")
     df_pivot_ic, lijst_cumm_period =  calculate_cumm(df_pivot_ic, lijst, "period")
-
+    df_hosp_per_cases, df_IC_per_cases = get_data_per_total_reported()
     hospital_or_ic = st.sidebar.selectbox("Hospital or IC", ["hospital", "icu"], index=0)
-    what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line"], index=1)
+    what_to_do = st.sidebar.selectbox("What type of graph", ["stack", "line", "per_total_reported"], index=1)
 
-    default_age_groups = ["0-29","30-49","50-69","70-89","90+"]
+    #default_age_groups = ["0-29","30-49","50-69","70-89","90+"]
+    default_age_groups = [ "0-19" , "20-29" , "30-39" , "40-49" , "50-59" , "60-69" , "70-79" , "80-89" , "90+"]
     default_age_groups_perc = ["0-29_perc","30-49_perc","50-69_perc","70-89_perc","90+_perc"]
     default_age_groups_cumm_all = ["0-29_cumm_all","30-49_cumm_all","50-69_cumm_all","70-89_cumm_all","90+_cumm_all"]
     default_age_groups_cumm_period = ["0-29_cumm_period","30-49_cumm_period","50-69_cumm_period","70-89_cumm_period","90+_cumm_period"]
@@ -528,7 +632,7 @@ def main():
     if what_to_do == "line":
 
         age_groups = ["0-29","30-49","50-69","70-89","90+", "TOTAAL"]
-        absolute_or_index = st.sidebar.selectbox(f"Absolute | percentages of TOTAAL |\n index (start = 100) | per capita | cummulatief from 2020-1-1 | cummulatief from {FROM}", ["absolute",  "percentages", "index",  "per_capita", "cummulatief_all", "cummulatief_period"], index=0)
+        absolute_or_index = st.sidebar.selectbox(f"Absolute | percentages of TOTAAL |\n index (start = 100) | per capita | cummulatief from 2020-1-1 | cummulatief from {FROM} | per total reported", ["absolute",  "percentages", "index",  "per_capita", "cummulatief_all", "cummulatief_period", "per_total_reported"], index=0)
 
         normed = absolute_or_index == "index"
         if absolute_or_index  == "percentages":
@@ -543,10 +647,14 @@ def main():
         elif  absolute_or_index  == "per_capita":
             ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst_per_capita, default_age_groups_per_capita)
+        elif  absolute_or_index == "per_total_reported":
+            ages_to_show = st.sidebar.multiselect(
+                    "Ages to show (multiple possible)", lijst, default_age_groups)
         else:
             # absolute
             ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst, default_age_groups)
+
     else:
         #stackplot
         absolute_or_relative = st.sidebar.selectbox("Absolute or relative (total = 100%)", ["absolute", "relative"], index=0)
@@ -562,6 +670,13 @@ def main():
     global y_zero
     y_zero =  st.sidebar.selectbox("Y-ax starts at 0", [True, False], index=1)
 
+    if  absolute_or_index  == "per_total_reported":
+        if hospital_or_ic == "hospital":
+            make_age_graph_per_total_reported(df_hosp_per_cases, ages_to_show, "ziekenhuisopnames per total reported (%)")
+        else:
+            make_age_graph_per_total_reported(df_IC_per_cases, ages_to_show, "IC opnames per total reported (%)")
+        st.write("Let op: Ziekenhuisopnames worden vergeleken met de total reported van dezelfde week, wat eigenlijk onjuist is.")
+        st.write("Plot is gemaakt met data verkregen via een omweg en wordt handmatig geupdate. Laatste update 2 juli 2021")
 
     if what_to_do == "stack":
 
@@ -575,7 +690,7 @@ def main():
         for d in to_do_stack:
             show_stack (d[0],d[1],d[2], absolute_or_relative)
 
-    elif what_to_do == "line":
+    elif what_to_do == "line" and  absolute_or_index !=   "per_total_reported":
         # SHOW LINEGRAPHS
         if normed == True:
             df_pivot_hospital, d = normeren(df_pivot_hospital, ages_to_show)
@@ -586,9 +701,8 @@ def main():
             show_age_graph(df_pivot_hospital, d, "ziekenhuisopnames")
         else:
             show_age_graph(df_pivot_ic, d, "IC opnames")
-    else:
-        st.error ("ERROR")
-        st.stop
+
+
 
     if hospital_or_ic == "hospital":
             st.subheader("Ziekenhuisopnames (aantallen)")

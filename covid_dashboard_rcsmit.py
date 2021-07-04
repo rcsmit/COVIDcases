@@ -462,10 +462,12 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
     population = 17_500_000
     immune_day_zero = 5_000_000
     Tg = 4
-
+    #st.write (df.dtypes)
+    #df.set_index("date")
     suspectible_0 = population - immune_day_zero
     cumm_cases = 0
-
+    #df["date"]= df["date"].strftime("%Y-%m-%d")
+    
     cases_1 = ((100 - sec_variant) / 100) * total_cases_0
     cases_2 = (sec_variant / 100) * total_cases_0
     temp_1 = cases_1
@@ -486,11 +488,23 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
 
     column = df["date"]
     max_value = column.max()
-
-    for day in range(1, datediff):
-        thalf1 = Tg * math.log(0.5) / math.log(immeratio * ry1)
-        thalf2 = Tg * math.log(0.5) / math.log(immeratio * ry2)
-        day = a_ + timedelta(days=day)
+    #min_index = df.idxmin()
+    df = df.fillna(0)
+  
+    for day_x in range(1, datediff):
+        #print (f"{day_x}  - {immeratio = }")
+        if day_x>dag_versoepelingen1:
+            versoepeling_factor1 = versoepeling_factor1_
+        else:
+            versoepeling_factor1 = 1
+        if day_x>dag_versoepelingen2:
+            versoepeling_factor2 = versoepeling_factor2_
+            #versoepeling_factor1 = 1
+        else:
+            versoepeling_factor2 = 1
+        thalf1 = Tg * math.log(0.5) / math.log(versoepeling_factor1 *versoepeling_factor2* immeratio * ry1)
+        thalf2 = Tg * math.log(0.5) / math.log(versoepeling_factor1* versoepeling_factor2 * immeratio * ry2)
+        day = a_ + timedelta(days=day_x)
         pt1 = temp_1 * (0.5 ** (1 / thalf1))
         pt2 = temp_2 * (0.5 ** (1 / thalf2))
         day_ = day.strftime("%Y-%m-%d")  # FROM object TO string
@@ -499,9 +513,9 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
         df_calculated = df_calculated.append(
             {
                 "date_calc": day_,
-                "variant_1": int(pt1),
-                "variant_2": int(pt2),
-                "variant_12": int(pt1 + pt2),
+                "variant_1": round(pt1),
+                "variant_2": round(pt2),
+                "variant_12": round(pt1 + pt2),
             },
             ignore_index=True,
         )
@@ -511,8 +525,24 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
 
         cumm_cases += pt1 + pt2
         cumm_cases_corr = cumm_cases * 2.5
-        immeratio = 1 - (cumm_cases_corr / suspectible_0)
+        
+        if day_x>15:
+            # we assume that the vaccinations work after 15 days
+            day_xx = day_x-15
+            people_vaccinated  = df.at[day_xx, 'people_vaccinated']
+            people_fully_vaccinated =  df.at[day_xx, 'people_fully_vaccinated']
+        else:
+            people_vaccinated = 0
+            people_fully_vaccinated = 0
 
+        
+            
+        if show_vaccination:
+            immeratio = 1 - ((cumm_cases_corr +((people_vaccinated-people_fully_vaccinated)*0.5)+(people_fully_vaccinated*0.95)) / suspectible_0)
+        else:
+            immeratio = 1 - (cumm_cases_corr  / suspectible_0)
+
+        #immeratio = 1 - ((cumm_cases_corr +  (people_vaccinated*0.5)) / suspectible_0)
     df_calculated["date_calc"] = pd.to_datetime(df_calculated["date_calc"])
 
     df = pd.merge(
@@ -527,6 +557,8 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
     df.loc[df["date"].isnull(), "date"] = df["date_calc"]
     return df
 
+def isNaN(num):
+    return num!= num
 
 def splitupweekweekend(df):
     """SPLIT UP IN WEEKDAY AND WEEKEND
@@ -1710,11 +1742,13 @@ def main():
     global MOVE_WR
     global showR
     global lijst  # Lijst in de pull down menu's voor de assen
-    global show_scenario
+    global show_scenario, show_vaccination
     global how_to_norm
     global Rnew1_, Rnew2_
     global ry1, ry2, total_cases_0, sec_variant, extra_days
     global show_R_value_graph, show_R_value_RIVM, centersmooth
+    global dag_versoepelingen1 , versoepeling_factor1_
+    global dag_versoepelingen2 , versoepeling_factor2_
     global OUTPUT_DIR
     global INPUT_DIR
     init()
@@ -2052,6 +2086,15 @@ def main():
             "Percentage second variant at start", 0.0, 100.0, 10.0
         )
         extra_days = st.sidebar.slider("Extra days", 0, 60, 0)
+        show_vaccination = st.sidebar.selectbox("Vaccination", [True, False], index=1)
+        # avondklok 23 jan
+        dag_versoepelingen1 = st.sidebar.slider("Verandering 1 op dag", 0, 300,23)
+        versoepeling_factor1_= st.sidebar.slider("Veranderingsfactor 1", 0.0, 2.0, 0.95)
+
+        # Kappers, contactberoepen en winkels open (2mrt)
+        dag_versoepelingen2 = st.sidebar.slider("Verandering 2  op dag ", 0, 300, 60)
+        versoepeling_factor2_= st.sidebar.slider("Veranderingsfactor2", 0.0, 2.0, 1.03)
+
 
     if what_to_show_day_l == []:
         st.error("Choose something for the left-axis")
