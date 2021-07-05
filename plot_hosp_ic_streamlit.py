@@ -698,7 +698,8 @@ def main():
         else:
             make_age_graph_per_total_reported(df_IC_per_cases, ages_to_show, "IC opnames per reported by age (%)")
         st.write("Let op: Veranderingen in kleine aantallen geven hoge percentages (bijv. zomer 2020)")
-        st.write("Plot is gemaakt met data verkregen via een omweg vanuit casus_landelijk.csv en wordt handmatig geupdate. Laatste update 2 juli 2021")
+        st.write("Plot is gemaakt met data verkregen via een omweg vanuit casus_landelijk.csv en ziekenhuis_ic_opnames_per_leeftijdsgroep.csv en wordt handmatig geupdate. ")
+        st.write("Er zijn geen waarden van  laatste week ipv privacy. Laatste update 2 juli 2021")
 
     if what_to_do == "stack":
         #  SHOW STACKGRAPHS
