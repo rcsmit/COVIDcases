@@ -314,7 +314,7 @@ def main():
     df_getdata = get_data()
     df = df_getdata.copy(deep=False)
 
-    df = select_period(df, FROM, UNTIL)
+    df = select_period(df,"Date_statistics", FROM, UNTIL)
     df.rename(
         columns={
             "Date_file": "count",
