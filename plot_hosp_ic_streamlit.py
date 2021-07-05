@@ -323,7 +323,16 @@ def load_data():
     url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     return pd.read_csv(url1, delimiter=";", low_memory=False)
 
-def prepare_data():
+def prepare_data(only_prepare_data,delete_last_row):
+    """Loads the data, pivots it and if needed aggregates columns
+
+    Args:
+        only_prepare_data (Boolean): True if ohnly prepares data (aggregates ages and saves data)
+        delete_last_row (Boolean): Deletes last row (because  info is not complete)
+
+    Returns:
+        dataframes: dataframes with the pivot tables
+    """
     #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     df_getdata = load_data()
     df = df_getdata.copy(deep=False)  # prevent an error [Return value of `prepare_data()` was mutated between runs.]
@@ -360,8 +369,13 @@ def prepare_data():
         .copy(deep=False)
     )
 
-    save_df(df_pivot_hospital,"df_pivot_hospital")
-    save_df(df_pivot_ic,"df_pivot_ic")
+
+    if only_prepare_data == True:
+        df_pivot_hospital = agg_ages(df_pivot_hospital)
+        df_pivot_ic = agg_ages(df_pivot_ic)
+        save_df(df_pivot_hospital,"df_pivot_hospital_vanuit_COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep_csv")
+        save_df(df_pivot_ic,"df_pivot_ic_vanuit_COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep_csv")
+
     if delete_last_row == True:
         df_pivot_hospital = df_pivot_hospital[:-1]
         df_pivot_ic = df_pivot_ic[:-1]
@@ -595,10 +609,10 @@ def main():
             st.success("Cache is cleared, please reload to scrape new values")
     global WDW2
     WDW2 = st.sidebar.slider("Window smoothing curves (weeks)", 1, 8, 1)
-    global delete_last_row
+
     delete_last_row =  st.sidebar.selectbox("Delete last week/row of complete dataset", [True, False], index=0)
 
-    df_pivot_hospital, df_pivot_ic  = prepare_data()
+    df_pivot_hospital, df_pivot_ic  = prepare_data(False, delete_last_row)
 
 
     df_pivot_hospital = select_period(df_pivot_hospital,"Date_of_statistics_week_start", FROM, UNTIL)
@@ -635,7 +649,7 @@ def main():
     if what_to_do == "line":
 
         age_groups = ["0-29","30-49","50-69","70-89","90+", "TOTAAL"]
-        absolute_or_index = st.sidebar.selectbox(f"Absolute | percentages of TOTAAL |\n index (start = 100) | per capita | cummulatief from 2020-1-1 | cummulatief from {FROM} | per total reported", ["absolute",  "percentages", "index",  "per_capita", "cummulatief_all", "cummulatief_period", "per_total_reported"], index=0)
+        absolute_or_index = st.sidebar.selectbox(f"Absolute | percentages of TOTAAL |\n index (start = 100) | per capita | cummulatief from 2020-1-1 | cummulatief from {FROM} | per total reported", ["absolute",  "percentages", "index",  "per_capita", "cummulatief_all", "cummulatief_period", "per_reported_by_age"], index=0)
 
         normed = absolute_or_index == "index"
         if absolute_or_index  == "percentages":
@@ -650,7 +664,7 @@ def main():
         elif  absolute_or_index  == "per_capita":
             ages_to_show = st.sidebar.multiselect(
                 "Ages to show (multiple possible)", lijst_per_capita, default_age_groups_per_capita)
-        elif  absolute_or_index == "per_total_reported":
+        elif  absolute_or_index == "per_reported_by_age":
             w= st.sidebar.selectbox(
                     "Use cases of week before", ["No", "Yes"] , index=1)
             if w == "No":
@@ -680,11 +694,11 @@ def main():
 
     if  absolute_or_index  == "per_total_reported":
         if hospital_or_ic == "hospital":
-            make_age_graph_per_total_reported(df_hosp_per_cases, ages_to_show, f"ziekenhuisopnames per total reported ({what})(%)")
+            make_age_graph_per_total_reported(df_hosp_per_cases, ages_to_show, f"ziekenhuisopnames per reported by age ({what})(%)")
         else:
-            make_age_graph_per_total_reported(df_IC_per_cases, ages_to_show, "IC opnames per total reported (%)")
+            make_age_graph_per_total_reported(df_IC_per_cases, ages_to_show, "IC opnames per reported by age (%)")
         st.write("Let op: Veranderingen in kleine aantallen geven hoge percentages (bijv. zomer 2020)")
-        st.write("Plot is gemaakt met data verkregen via een omweg en wordt handmatig geupdate. Laatste update 2 juli 2021")
+        st.write("Plot is gemaakt met data verkregen via een omweg vanuit casus_landelijk.csv en wordt handmatig geupdate. Laatste update 2 juli 2021")
 
     if what_to_do == "stack":
         #  SHOW STACKGRAPHS
@@ -751,3 +765,4 @@ def main():
     )
 if __name__ == "__main__":
     main()
+    #prepare_data(True, False)

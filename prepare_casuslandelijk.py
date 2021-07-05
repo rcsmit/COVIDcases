@@ -98,7 +98,7 @@ def main():
 
     df_pivot = df_pivot.add_prefix("pos_test_")
     df_pivot_hospital = df_pivot_hospital.add_prefix("hosp_")
-    save_df(df_pivot_hospital, "df_hospital_per_dag")
+    save_df(df_pivot_hospital, "df_hospital_per_dag_vanuit_casus_landelijk")
     df_pivot_deceased = df_pivot_deceased.add_prefix("deceased_")
     print(df_pivot_deceased.dtypes)
     todrop = [
@@ -111,33 +111,37 @@ def main():
         "Municipal_health_service",
     ]
     df = drop_columns(df, todrop)
-    save_df(df, "landelijk_leeftijd_2")
+    save_df(df, "landelijk_leeftijd_2_vanuit_casus_landelijk")
 
-    save_df(df_pivot, "landelijk_leeftijd_pivot")
-    save_df(df_pivot_hospital, "landelijk_leeftijd_pivot_hospital")
-    save_df(df_pivot_deceased, "landelijk_leeftijd_pivot_deceased")
+    save_df(df_pivot, "landelijk_leeftijd_pivot_vanuit_casus_landelijk")
+    save_df(df_pivot_hospital, "landelijk_leeftijd_pivot_hospital_vanuit_casus_landelijk")
+    save_df(df_pivot_deceased, "landelijk_leeftijd_pivot_deceased_vanuit_casus_landelijk")
+    df_pivot_cases_per_week = df_pivot.groupby(pd.Grouper(key='pos_test_Date_statistics', freq='W')).sum()
+    df_pivot_cases_per_week.index -= pd.Timedelta(days=6)
+    df_pivot_cases_per_week["weekstart"]= df_pivot_cases_per_week.index
+    save_df(df_pivot_cases_per_week, "landelijk_leeftijd_pivot_per_week_vanuit_casus_landelijk")
 
-    df_temp = pd.merge(
-        df_pivot,
-        df_pivot_hospital,
-        how="outer",
-        left_on="pos_test_Date_statistics",
-        right_on="hosp_Date_statistics",
-    )
-    df_temp = pd.merge(
-        df_temp,
-        df_pivot_deceased,
-        how="outer",
-        left_on="pos_test_Date_statistics",
-        right_on="deceased_Date_statistics",
-    )
+    # df_temp = pd.merge(
+    #     df_pivot,
+    #     df_pivot_hospital,
+    #     how="outer",
+    #     left_on="pos_test_Date_statistics",
+    #     right_on="hosp_Date_statistics",
+    # )
+    # df_temp = pd.merge(
+    #     df_temp,
+    #     df_pivot_deceased,
+    #     how="outer",
+    #     left_on="pos_test_Date_statistics",
+    #     right_on="deceased_Date_statistics",
+    # )
 
-    df_temp_per_week = df_temp.groupby(pd.Grouper(key='pos_test_Date_statistics', freq='W')).sum()
-    df_temp_per_week.index -= pd.Timedelta(days=6)
-    print(df_temp_per_week)
-    df_temp_per_week["weekstart"]= df_temp_per_week.index
-    save_df(df_temp, "final_result")
-    save_df(df_temp_per_week, "final_result_per_week")
+    # df_temp_per_week = df_temp.groupby(pd.Grouper(key='pos_test_Date_statistics', freq='W')).sum()
+    # df_temp_per_week.index -= pd.Timedelta(days=6)
+    # print(df_temp_per_week)
+    # df_temp_per_week["weekstart"]= df_temp_per_week.index
+    # save_df(df_temp, "final_result_vanuit_casus_landelijk")
+    # save_df(df_temp_per_week, "final_result_per_week_vanuit_casus_landelijk")
 
 
 main()
