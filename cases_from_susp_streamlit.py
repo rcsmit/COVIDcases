@@ -47,6 +47,7 @@ def main():
 
 
     h_ = [0.001935772, 0.000535596, 0.00123012, 0.003500636, 0.006540055, 0.014336461, 0.031555617, 0.065269381, 0.060888242]
+
     ic_opn = [0,2.300E-05,0.00015362,0.000541835,0.001243335,0.003305101,0.00881866,0.014365279,0.002328024]
 
     pop_ =      [1756000, 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 839000]
@@ -58,6 +59,10 @@ def main():
 
     h_ = [0.000672671, 0.000661464, 0.001692048, 0.003937327, 0.007792106, 0.016433039, 0.024554007, 0.039117918, 0.055119236]
     ic_opn = [ 0, 2.8402E-05, 0.000211306, 0.000609427, 0.001481364, 0.003788442, 0.006861962, 0.008609547, 0.00210745]
+
+
+    # https://twitter.com/YorickB/status/1412453783754481666
+    h_ = [0.0014, 0.0014, 0.0020, 0.0064, 0.0098, 0.0259, 0.0380, 0.100027, 0.1350]
 
 
     fraction = [0.10055, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.04804]
@@ -116,13 +121,13 @@ def main():
      'IC opname': ic_opn,
      'IFR':ifr_
     })
-    st.write("Deze cijfers zijn berekend aan de hand van ziekenhuisopnames, IC opnames en overlijdens per leeftijd waarbij aangenomen is dat de verschillende leeftijdsgroepen een gelijke attackrate ondervonden. (#) De waardes zijn uitgedrukt in fracties (niet in %)")
-    st.write ("Gebruik is gemaakt van de volgende bestanden op https://data.rivm.nl/covid-19/:")
-    st.write("* COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv")
-    st.write("* COVID-19_casus_landelijk")
-    st.write("* COVID-19_prevalentie.json (cummulatieve waarde gedeeld door 8)")
-    st.write ("#) Gebruik maken van de totalen per leeftijdsgroep in cases_landelijk is geprobeerd maar geeft so wie so vertekening ondermeer doordat veel kinderen niet werden getest tot januari 2021")
-
+    # st.write("Deze cijfers zijn berekend aan de hand van ziekenhuisopnames, IC opnames en overlijdens per leeftijd waarbij aangenomen is dat de verschillende leeftijdsgroepen een gelijke attackrate ondervonden. (#) De waardes zijn uitgedrukt in fracties (niet in %)")
+    # st.write ("Gebruik is gemaakt van de volgende bestanden op https://data.rivm.nl/covid-19/:")
+    # st.write("* COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv")
+    # st.write("* COVID-19_casus_landelijk")
+    # st.write("* COVID-19_prevalentie.json (cummulatieve waarde gedeeld door 8)")
+    # st.write ("#) Gebruik maken van de totalen per leeftijdsgroep in cases_landelijk is geprobeerd maar geeft so wie so vertekening ondermeer doordat veel kinderen niet werden getest tot januari 2021")
+    st.write ("Ziekenhuisopname kans is berekend door Yorick Bleijenberg adhv Sanquin en RIVM data. De categorieen 0-9 en 10-19 zijn gelijk getrokken 80-89 en 90+ zijn gemiddeld")
 
     st.write (kansenmatrix)
     st.write ("Ter vergelijk: Normaal overlijden er per jaar ca. 5000 mensen  onder de 50 en 20.000 onder de 65. Er zijn ca 40.000 ziekenhuisbedden in NL en 2000 IC bedden. ")

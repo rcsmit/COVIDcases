@@ -292,7 +292,7 @@ def make_pivot_casus_landelijk_per_week():
     df_getdata_casus_landelijk_ = get_data_casus_landelijk()
     df_casus_landelijk = df_getdata_casus_landelijk_.copy(deep=False)
 
-    #df_casus_landelijk = select_period(df_casus_landelijk, FROM, UNTIL)
+    #df_casus_landelijk = select_period(df_casus_landelijk, "Date_of_statistics_week_start", FROM, UNTIL)
     df_casus_landelijk.rename(
         columns={
             "Date_file": "count",
@@ -353,18 +353,6 @@ def make_pivot_casus_landelijk_per_week():
     return df_pivot_casus_landelijk_per_week
 
 
-def select_period(df, show_from, show_until):
-    """ _ _ _ """
-    if show_from is None:
-        show_from = "2021-1-1"
-
-    if show_until is None:
-        show_until = "2030-1-1"
-
-    mask = (df["Date_of_statistics_week_start"].dt.date >= show_from) & (df["Date_of_statistics_week_start"].dt.date <= show_until)
-    df = df.loc[mask]
-    df = df.reset_index()
-    return df
 
 
 
@@ -437,8 +425,8 @@ def main():
     df_pivot_hospital, df_pivot_ic  = prepare_data()
 
 
-    df_pivot_hospital = select_period(df_pivot_hospital, FROM, UNTIL)
-    df_pivot_ic = select_period(df_pivot_ic, FROM, UNTIL)
+    df_pivot_hospital = select_period(df_pivot_hospital, "Date_of_statistics_week_start", FROM, UNTIL)
+    df_pivot_ic = select_period(df_pivot_ic, "Date_of_statistics_week_start", FROM, UNTIL)
 
     df_pivot_hospital_basic = df_pivot_hospital.copy(deep=False)
     df_pivot_ic_basic =  df_pivot_ic.copy(deep=False)

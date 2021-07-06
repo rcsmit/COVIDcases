@@ -32,28 +32,9 @@ from matplotlib.backends.backend_agg import RendererAgg
 import streamlit as st
 _lock = RendererAgg.lock
 from streamlit import caching
+from helpers import *
 
 
-def save_df(df, name):
-    """  save dataframe on harddisk """
-    OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
-    )
-
-    name_ = OUTPUT_DIR + name + ".csv"
-    compression_opts = dict(method=None, archive_name=name_)
-    df.to_csv(name_, index=False, compression=compression_opts)
-
-    print("--- Saving " + name_ + " ---")
-
-
-def drop_columns(df, what_to_drop):
-    """  drop columns. what_to_drop : list """
-    if what_to_drop != None:
-        print("dropping " + str(what_to_drop))
-        for d in what_to_drop:
-            df = df.drop(columns=[d], axis=1)
-    return df
 
 
 
@@ -113,132 +94,9 @@ def make_age_graph(df, d, columns_original,  titel):
         st.pyplot(fig1y)
 
 
-def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
-    """  _ _ _ """
-    c_smoothen = []
-    wdw_savgol = 7
-    #if __name__ = "covid_dashboard_rcsmit":
-    # global WDW2, centersmooth, show_scenario
-    # WDW2=7
-    # st.write(__name__)
-    # centersmooth = False
-    # show_scenario = False
-    if columnlist is not None:
-        if type(columnlist) == list:
-            columnlist_ = columnlist
-        else:
-            columnlist_ = [columnlist]
-            # print (columnlist)
-        for c in columnlist_:
-            print(f"Smoothening {c}")
-            if t == "SMA":
-                new_column = c + "_SMA_" + str(WDW2)
-                print("Generating " + new_column + "...")
-                df[new_column] = (
-                    df.iloc[:, df.columns.get_loc(c)]
-                    .rolling(window=WDW2, center=centersmooth)
-                    .mean()
-                )
-
-            elif t == "savgol":
-                new_column = c + "_savgol_" + str(WDW2)
-                print("Generating " + new_column + "...")
-                df[new_column] = df[c].transform(lambda x: savgol_filter(x, WDW2, 2))
-
-            elif t == None:
-                new_column = c + "_unchanged_"
-                df[new_column] = df[c]
-                print("Added " + new_column + "...~")
-            else:
-                print("ERROR in smooth_columnlist")
-                st.stop()
-            c_smoothen.append(new_column)
-    return df, c_smoothen
 
 
 
-def add_walking_r(df, smoothed_columns, how_to_smooth, tg,d):
-    """  _ _ _ """
-    # Calculate walking R from a certain base. Included a second methode to calculate R
-    # de rekenstappen: (1) n=lopend gemiddelde over 7 dagen; (2) Rt=exp(Tc*d(ln(n))/dt)
-    # met Tc=4 dagen, (3) data opschuiven met rapportagevertraging (10 d) + vertraging
-    # lopend gemiddelde (3 d).
-    # https://twitter.com/hk_nien/status/1320671955796844546
-    # https://twitter.com/hk_nien/status/1364943234934390792/photo/1
-    column_list_r_smoothened = []
-    for base in smoothed_columns:
-        column_name_R = "R_value_from_" + base + "_tg" + str(tg)
-
-        column_name_r_smoothened = (
-            "R_value_from_"
-            + base
-            + "_tg"
-            + str(tg)
-            + "_"
-            + "over_" + str(d) + "_days_"
-            + how_to_smooth
-            + "_"
-            + str(WDW2)
-        )
-
-        sliding_r_df = pd.DataFrame(
-            {"date_sR": [], column_name_R: []}
-        )
-
-
-        for i in range(len(df)):
-            if df.iloc[i][base] != None:
-                date_ = pd.to_datetime(df.iloc[i]["Date_statistics"], format="%Y-%m-%d")
-                date_ = df.iloc[i]["Date_statistics"]
-                if df.iloc[i - d][base] != 0 or df.iloc[i - d][base] is not None:
-                    slidingR_ = round(
-                        ((df.iloc[i][base] / df.iloc[i - d][base]) ** (tg / d)), 2
-                    )
-
-                else:
-                    slidingR_ = None
-
-                sliding_r_df = sliding_r_df.append(
-                    {
-                        "date_sR": date_,
-                        column_name_R: slidingR_
-
-                    },
-                    ignore_index=True,
-                )
-
-        sliding_r_df[column_name_r_smoothened] = round(
-            sliding_r_df.iloc[:, 1].rolling(window=WDW2, center=True).mean(), 2
-        )
-
-
-        sliding_r_df = sliding_r_df.reset_index()
-        df = pd.merge(
-            df,
-            sliding_r_df,
-            how="outer",
-            left_on="Date_statistics",
-            right_on="date_sR",
-            #left_index=True,
-        )
-        column_list_r_smoothened.append(column_name_r_smoothened)
-
-
-        sliding_r_df = sliding_r_df.reset_index()
-    return df, column_list_r_smoothened
-
-def select_period(df, field, show_from, show_until):
-    """ _ _ _ """
-    if show_from is None:
-        show_from = "2021-1-1"
-
-    if show_until is None:
-        show_until = "2030-1-1"
-
-    mask = (df[field].dt.date >= show_from) & (df[field].dt.date <= show_until)
-    df = df.loc[mask]
-    df = df.reset_index()
-    return df
 
 ###################################################################
 @st.cache(ttl=60 * 60 * 24)
@@ -390,8 +248,9 @@ def main():
     centersmooth =  st.sidebar.selectbox(
         "Smooth in center", [True, False], index=1)
     df, smoothed_columns = smooth_columnlist(df, ages_to_show, t, WDW2, centersmooth)
-    df, column_list_r_smoothened = add_walking_r(df, smoothed_columns, t, tg,d)
+    df, column_list_r_smoothened = add_walking_r(df, smoothed_columns, "Date_statistics", t, WDW2, tg,d)
     make_age_graph(df,  column_list_r_smoothened, lijst,  "R getal naar leeftijd")
+
     st.write("Attentie: DIt is het R getal op basis van moment van rapportage. RIVM berekent het R getal over het moment van besmetting of eerste symptomen")
 
 

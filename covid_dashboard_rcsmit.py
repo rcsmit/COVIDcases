@@ -685,20 +685,7 @@ def drop_columns(df, what_to_drop):
     return df
 
 
-def select_period(df, show_from, show_until):
-    """ _ _ _ """
-    if show_from is None:
-        show_from = "2020-1-1"
 
-    if show_until is None:
-        show_until = "2030-1-1"
-
-    mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
-    df = df.loc[mask]
-
-    df = df.reset_index()
-
-    return df
 
 
 def agg_week(df, how):
@@ -1906,7 +1893,7 @@ def main():
             caching.clear_cache()
             st.success("Cache is cleared, please reload to scrape new values")
 
-    df = select_period(df, FROM, UNTIL)
+    df = select_period(df, "date", FROM, UNTIL)
     df = extra_calculations_period(df)
 
     df = drop_columns(df,["Version_x", "Version_y"])

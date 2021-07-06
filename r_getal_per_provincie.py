@@ -18,7 +18,7 @@ import matplotlib.ticker as ticker
 import math
 
 _lock = RendererAgg.lock
-from scipy.signal import savgol_filter
+
 from sklearn.metrics import r2_score
 import streamlit as st
 import urllib
@@ -26,46 +26,10 @@ import urllib.request
 from pathlib import Path
 from streamlit import caching
 from inspect import currentframe, getframeinfo
+from helpers import *
+import platform
 
 ###################################################################
-@st.cache(ttl=60 * 60 * 24)
-def download_data_file(url, filename, delimiter_, fileformat):
-    """Download the external datafiles
-    IN :  url : the url
-          filename : the filename (without extension) to export the file
-          delimiter : delimiter
-          fileformat : fileformat
-    OUT : df_temp : the dataframe
-    """
-
-    # df_temp = None
-    download = True
-    with st.spinner(f"Downloading...{url}"):
-        if download:  # download from the internet
-            url = url
-        elif fileformat == "json":
-            url = INPUT_DIR + filename + ".json"
-        else:
-            url = INPUT_DIR + filename + ".csv"
-
-        if fileformat == "csv":
-            df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
-        elif fileformat == "json":
-            df_temp = pd.read_json(url)
-
-        # elif fileformat =='json_x':   # workaround for NICE IC data
-        #     pass
-        #     # with urllib.request.urlopen(url) as url_x:
-        #     #     datajson = json.loads(url_x.read().decode())
-        #     #     for a in datajson:
-        #     #         df_temp = pd.json_normalize(a)
-        else:
-            st.error("Error in fileformat")
-            st.stop()
-        df_temp = df_temp.drop_duplicates()
-        # df_temp = df_temp.replace({pd.np.nan: None})  Let it to test
-        save_df(df_temp, filename)
-        return df_temp
 
 
 @st.cache(ttl=60 * 60 * 24)
@@ -77,39 +41,20 @@ def get_data():
     with st.spinner(f"GETTING ALL DATA ..."):
         init()
         # #CONFIG
-        data = [
-            {
-                #"url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv",
-                "url": "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv",
-                "name": "casus_landelijk",
-                "delimiter": ";",
-                "key": "Date_statistics",
-                "dateformat": "%Y-%m-%d",
-                "groupby": "Date_statistics",
-                "pivotby": "Province",
-                "fileformat": "csv",
-            },
-
-        ]
-
-        type_of_join = "outer"
-        d = 0
-
-        # Read first datafile
-        df_temp_x = download_data_file(
-            data[d]["url"], data[d]["name"], data[d]["delimiter"], data[d]["fileformat"]
-        )
-        # df_temp_x = df_temp_x.replace({pd.np.nan: None})
-        df_temp_x[data[d]["key"]] = pd.to_datetime(
-            df_temp_x[data[d]["key"]], format=data[d]["dateformat"]
-        )
-        firstkey = data[d]["key"]
 
 
-        df_temp_x = df_temp_x.sort_values(by=firstkey)
-        df_ungrouped = None
+        with st.spinner(f"Downloading...(it will take some time!)"):
+            if platform.processor() != "":
+                url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+            else:
+                url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
+
+            df = pd.read_csv(url1, delimiter=";", low_memory=False)
+
+        df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
+
         # the tool is build around "date"
-        df = df_temp_x.rename(columns={firstkey: "date"})
+        df = df.rename(columns={"Date_statistics": "date"})
 
         UPDATETIME = datetime.now()
 
@@ -145,13 +90,15 @@ def get_data():
         df_pivot = df_pivot.replace({np.nan: 0})
         df_pivot.loc[:,'Total'] = df_pivot.sum(numeric_only=True, axis=1)
 
+        provincielijst = lijst.copy()
 
 
 
-        columnlist, t, WDW2, centersmooth,tg = lijst, "SMA", 7, True,4
+        columnlist, t, WDW2, centersmooth,tg, d = lijst, "SMA", 7, True,4, 4
+
 
         df, smoothed_columns = smooth_columnlist(df_pivot, columnlist, t, WDW2, centersmooth)
-        df, column_list_r_smoothened=  add_walking_r(df, smoothed_columns, t, tg)
+        df, column_list_r_smoothened=  add_walking_r(df, smoothed_columns, "date", t,WDW2, tg, d)
         df, column_list_r_smoothened_moved =  move_column(df, column_list_r_smoothened, -8)
         lijst.extend(column_list_r_smoothened_moved)
 
@@ -168,13 +115,14 @@ def get_data():
             ["Noord-Brabant",2_573_853],
             ["Limburg",1_115_895],
             ["Total", 17_474_693]]
-
+        provincies_per_inw = []
         for p in provincies:
-            column_name= p[0] + "_per_inw"
-            df[column_name] = df[p[0]]/p[1]
+            column_name= p[0] + "_per_100kinw"
+            df[column_name] = df[p[0]]/p[1]*100000
             lijst.append(column_name)
+            provincies_per_inw.append(column_name)
 
-        return df, UPDATETIME, lijst
+        return df, UPDATETIME, lijst, provincielijst,column_list_r_smoothened_moved,provincies_per_inw
 
 
 
@@ -188,105 +136,6 @@ def move_column(df, column_, days):
         moved.append(new_column)
     return df, moved
 
-
-
-def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
-    """  _ _ _ """
-    # Calculate walking R from a certain base. Included a second methode to calculate R
-    # de rekenstappen: (1) n=lopend gemiddelde over 7 dagen; (2) Rt=exp(Tc*d(ln(n))/dt)
-    # met Tc=4 dagen, (3) data opschuiven met rapportagevertraging (10 d) + vertraging
-    # lopend gemiddelde (3 d).
-    # https://twitter.com/hk_nien/status/1320671955796844546
-    # https://twitter.com/hk_nien/status/1364943234934390792/photo/1
-    column_list_r_smoothened = []
-
-    WDW3 , WDW4 = 7, 4
-    d = WDW4
-    d2 = 2
-    r_sec = []
-    for base in smoothed_columns:
-        column_name_R = "R_value_from_" + base + "_tg" + str(tg)
-
-
-        column_name_r_smoothened = (
-            "R_value_from_"
-            + base
-            + "_tg"
-            + str(tg)
-            + "_"
-            + "over_" + str(WDW4) + "_days_"
-            + how_to_smooth
-            + "_"
-            + str(WDW3)
-        )
-
-
-        sliding_r_df = pd.DataFrame(
-            {"date_sR": [], column_name_R: []}
-        )
-
-        df = df.replace({np.nan: 0})
-        for i in range(len(df)):
-
-            if df.iloc[i][base] != None:
-                date_ = pd.to_datetime(df.iloc[i]["date"], format="%Y-%m-%d")
-                date_ = df.iloc[i]["date"]
-                try:
-                    slidingR_ = round(
-                        ((df.iloc[i][base] / df.iloc[i - d][base]) ** (tg / d)), 2
-                    )
-
-
-                except:
-                    slidingR_ = None
-
-                sliding_r_df = sliding_r_df.append(
-                    {
-                        "date_sR": date_,
-                        column_name_R: slidingR_,
-
-                    },
-                    ignore_index=True,
-                )
-
-        sliding_r_df[column_name_r_smoothened] = round(
-            sliding_r_df.iloc[:, 1].rolling(window=WDW3, center=True).mean(), 2
-        )
-
-
-
-
-        sliding_r_df = sliding_r_df.reset_index()
-        df = pd.merge(
-            df,
-            sliding_r_df,
-            how="outer",
-            left_on="date",
-            right_on="date_sR",
-            #left_index=True,
-        )
-        column_list_r_smoothened.append(column_name_r_smoothened)
-
-
-        sliding_r_df = sliding_r_df.reset_index()
-    return df, column_list_r_smoothened
-
-
-
-def select_period(df, show_from, show_until):
-    """ _ _ _ """
-    if show_from is None:
-        show_from = "2020-1-1"
-
-    if show_until is None:
-        show_until = "2030-1-1"
-
-    mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
-    df = df.loc[mask]
-
-    df = df.reset_index()
-
-    return df
 
 
 
@@ -377,20 +226,28 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             "#02A6A8",
             "#4E9148",
             "#F05225",
+
             "#024754",
             "#FBAA27",
             "#302823",
+
             "#F07826",
              "#ff6666",  # reddish 0
          "#ac80a0",  # purple 1
+
          "#3fa34d",  # green 2
          "#EAD94C",  # yellow 3
          "#EFA00B",  # orange 4
+
          "#7b2d26",  # red 5
          "#3e5c76",  # blue 6
          "#e49273",  # dark salmon 7
+
          "#1D2D44",  # 8
 
+        "#3e5c76" ,
+        "#3e5c76" ,
+        "#3e5c76"
         ]
 
         columnlist, t, WDW2, centersmooth,tg = lijst, "SMA", 7, True,4
@@ -527,59 +384,12 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         if show_R_value_graph or show_R_value_RIVM:
             plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
 
-        #add_restrictions(df, ax)
+
         #plt.axhline(y=1, color="yellow", alpha=1, linestyle="--")
         if t == "line":
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
 
-
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
-    if type(what_to_show_l) == list:
-        what_to_show_l = what_to_show_l
-    else:
-        what_to_show_l = [what_to_show_l]
-    if type(what_to_show_r) == list:
-        what_to_show_r = what_to_show_r
-    else:
-        what_to_show_r = [what_to_show_r]
-    with _lock:
-            fig1xy = plt.figure()
-            ax = fig1xy.add_subplot(111)
-            x_ = np.array(df_temp[what_to_show_l])
-            y_ = np.array(df_temp[what_to_show_r])
-
-            plt.scatter(x_, y_)
-
-
-
-            #obtain m (slope) and b(intercept) of linear regression line
-            idx = np.isfinite(x_) & np.isfinite(y_)
-            m, b = np.polyfit(x_[idx], y_[idx], 1)
-            model = np.polyfit(x_[idx], y_[idx], 1)
-
-            predict = np.poly1d(model)
-            r2 = r2_score  (y_[idx], predict(x_[idx]))
-            #print (r2)
-            #m, b = np.polyfit(x_, y_, 1)
-            # print (m,b)
-
-            #add linear regression line to scatterplot
-            plt.plot(x_, m*x_+b, 'r')
-            title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-            plt.title(title_scatter)
-
-
-            ax.text(
-                1,
-                1.1,
-                "Created by Rene Smit — @rcsmit",
-                transform=ax.transAxes,
-                fontsize="xx-small",
-                va="top",
-                ha="right",
-            )
-            st.pyplot(fig1xy)
 
 
 def set_xmargin(ax, left=0.0, right=0.3):
@@ -593,42 +403,6 @@ def set_xmargin(ax, left=0.0, right=0.3):
 
 
 
-def add_restrictions(df, ax):
-
-
-    """  _ _ _ """
-    # Add restrictions
-    # From Han-Kwang Nienhuys - MIT-licence
-    df_restrictions = pd.read_csv(
-        "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv",
-        comment="#",
-        delimiter=",",
-        low_memory=False,
-    )
-
-    a = (min(df["date"].tolist())).date()
-    b = (max(df["date"].tolist())).date()
-
-    ymin, ymax = ax.get_ylim()
-    y_lab = ymin
-    for i in range(len(df_restrictions)):
-        d_ = df_restrictions.iloc[i]["Date"]  # string
-        d__ = dt.datetime.strptime(d_, "%Y-%m-%d").date()  # to dateday
-
-        diff = d__ - a
-        diff2 = b - d__
-
-        if diff.days > 0 and diff2.days > 0:
-
-            ax.text(
-                (diff.days),
-                0,
-                f'  {df_restrictions.iloc[i]["Description"] }',
-                rotation=90,
-                fontsize=4,
-                horizontalalignment="center",
-            )
-            # plt.axvline(x=(diff.days), color='yellow', alpha=.3,linestyle='--')
 
 
 def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
@@ -685,45 +459,6 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
 
     graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
 
-
-def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
-    """  _ _ _ """
-    c_smoothen = []
-    wdw_savgol = 7
-    #if __name__ = "covid_dashboard_rcsmit":
-    # global WDW2, centersmooth, show_scenario
-    # WDW2=7
-    # st.write(__name__)
-    # centersmooth = False
-    # show_scenario = False
-
-    if columnlist is not None:
-        columnlist_ = columnlist
-        for c in columnlist_:
-            print(f"Smoothening {c}")
-            if t == "SMA":
-                new_column = c + "_SMA_" + str(WDW2)
-                print("Generating " + new_column + "...")
-                df[new_column] = (
-                    df.iloc[:, df.columns.get_loc(c)]
-                    .rolling(window=WDW2, center=centersmooth)
-                    .mean()
-                )
-
-            elif t == "savgol":
-                new_column = c + "_savgol_" + str(WDW2)
-                print("Generating " + new_column + "...")
-                df[new_column] = df[c].transform(lambda x: savgol_filter(x, WDW2, 2))
-
-            elif t is None:
-                new_column = c + "_unchanged_"
-                df[new_column] = df[c]
-                print("Added " + new_column + "...~")
-            else:
-                print("ERROR in smooth_columnlist")
-                st.stop()
-            c_smoothen.append(new_column)
-    return df, c_smoothen
 
 
 
@@ -784,7 +519,8 @@ def main():
     global INPUT_DIR
     init()
 
-    df_getdata, UPDATETIME, lijst = get_data()
+
+    df_getdata, UPDATETIME, lijst, provincielijst,column_list_r_smoothened_moved,provincies_per_inw  = get_data()
     df = df_getdata.copy(deep=False)
 
 
@@ -833,11 +569,25 @@ def main():
             caching.clear_cache()
             st.success("Cache is cleared, please reload to scrape new values")
 
-    df = select_period(df, FROM, UNTIL)
+    df = select_period(df, "date", FROM, UNTIL)
+    options = ["total cases", "R numbers", "cases per 100k inwoners"]
+    menu_choice = st.sidebar.radio("What to show",options, index=1)
+
+    if menu_choice == "total cases":
+        to_show = provincielijst
+    elif menu_choice == "R numbers":
+        to_show = column_list_r_smoothened_moved
+    elif menu_choice == "cases per 100k inwoners":
+        to_show = provincies_per_inw
+
 
     what_to_show_day_l = st.sidebar.multiselect(
-        "What to show left-axis (multiple possible)", lijst, ["Total"]
+        "What to show left-axis (multiple possible)", lijst, to_show
     )
+
+
+
+
     what_to_show_day_r = st.sidebar.multiselect(
         "What to show right-axis (multiple possible)", lijst,
     )
