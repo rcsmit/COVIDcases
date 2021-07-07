@@ -692,7 +692,7 @@ def main():
     global y_zero
     y_zero =  st.sidebar.selectbox("Y-ax starts at 0", [True, False], index=1)
 
-    if  absolute_or_index  == "per_total_reported":
+    if  absolute_or_index  == "per_reported_by_age":
         if hospital_or_ic == "hospital":
             make_age_graph_per_total_reported(df_hosp_per_cases, ages_to_show, f"ziekenhuisopnames per reported by age ({what})(%)")
         else:
@@ -712,7 +712,7 @@ def main():
         for d in to_do_stack:
             show_stack (d[0],d[1],d[2], absolute_or_relative)
 
-    elif what_to_do == "line" and  absolute_or_index !=   "per_total_reported":
+    elif what_to_do == "line" and  absolute_or_index !=   "per_reported_by_age":
         # SHOW LINEGRAPHS
         if normed == True:
             df_pivot_hospital, d = normeren(df_pivot_hospital, ages_to_show)
