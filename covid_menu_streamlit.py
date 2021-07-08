@@ -32,6 +32,8 @@ def main():
             ["14. Dag verschillen per leeftijd", "dag_verschillen_casus_landelijk"],
             ["15. Calculate spec./abs. humidity from rel. hum", "rh2q"],
             ["16. R getal per leeftijdscategorie", "r_number_by_age"],
+            ["17. Show rioolwaards", "show_rioolwater"],
+
             ["17. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
             ["18. per provincie per leeftijd","perprovincieperleeftijd"]]
 
