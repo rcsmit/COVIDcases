@@ -201,7 +201,7 @@ def main():
 
     scenario = st.sidebar.radio(
         "Select a test",
-        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST")
+        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST", "Antigen MP Biomedicals")
                 )
 
     if scenario == "BIOSYNEX SELFTEST":
@@ -237,6 +237,12 @@ def main():
         naam = "Sneltest Roche"
         se = 0.8333
         sp = 0.991
+    elif scenario == "Antigen MP Biomedicals":
+        naam = "Antigen MP Biomedicals"
+        se = 0.965
+        sp = 0.991 #https://twitter.com/dimgrr/status/1413157690721902599/photo/1
+
+
     # # https://www.ftm.nl/artikelen/testsamenleving-extreem-duur-veroorzaakt-uitsluiting-gezonde-mensen
     # https://www.rivm.nl/sites/default/files/2020-12/Toelichting%20betrouwbaarheid%20PCR.pdf
     name = (st.sidebar.text_input('Name', naam))
