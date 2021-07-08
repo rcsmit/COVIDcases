@@ -1774,6 +1774,7 @@ def main():
         },
         inplace=True,
     )
+
     df = extra_calculations(df)
     save_df(df, "EINDTABELx")
     lijst = [
