@@ -86,7 +86,7 @@ def main():
 
     sick_nr = [a* b for a, b in zip(attack, suspect_nr)]
 
-    which hospital = st.sidebar.selectbox("which hospital rates ", ["yorick", "rene", "rivm"], index=0)
+    which_hospital = st.sidebar.selectbox("which hospital rates ", ["yorick", "rene", "rivm"], index=0)
     if which_hospital == "yorick": h_ = h_yorick
     if which_hospital == "rene": h_ = h_rene
     if which_hospital == "rivm": h_ = h_rivm
