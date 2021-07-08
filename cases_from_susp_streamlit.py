@@ -69,14 +69,17 @@ def main():
     fraction = [0.10055, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.04804]
     st.sidebar.subheader("Fractie immuun")
     #attack = st.sidebar.number_input("Fraction of the suspectables that gets sick", 0.0, 1.0,0.2)
-    s0 = st.sidebar.number_input(header[0], 0.0, 1.0,0.3)
-    s1 = st.sidebar.number_input(header[1], 0.0, 1.0,0.3)
-    s2 = st.sidebar.number_input(header[2], 0.0, 1.0,0.3)
+    # https://twitter.com/mr_Smith_Econ/status/1413158835817259013/photo/1
+    #   0-9     10-19  20-29  30-39    40-49   50-59   60-69   70-79  80+
+
+    s0 = st.sidebar.number_input(header[0], 0.0, 1.0,0.4)
+    s1 = st.sidebar.number_input(header[1], 0.0, 1.0,0.4)
+    s2 = st.sidebar.number_input(header[2], 0.0, 1.0,0.4)
     s3 = st.sidebar.number_input(header[3], 0.0, 1.0,0.4)
-    s4 = st.sidebar.number_input(header[4], 0.0, 1.0,0.5)
+    s4 = st.sidebar.number_input(header[4], 0.0, 1.0,0.55)
     s5 = st.sidebar.number_input(header[5], 0.0, 1.0,0.8)
-    s6 = st.sidebar.number_input(header[6], 0.0, 1.0,0.9)
-    s7 = st.sidebar.number_input(header[7], 0.0, 1.0,0.95)
+    s6 = st.sidebar.number_input(header[6], 0.0, 1.0,0.95)
+    s7 = st.sidebar.number_input(header[7], 0.0, 1.0,0.98)
     s8 = st.sidebar.number_input(header[8], 0.0, 1.0,0.98)
     suspectible = [1-s0,1-s1,1-s2,1-s3,1-s4,1-s5,1-s6,1-s7,1-s8]
     suspect_nr = [round(a * b) for a, b in zip(pop_, suspectible)]
