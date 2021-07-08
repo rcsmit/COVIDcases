@@ -10,7 +10,9 @@ import matplotlib.cm as cm
 from sklearn.metrics import r2_score
 from scipy.signal import savgol_filter
 import pandas as pd
-
+import datetime as dt
+from datetime import datetime
+from streamlit import caching
 
 
 def cell_background(val):
@@ -37,6 +39,61 @@ def cell_background(val):
         opacity = 1
     return f'background: rgba({color}, {opacity})'
 
+def select_period_input_cache():
+    DATE_FORMAT = "%m/%d/%Y"
+    start_ = "2021-01-01"
+    today = datetime.today().strftime("%Y-%m-%d")
+    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+
+    try:
+        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
+    except:
+        st.error("Please make sure that the startdate is in format yyyy-mm-dd")
+        st.stop()
+
+    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+
+    try:
+        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
+    except:
+        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+        st.stop()
+
+    if FROM >= UNTIL:
+        st.warning("Make sure that the end date is not before the start date")
+        st.stop()
+
+    if until_ == "2023-08-23":
+        st.sidebar.error("Do you really, really, wanna do this?")
+        if st.sidebar.button("Yes I'm ready to rumble"):
+            caching.clear_cache()
+            st.success("Cache is cleared, please reload to scrape new values")
+
+def select_period_input():
+
+    DATE_FORMAT = "%m/%d/%Y"
+    start_ = "2021-01-01"
+    today = datetime.today().strftime("%Y-%m-%d")
+    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+
+    try:
+        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
+    except:
+        st.error("Please make sure that the startdate is in format yyyy-mm-dd")
+        st.stop()
+
+    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+
+    try:
+        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
+    except:
+        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+        st.stop()
+
+    if FROM >= UNTIL:
+        st.warning("Make sure that the end date is not before the start date")
+        st.stop()
+    return FROM, UNTIL
 def select_period(df, field, show_from, show_until):
     """Select a period in a df (helpers.py)
 

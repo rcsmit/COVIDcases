@@ -382,6 +382,7 @@ def extra_calculations(df):
     df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
 
     df["Total_reported_moved_5"] = df["Total_reported"].shift(5)
+    df["Reported_min_positive"] = df["Total_reported"]-df["Tested_positive"]
     df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
     df["hosp_adm_per_reported"] = round(
             ((df["Hospital_admission_RIVM"] ) / df["Total_reported"] * 100), 2
@@ -1792,6 +1793,7 @@ def main():
         "Tested_positive",
         "Percentage_positive",
         "reported_div_tested",
+        "Reported_min_positive",
         "prev_avg",
         #"total_vaccinations",
         "people_vaccinated",

@@ -8,17 +8,24 @@
 from tabulate import tabulate
 import pandas as pd
 import streamlit as st
-
+from helpers import select_period_input, select_period
 
 def main():
+    url = "https://data.rivm.nl/covid-19/COVID-19_prevalentie.json"
+    df = pd.read_json(url)
+    FROM, UNTIL = select_period_input()
+
+    df = select_period(df, "Date", FROM, UNTIL)
+
     inhabitants = (st.sidebar.number_input('Total population', 17_483_471))
 
     days = (st.sidebar.number_input('Number of days contagious', None,None, 8))
 
     deaths = (st.sidebar.number_input('Number of deaths', None,None, 30_000))
 
-    url = "https://data.rivm.nl/covid-19/COVID-19_prevalentie.json"
-    df = pd.read_json(url)
+
+
+
     df["prev_low_cum"] = df["prev_low"].cumsum()
     df["prev_up_cum"] = df["prev_up"].cumsum()
     df["prev_avg_cum"] = df["prev_avg"].cumsum()
