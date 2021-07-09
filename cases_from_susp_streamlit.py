@@ -67,17 +67,7 @@ def main():
 
 
     if method == "Suspectables_attackrate":
-        st.sidebar.subheader("Attackrate per agegroup")
-        a0 = st.sidebar.number_input(header[0], 0.0,  100.0, 20.0)
-        a1 = st.sidebar.number_input(header[1], 0.0,  100.0, 20.0)
-        a2 = st.sidebar.number_input(header[2], 0.0,  100.0, 20.0)
-        a3 = st.sidebar.number_input(header[3], 0.0,  100.0, 20.0)
-        a4 = st.sidebar.number_input(header[4], 0.0,  100.0, 20.0)
-        a5 = st.sidebar.number_input(header[5], 0.0,  100.0, 20.0)
-        a6 = st.sidebar.number_input(header[6], 0.0,  100.0, 20.0)
-        a7 = st.sidebar.number_input(header[7], 0.0,  100.0, 20.0)
-        a8 = st.sidebar.number_input(header[8], 0.0,  100.0, 20.0)
-        attack =  [a0/100,a1/100,a2/100,a3/100,a4/100,a5/100,a6/100,a7/100,a8/100]
+
         # Values from Sanquin bloedonderzoek
         # https://twitter.com/mr_Smith_Econ/status/1413158835817259013/photo/1
 
@@ -93,6 +83,17 @@ def main():
         s8 = st.sidebar.number_input(header[8], 0.0, 1.0,0.98)
         suspectible = [1-s0,1-s1,1-s2,1-s3,1-s4,1-s5,1-s6,1-s7,1-s8]
         suspect_nr = [round(a * b) for a, b in zip(pop_, suspectible)]
+        st.sidebar.subheader("Attackrate per agegroup")
+        a0 = st.sidebar.number_input(header[0], 0.0,  100.0, 20.0)
+        a1 = st.sidebar.number_input(header[1], 0.0,  100.0, 20.0)
+        a2 = st.sidebar.number_input(header[2], 0.0,  100.0, 20.0)
+        a3 = st.sidebar.number_input(header[3], 0.0,  100.0, 20.0)
+        a4 = st.sidebar.number_input(header[4], 0.0,  100.0, 20.0)
+        a5 = st.sidebar.number_input(header[5], 0.0,  100.0, 20.0)
+        a6 = st.sidebar.number_input(header[6], 0.0,  100.0, 20.0)
+        a7 = st.sidebar.number_input(header[7], 0.0,  100.0, 20.0)
+        a8 = st.sidebar.number_input(header[8], 0.0,  100.0, 20.0)
+        attack =  [a0/100,a1/100,a2/100,a3/100,a4/100,a5/100,a6/100,a7/100,a8/100]
 
         sick_nr = [a* b for a, b in zip(attack, suspect_nr)]
 
@@ -188,13 +189,9 @@ def main():
      'IC opname': ic_opn,
      'IFR':ifr_
     })
-    # st.write("Deze cijfers zijn berekend aan de hand van ziekenhuisopnames, IC opnames en overlijdens per leeftijd waarbij aangenomen is dat de verschillende leeftijdsgroepen een gelijke attackrate ondervonden. (#) De waardes zijn uitgedrukt in fracties (niet in %)")
-    # st.write ("Gebruik is gemaakt van de volgende bestanden op https://data.rivm.nl/covid-19/:")
-    # st.write("* COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv")
-    # st.write("* COVID-19_casus_landelijk")
-    # st.write("* COVID-19_prevalentie.json (cummulatieve waarde gedeeld door 8)")
-    # st.write ("#) Gebruik maken van de totalen per leeftijdsgroep in cases_landelijk is geprobeerd maar geeft so wie so vertekening ondermeer doordat veel kinderen niet werden getest tot januari 2021")
-    st.write ("Ziekenhuisopname kans is berekend door Yorick Bleijenberg adhv Sanquin en RIVM data. De categorieen 0-9 en 10-19 zijn gelijk getrokken 80-89 en 90+ zijn gemiddeld")
+
+    st.write ("Ziekenhuisopname kans is berekend door Yorick Bleijenberg adhv Sanquin, mijzelf (zie broncode) en RIVM data.")
+    st.write(" De categorieen 0-9 en 10-19 zijn gelijk getrokken 80-89 en 90+ zijn gemiddeld")
 
     st.write (kansenmatrix)
     st.write ("Ter vergelijk: Normaal overlijden er per jaar ca. 5000 mensen  onder de 50 en 20.000 onder de 65. Er zijn ca 40.000 ziekenhuisbedden in NL en 2000 IC bedden. ")
