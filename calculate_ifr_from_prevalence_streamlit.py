@@ -13,9 +13,8 @@ from helpers import select_period_input, select_period
 def main():
     url = "https://data.rivm.nl/covid-19/COVID-19_prevalentie.json"
     df = pd.read_json(url)
-    FROM, UNTIL = select_period_input()
 
-    df = select_period(df, "Date", FROM, UNTIL)
+    df = select_period(df, "Date")
 
     inhabitants = (st.sidebar.number_input('Total population', 17_483_471))
 

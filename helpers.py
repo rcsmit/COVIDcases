@@ -94,18 +94,17 @@ def select_period_input():
         st.warning("Make sure that the end date is not before the start date")
         st.stop()
     return FROM, UNTIL
-def select_period(df, field, show_from, show_until):
-    """Select a period in a df (helpers.py)
+def select_period(df, field):
+    """Shows two inputfields (from/until and Select a period in a df (helpers.py).
 
     Args:
         df (df): dataframe
         field (string): Field containing the date
-        show_from (string): yyyy-mm-dd
-        show_until (string): yyyy-mm-dd
 
     Returns:
         df: filtered dataframe
     """
+    show_from, show_until = select_period_input()
     if show_from is None:
         show_from = "2021-1-1"
 

@@ -1571,8 +1571,10 @@ def main():
 
 
     df = df.drop_duplicates()
-    google_or_waze(df)
     dashboard(df)
+
+    google_or_waze(df)
+
 
 
 def dashboard(df___):

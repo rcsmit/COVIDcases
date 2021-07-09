@@ -17,6 +17,11 @@ res = expensive_computation(a, b)
 #select_period_input_cache()
 st.write("Result:", res)
 
+# Streamlit widgets automatically run the script from top to bottom. Since
+# this button is not connected to any other logic, it just causes a plain
+# rerun.
+st.button("Re-run")
+
 my_slot0 = st.sidebar.empty()
 my_slot1 = st.sidebar.empty()
 my_slot0.info("Clear cache")

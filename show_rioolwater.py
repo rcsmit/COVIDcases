@@ -1,31 +1,15 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-import matplotlib.dates as mdates
-from textwrap import wrap
 import matplotlib.cm as cm
-# import seaborn as sn
-from scipy import stats
 import datetime as dt
-from datetime import datetime, timedelta
-
-import json
+from datetime import datetime
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
-import matplotlib.ticker as ticker
-import math
-
+from matplotlib.ticker import MultipleLocator
 _lock = RendererAgg.lock
-from scipy.signal import savgol_filter
-from sklearn.metrics import r2_score
 import streamlit as st
-import urllib
-import urllib.request
-from pathlib import Path
 from streamlit import caching
-from inspect import currentframe, getframeinfo
+
 from helpers import *
 
 ###################################################################
@@ -85,20 +69,19 @@ def graph_day(df, what_to_show_l, title):
 
         plt.title(title, fontsize=10)
 
+        # show every 10th date on x axis
         a__ = (max(df_temp["date"].tolist())).date() - (
             min(df_temp["date"].tolist())
         ).date()
         freq = int(a__.days / 10)
         ax.xaxis.set_major_locator(MultipleLocator(freq))
-        if what_to_show_l == ["reported_div_tested"]:
-            ax.set_ylim(0,0.3)
         ax.set_xticks(df_temp["date"].index)
         ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
         xticks = ax.xaxis.get_major_ticks()
 
-        for i, tick in enumerate(xticks):
-            if i % 10 != 0:
-                tick.label1.set_visible(False)
+        # for i, tick in enumerate(xticks):
+        #     if i % 10 != 0:
+        #         tick.label1.set_visible(False)
         plt.xticks()
 
         # layout of the x-axis
@@ -130,10 +113,7 @@ def graph_day(df, what_to_show_l, title):
             va="top",
             ha="right",
         )
-
-
         st.pyplot(fig1x)
-
 
 
 def main():
@@ -147,49 +127,18 @@ def main():
     country_ = st.sidebar.selectbox("Welke plaats",countrylist, 0)
     df = df___.loc[df___['RWZI_AWZI_name'] ==country_].copy(deep=False)
 
-    st.title("Interactive Corona Dashboard")
-    # st.header("")
-    st.subheader("Under construction - Please send feedback to @rcsmit")
+    st.title("Rioolwaardes")
+    st.write("RNA_per_ml - Rioolwater tot 9/9/2020")
+    st.write("RNA_flow_per_100000 - Rioolwater vanaf 9/9/2020")
 
-    # DAILY STATISTICS ################
-
-    DATE_FORMAT = "%m/%d/%Y"
-    start_ = "2020-09-07"
-    today = datetime.today().strftime("%Y-%m-%d")
-    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
-
-    try:
-        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
-    except:
-        st.error("Please make sure that the startdate is in format yyyy-mm-dd")
-        st.stop()
-
-    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
-
-    try:
-        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
-    except:
-        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
-        st.stop()
-
-    if FROM >= UNTIL:
-        st.warning("Make sure that the end date is not before the start date")
-        st.stop()
-
-    if until_ == "2023-08-23":
-        st.sidebar.error("Do you really, really, wanna do this?")
-        if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
-            st.success("Cache is cleared, please reload to scrape new values")
-
-    df = select_period(df, "date", FROM, UNTIL)
+    df = select_period(df, "date")
     title = f"Rioolwaardes in {country_}"
 
     graph_day(
         df,
         ["RNA_per_ml", "RNA_flow_per_100000"], title
     )
-
+    st.write(df)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
