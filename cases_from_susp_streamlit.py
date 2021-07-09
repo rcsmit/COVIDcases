@@ -131,7 +131,7 @@ def main():
         st.write (susp)
 
     if method == "ratios":
-        number_of_cases = st.sidebar.number_input("Number of cases", 0, 50_000,5_000)
+        number_of_cases = st.sidebar.number_input("Number of cases", 0, 5_000_000,5_000)
         st.sidebar.subheader ("Ratio of each agegroup")
         #   0-9     10-19  20-29  30-39    40-49   50-59   60-69   70-79  80+
         r0 = st.sidebar.number_input(header[0],  0.0, 100.0, 1.0)
