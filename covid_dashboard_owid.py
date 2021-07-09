@@ -1631,15 +1631,17 @@ def dashboard(df___):
 
     if how_to_display != "bar":
         what_to_show_day_l = st.sidebar.multiselect(
-            "What to show left-axis (multiple possible)", lijst, ["reproduction_rate"]
+           # "What to show left-axis (multiple possible)", lijst, ["reproduction_rate"]
+           "What to show left-axis (multiple possible)", lijst, ["new_cases"]
         )
         what_to_show_day_r = st.sidebar.multiselect(
-            "What to show right-axis (multiple possible)", lijst, ["driving_waze", "transit_stations"]
+           # "What to show right-axis (multiple possible)", lijst, ["driving_waze", "transit_stations"]
+            "What to show right-axis (multiple possible)", lijst, ["hosp_patients"]
         )
         if what_to_show_day_l == None:
             st.warning("Choose something")
             st.stop()
-        move_right = st.sidebar.slider("Move curves at right axis (days)", -14, 14, 7)
+        move_right = st.sidebar.slider("Move curves at right axis (days)", -14, 14, 0)
     else:
         move_right = 0
     showR = False
