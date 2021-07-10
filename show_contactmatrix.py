@@ -2,6 +2,8 @@ import pandas as pd
 import streamlit as st
 import seaborn as sn
 import matplotlib.pyplot as plt
+from helpers import *
+
 # contact matrix retrieved from
 # https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text
 # https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material
@@ -59,19 +61,30 @@ def main():
 
     df_first_pivot =  df_first.pivot_table(index='contact_age', columns='participant_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader(f"Contactmatrix {df1}")
-    st.write (df_first_pivot)
+    #st.write (df_first_pivot)
+
+    st.write (df_first_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 10, None)).set_precision(2))
+    # show_heatmap (df_first_pivot,"lineair", 10,None)
     calculate_total (df_first_pivot, df1, contact_type)
 
     df_second_pivot =  df_second.pivot_table(index='contact_age', columns='participant_age', values="m_est", margins = True, aggfunc=sum)
     st.subheader(f"Contactmatrix {df2}")
-    st.write (df_second_pivot)
+
+    # show_heatmap(df_second_pivot,"lineair", 1.5,None)
+
+    st.write (df_second_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 1.5,None)).set_precision(2))
+    make_legenda("lineair", 1.5)
+
+    #st.write (df_second_pivot)
     calculate_total (df_second_pivot, df2, contact_type)
 
 
     st.subheader (f"Verschil als ratio -- ({df2}/{df1}")
     df_difference_as_ratio =  df_second_pivot / df_first_pivot
+    st.write (df_difference_as_ratio.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 1, None)).set_precision(2))
+    show_heatmap (df_difference_as_ratio,"lineair", 1,None)
+    #st.write (df_difference_as_ratio)
 
-    st.write (df_difference_as_ratio)
     fig, ax = plt.subplots()
     #max  = result.to_numpy().mean() + ( 1* result.to_numpy().std())
     max_value = st.sidebar.number_input("Max value heatmap", 0, None,2)

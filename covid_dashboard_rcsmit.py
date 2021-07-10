@@ -1896,7 +1896,7 @@ def main():
             caching.clear_cache()
             st.success("Cache is cleared, please reload to scrape new values")
 
-    df = select_period(df, "date", FROM, UNTIL)
+    df = select_period_oud(df, "date", FROM, UNTIL)
     df = extra_calculations_period(df)
 
     df = drop_columns(df,["Version_x", "Version_y"])
