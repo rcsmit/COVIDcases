@@ -41,7 +41,18 @@ def main():
     # c. populatiefractie per leeftijd * b = aantal infected per leeftijdsgroep
     # d. De waardes van  "COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep" / c
 
-    h_rene = [0.000672671, 0.000661464, 0.001692048, 0.003937327, 0.007792106, 0.016433039, 0.024554007, 0.039117918, 0.055119236]
+    h_rene =       [0.000672671, 0.000661464, 0.001692048, 0.003937327, 0.007792106, 0.016433039, 0.024554007, 0.039117918, 0.055119236]
+
+    # Q2-2021. Alle stappen voor deze maanden:
+    # a. totaal aantal cases per leeftijdsgroep uit casus_landelijk
+    # b. totaalziekenhuisopnames per leeftijdsgroep uit _ziekenhuis_ic_opnames_per_leeftijdsgroep.csv
+    # c. b/a
+    # d. totaal aantal infected  mbp cummulatieve prevalentie geldeeld door 8 (onderrapportagefactor)
+    # e. c / d
+
+
+    h_rene_q2_2021 = [0.000798129, 0.000798129,0.001296388,0.00508778,0.009016154,0.020276935,0.042398226,0.084732437,0.121956144]
+
     ic_opn = [ 0, 2.8402E-05, 0.000211306, 0.000609427, 0.001481364, 0.003788442, 0.006861962, 0.008609547, 0.00210745]
 
 
@@ -50,10 +61,11 @@ def main():
 
     st.sidebar.subheader ( "Long covid & hospital rates")
     long_ = st.sidebar.number_input("Fraction of the suspectables that gets long covid (equal for all ages)", 0.0, 1.0,0.1)
-    which_hospital = st.sidebar.selectbox("which hospital rates ", ["yorick", "rene", "rivm"], index=1)
+    which_hospital = st.sidebar.selectbox("which hospital rates ", ["yorick", "rene", "rene_q2_2021" , "rivm"], index=1)
     if which_hospital == "yorick": h_ = h_yorick
     if which_hospital == "rene": h_ = h_rene
     if which_hospital == "rivm": h_ = h_rivm
+    if which_hospital == "rene_q2_2021": h_ = h_rene_q2_2021 
 
     header = [ "0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"]
     one = [ 1.0,   1.0   ,    1.0      , 1.0      , 1.0    , 1.0      , 1.0    , 1.0 ,     1.0]
