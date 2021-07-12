@@ -373,8 +373,8 @@ def prepare_data(only_prepare_data,delete_last_row):
     if only_prepare_data == True:
         df_pivot_hospital = agg_ages(df_pivot_hospital)
         df_pivot_ic = agg_ages(df_pivot_ic)
-        save_df(df_pivot_hospital,"df_pivot_hospital_vanuit_COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep_csv")
-        save_df(df_pivot_ic,"df_pivot_ic_vanuit_COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep_csv")
+        save_df(df_pivot_hospital,"df_pivot_hospital_vanuit_COVID-19_ziekenhuis_ic_opnames_per_week_per_leeftijdsgroep_csv")
+        save_df(df_pivot_ic,"df_pivot_ic_vanuit_COVID-19_ziekenhuis_ic_opnames_per_week_per_leeftijdsgroep_csv")
 
     if delete_last_row == True:
         df_pivot_hospital = df_pivot_hospital[:-1]
@@ -612,7 +612,7 @@ def main():
 
     delete_last_row =  st.sidebar.selectbox("Delete last week/row of complete dataset", [True, False], index=0)
 
-    df_pivot_hospital, df_pivot_ic  = prepare_data(False, delete_last_row)
+    df_pivot_hospital, df_pivot_ic  = prepare_data(True, delete_last_row)
 
 
     df_pivot_hospital = select_period(df_pivot_hospital,"Date_of_statistics_week_start", FROM, UNTIL)
