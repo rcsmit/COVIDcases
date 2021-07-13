@@ -32,10 +32,10 @@ def main():
             ["14. Dag verschillen per leeftijd", "dag_verschillen_casus_landelijk"],
             ["15. Calculate spec./abs. humidity from rel. hum", "rh2q"],
             ["16. R getal per leeftijdscategorie", "r_number_by_age"],
-            ["17. Show rioolwaards", "show_rioolwater"],
-
-            ["17. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
-            ["18. per provincie per leeftijd","perprovincieperleeftijd"]]
+            ["17. Show rioolwaardes", "show_rioolwater"],
+            ["18. SIR model met leeftijdsgroepen","SIR_age_structured_streamlit"]
+            ["19. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
+            ["20. per provincie per leeftijd","perprovincieperleeftijd"]]
 
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
