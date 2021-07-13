@@ -33,7 +33,7 @@ def main():
             ["15. Calculate spec./abs. humidity from rel. hum", "rh2q"],
             ["16. R getal per leeftijdscategorie", "r_number_by_age"],
             ["17. Show rioolwaardes", "show_rioolwater"],
-            ["18. SIR model met leeftijdsgroepen","SIR_age_structured_streamlit"]
+            ["18. SIR model met leeftijdsgroepen","SIR_age_structured_streamlit"],
             ["19. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
             ["20. per provincie per leeftijd","perprovincieperleeftijd"]]
 
