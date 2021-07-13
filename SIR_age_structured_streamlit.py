@@ -53,7 +53,7 @@ def func(t, state, *argv):
     df_contactrate = get_contact_matrix("2016/-17","all")
 
     S,E, I,R, C, H, IC, D =  [],[],[],[], [],[],[],[]
-    N, alfa, beta,gamma =  [],[],[],[]
+    N, alfa, beta,gamma, correction_per_age =  [],[],[],[],[]
     dSdt, dEdt, dIdt, dRdt, dCdt, dHdt, dICdt, dDdt = [], [],[], [], [],[],[],[]
     for i in range (len(lijst)):
         if i < number_of_agegroups:
@@ -83,6 +83,8 @@ def func(t, state, *argv):
             beta.append(arguments [i])
         elif i >= 3*number_of_agegroups and i < 4*number_of_agegroups:
             gamma.append(arguments[i])
+        elif i >= 4*number_of_agegroups and i < 5*number_of_agegroups:
+            correction_per_age.append(arguments[i])
         else:
             print("error")
 
@@ -121,9 +123,9 @@ def func(t, state, *argv):
             cijt = df_contactrate.iat[j+1,i+1] * sum(N) / (N[i]*N[j])
             cumm_cfactor += cijt * rel_besmh[i]*I[j]
         lambdaa = (beta[i] * rel_vatbh[i] * cumm_cfactor ) / sum(N)
-
-        dSdt.append( - lambdaa * S[i] *  I[i] * rutte_factor )
-        dEdt.append (( lambdaa * S[i] *  I[i] * rutte_factor) - (alfa[i] * E[i]))
+        # lambdaa = (beta[i] * rel_vatbh_rivm [i]  ) / sum(N)
+        dSdt.append( - lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor )
+        dEdt.append (( lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor) - (alfa[i] * E[i]))
         dIdt.append(                                     (alfa[i] * E[i]) - (gamma[i] * I[i]) - ( ifr_[i] *  I[i]))
         dRdt.append(                                                          gamma[i] * I[i]  - ( ifr_[i] * I[i]))
         dCdt.append(                                      (alfa[i] * E[i]))
@@ -287,11 +289,12 @@ def main():
 
     N =      [1756000, 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 839000]
     total_pop = sum(N)
-    I0 = []
-    initial_infected_ratio = 0.1
+    I0 ,E0 = [], []
+    initial_exposed_ratio, initial_infected_ratio = 0.03, 0.02
     for y in range (number_of_agegroups):
+        E0.append (N[y]* initial_exposed_ratio)
         I0.append (N[y]* initial_infected_ratio)
-    R0, S0, E0, C0 =   [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups
+    R0, S0,  C0 =   [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups
     H0, IC0, D0 =   [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups
 
 
@@ -310,7 +313,7 @@ def main():
                             min_value=0.0,
                             max_value=1.0,
                             step=1e-4,
-                            value = 0.0061,
+                            value = 0.3100,
                             format="%.4f")
     infectioustime = (st.sidebar.slider('Average days infectious (1/gamma)', 1, 30, 8))
     alfa = [1/incubationtime]*number_of_agegroups # 1/incubation time
@@ -318,15 +321,26 @@ def main():
     gamma = [1/infectioustime] * number_of_agegroups # mean recovery rate (1/recovery days/infectious time)
 
     global rutte_factor
-    rutte_factor = st.sidebar.slider('Rutte factor (seasonality, maatregelen, verspoepelingen', 0.0, 10.0, 1.5)
+    rutte_factor = st.sidebar.slider('Rutte factor (seasonality, maatregelen, verspoepelingen', 0.0, 10.0, 1.0)
 
+    st.sidebar.subheader("Correction per agegroup")
+    a0 = st.sidebar.number_input(names[0], 0.0,  10.0, 3.0)
+    a1 = st.sidebar.number_input(names[1], 0.0,  10.0, 1.0)
+    a2 = st.sidebar.number_input(names[2], 0.0,  10.0, 1.0)
+    a3 = st.sidebar.number_input(names[3], 0.0,  10.0, 1.0)
+    a4 = st.sidebar.number_input(names[4], 0.0,  10.0, 1.0)
+    a5 = st.sidebar.number_input(names[5], 0.0,  10.0, 1.0)
+    a6 = st.sidebar.number_input(names[6], 0.0,  10.0, 1.0)
+    a7 = st.sidebar.number_input(names[7], 0.0,  10.0, 1.0)
+    a8 = st.sidebar.number_input(names[8], 0.0,  10.0, 3.0)
+    correction_per_age =  [a0,a1,a2,a3,a4,a5,a6,a7,a8]
     #initial susceptible
     for y in range(number_of_agegroups):
         S0[y] = N[y] - E0[y]- I0[y] - R0[y]
 
 
     y0 = tuple(S0 + E0 + I0 + R0 + C0 + H0 +IC0 + D0)
-    p = tuple(N + alfa + beta + gamma)
+    p = tuple(N + alfa + beta + gamma + correction_per_age)
     n = 176 # number of time points
     t = np.linspace(0, n-1, n) # time points
 
