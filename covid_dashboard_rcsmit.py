@@ -11,12 +11,12 @@ import datetime as dt
 from datetime import datetime, timedelta
 
 import json
-from matplotlib.backends.backend_agg import RendererAgg
+
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
-
+from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
