@@ -169,7 +169,6 @@ def draw_graph_with_all_groups (result_odeint, names, beta, gamma, t, N):
         #plt.show()
         st.pyplot(fig)
     with _lock:
-
         fig = plt.figure()
         for i in range (number_of_agegroups):
             ax = fig.add_subplot((round(number_of_agegroups/2)+1), 2,i+1)
@@ -281,7 +280,18 @@ def show_toelichting():
     # b. attack berekend: a/17.4mln
     # c. populatiefractie per leeftijd * b = aantal infected per leeftijdsgroep
     # d. De waardes van  "COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep" / c
-
+def input_correction_age():
+    st.sidebar.subheader("Correction per agegroup")
+    a0 = st.sidebar.number_input(names[0], 0.0,  10.0, 3.0)
+    a1 = st.sidebar.number_input(names[1], 0.0,  10.0, 1.0)
+    a2 = st.sidebar.number_input(names[2], 0.0,  10.0, 1.0)
+    a3 = st.sidebar.number_input(names[3], 0.0,  10.0, 1.0)
+    a4 = st.sidebar.number_input(names[4], 0.0,  10.0, 1.0)
+    a5 = st.sidebar.number_input(names[5], 0.0,  10.0, 1.0)
+    a6 = st.sidebar.number_input(names[6], 0.0,  10.0, 1.0)
+    a7 = st.sidebar.number_input(names[7], 0.0,  10.0, 1.0)
+    a8 = st.sidebar.number_input(names[8], 0.0,  10.0, 3.0)
+    return [a0,a1,a2,a3,a4,a5,a6,a7,a8]
 def main():
     global number_of_agegroups, names
     names =     ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"]
@@ -296,8 +306,6 @@ def main():
         I0.append (N[y]* initial_infected_ratio)
     R0, S0,  C0 =   [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups
     H0, IC0, D0 =   [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups
-
-
 
     # IF YOU WANT TO START FROM AN R-NAUGHT
     # Rstart = [1.1]*number_of_agegroups
@@ -322,30 +330,18 @@ def main():
 
     global rutte_factor
     rutte_factor = st.sidebar.slider('Rutte factor (seasonality, maatregelen, verspoepelingen', 0.0, 10.0, 1.0)
+    correction_per_age = input_correction_age()
 
-    st.sidebar.subheader("Correction per agegroup")
-    a0 = st.sidebar.number_input(names[0], 0.0,  10.0, 3.0)
-    a1 = st.sidebar.number_input(names[1], 0.0,  10.0, 1.0)
-    a2 = st.sidebar.number_input(names[2], 0.0,  10.0, 1.0)
-    a3 = st.sidebar.number_input(names[3], 0.0,  10.0, 1.0)
-    a4 = st.sidebar.number_input(names[4], 0.0,  10.0, 1.0)
-    a5 = st.sidebar.number_input(names[5], 0.0,  10.0, 1.0)
-    a6 = st.sidebar.number_input(names[6], 0.0,  10.0, 1.0)
-    a7 = st.sidebar.number_input(names[7], 0.0,  10.0, 1.0)
-    a8 = st.sidebar.number_input(names[8], 0.0,  10.0, 3.0)
-    correction_per_age =  [a0,a1,a2,a3,a4,a5,a6,a7,a8]
-    #initial susceptible
     for y in range(number_of_agegroups):
         S0[y] = N[y] - E0[y]- I0[y] - R0[y]
-
 
     y0 = tuple(S0 + E0 + I0 + R0 + C0 + H0 +IC0 + D0)
     p = tuple(N + alfa + beta + gamma + correction_per_age)
     n = 176 # number of time points
     t = np.linspace(0, n-1, n) # time points
 
-
     result_odeint = odeint(func, y0, t, p, tfirst=True)
+
     st.subheader("Totals")
     show_result(result_odeint, N)
     #  draw_graph_with_all_groups(result_odeint, names, beta, gamma, t,N)
