@@ -1970,6 +1970,7 @@ def main():
     #     .write(df[n])
     # graph_daily       (df,newcolumns,None, "SMA", "line")
     # st.stop()
+    global scale_to_x
 
     week_or_day = st.sidebar.selectbox("Day or Week", ["day", "week"], index=0)
     if week_or_day != "week":
@@ -1978,7 +1979,7 @@ def main():
             ["line", "line_scaled_to_peak", "line_first_is_1", "bar"],
             index=0,
         )
-        if how_to display == "line_scaled_to_peak" or how_to display == "line_first_is_1":
+        if how_to_display == "line_scaled_to_peak" or how_to display == "line_first_is_1":
             scale_to_x = st.sidebar.selectbox(
                 "First / max = ",
                 [1, 100],
