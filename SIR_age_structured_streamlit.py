@@ -85,7 +85,7 @@ def plot_single_age_group(item, result_odeint, names,  t, N, what_to_show):
          # ax.plot(result_solve_ivp.y[6+i, :], "blue", lw=1.5, label="Recovered")
         ax.set_title(f"{ names[i]}",  fontsize=10)
         plt.legend()
-        plt.grid()
+        #plt.grid()
         ax.set_xlabel('Time (days)')
         ax.set_ylabel('Ratio')
         ax.set_ylim([0,1])
@@ -134,7 +134,7 @@ def plot_total(result_odeint, noemer, what_to_show):
             ax.set_ylim([0,1])
 
         plt.legend()
-        plt.grid()
+        #plt.grid()
         #plt.show()
         st.pyplot(fig)
 
@@ -246,52 +246,15 @@ def func(t, state, *argv):
     S,E, I,R, C, H, HIC, IC, DIFR, D, Hcumm, ICcumm =  [],[],[],[], [],[],[],[],[],[],[],[]
 
     N, sigma, alfa, beta,gamma, correction_per_age =  [],[],[],[],[],[]
-    rel_besmh, rel_vatbh, ifr= [],[],[]
+    rel_besmh, rel_vatbh, ifr, dfromi = [],[],[],[]
     h,  i1,  i2,  d,  dic,  dhic,  r,  ric =  [],[],[],[], [],[],[],[]
     dSdt, dEdt, dIdt, dRdt, dCdt, dHdt, dICdt, dHICdt, dDIFRdt, dDdt, dHcummdt, dICcummdt = [], [],[], [], [],[],[],[],[],[],[],[]
     sublist_compartments = [S,  E,  I, R, C, H, IC, HIC, DIFR, D, Hcumm, ICcumm]
     sublist_parameters = [N,  alfa,  beta,  gamma,  sigma,   rel_besmh,  rel_vatbh,  ifr, 
-                         h,  i1,  i2,  d,  dic,  dhic,  r,  ric, correction_per_age]
+                         h,  i1,  i2,  d,  dic,  dhic,  r,  ric, correction_per_age, dfromi]
    
     sublist(lijst, sublist_compartments,  number_of_agegroups)
     sublist(arguments, sublist_parameters,  number_of_agegroups)
-
-    # S  = lijst[0 * number_of_agegroups : 1 * number_of_agegroups]
-    # E = lijst[1 * number_of_agegroups : 2 * number_of_agegroups]
-    # I = lijst[2 * number_of_agegroups : 3 * number_of_agegroups]
-    
-    # R = lijst[3 * number_of_agegroups : 4 * number_of_agegroups]
-    # C = lijst[4 * number_of_agegroups : 5 * number_of_agegroups]
-    # H = lijst[5 * number_of_agegroups : 6 * number_of_agegroups]
-    # IC = lijst[6 * number_of_agegroups : 7 * number_of_agegroups]
-    # HIC = lijst[7 * number_of_agegroups : 8* number_of_agegroups]
-    # DIFR = lijst[8 * number_of_agegroups : 9 * number_of_agegroups]
-    # D = lijst[9 * number_of_agegroups : 10 * number_of_agegroups]
-    # Hcumm = lijst[10 * number_of_agegroups : 11 * number_of_agegroups]
-    # ICcumm = lijst[11 * number_of_agegroups : 12 * number_of_agegroups]
-
-    # N = arguments[0 * number_of_agegroups : 1 * number_of_agegroups]
-    # alfa  = arguments[1 * number_of_agegroups : 2 * number_of_agegroups]
-    
-    # beta = arguments[2 * number_of_agegroups : 3 * number_of_agegroups]
-
-    # gamma = arguments[3 * number_of_agegroups : 4 * number_of_agegroups]
-    # sigma = arguments[4* number_of_agegroups : 5 * number_of_agegroups]
-    
-    # rel_besmh = arguments[5 * number_of_agegroups : 6 * number_of_agegroups]
-    # rel_vatbh = arguments[6 * number_of_agegroups : 7 * number_of_agegroups]
-    # ifr_ = arguments[7 * number_of_agegroups : 8 * number_of_agegroups]
-    # h   = arguments[8 * number_of_agegroups : 9 * number_of_agegroups]
-    # i1  = arguments[9 * number_of_agegroups : 10 * number_of_agegroups]
-    # i2  = arguments[10 * number_of_agegroups : 11 * number_of_agegroups]
-    # d  = arguments[11 * number_of_agegroups : 12 * number_of_agegroups]
-    # dic  = arguments[12 * number_of_agegroups : 13 * number_of_agegroups]
-    # dhic  = arguments[13 * number_of_agegroups : 14 * number_of_agegroups]
-    # r  = arguments[14 * number_of_agegroups : 15 * number_of_agegroups]
-    # ric  = arguments[15 * number_of_agegroups : 16 * number_of_agegroups]
-    # correction_per_age = arguments[16 * number_of_agegroups : 17* number_of_agegroups]
-    
-    
     for i in range(number_of_agegroups):
         lambdaa = 1
         cumm_cfactor = 0
@@ -314,7 +277,7 @@ def func(t, state, *argv):
 
         dSdt.append( - lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor - S[i]*alfa[i] )
         dEdt.append (( lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor) - (sigma[i] * E[i]))
-        dIdt.append(                                     (sigma[i] * E[i]) - ((gamma[i] + h[i])* I[i]) )
+        dIdt.append(                                     (sigma[i] * E[i]) - ((gamma[i] + h[i])* I[i]) - dfromi[i]*I[i] )
         dHdt.append(    (h[i]*I[i])  - ((i1[i]+d[i]+r[i]) * H[i] )  )
 
         # There is a problem with HIC, gives negative values
@@ -324,7 +287,7 @@ def func(t, state, *argv):
         dICdt.append ( i1[i]*H[i] - ((dic[i]+dhic[i]+ ric[i])* IC[i])                                  )
         dHICdt.append(0)
         dDIFRdt.append( ( ifr[i]* (sigma[i] * E[i])))
-        dDdt.append(  (d[i]*H[i]) + (dic[i]*IC[i]) + (dhic[i]*IC[i]) )
+        dDdt.append(  (d[i]*H[i]) + (dic[i]*IC[i]) + (dhic[i]*IC[i]) + dfromi[i]*I[i] )
         dRdt.append(   ( gamma[i] * I[i] )+  ( r[i]*H[i]) + (ric[i] * IC[i]))
      
         dCdt.append(                                      (sigma[i] * E[i]))
@@ -356,6 +319,9 @@ def main():
     dhic_ = [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0010, 0.0040, 0.0120, 0.0290] # IC -> h -> D
     r_    = [0.1263, 0.1260, 0.1254, 0.1238, 0.1234, 0.1215, 0.1131, 0.0976, 0.0872] # recovery rate from hospital (before IC)
     ric_  = [0.0857, 0.0857, 0.0857, 0.0857, 0.0857, 0.0821, 0.0119, 0.0567, 0.0550] # recovery rate from hospital (after IC)
+    dfromi = []
+    for x in range (number_of_agegroups):
+        dfromi.append( ifr_[x] - ((h_[x]* d_[x]) + (h_[x]*i1_[x]*dic_[x] )))
     df_parameters = pd.DataFrame(
     {'Agegroup': names,
      'ifr':ifr_,
@@ -410,7 +376,7 @@ def main():
 
 
     y0 = tuple(S0 + E0 + I0 + R0 + C0 + H0 +IC0+ HIC0 + DIFR0 + D0 + Hcumm0 + ICcumm0)
-    parameters = tuple(N + alfa + beta + gamma + sigma  + rel_besmh + rel_vatbh + ifr_ + h_ + i1_ + i2_ + d_ + dic_ + dhic_ + r_ + ric_+ correction_per_age)
+    parameters = tuple(N + alfa + beta + gamma + sigma  + rel_besmh + rel_vatbh + ifr_ + h_ + i1_ + i2_ + d_ + dic_ + dhic_ + r_ + ric_+ correction_per_age + dfromi)
     n = 176 # number of time points
     t = np.linspace(0, n-1, n) # time points
 
