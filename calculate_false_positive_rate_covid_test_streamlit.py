@@ -237,7 +237,7 @@ def main():
         naam = "Sneltest Roche"
         se = 0.8333
         sp = 0.991
-     elif scenario == "Antigen rapid Roche":
+    elif scenario == "Antigen rapid Roche":
         naam = "Antigen rapid Roche"
         se = 0.89
         sp = 0.991
