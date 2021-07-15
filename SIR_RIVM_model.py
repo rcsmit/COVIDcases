@@ -218,7 +218,8 @@ plt.show()
 
 # dICdt = i1*H - (i2+dic)*IC
 # dICv1ddt = i1*Hv1d - (i2+dic)*ICv1d,
-# dICv2ddt = i1*Hv2d - (i2+dic)*ICv2ddHICdt = i2 * IC - (ric+dhic)*HIC,
+# dICv2ddt = i1*Hv2d - (i2+dic)*ICv2d
+# dHICdt = i2 * IC - (ric+dhic)*HIC,
 # dHICv1ddt = i2 * ICv1d - (ric+dhic)*HICv1d,
 # dHICv2ddt = i2 * ICv2d - (ric+dhic)*HICv2
 
