@@ -1979,7 +1979,7 @@ def main():
             ["line", "line_scaled_to_peak", "line_first_is_1", "bar"],
             index=0,
         )
-        if how_to_display == "line_scaled_to_peak" or how_to display == "line_first_is_1":
+        if how_to_display == "line_scaled_to_peak" or how_to_display == "line_first_is_1":
             scale_to_x = st.sidebar.selectbox(
                 "First / max = ",
                 [1, 100],
