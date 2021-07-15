@@ -1,5 +1,7 @@
 # MAKE AGE STRUCTURED SIR DIAGRAMS
 
+from numpy.lib.function_base import _i0_2
+from SIR_RIVM_model import Iv2d__
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
@@ -33,171 +35,54 @@ def get_contact_matrix(moment,contact_type):
 
     df_first =  df[(df['survey'] == moment) & (df['contact_type'] == contact_type)]
     df_first_pivot =  df_first.pivot_table(index='contact_age', columns='participant_age', values="m_est", margins = True, aggfunc=sum)
-    # we assume that the contact rates for 0-5 are the same as 6-10
-    # df_first_pivot = df_first_pivot.iloc[1: , :] # drop first row
-    # df_first_pivot = df_first_pivot.iloc[: , 1:] # drop first column
     return df_first_pivot
-
-def func(t, state, *argv):
-    """The function with the formula
+def calculate_c_new(result_odeint, i):
+    """Calculate new cases per day
 
     Args:
-        t (?): timepoints
-        state (?): Numbers of S, I and R
-        argv : groupsizes, beta's and gamma's
+        result_odeint (array): The results
+        i (int): which agegroup. None for total
+
     Returns:
-        [?]: the differences in each step (dSdt+ dIdt + dRdt)
-    """
-    lijst = list(state)
-    arguments = [xy for xy in argv]
-    df_contactrate = get_contact_matrix("2016/-17","all")
-
-    S,E, I,R, C, H, IC, D =  [],[],[],[], [],[],[],[]
-    N, alfa, beta,gamma, correction_per_age =  [],[],[],[],[]
-    dSdt, dEdt, dIdt, dRdt, dCdt, dHdt, dICdt, dDdt = [], [],[], [], [],[],[],[]
-    for i in range (len(lijst)):
-        if i < number_of_agegroups:
-            S.append(lijst[i])
-        elif i>=number_of_agegroups and i < 2*number_of_agegroups:
-            E.append(lijst [i])
-        elif i>=2*number_of_agegroups and i < 3*number_of_agegroups:
-            I.append(lijst[i])
-        elif i>=3*number_of_agegroups and i < 4*number_of_agegroups:
-            R.append(lijst[i])
-
-        elif i>=4*number_of_agegroups and i < 5*number_of_agegroups:
-            C.append(lijst[i])
-        elif i>=5*number_of_agegroups and i < 6*number_of_agegroups:
-            H.append(lijst[i])
-        elif i>=6*number_of_agegroups and i < 7*number_of_agegroups:
-            IC.append(lijst[i])
-        elif i>=7*number_of_agegroups and i < 8*number_of_agegroups:
-            D.append(lijst[i])
-
-    for i in range (len(arguments)):
-        if i < number_of_agegroups:
-            N.append(arguments[i])
-        elif i>=number_of_agegroups and  i < 2*number_of_agegroups:
-            alfa.append(arguments [i])
-        elif i>=2*number_of_agegroups and  i < 3*number_of_agegroups:
-            beta.append(arguments [i])
-        elif i >= 3*number_of_agegroups and i < 4*number_of_agegroups:
-            gamma.append(arguments[i])
-        elif i >= 4*number_of_agegroups and i < 5*number_of_agegroups:
-            correction_per_age.append(arguments[i])
+        array : Array with cases per day
+    """    
+    c_new_tot=[0]
+    C_tot_day = 0
+    
+    for x in range(1,len (result_odeint)):
+        if i == None:
+            for i in range(number_of_agegroups):
+                C_tot_day += result_odeint[x, (4*number_of_agegroups)+i] - result_odeint[x-1, (4*number_of_agegroups)+i]
+            c_new_tot.append(C_tot_day)
+            
         else:
-            print("error")
-
-    # Normally I shoud define these in the main()
-    names =     ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"]
-
-    fraction =  [0.10055, 0.11338, 0.12855, 0.12460, 0.12391, 0.14590, 0.12260, 0.09248, 0.04804]
-    h_rivm  =   [0.00347, 0.000377, 0.000949, 0.00388, 0.00842,0.0165, 0.0251, 0.0494, 0.0463] # I -> H
-    h_  =       [0.0015, 0.0001, 0.0002, 0.0007, 0.0013, 0.0028, 0.0044, 0.0097, 0.0107] # I -> H - time to go to hospital taken in account
-    i1_ =       [0.0000, 0.0271, 0.0422, 0.0482, 0.0719, 0.0886, 0.0170, 0.0860, 0.0154] # H-> IC
-    ic_opn = [ 0, 2.8402E-05, 0.000211306, 0.000609427, 0.001481364, 0.003788442, 0.006861962, 0.008609547, 0.00210745]
-
-    i2_ =       [0.0555, 0.0555, 0.0555, 0.0555, 0.0555, 0.0531, 0.0080, 0.0367, 0.0356] # IC-> H
-    d_  =       [0.0003, 0.0006, 0.0014, 0.0031, 0.0036, 0.0057, 0.0151, 0.0327, 0.0444] # H-> D
-    dic_ =      [0.0071, 0.0071, 0.0071, 0.0071, 0.0071, 0.0090, 0.0463, 0.0225, 0.0234] # IC -> D
-    dhic_ =     [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0010, 0.0040, 0.0120, 0.0290] # IC -> h -> D
-    r_    =     [0.1263, 0.1260, 0.1254, 0.1238, 0.1234, 0.1215, 0.1131, 0.0976, 0.0872] # recovery rate from hospital (before IC)
-    ric_  =     [0.0857, 0.0857, 0.0857, 0.0857, 0.0857, 0.0821, 0.0119, 0.0567, 0.0550] # recovery rate from hospital (after IC)
-    LE_   =     [ 77.89,  67.93,  58.08,  48.48,  38.60,  29.22,  20.52,  12.76,  4.35 ] # Life expectancy
-    rel_besmh  =     [ 3,  3,  3,  3,  3,  3,  1,  1,  1] # Relative infectiousness https://www.pnas.org/content/117/36/22430
-    rel_vatbh_rivm  =     [ 1.000,  3.051,  5.751,  3.538,  3.705,  4.365,  5.688,  5.324,  7.211] # ik dnek dat deze matrix het totaal is van contactmatrix, besm, en vatbh
-
-    rel_vatbh = [0.5,0.75,1,2.5,4,5,8,8,8]     # Relative suspceptibility fig 1b, op het ooghttps://www.nature.com/articles/s41591-020-0962-9
-
-    #rel_besmh, rel_vatbh =   [1] * number_of_agegroups,   [1] * number_of_agegroups
+            C_tot_day = result_odeint[x, (4*number_of_agegroups)+i] - result_odeint[x-1, (4*number_of_agegroups)+ i]
+            c_new_tot.append(C_tot_day)
+        C_tot_day = 0
+    c_new_tot_as_array = np.array(c_new_tot)
+        
+    return c_new_tot_as_array
 
 
-                # Aantallen van https://www.rivm.nl/coronavirus-covid-19/grafieken geldeeld op 4836661 infecties (cummulatieve  prevalentie gedeeld door 8 )
-    ifr_ =      [2.04658E-06, 3.78694E-06, 1.76088E-05, 5.45016E-05, 0.000156108, 0.000558534, 0.002271095, 0.009964733, 0.048248607 ]
-
-    for i in range(number_of_agegroups):
-
-        lambdaa = 1
-        cumm_cfactor = 0
-        for j in range(number_of_agegroups):
-            cijt = df_contactrate.iat[j+1,i+1] * sum(N) / (N[i]*N[j])
-            cumm_cfactor += cijt * rel_besmh[i]*I[j]
-        lambdaa = (beta[i] * rel_vatbh[i] * cumm_cfactor ) / sum(N)
-        # lambdaa = (beta[i] * rel_vatbh_rivm [i]  ) / sum(N)
-        dSdt.append( - lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor )
-        dEdt.append (( lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor) - (alfa[i] * E[i]))
-        dIdt.append(                                     (alfa[i] * E[i]) - (gamma[i] * I[i]) - ( ifr_[i] *  I[i]))
-        dRdt.append(                                                          gamma[i] * I[i]  - ( ifr_[i] * I[i]))
-        dCdt.append(                                      (alfa[i] * E[i]))
-        dHdt.append(                                       (alfa[i] * E[i]) * h_rivm[i])
-        dICdt.append (                                       (alfa[i] * E[i]) * ic_opn[i])
-        #dDdt.append( C[i]*ifr_[i])
-        dDdt.append( ( ifr_[i]* (alfa[i] * E[i])))
-
-    to_return = dSdt+ dEdt + dIdt + dRdt + dCdt + dHdt + dICdt + dDdt
-    return to_return
-
-def draw_graph_with_all_groups (result_odeint, names, beta, gamma, t, N):
-    """Draws graphs with subgraphs of each agegroup and total
-
-    Args:
-        result_odeint (?): result of the ODEint
-
-        names (list): names of the groups for the legenda
-        beta (list): for the legenda
-        gamma (list): for the legenda
-        t (list): timevalues, for the number_of_agegroups-axis
-    """
-    show_all = True
-    total_pop = sum(N)
-    with _lock:
-
-        fig = plt.figure()
-        for i in range (number_of_agegroups):
-            ax = fig.add_subplot((round(number_of_agegroups/2)+1), 2,i+1)
-            ax.plot(t, result_odeint[:, i]/N[i], "black", lw=1.5, label="Susceptible")
-            ax.plot(t, result_odeint[:, number_of_agegroups+i]/N[i], "purple", lw=1.5, label="Exposed")
-            ax.plot(t, result_odeint[:, (2*number_of_agegroups)+i]/N[i], "orange", lw=1.5, label="Infected")
-            ax.plot(t, result_odeint[:, (3*number_of_agegroups)+i]/N[i], "blue", lw=1.5, label="Recovered")
-            ax.plot(t, result_odeint[:, (4*number_of_agegroups) +i]/N[i], "green", lw=1.5, label="Cases")
-            ax.set_title(f"{ names[i]}",  fontsize=10)
-            ax.set_ylim([0,1])
-        #fig.tight_layout()
-        plt.legend()
-        plt.grid()
-        ax.set_ylim([0,1])
-        #plt.show()
-        st.pyplot(fig)
-    with _lock:
-        fig = plt.figure()
-        for i in range (number_of_agegroups):
-            ax = fig.add_subplot((round(number_of_agegroups/2)+1), 2,i+1)
-            ax.plot(t, result_odeint[:, (4*number_of_agegroups) +i]/N[i], "black", lw=1.5, label="Cases")
-            ax.plot(t, result_odeint[:, (5*number_of_agegroups)+i]/N[i], "purple", lw=1.5, label="Hospital")
-            ax.plot(t, result_odeint[:, (6*number_of_agegroups)+i]/N[i], "orange", lw=1.5, label="IC")
-            ax.plot(t, result_odeint[:, (7*number_of_agegroups)+i]/N[i], "blue", lw=1.5, label="Death")
-            ax.set_title(f"{ names[i]}",  fontsize=10)
-            ax.set_ylim([0,1])
-           #fig.tight_layout()
-        plt.legend()
-        ax.set_xlabel('Time (days)')
-        ax.set_ylabel('Ratio')
-        plt.grid()
-        #plt.show()
-        st.pyplot(fig)
-
-
-def plot_single_age_group(item, result_odeint, names,  t, N):
+def plot_single_age_group(item, result_odeint, names,  t, N, what_to_show):
     # single age group
     i = names.index(item)
     with _lock:
-
+        C_new_tot =  calculate_c_new(result_odeint, i)
         fig = plt.figure()
         ax = fig.add_subplot()
-        ax.plot(t, result_odeint[:, i]/N[i], "black", lw=1.5, label="Susceptible")
-        ax.plot(t, result_odeint[:, number_of_agegroups+i]/N[i], "purple", lw=1.5, label="Exposed")
-        ax.plot(t, result_odeint[:, (2*number_of_agegroups)+i]/N[i], "orange", lw=1.5, label="Infected")
-        ax.plot(t, result_odeint[:, (3*number_of_agegroups)+i]/N[i], "blue", lw=1.5, label="Recovered")
+        if "S" in what_to_show : ax.plot(t, result_odeint[:, i]/N[i], "pink", lw=1.5, label="Susceptible")
+        if "E" in what_to_show : ax.plot(t, result_odeint[:, number_of_agegroups+i]/N[i], "purple", lw=1.5, label="Exposed")
+        if "I" in what_to_show : ax.plot(t, result_odeint[:, (2*number_of_agegroups)+i]/N[i], "orange", lw=1.5, label="Infected")
+        if "R" in what_to_show : ax.plot(t, result_odeint[:, (3*number_of_agegroups)+i]/N[i], "blue", lw=1.5, label="Recovered")
+        if "C" in what_to_show : ax.plot(t, result_odeint[:, (4*number_of_agegroups)+i]/N[i], "green", lw=1.5, label="Cases cumm")
+        if "H" in what_to_show : ax.plot(t, result_odeint[:, (5*number_of_agegroups)+i]/N[i], "yellow", lw=1.5, label="Hospital")
+        if "IC" in what_to_show : ax.plot(t, result_odeint[:, (6*number_of_agegroups)+i]/N[i], "brown", lw=1.5, label="IC")
+        if "D" in what_to_show : ax.plot(t, result_odeint[:, (7*number_of_agegroups)+i]/N[i], "black", lw=1.5, label="Death")
+        
+        if "C" in what_to_show : ax.plot(C_new_tot/N[i], "green", linestyle="--", lw=1.5, label="Cases")
+
+         # ax.plot(result_solve_ivp.y[6+i, :], "blue", lw=1.5, label="Recovered")
         ax.set_title(f"{ names[i]}",  fontsize=10)
         plt.legend()
         plt.grid()
@@ -207,9 +92,17 @@ def plot_single_age_group(item, result_odeint, names,  t, N):
         #plt.show()
         st.pyplot(fig)
 
-def plot_total_as_ratio(result_odeint, total_pop):
+def plot_total(result_odeint, noemer, what_to_show):
+    """Plot results. Total of all agegroups
+
+    Args:
+        result_odeint (array): [description]
+        noemer (int): Total population. 1 if you want the numbers
+        what_to_show (list): which compartments to show 
+    """    
     S_tot_odeint, E_tot_odeint, I_tot_odeint, R_tot_odeint = 0.0,0.0,0.0,0.0
     C_tot_odeint, H_tot_odeint, IC_tot_odeint, D_tot_odeint = 0.0,0.0,0.0,0.0
+    C_new_tot =  calculate_c_new(result_odeint, None)
     for i in range(number_of_agegroups):
         S_tot_odeint +=result_odeint[:, i]
         E_tot_odeint += result_odeint[:, number_of_agegroups+i]
@@ -222,15 +115,19 @@ def plot_total_as_ratio(result_odeint, total_pop):
     with _lock:
         fig = plt.figure()
         ax = fig.add_subplot()
-        ax.plot(S_tot_odeint/total_pop, "black", lw=1.5, label="Susceptible")
-        ax.plot(E_tot_odeint/total_pop, "purple", lw=1.5, label="Exposed")
-        ax.plot(I_tot_odeint/total_pop, "orange", lw=1.5, label="Infected")
-        ax.plot(R_tot_odeint/total_pop, "blue", lw=1.5, label="Recovered")
-        ax.plot(C_tot_odeint/total_pop, "green", lw=1.5, label="Cases")
+        if "S" in what_to_show : ax.plot(S_tot_odeint/noemer, "pink", lw=1.5, label="Susceptible")
+        if "E" in what_to_show : ax.plot(E_tot_odeint/noemer, "purple", lw=1.5, label="Exposed")
+        if "I" in what_to_show : ax.plot(I_tot_odeint/noemer, "orange", lw=1.5, label="Infected")
+        if "R" in what_to_show : ax.plot(R_tot_odeint/noemer, "blue", lw=1.5, label="Recovered")
+        if "C" in what_to_show : ax.plot(C_tot_odeint/noemer, "green",  lw=1.5, label="Cases cumm")
+        if "C" in what_to_show : ax.plot(C_new_tot/noemer, "green", linestyle="--", lw=1.5, label="Cases")
+        if "H" in what_to_show : ax.plot(H_tot_odeint/noemer, "yellow", lw=1.5, label="Hospital")
+        if "IC" in what_to_show : ax.plot(IC_tot_odeint/noemer, "brown", lw=1.5, label="IC")
+        if "D" in what_to_show : ax.plot(D_tot_odeint/noemer, "black", lw=1.5, label="Death")
         ax.set_title("Totaal")
         #fig.tight_layout()
         ax.set_xlabel('Time (days)')
-        if total_pop == 1 :
+        if noemer == 1 :
             ax.set_ylabel('Numbers')
         else:
             ax.set_ylabel('Ratio')
@@ -242,44 +139,67 @@ def plot_total_as_ratio(result_odeint, total_pop):
         st.pyplot(fig)
 
 def show_result(result_odeint, N):
-    d = []
-    tot_cases,tot_hosp, tot_ic, tot_deaths = 0,0,0,0
+    """Print dataframe/table with the results
 
+    Args:
+        result_odeint (array): Result of the solver
+        N (List w/ integers): List with agegroup sizes
+    """    
+    d = []
+    tot_cases,tot_hosp, tot_ic, tot_deaths, tot_hic, tot_deaths_ifr = 0,0,0,0,0,0
+    # ["S", "E",  "I", "R", "C", "H", "IC","HIC","DIFR", "D"] Hcumm ICcumm
+    #   0    1     2    3    4    5    6    7     8       9   10     11
     for i in range(number_of_agegroups):
         tot_cases += int(result_odeint[-1, (4*number_of_agegroups) +i])
-        tot_hosp  += int(result_odeint[-1, (5*number_of_agegroups) +i])
-        tot_ic    += int(result_odeint[-1, (6*number_of_agegroups) +i])
-        tot_deaths+= int(result_odeint[-1, (7*number_of_agegroups) +i])
+        tot_hosp  += int(result_odeint[-1, (10*number_of_agegroups) +i])
+        tot_ic    += int(result_odeint[-1, (11*number_of_agegroups) +i])
+      
+        tot_deaths_ifr+= int(result_odeint[-1, (8*number_of_agegroups) +i])
+        tot_deaths+= int(result_odeint[-1, (9*number_of_agegroups) +i])
 
         d.append((names[i],
             int(result_odeint[-1, (4*number_of_agegroups) + i]),
             round((result_odeint[-1, (4*number_of_agegroups) + i]/N[i] * 100), 2),
-            round((result_odeint[-1, (5*number_of_agegroups)+i])),
-            round((result_odeint[-1, (6*number_of_agegroups)+i])),
-            round((result_odeint[-1, (7*number_of_agegroups)+i])),
-            round((result_odeint[-1, (7*number_of_agegroups) + i] / (result_odeint[-1, (4*number_of_agegroups) + i]) * 100), 2)
+            round((result_odeint[-1, (10*number_of_agegroups)+i])),
+           
+            round((result_odeint[-1, (11*number_of_agegroups)+i])),
+            round((result_odeint[-1, (8*number_of_agegroups)+i])),
+            round((result_odeint[-1, (9*number_of_agegroups)+i])),
+            round((result_odeint[-1, (9*number_of_agegroups) + i] / (result_odeint[-1, (4*number_of_agegroups) + i]) * 100), 2)
             ))
-    d.append(("TOTAL", tot_cases, round((tot_cases/sum(N)*100),1 ), tot_hosp, tot_ic, tot_deaths, round((tot_deaths/tot_cases*100),2)))
-    df_result = pd.DataFrame(d, columns=('Agegroup', 'cases', 'attackrate (%)', 'hospital', 'ic', 'deaths', 'ifr (%)' ))
+    d.append(("TOTAL", tot_cases, round((tot_cases/sum(N)*100),1 ), tot_hosp, tot_ic,  tot_deaths_ifr, tot_deaths, round((tot_deaths/tot_cases*100),2)))
+    df_result = pd.DataFrame(d, columns=('Agegroup', 'cases', 'attackrate (%)', 'hospital', 'ic', 'deaths_from_ifr', 'deaths_model', 'ifr_model (%)' ))
     st.write (df_result)
 
-
 def show_toelichting():
+    """Generate footer
+    """    
     st.subheader ("TOELICHTING")
     st.write ("This model is a very, very simplified version of the RIVM model,")
     st.write ("'Unique' of  this model is that it has agegroups, keeps in account the contact rates between groups and the relative suspceptibility/infectiousness of the different ages")
     st.write ("Limits for now: There are only 8 compartments. People immediately go to hospital, IC or death after getting infected. No vaccination. No probabilities for outcomes. No seasonality")
 
-    st.subheader ("Sources: ")
+    st.subheader ("Bronnen model: ")
 
     st.write("* Beschrijving transmissiemodel berekening zorgbelasting Voorlopige versie, dd. 2 april 2020 https://www.rivm.nl/sites/default/files/2021-04/beschrijving_transmissiemodel%20beveiligd.pdf")
     st.write("* Ainslie et al. The expected outcome of COVID-19 vaccination strategies (https://www.rivm.nl/sites/default/files/2021-03/Modellingresults%20COVID19%20vaccination%20version1.0%2020210324_0.pdf) ")
 
-    # ZIEKENHUIS-IC OPNAMES BEREKEND DOOR RENE
-    # a. totaal aantal infected berekend mbp cummulatieve prevalentie geldeeld door 8
-    # b. attack berekend: a/17.4mln
-    # c. populatiefractie per leeftijd * b = aantal infected per leeftijdsgroep
-    # d. De waardes van  "COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep" / c
+    st.subheader ("Bronnen parameters: ")
+    st.write("* Ziekenhuis, IC en IFR: waardes uit ziekenhuis_ic_opnames_per_leeftijdsgroep.csv gedeeld op de cummulatieve prevalentie gedeeld door 8")
+    st.write("* IFR: waardes van  https://www.rivm.nl/coronavirus-covid-19/grafieken (overleden naar leeftijd en geslacht) gedeeld op de cummulatieve prevalentie gedeeld door 8")
+    st.write("* Relative infectiousness - Lau, 2020 : https://www.pnas.org/content/117/36/22430") 
+    st.write("* Relative suspceptibility fig 1b, op het oog - Davies, 2020 : https://www.nature.com/articles/s41591-020-0962-9") 
+
+    tekst = (
+        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
+        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/SIR_age_structured_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
+        'More scripts: <a href="https://share.streamlit.io/rcsmit/covidcases/main/covid_menu_streamlit.py</div>'
+    )
+
+    st.markdown(tekst, unsafe_allow_html=True)
+
 def input_correction_age():
     st.sidebar.subheader("Correction per agegroup")
     a0 = st.sidebar.number_input(names[0], 0.0,  10.0, 3.0)
@@ -292,70 +212,235 @@ def input_correction_age():
     a7 = st.sidebar.number_input(names[7], 0.0,  10.0, 1.0)
     a8 = st.sidebar.number_input(names[8], 0.0,  10.0, 3.0)
     return [a0,a1,a2,a3,a4,a5,a6,a7,a8]
+
+def sublist(orig_list, list_of_subs, max_items_per_list):
+    # https://stackoverflow.com/questions/52111627/how-to-split-a-list-into-multiple-lists-with-certain-ranges
+
+    def sublist_generator():
+        for sublist in list_of_subs:
+            yield sublist
+
+    sublist = sublist_generator()
+    current_sublist = next(sublist)
+    for i, element in enumerate(orig_list):
+        current_sublist.append(element)
+
+        if len(current_sublist) == max_items_per_list and (i != len(orig_list)-1): # current list is full
+            current_sublist = next(sublist) # so let current point to the next list
+    
+
+def func(t, state, *argv):
+    """The function with the formula
+
+    Args:
+        t (?): timepoints
+        state (?): Numbers of S, I and R and other numbers
+        argv : groupsizes, beta's and gamma's and other parameters
+    Returns:
+        [?]: the differences in each step (dSdt+ dIdt + dRdt)
+    """
+    lijst = list(state)
+    arguments = [xy for xy in argv]
+    df_contactrate = get_contact_matrix("2016/-17","all")
+
+    S,E, I,R, C, H, HIC, IC, DIFR, D, Hcumm, ICcumm =  [],[],[],[], [],[],[],[],[],[],[],[]
+
+    N, sigma, alfa, beta,gamma, correction_per_age =  [],[],[],[],[],[]
+    rel_besmh, rel_vatbh, ifr= [],[],[]
+    h,  i1,  i2,  d,  dic,  dhic,  r,  ric =  [],[],[],[], [],[],[],[]
+    dSdt, dEdt, dIdt, dRdt, dCdt, dHdt, dICdt, dHICdt, dDIFRdt, dDdt, dHcummdt, dICcummdt = [], [],[], [], [],[],[],[],[],[],[],[]
+    sublist_compartments = [S,  E,  I, R, C, H, IC, HIC, DIFR, D, Hcumm, ICcumm]
+    sublist_parameters = [N,  alfa,  beta,  gamma,  sigma,   rel_besmh,  rel_vatbh,  ifr, 
+                         h,  i1,  i2,  d,  dic,  dhic,  r,  ric, correction_per_age]
+   
+    sublist(lijst, sublist_compartments,  number_of_agegroups)
+    sublist(arguments, sublist_parameters,  number_of_agegroups)
+
+    # S  = lijst[0 * number_of_agegroups : 1 * number_of_agegroups]
+    # E = lijst[1 * number_of_agegroups : 2 * number_of_agegroups]
+    # I = lijst[2 * number_of_agegroups : 3 * number_of_agegroups]
+    
+    # R = lijst[3 * number_of_agegroups : 4 * number_of_agegroups]
+    # C = lijst[4 * number_of_agegroups : 5 * number_of_agegroups]
+    # H = lijst[5 * number_of_agegroups : 6 * number_of_agegroups]
+    # IC = lijst[6 * number_of_agegroups : 7 * number_of_agegroups]
+    # HIC = lijst[7 * number_of_agegroups : 8* number_of_agegroups]
+    # DIFR = lijst[8 * number_of_agegroups : 9 * number_of_agegroups]
+    # D = lijst[9 * number_of_agegroups : 10 * number_of_agegroups]
+    # Hcumm = lijst[10 * number_of_agegroups : 11 * number_of_agegroups]
+    # ICcumm = lijst[11 * number_of_agegroups : 12 * number_of_agegroups]
+
+    # N = arguments[0 * number_of_agegroups : 1 * number_of_agegroups]
+    # alfa  = arguments[1 * number_of_agegroups : 2 * number_of_agegroups]
+    
+    # beta = arguments[2 * number_of_agegroups : 3 * number_of_agegroups]
+
+    # gamma = arguments[3 * number_of_agegroups : 4 * number_of_agegroups]
+    # sigma = arguments[4* number_of_agegroups : 5 * number_of_agegroups]
+    
+    # rel_besmh = arguments[5 * number_of_agegroups : 6 * number_of_agegroups]
+    # rel_vatbh = arguments[6 * number_of_agegroups : 7 * number_of_agegroups]
+    # ifr_ = arguments[7 * number_of_agegroups : 8 * number_of_agegroups]
+    # h   = arguments[8 * number_of_agegroups : 9 * number_of_agegroups]
+    # i1  = arguments[9 * number_of_agegroups : 10 * number_of_agegroups]
+    # i2  = arguments[10 * number_of_agegroups : 11 * number_of_agegroups]
+    # d  = arguments[11 * number_of_agegroups : 12 * number_of_agegroups]
+    # dic  = arguments[12 * number_of_agegroups : 13 * number_of_agegroups]
+    # dhic  = arguments[13 * number_of_agegroups : 14 * number_of_agegroups]
+    # r  = arguments[14 * number_of_agegroups : 15 * number_of_agegroups]
+    # ric  = arguments[15 * number_of_agegroups : 16 * number_of_agegroups]
+    # correction_per_age = arguments[16 * number_of_agegroups : 17* number_of_agegroups]
+    
+    
+    for i in range(number_of_agegroups):
+        lambdaa = 1
+        cumm_cfactor = 0
+        for j in range(number_of_agegroups):
+            cijt = df_contactrate.iat[j+1,i+1] * sum(N) / (N[i]*N[j])
+            cumm_cfactor += cijt * rel_besmh[i]*I[j]
+        lambdaa = (beta[i] * rel_vatbh[i] * cumm_cfactor ) / sum(N)
+        # lambdaa = (beta[i] * rel_vatbh_rivm [i]  ) / sum(N)
+
+
+        
+        # h_  =    # I -> H
+        # i1_ =    # H-> IC
+        # i2_ =    # IC-> H
+        # d_  =    # H-> D
+        # dic_ =   # IC -> D
+        # dhic_ =  # IC -> h -> D
+        # r_    =  # recovery rate from hospital (before IC)
+        # ric_  =  # recovery rate from hospital (after IC)
+
+        dSdt.append( - lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor - S[i]*alfa[i] )
+        dEdt.append (( lambdaa * S[i] *  I[i] * correction_per_age[i]* rutte_factor) - (sigma[i] * E[i]))
+        dIdt.append(                                     (sigma[i] * E[i]) - ((gamma[i] + h[i])* I[i]) )
+        dHdt.append(    (h[i]*I[i])  - ((i1[i]+d[i]+r[i]) * H[i] )  )
+
+        # There is a problem with HIC, gives negative values
+
+        #dICdt.append ( i1[i]*H[i] - ((i2[i]+dic[i])* IC[i])                                  )
+        #dHICdt.append( i2[i]*IC[i] - ((ric[i]+dhic[i])* IC[i])   )
+        dICdt.append ( i1[i]*H[i] - ((dic[i]+dhic[i]+ ric[i])* IC[i])                                  )
+        dHICdt.append(0)
+        dDIFRdt.append( ( ifr[i]* (sigma[i] * E[i])))
+        dDdt.append(  (d[i]*H[i]) + (dic[i]*IC[i]) + (dhic[i]*IC[i]) )
+        dRdt.append(   ( gamma[i] * I[i] )+  ( r[i]*H[i]) + (ric[i] * IC[i]))
+     
+        dCdt.append(                                      (sigma[i] * E[i]))
+        dHcummdt.append( (h[i]*I[i]) )
+        dICcummdt.append( i1[i]*H[i])
+    to_return = dSdt+ dEdt + dIdt + dRdt + dCdt + dHdt + dICdt  +dHICdt + dDIFRdt+ dDdt + dHcummdt + dICcummdt
+    
+    return to_return
+
+
 def main():
     global number_of_agegroups, names
     names =     ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"]
     number_of_agegroups = len (names) # number of agegroups
 
     N =      [1756000, 1980000, 2245000, 2176000, 2164000, 2548000, 2141000, 1615000, 839000]
+    # h_rivm  =   [0.00347, 0.000377, 0.000949, 0.00388, 0.00842,0.0165, 0.0251, 0.0494, 0.0463] # I -> H
+    # ic_opn = [ 0, 2.8402E-05, 0.000211306, 0.000609427, 0.001481364, 0.003788442, 0.006861962, 0.008609547, 0.00210745]
+    rel_besmh  =  [ 3,  3,  3,  3,  3,  3,  1,  1,  1] # Relative infectiousness https://www.pnas.org/content/117/36/22430
+    rel_vatbh = [0.5,0.75,1,2.5,4,5,8,8,8]     # Relative suspceptibility fig 1b, op het ooghttps://www.nature.com/articles/s41591-020-0962-9
+                # Aantallen van https://www.rivm.nl/coronavirus-covid-19/grafieken geldeeld op 4836661 infecties (cummulatieve  prevalentie gedeeld door 8 )
+    ifr_ =      [2.04658E-06, 3.78694E-06, 1.76088E-05, 5.45016E-05, 0.000156108, 0.000558534, 0.002271095, 0.009964733, 0.048248607 ]
+
+    h_  =   [0.0015, 0.0001, 0.0002, 0.0007, 0.0013, 0.0028, 0.0044, 0.0097, 0.0107] # I -> H
+    i1_ =   [0.0000, 0.0271, 0.0422, 0.0482, 0.0719, 0.0886, 0.0170, 0.0860, 0.0154] # H-> IC
+    i2_ =   [0.0555, 0.0555, 0.0555, 0.0555, 0.0555, 0.0531, 0.0080, 0.0367, 0.0356] # IC-> H
+    d_  =   [0.0003, 0.0006, 0.0014, 0.0031, 0.0036, 0.0057, 0.0151, 0.0327, 0.0444] # H-> D
+    dic_ =  [0.0071, 0.0071, 0.0071, 0.0071, 0.0071, 0.0090, 0.0463, 0.0225, 0.0234] # IC -> D
+    dhic_ = [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0010, 0.0040, 0.0120, 0.0290] # IC -> h -> D
+    r_    = [0.1263, 0.1260, 0.1254, 0.1238, 0.1234, 0.1215, 0.1131, 0.0976, 0.0872] # recovery rate from hospital (before IC)
+    ric_  = [0.0857, 0.0857, 0.0857, 0.0857, 0.0857, 0.0821, 0.0119, 0.0567, 0.0550] # recovery rate from hospital (after IC)
+    df_parameters = pd.DataFrame(
+    {'Agegroup': names,
+     'ifr':ifr_,
+     'rel_besmh': rel_besmh,
+     'rel_vatbaarh': rel_vatbh,
+    })
     total_pop = sum(N)
     I0 ,E0 = [], []
-    initial_exposed_ratio, initial_infected_ratio = 0.03, 0.02
+                          #  ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"]
+    initial_exposed_ratio =  [ 0.01, 0.06,     0.03,    0.01  , 0.0051   , 0.001   , 0.001  , 0.001 , 0.001]
+    initial_infected_ratio = [ 0.01, 0.06,     0.03,    0.01  , 0.0051   , 0.001   , 0.001  , 0.001 , 0.001]
     for y in range (number_of_agegroups):
-        E0.append (N[y]* initial_exposed_ratio)
-        I0.append (N[y]* initial_infected_ratio)
-    R0, S0,  C0 =   [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups
+        E0.append (N[y]* initial_exposed_ratio[y])
+        I0.append (N[y]* initial_infected_ratio[y])
+    R0, S0,  C0 =   [0] * number_of_agegroups, [None] * number_of_agegroups, [0] * number_of_agegroups
     H0, IC0, D0 =   [0] * number_of_agegroups, [0] * number_of_agegroups, [0] * number_of_agegroups
-
-    # IF YOU WANT TO START FROM AN R-NAUGHT
-    # Rstart = [1.1]*number_of_agegroups
-    # beta = []
-    # for y in range (number_of_agegroups):
-    #     beta[y] = Rstart[y]*gamma[y]/(S0[y]/N[y])
+    DIFR0, HIC0, Hcumm0, ICcumm0  =   [0] * number_of_agegroups, [0] * number_of_agegroups,  [0] * number_of_agegroups, [0] * number_of_agegroups
+    alfa =  [0] * number_of_agegroups # vaccination rate
+    for y in range(number_of_agegroups):
+        S0[y] = N[y] - E0[y]- I0[y] - R0[y]
 
     st.sidebar.subheader("Parameters")
 
-    incubationtime = (st.sidebar.slider('Incubatietijd (1/alfa)', 1, 30, 4))
+    incubationtime = (st.sidebar.slider('Incubatietijd (1/sigma)', 1, 30, 2))
     beta_ = st.sidebar.number_input(
                             "Contact rate (beta)",
                             min_value=0.0,
                             max_value=1.0,
                             step=1e-4,
-                            value = 0.3100,
+                            value = 0.03100,
                             format="%.4f")
-    infectioustime = (st.sidebar.slider('Average days infectious (1/gamma)', 1, 30, 8))
-    alfa = [1/incubationtime]*number_of_agegroups # 1/incubation time
+    #R_start_ = (st.sidebar.slider('R-naugth', 0.0, 5.0, 1.1))
+    infectioustime = (st.sidebar.slider('Average days infectious (1/gamma)', 1, 30, 2))
+    sigma = [1/incubationtime]*number_of_agegroups # 1/incubation time - latent period
     beta = [beta_] * number_of_agegroups # contact rate
     gamma = [1/infectioustime] * number_of_agegroups # mean recovery rate (1/recovery days/infectious time)
 
+     # IF YOU WANT TO START FROM AN R-NAUGHT
+    # Rstart = [R_start_]*number_of_agegroups
+    # beta = []
+    # for y in range (number_of_agegroups):
+    #     beta.append(Rstart[y]*gamma[y]/(S0[y]/N[y]))
+
     global rutte_factor
-    rutte_factor = st.sidebar.slider('Rutte factor (seasonality, maatregelen, verspoepelingen', 0.0, 10.0, 1.0)
+    rutte_factor = st.sidebar.slider('Rutte factor (seasonality, maatregelen (<1), verspoepelingen (>1)', 0.0, 10.0, 1.0)
+    what_to_show_options = ["S", "E",  "I", "R", "C", "H", "IC","HIC","DIFR", "D", "Hcumm", "ICcumm"]
+    what_to_show = st.sidebar.multiselect(
+            "What to show", what_to_show_options, what_to_show_options)
+
     correction_per_age = input_correction_age()
 
-    for y in range(number_of_agegroups):
-        S0[y] = N[y] - E0[y]- I0[y] - R0[y]
 
-    y0 = tuple(S0 + E0 + I0 + R0 + C0 + H0 +IC0 + D0)
-    p = tuple(N + alfa + beta + gamma + correction_per_age)
+
+    y0 = tuple(S0 + E0 + I0 + R0 + C0 + H0 +IC0+ HIC0 + DIFR0 + D0 + Hcumm0 + ICcumm0)
+    parameters = tuple(N + alfa + beta + gamma + sigma  + rel_besmh + rel_vatbh + ifr_ + h_ + i1_ + i2_ + d_ + dic_ + dhic_ + r_ + ric_+ correction_per_age)
     n = 176 # number of time points
     t = np.linspace(0, n-1, n) # time points
 
-    result_odeint = odeint(func, y0, t, p, tfirst=True)
+    result_odeint = odeint(func, y0, t, parameters, tfirst=True)
+    
+    
+    
 
+    # t = np.linspace(0, 100, n)
+    # #t_span = (0.0, 100.0)
+
+    #result_solve_ivp = solve_ivp(func, t_span, y0, args=p,  t_eval=t)
     st.subheader("Totals")
     show_result(result_odeint, N)
     #  draw_graph_with_all_groups(result_odeint, names, beta, gamma, t,N)
-    plot_total_as_ratio(result_odeint, 1)
-    st.subheader("Per age group")
-    for name in names:
-        plot_single_age_group(name, result_odeint, names,  t, N)
+    
+    plot_total(result_odeint, 1, what_to_show)
+
+    with st.beta_expander('Per leeftijdsgroep',  expanded=False):
+        st.subheader("Per age group")
+        for name in names:
+            plot_single_age_group(name, result_odeint, names,  t, N, what_to_show)
 
     #plot_total_as_ratio(result_odeint, total_pop)
 
+    st.subheader("Parameters")
+    st.write(df_parameters)
     st.subheader("Contact matrix")
     st.write(get_contact_matrix("2016/-17","all"))
-
-
+    
     show_toelichting()
 
 

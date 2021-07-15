@@ -41,6 +41,7 @@ def week_to_week(df, column_):
 def get_data_casus_landelijk():
     if platform.processor() != "":
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+        url1 = "C:/Users/rcxsm/Documents/phyton_scripts/covid19_seir_models/input/COVID-19_casus_landelijk.csv"
     else:
         url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
 
@@ -49,6 +50,27 @@ def get_data_casus_landelijk():
     df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
     return df
 
+def select_period(df, field, show_from, show_until):
+    """Shows two inputfields (from/until and Select a period in a df (helpers.py).
+
+    Args:
+        df (df): dataframe
+        field (string): Field containing the date
+
+    Returns:
+        df: filtered dataframe
+    """
+
+    if show_from is None:
+        show_from = "2021-1-1"
+
+    if show_until is None:
+        show_until = "2030-1-1"
+    #"Date_statistics"
+    mask = (df[field].dt.date >= show_from) & (df[field].dt.date <= show_until)
+    df = df.loc[mask]
+    df = df.reset_index()
+    return df
 
 def calculate_fraction(df):
     nr_of_columns = len (df.columns)
@@ -202,19 +224,19 @@ def show_age_graph (df,d, titel):
 
 def agg_ages(df):
     # make age groups
-    # df["0-29"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"]
-    # df["30-49"] = df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"]
-    # df["50-69"] = df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"]
-    # df["70-89"] = df["70-74"] + df["75-79"] +  df["80-84"] + df["85-89"]
+    df["0-29"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"]
+    df["30-49"] = df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"]
+    df["50-69"] = df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"]
+    df["70-89"] = df["70-74"] + df["75-79"] +  df["80-84"] + df["85-89"]
 
     # # extra groep
-    # df["30-69"] = df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"] + df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"]
+    df["30-69"] = df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"] + df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"]
 
     # # indeling RIVM
-    # df["0-39"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"] + df["30-34"] + df["35-39"]
-    # df["40-59"] =  df["40-44"] + df["45-49"] + df["50-54"] + df["55-59"]
-    # df["60-79"] =  df["60-64"] + df["65-69"] +  df["70-74"] + df["75-79"]
-    # df["80+"] =  df["80-84"] + df["85-89"] + df["90+"]
+    df["0-39"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"] + df["30-34"] + df["35-39"]
+    df["40-59"] =  df["40-44"] + df["45-49"] + df["50-54"] + df["55-59"]
+    df["60-79"] =  df["60-64"] + df["65-69"] +  df["70-74"] + df["75-79"]
+    df["80+"] =  df["80-84"] + df["85-89"] + df["90+"]
 
     # CORRESPONDEREND MET CASUS LANDELIJK
      # indeling RIVM
