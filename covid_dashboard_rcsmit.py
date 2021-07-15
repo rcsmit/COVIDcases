@@ -1238,9 +1238,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         # layout of the x-axis
         ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
         ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
-        if showlogyaxis = "10":
+        if showlogyaxis == "10":
             ax.semilogy()
-        if showlogyaxis = "2":
+        if showlogyaxis == "2":
             ax.semilogy(2)
 
         left, right = ax.get_xlim()
