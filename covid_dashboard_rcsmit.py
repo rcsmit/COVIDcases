@@ -1238,8 +1238,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         # layout of the x-axis
         ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
         ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
-        if showlogyaxis:
+        if showlogyaxis = "10":
             ax.semilogy()
+        if showlogyaxis = "2":
+            ax.semilogy(2)
+
         left, right = ax.get_xlim()
         ax.set_xlim(left, right)
         fontP = FontProperties()
@@ -2017,7 +2020,7 @@ def main():
         showday = 0
     global groupby_timeperiod
     global groupby_how
-    showlogyaxis =  st.sidebar.selectbox("Y axis as log", [True, False], index=1)
+    showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10"], index=0)
     groupby_timeperiod =  st.sidebar.selectbox("GROUPBY : none, week or month", ["none", "1W", "1M"], index=0)
     if groupby_timeperiod != "none":
         groupby_how = st.sidebar.selectbox("GROUPBY : Sum / mean / max", ["sum", "mean"], index=0)
