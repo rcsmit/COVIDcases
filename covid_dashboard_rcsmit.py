@@ -1262,6 +1262,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             ax.semilogy()
         if showlogyaxis == "2":
             ax.semilogy(2)
+        if showlogyaxis == "logit":
+            ax.set_yscale("logit")
 
         left, right = ax.get_xlim()
         ax.set_xlim(left, right)
@@ -2040,7 +2042,7 @@ def main():
         showday = 0
     global groupby_timeperiod
     global groupby_how
-    showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10"], index=0)
+    showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10", "logit"], index=0)
     groupby_timeperiod =  st.sidebar.selectbox("GROUPBY : none, week or month", ["none", "1W", "1M"], index=0)
     if groupby_timeperiod != "none":
         groupby_how = st.sidebar.selectbox("GROUPBY : Sum / mean / max", ["sum", "mean"], index=0)
