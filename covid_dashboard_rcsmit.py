@@ -810,8 +810,8 @@ def normeren(df, what_to_norm):
     normed_columns = []
 
     for column in what_to_norm:
-        maxvalue = (df[column].max()) / 1
-        firstvalue = df[column].iloc[int(WDW2 / 2)] / 1
+        maxvalue = (df[column].max()) / scale_to_x
+        firstvalue = df[column].iloc[int(WDW2 / 2)] / scale_to_x
         name = f"{column}_normed"
         for i in range(len(df)):
             if how_to_norm == "max":
@@ -1978,6 +1978,12 @@ def main():
             ["line", "line_scaled_to_peak", "line_first_is_1", "bar"],
             index=0,
         )
+        if how_to display == "line_scaled_to_peak" or how_to display == "line_first_is_1":
+            scale_to_x = st.sidebar.selectbox(
+                "First / max = ",
+                [1, 100],
+                index=1,
+            )
     else:
         how_to_display = "bar"
 
