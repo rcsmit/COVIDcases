@@ -1238,7 +1238,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
         # layout of the x-axis
         ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
         ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
-
+        if showlogyaxis:
+            ax.semilogy()
         left, right = ax.get_xlim()
         ax.set_xlim(left, right)
         fontP = FontProperties()
@@ -1737,6 +1738,7 @@ def main():
     global show_R_value_graph, show_R_value_RIVM, centersmooth
     global dag_versoepelingen1 , versoepeling_factor1_
     global dag_versoepelingen2 , versoepeling_factor2_
+    global showlogyaxis
     global OUTPUT_DIR
     global INPUT_DIR
     init()
@@ -2015,7 +2017,7 @@ def main():
         showday = 0
     global groupby_timeperiod
     global groupby_how
-
+    showlogyaxis =  st.sidebar.selectbox("Y axis as log", [True, False], index=1)
     groupby_timeperiod =  st.sidebar.selectbox("GROUPBY : none, week or month", ["none", "1W", "1M"], index=0)
     if groupby_timeperiod != "none":
         groupby_how = st.sidebar.selectbox("GROUPBY : Sum / mean / max", ["sum", "mean"], index=0)
