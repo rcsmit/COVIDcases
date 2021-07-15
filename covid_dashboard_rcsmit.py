@@ -810,8 +810,8 @@ def normeren(df, what_to_norm):
     normed_columns = []
 
     for column in what_to_norm:
-        maxvalue = (df[column].max()) / 100
-        firstvalue = df[column].iloc[int(WDW2 / 2)] / 100
+        maxvalue = (df[column].max()) / 1
+        firstvalue = df[column].iloc[int(WDW2 / 2)] / 1
         name = f"{column}_normed"
         for i in range(len(df)):
             if how_to_norm == "max":
@@ -1975,7 +1975,7 @@ def main():
     if week_or_day != "week":
         how_to_display = st.sidebar.selectbox(
             "What to plot (line/bar)",
-            ["line", "line_scaled_to_peak", "line_first_is_100", "bar"],
+            ["line", "line_scaled_to_peak", "line_first_is_1", "bar"],
             index=0,
         )
     else:
@@ -2148,7 +2148,7 @@ def main():
                         graph_daily_normed(
                             df, [xx], None, how_to_smoothen, how_to_display
                         )
-            elif how_to_display == "line_first_is_100":
+            elif how_to_display == "line_first_is_1":
                 how_to_norm = "first"
                 graph_daily_normed(
                     df,
