@@ -685,7 +685,27 @@ def drop_columns(df, what_to_drop):
             df = df.drop(columns=[d], axis=1)
     return df
 
+def select_period_oud(df, field, show_from, show_until):
+    """Shows two inputfields (from/until and Select a period in a df (helpers.py).
 
+    Args:
+        df (df): dataframe
+        field (string): Field containing the date
+
+    Returns:
+        df: filtered dataframe
+    """
+
+    if show_from is None:
+        show_from = "2021-1-1"
+
+    if show_until is None:
+        show_until = "2030-1-1"
+    #"Date_statistics"
+    mask = (df[field].dt.date >= show_from) & (df[field].dt.date <= show_until)
+    df = df.loc[mask]
+    df = df.reset_index()
+    return df
 
 
 
