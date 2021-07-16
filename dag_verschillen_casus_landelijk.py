@@ -300,8 +300,10 @@ def  make_legenda(max_value):
         d = {'legenda': stapjes}
 
         df_legenda = pd.DataFrame(data=d)
-        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
-
+        if platform.processor() != "":
+            st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
+        else:
+            st.write (df_legenda)
 def main():
     start_ = "2021-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
@@ -390,29 +392,40 @@ def main():
         st.write ("Er wordt teruggerekend naar eeste ziektedag")
         #df_pivot['pos_test_Date_statistics'] = df_pivot['pos_test_Date_statistics'].dt.date
         max_value = 1600
-        st.write (df_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(0))
+        if platform.processor() != "":
+            st.write (df_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(0))
+            make_legenda(max_value)
+        else:
+            st.write (df_pivot)
 
-        make_legenda(max_value)
 
         st.subheader("Number of cases per age / number of people per age * 100.000")
 
         df_naar_fractie, top_waarde = calculate_fraction(df_pivot)
-        st.write (df_naar_fractie.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,top_waarde)).set_precision(2))
-        make_legenda(top_waarde)
-
+        if platform.processor() != "":
+            st.write (df_naar_fractie.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,top_waarde)).set_precision(2))
+            make_legenda(top_waarde)
+        else:
+            st.write(df_naar_fractie)
     df_pivot_2,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
     df_new.reset_index(drop=True)
     with st.beta_expander('Percentual changes of cases',  expanded=False):
         st.subheader(f"Percentual change with {numberofdays} days before")
-        st.write(df_new.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+        if platform.processor() != "":
+            st.write(df_new.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+        else:
+            st.write(df_new)
 
     df_new_rudi = do_the_rudi(df_pivot_original)
 
     with st.beta_expander('Percentual changes of fractions',  expanded=False):
         st.subheader("Percentual change of the fractions per agegroup with the first day(s)")
         st.write ("fraction = cases in an agegroup / total cases")
-        st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+        if platform.processor() != "":
+            st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+        else:
+            st.write(df_new_rudi)
 
 
     tekst = (
