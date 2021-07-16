@@ -317,20 +317,20 @@ def get_data():
         return df, df_ungrouped, UPDATETIME
 
 
-def week_to_week(df, column_):
+def week_to_week(df, column_, aantal_dagen):
     column_ = column_ if type(column_) == list else [column_]
     newcolumns = []
     newcolumns2 = []
 
     for c in column_:
-        newname = str(c) + "_weekdiff"
-        newname2 = str(c) + "_weekdiff_index"
+        newname = str(c) + "_diff_" + aantal_dagen + "days"
+        newname2 = str(c) + "_weekdiff_index" + aantal_dagen + "days"
         newcolumns.append(newname)
         newcolumns2.append(newname2)
         df[newname] = np.nan
         df[newname2] = np.nan
-        for n in range(7, len(df)):
-            vorige_week = df.iloc[n - 7][c]
+        for n in range(aantal_dagen, len(df)):
+            vorige_week = df.iloc[n - aantal_dagen][c]
             nu = df.iloc[n][c]
             waarde = round((((nu - vorige_week) / vorige_week) * 100), 2)
             waarde2 = round((((nu) / vorige_week) * 100), 2)
@@ -1950,14 +1950,24 @@ def main():
 
 
     #st.write(get_duplicate_cols(df))
+    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, "Total_reported", 7)
+    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df, "Total_reported", 14)
+    lijst.extend(newcolumns_w2w7) # percentage
+    lijst.extend(newcolumns2_w2w7) # index
+
+    lijst.extend(newcolumns_w2w14) # percentage
+    lijst.extend(newcolumns2_w2w15) # index
+
     df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen, WDW2, centersmooth)
-    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0)
+    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0, 7)
 
     lijst.extend(newcolumns_w2w) # percentage
     lijst.extend(newcolumns2_w2w) # index
 
+    # diff of diff
+
     df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen, WDW2, centersmooth)
-    df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
+    df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1, 7)
 
     lijst.extend(newcolumns_w2w2) # percentage
     save_df(df,"whyowyhasdf")
@@ -2275,8 +2285,8 @@ def main():
         "<br><i>reported_corrected</i> - Total_reported * (getest_positief / 1e waarde van getest_postief in tijdsperiode) "
 
         "<br><i>onderrapportagefactor</i> - prev_div_days_contagious_cumm / Total_reported_cumm"
-        "<br><br><i>*_weekdiff</i> - Verschil tov een week terug in procenten [((nieuw-oud)/oud)*100]"
-        "<br><i>*_weekdiff_index</i> - Verschil tov een week terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
+        "<br><br><i>*__diff_n_days</i> - Verschil tov een n dagen  terug in procenten [((nieuw-oud)/oud)*100]"
+        "<br><i>*__diff_n_days_index</i> - Verschil tov n dagen terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
         "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
         "<br><br><i>Rt_corr_transit</i> -  Rt_avg * (1/ (1- transit_stations)). What would the R-number be if people don't change the number of contacts? Assumed is that the number of contacts between people is in direct correlation with the Google Transit. "
         "<br><i>Rt_corr_transit_period</i> -  Rt_avg * (1/ (1- transit_stations)) for the period chosen"
