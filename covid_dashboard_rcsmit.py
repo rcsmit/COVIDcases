@@ -1956,7 +1956,7 @@ def main():
     lijst.extend(newcolumns2_w2w7) # index
 
     lijst.extend(newcolumns_w2w14) # percentage
-    lijst.extend(newcolumns2_w2w15) # index
+    lijst.extend(newcolumns2_w2w14) # index
 
     df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen, WDW2, centersmooth)
     df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0, 7)
