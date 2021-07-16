@@ -343,6 +343,7 @@ def main():
         inplace=True,
     )
 
+
     df_pivot = (
         pd.pivot_table(
             df,
