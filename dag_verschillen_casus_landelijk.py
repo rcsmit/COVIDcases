@@ -216,6 +216,27 @@ def accumulate_first_rows(df, x):
         st.write (df_accumulated)
     return df_accumulated
 
+def select_period_oud(df, field, show_from, show_until):
+    """Shows two inputfields (from/until and Select a period in a df (helpers.py).
+
+    Args:
+        df (df): dataframe
+        field (string): Field containing the date
+
+    Returns:
+        df: filtered dataframe
+    """
+
+    if show_from is None:
+        show_from = "2021-1-1"
+
+    if show_until is None:
+        show_until = "2030-1-1"
+    #"Date_statistics"
+    mask = (df[field].dt.date >= show_from) & (df[field].dt.date <= show_until)
+    df = df.loc[mask]
+    df = df.reset_index()
+    return df
 
 def do_the_rudi(df_):
     """Calculate the fractions per age group. Calculate the difference related to day 0 as a % of day 0.
@@ -314,7 +335,7 @@ def main():
     df_getdata = get_data()
     df = df_getdata.copy(deep=False)
 
-    df = select_period(df,"Date_statistics", FROM, UNTIL)
+    df = select_period_oud(df,"Date_statistics", FROM, UNTIL)
     df.rename(
         columns={
             "Date_file": "count",
