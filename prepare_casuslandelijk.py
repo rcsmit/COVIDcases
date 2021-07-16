@@ -49,16 +49,23 @@ def main():
     url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
-    df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
-
     df.rename(
         columns={
             "Date_file": "count",
         },
         inplace=True,
     )
+
     df_hospital = df[df["Hospital_admission"] == "Yes"].copy(deep=False)
     df_deceased = df[df["Deceased"] == "Yes"].copy(deep=False)
+
+
+    df_hospital = df_hospital.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
+    df_deceased = df_deceased.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
+    df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
+
+    print (df_hospital)
+
 
     df_pivot = (
         pd.pivot_table(
