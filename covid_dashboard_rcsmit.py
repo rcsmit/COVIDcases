@@ -323,8 +323,8 @@ def week_to_week(df, column_, aantal_dagen):
     newcolumns2 = []
 
     for c in column_:
-        newname = str(c) + "_diff_" + aantal_dagen + "days"
-        newname2 = str(c) + "_weekdiff_index" + aantal_dagen + "days"
+        newname = str(c) + "_diff_" + str(aantal_dagen) + "days"
+        newname2 = str(c) + "_weekdiff_index" + str(aantal_dagen) + "days"
         newcolumns.append(newname)
         newcolumns2.append(newname2)
         df[newname] = np.nan
