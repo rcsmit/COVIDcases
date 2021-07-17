@@ -14,6 +14,7 @@ def dynamic_import(module):
     return importlib.import_module(module)
 
 def main():
+    st.title ("COVID SCRIPTS of René Smit")
 
        #    [n. name in menu, module name]
     options = [["0. welcome","welcome"],
@@ -55,9 +56,7 @@ def main():
         except Exception as e:
             st.error(f"Function 'main()' in module '{module}' not found or error in the script")
             st.warning(f"{e}")
-
             st.warning(traceback.format_exc())
-
             st.stop()
         st.stop()
 
