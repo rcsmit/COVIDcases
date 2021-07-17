@@ -397,7 +397,7 @@ def main():
             make_legenda(max_value)
         else:
             st.write (df_pivot)
-
+        
 
         st.subheader("Number of cases per age / number of people per age * 100.000")
 
