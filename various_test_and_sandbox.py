@@ -39,7 +39,9 @@ def  make_legenda(max_value):
 
 def main():
     st.header("This is just a sandbox")
-    make_legenda(150)
+    # Check the version
+    print(pd.__version__)
+    #make_legenda(150)
     st.stop()
 
 if __name__ == "__main__":
