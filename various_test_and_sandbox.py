@@ -40,7 +40,9 @@ def  make_legenda(max_value):
 def main():
     st.header("This is just a sandbox")
     # Check the version
-    print(pd.__version__)
+    st.write(pd.__version__)
+    # Check the version of the dependencies
+    pd.show_versions()
     #make_legenda(150)
     st.stop()
 
