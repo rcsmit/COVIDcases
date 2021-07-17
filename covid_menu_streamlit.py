@@ -59,6 +59,7 @@ def main():
             st.warning(traceback.format_exc())
 
             st.stop()
+        st.stop()
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
