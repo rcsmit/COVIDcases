@@ -46,9 +46,9 @@ def main():
     print (choice.type)
     if choice == 99:  #sandbox
         try:
-            module = dynamic_import(various_test_and_sandbox)
+            module = dynamic_import("various_test_and_sandbox")
         except Exception as e:
-            st.error(f"Module '{module}' not found or error in the script\n")
+            st.error(f"Module not found or error in the script\n")
             st.warning(f"{e}")
             st.stop()
         try:
