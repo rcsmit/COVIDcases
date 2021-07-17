@@ -15,6 +15,7 @@ def dynamic_import(module):
 
 def main():
     st.title ("COVID SCRIPTS of René Smit")
+    st.beta_set_page_config(page_title="COVID SCRIPTS of René Smit")
 
        #    [n. name in menu, module name]
     options = [["0. welcome","welcome"],
