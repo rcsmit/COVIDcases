@@ -43,7 +43,7 @@ def main():
 
     choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value
 
-    if query_params == "99":  #sandbox
+    if query_params == "sandbox":  #sandbox
         try:
              module = dynamic_import(various_test_and_sandbox)
         except Exception as e:
@@ -51,14 +51,14 @@ def main():
             st.warning(f"{e}")
             st.stop()
         try:
-                module.main()
-            except Exception as e:
-                st.error(f"Function 'main()' in module '{m}' not found or error in the script")
-                st.warning(f"{e}")
+            module.main()
+        except Exception as e:
+            st.error(f"Function 'main()' in module '{m}' not found or error in the script")
+            st.warning(f"{e}")
 
-                st.warning(traceback.format_exc())
+            st.warning(traceback.format_exc())
 
-                st.stop()
+            st.stop()
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
