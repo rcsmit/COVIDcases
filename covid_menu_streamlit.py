@@ -45,15 +45,15 @@ def main():
 
     if choice == 99:  #sandbox
         try:
-             module = dynamic_import(various_test_and_sandbox)
+            module = dynamic_import(various_test_and_sandbox)
         except Exception as e:
-            st.error(f"Module '{m}' not found or error in the script\n")
+            st.error(f"Module '{module}' not found or error in the script\n")
             st.warning(f"{e}")
             st.stop()
         try:
             module.main()
         except Exception as e:
-            st.error(f"Function 'main()' in module '{m}' not found or error in the script")
+            st.error(f"Function 'main()' in module '{module}' not found or error in the script")
             st.warning(f"{e}")
 
             st.warning(traceback.format_exc())
