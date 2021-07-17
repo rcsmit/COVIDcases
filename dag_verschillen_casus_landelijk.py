@@ -357,6 +357,7 @@ def main():
         .reset_index()
         .copy(deep=False)
     )
+
     # option to drop agegroup 0-9 due to changes in testbeleid en -bereidheid
     #st.write(df_pivot.dtypes)
     try:

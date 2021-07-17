@@ -383,6 +383,7 @@ def extra_calculations(df):
 
     df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
     df["Total_reported_moved_12"] = df["Total_reported"].shift(12)
+    df["Total_reported_moved_-12"] = df["Total_reported"].shift(-12)
     df["Total_reported_moved_5"] = df["Total_reported"].shift(5)
     df["Reported_min_positive"] = df["Total_reported"]-df["Tested_positive"]
     df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
@@ -400,6 +401,9 @@ def extra_calculations(df):
         )
     df["hosp_adm_per_reported_moved_12"] = round(
             ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_12"] * 100), 2
+        )
+    df["hosp_adm_per_reported_moved_-12"] = round(
+            ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_-12"] * 100), 2
         )
 
     df["IC_adm_per_reported_moved_5"] = round(
@@ -1860,6 +1864,7 @@ def main():
         "Deceased_per_reported",
         "hosp_adm_per_reported_moved_5",
         "hosp_adm_per_reported_moved_12",
+        "hosp_adm_per_reported_moved_-12",
         "IC_adm_per_reported_moved_5",
         "Deceased_per_reported_moved_14",
 
