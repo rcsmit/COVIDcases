@@ -359,7 +359,10 @@ def main():
     )
     # option to drop agegroup 0-9 due to changes in testbeleid en -bereidheid
     #st.write(df_pivot.dtypes)
-    df_pivot = df_pivot.drop(columns=["<50"], axis=1)
+    try:
+        df_pivot = df_pivot.drop(columns=["<50"], axis=1)
+    except:
+        pass
     try:
         df_pivot = df_pivot.drop(columns=["Unknown"], axis=1)
     except:
@@ -397,7 +400,7 @@ def main():
             make_legenda(max_value)
         else:
             st.write (df_pivot)
-        
+
 
         st.subheader("Number of cases per age / number of people per age * 100.000")
 
