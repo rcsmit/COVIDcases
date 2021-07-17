@@ -2,6 +2,9 @@ import streamlit as st
 import importlib
 import traceback
 
+st.set_page_config(page_title="COVID SCRIPTS of René Smit")
+
+
 def dynamic_import(module):
     """Import a module stored in a variable
 
@@ -15,7 +18,6 @@ def dynamic_import(module):
 
 def main():
     st.title ("COVID SCRIPTS of René Smit")
-    st.set_page_config(page_title="COVID SCRIPTS of René Smit")
 
        #    [n. name in menu, module name]
     options = [["0. welcome","welcome"],
