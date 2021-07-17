@@ -41,9 +41,8 @@ def main():
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 
-    choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value
 
-    if query_params == "sandbox":  #sandbox
+    if query_params["choice"][0] == "sandbox":  #sandbox
         try:
              module = dynamic_import(various_test_and_sandbox)
         except Exception as e:
@@ -60,6 +59,9 @@ def main():
 
             st.stop()
         st.stop()
+
+    choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value
+
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
