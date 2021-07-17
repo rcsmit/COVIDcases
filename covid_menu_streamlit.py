@@ -42,8 +42,7 @@ def main():
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 
     choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value
-    print (choice)
-    print (choice.type)
+
     if choice == 99:  #sandbox
         try:
             module = dynamic_import("various_test_and_sandbox")
