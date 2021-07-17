@@ -40,6 +40,7 @@ def  make_legenda(max_value):
 def main():
     st.header("This is just a sandbox")
     make_legenda(150)
+    st.stop()
 
 if __name__ == "__main__":
     main()
@@ -49,16 +50,16 @@ if __name__ == "__main__":
 
 # _translate() missing 2 required positional arguments: 'sparse_index' and 'sparse_cols'
 
-# Traceback (most recent call last): File "/app/covidcases/covid_menu_streamlit.py", line 63, in main module.main() 
-# File "/app/covidcases/show_contactmatrix.py", line 66, 
+# Traceback (most recent call last): File "/app/covidcases/covid_menu_streamlit.py", line 63, in main module.main()
+# File "/app/covidcases/show_contactmatrix.py", line 66,
 # in main st.write (df_first_pivot.style.format(None, na_rep="-").applymap(lambda x: cell_background_helper(x,"lineair", 10, None)).set_precision(2))
 
-# File "/home/appuser/venv/lib/python3.7/site-packages/streamlit/elements/write.py", line 181, in write self.dg.dataframe(arg) 
+# File "/home/appuser/venv/lib/python3.7/site-packages/streamlit/elements/write.py", line 181, in write self.dg.dataframe(arg)
 
 # File "/home/appuser/venv/lib/python3.7/site-packages/streamlit/elements/data_frame.py", line 85, in dataframe marshall_data_frame(data, data_frame_proto)
 
-# File "/home/appuser/venv/lib/python3.7/site-packages/streamlit/elements/data_frame.py", line 150, in marshall_data_frame _marshall_styles(proto_df.style, df, styler) 
+# File "/home/appuser/venv/lib/python3.7/site-packages/streamlit/elements/data_frame.py", line 150, in marshall_data_frame _marshall_styles(proto_df.style, df, styler)
 
-# File "/home/appuser/venv/lib/python3.7/site-packages/streamlit/elements/data_frame.py", line 169, in _marshall_styles translated_style = styler._translate() 
+# File "/home/appuser/venv/lib/python3.7/site-packages/streamlit/elements/data_frame.py", line 169, in _marshall_styles translated_style = styler._translate()
 
 # TypeError: _translate() missing 2 required positional arguments: 'sparse_index' and 'sparse_cols'
