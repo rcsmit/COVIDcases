@@ -384,7 +384,7 @@ def extra_calculations(df):
     df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
     df["Total_reported_moved_12"] = df["Total_reported"].shift(12)
     df["Total_reported_moved_-12"] = df["Total_reported"].shift(-12)
-    df["Total_reported_moved_5"] = df["Total_reported"].shift(5)
+    df["Total_reported_moved_6"] = df["Total_reported"].shift(6)
     df["Reported_min_positive"] = df["Total_reported"]-df["Tested_positive"]
     df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
     df["hosp_adm_per_reported"] = round(
@@ -396,8 +396,8 @@ def extra_calculations(df):
         )
     df["Deceased_per_reported"] = round(
             ((df["Deceased"] ) / df["Total_reported"] * 100), 2)
-    df["hosp_adm_per_reported_moved_5"] = round(
-            ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_5"] * 100), 2
+    df["hosp_adm_per_reported_moved_6"] = round(
+            ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_6"] * 100), 2
         )
     df["hosp_adm_per_reported_moved_12"] = round(
             ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_12"] * 100), 2
@@ -406,8 +406,8 @@ def extra_calculations(df):
             ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_-12"] * 100), 2
         )
 
-    df["IC_adm_per_reported_moved_5"] = round(
-            ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported_moved_5"] * 100), 2
+    df["IC_adm_per_reported_moved_6"] = round(
+            ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported_moved_6"] * 100), 2
         )
     try:
         df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
@@ -1862,10 +1862,10 @@ def main():
         "hosp_adm_per_reported",
         "IC_adm_per_reported",
         "Deceased_per_reported",
-        "hosp_adm_per_reported_moved_5",
+        "hosp_adm_per_reported_moved_6",
         "hosp_adm_per_reported_moved_12",
         "hosp_adm_per_reported_moved_-12",
-        "IC_adm_per_reported_moved_5",
+        "IC_adm_per_reported_moved_6",
         "Deceased_per_reported_moved_14",
 
 
