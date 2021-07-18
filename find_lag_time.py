@@ -1,3 +1,21 @@
+# Find the lagtime resulting in the highest correlation betwen two fields
+
+# Uses a file of Marino van Zelst.
+
+# fields
+# "date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven",
+# "Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative",
+# "Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative",
+# "Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum",
+# "new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals",
+# "new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery",
+# "deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery",
+# "values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg","IC_Bedden_COVID",
+# "IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting",
+# "IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d",
+# "Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek"
+
+
 import pandas as pd
 import datetime as dt
 import matplotlib.pyplot as plt
@@ -38,12 +56,7 @@ def select_period_oud(df, field, show_from, show_until):
 def smooth_columnlist(df, columnlist, WDW2, centersmooth):
     """  _ _ _ """
 
-    #if __name__ = "covid_dashboard_rcsmit":
-    # global WDW2, centersmooth, show_scenario
-    # WDW2=7
-    # st.write(__name__)
-    # centersmooth = False
-    # show_scenario = False
+
     if columnlist is not None:
         if type(columnlist) == list:
             columnlist_ = columnlist
@@ -95,11 +108,12 @@ def main():
     df_getdata = get_data()
     df = df_getdata.copy(deep=False)
 
-
-
     df = select_period_oud(df, "date", None, None)
     df["cases_diff"] = df["cases"].diff()
-    columnlist = ["cases_diff","hospital_intake_rivm"]
+
+
+    columnlist = ["cases_diff","hospital_intake_rivm"] # change this to change the columns to use
+
     df, c_smoothen = smooth_columnlist(df, columnlist, 7,True)
 
     df, new_hosp, iz= make_moved_columns(df, columnlist[1])
@@ -109,17 +123,13 @@ def main():
 
     for iy in new_hosp:
         sma = "SMA_7_" + iy
-
         c1.append(round(df[iy].corr(df["cases_diff"]), 3))
         c2.append(round(df[sma].corr(df["cases_diff"]), 3))
 
-
     d = {'date_lag': iz, 'hospital': c1, 'hospital_sma': c2}
-
     df_output = pd.DataFrame(data=d)
     print (df_output)
     make_graph(iz, c1, c2)
 
-
-main()
-
+if __name__ == "__main__":
+    main()
