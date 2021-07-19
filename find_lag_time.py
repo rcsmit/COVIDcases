@@ -129,7 +129,7 @@ def main():
     d = {'date_lag': iz, 'hospital': c1, 'hospital_sma': c2}
     df_output = pd.DataFrame(data=d)
     print (df_output)
-    make_graph(iz, c1, c2)
+    make_graph(iz, c1, c2, cp)
 
 if __name__ == "__main__":
     main()
