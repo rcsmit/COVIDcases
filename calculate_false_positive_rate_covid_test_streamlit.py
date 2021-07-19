@@ -126,7 +126,7 @@ def calculate(test, prevalentie, number_of_tested_people,  output):
     if output:
         st.text (f"Number of tested people : {number_of_tested_people}")
 
-        st.text (f"Prevalentie testpopulatie = {round(prevalentie*100,2)}%  (= {number_of_tested_people*prevalentie} 'sick' persons)")
+        st.text (f"Prevalentie testpopulatie = {round(prevalentie*100,2)}%  (= {round(number_of_tested_people*prevalentie)} 'sick' persons)")
 
 
         st.text(f"Name test: {name} - specificity : {test[2]} - sensitivity : {test[1]}\n")
