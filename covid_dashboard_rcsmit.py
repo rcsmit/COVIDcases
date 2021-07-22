@@ -48,11 +48,13 @@ def download_data_file(url, filename, delimiter_, fileformat):
             url = INPUT_DIR + filename + ".json"
         else:
             url = INPUT_DIR + filename + ".csv"
-
-        if fileformat == "csv":
-            df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
-        elif fileformat == "json":
-            df_temp = pd.read_json(url)
+        try:
+            if fileformat == "csv":
+                df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
+            elif fileformat == "json":
+                df_temp = pd.read_json(url)
+        except:
+            st.alert(f"Error downloading {url}")
 
         # elif fileformat =='json_x':   # workaround for NICE IC data
         #     pass
