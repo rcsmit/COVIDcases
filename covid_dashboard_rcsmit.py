@@ -79,24 +79,24 @@ def get_data():
         init()
         # #CONFIG
         data = [
-            {
-                "url": "https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv",
-                "name": "COVID-19_ziekenhuisopname",
-                "delimiter": ";",
-                "key": "Date_of_statistics",
-                "dateformat": "%Y-%m-%d",
-                "groupby": "Date_of_statistics",
-                "fileformat": "csv",
-            },
-             {
-                "url": "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv",
-                "name": "COVID-19_aantallen_gemeente_per_dag",
-                "delimiter": ";",
-                "key": "Date_of_publication",
-                "dateformat": "%Y-%m-%d",
-                "groupby": "Date_of_publication",
-                "fileformat": "csv",
-            },
+            # {
+            #     "url": "https://data.rivm.nl/covid-19/COVID-19_ziekenhuisopnames.csv",
+            #     "name": "COVID-19_ziekenhuisopname",
+            #     "delimiter": ";",
+            #     "key": "Date_of_statistics",
+            #     "dateformat": "%Y-%m-%d",
+            #     "groupby": "Date_of_statistics",
+            #     "fileformat": "csv",
+            # },
+            #  {
+            #     "url": "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv",
+            #     "name": "COVID-19_aantallen_gemeente_per_dag",
+            #     "delimiter": ";",
+            #     "key": "Date_of_publication",
+            #     "dateformat": "%Y-%m-%d",
+            #     "groupby": "Date_of_publication",
+            #     "fileformat": "csv",
+            # },
             {
                 "url": "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json",
                 "name": "rioolwater",
@@ -1900,6 +1900,7 @@ def main():
     st.title("Interactive Corona Dashboard")
     # st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
+    st.write ("In the process to restructure the datafields at the moment!  ")
 
     # DAILY STATISTICS ################
     df_temp = None
