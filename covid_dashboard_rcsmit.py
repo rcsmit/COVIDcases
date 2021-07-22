@@ -106,15 +106,15 @@ def get_data():
                 "groupby": "Date_measurement",
                 "fileformat": "json",
             },
-            {
-                "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
-                "name": "LCPS",
-                "delimiter": ",",
-                "key": "Datum",
-                "dateformat": "%d-%m-%Y",
-                "groupby": None,
-                "fileformat": "csv",
-            },
+            # {
+            #     "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
+            #     "name": "LCPS",
+            #     "delimiter": ",",
+            #     "key": "Datum",
+            #     "dateformat": "%d-%m-%Y",
+            #     "groupby": None,
+            #     "fileformat": "csv",
+            # },
 
             {
                 "url": "https://raw.githubusercontent.com/Sikerdebaard/vaccinatie-orakel/main/data/ensemble.csv",
@@ -367,93 +367,94 @@ def extra_calculations(df):
     df["temp_max"] = df["temp_max"] / 10
     df["temp_min"] = df["temp_min"] / 10
     #st.write(df.dtypes)
-    try:
-        df["RNA_per_reported"] = round(
-            ((df["RNA_flow_per_100000"] / 1e15) / df["Total_reported"] * 100), 2
-        )
-    except:
-        pass
-    df["reported_corrected"] = round(
-        (df["Total_reported"] * (df["Percentage_positive"] / 12.8)), 2
-    # 12.8 is percentage positief getest in week 1-2021
+    # try:
+    #     df["RNA_per_reported"] = round(
+    #         ((df["RNA_flow_per_100000"] / 1e15) / df["Total_reported"] * 100), 2
+    #     )
+    # except:
+    #     pass
+    # df["reported_corrected"] = round(
+    #     (df["Total_reported"] * (df["Percentage_positive"] / 12.8)), 2
+    # # 12.8 is percentage positief getest in week 1-2021
 
-    )
-
-
-
-    df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
-    df["Total_reported_moved_12"] = df["Total_reported"].shift(12)
-    df["Total_reported_moved_-12"] = df["Total_reported"].shift(-12)
-    df["Total_reported_moved_6"] = df["Total_reported"].shift(6)
-    df["Reported_min_positive"] = df["Total_reported"]-df["Tested_positive"]
-    df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
-    df["hosp_adm_per_reported"] = round(
-            ((df["Hospital_admission_RIVM"] ) / df["Total_reported"] * 100), 2
-        )
-
-    df["IC_adm_per_reported"] = round(
-            ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported"] * 100), 2
-        )
-    df["Deceased_per_reported"] = round(
-            ((df["Deceased"] ) / df["Total_reported"] * 100), 2)
-    df["hosp_adm_per_reported_moved_6"] = round(
-            ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_6"] * 100), 2
-        )
-    df["hosp_adm_per_reported_moved_12"] = round(
-            ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_12"] * 100), 2
-        )
-    df["hosp_adm_per_reported_moved_-12"] = round(
-            ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_-12"] * 100), 2
-        )
-
-    df["IC_adm_per_reported_moved_6"] = round(
-            ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported_moved_6"] * 100), 2
-        )
-    try:
-        df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
-    except:
-        df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / 8)
-    df["prev_div_days_contagious_cumm"] = df["prev_div_days_contagious"].cumsum()
+    # )
 
 
-    df["deceased_per_prev_div_days_contagious"] = ( df["Deceased"] / df["prev_div_days_contagious"] )*100
 
-    df["Deceased_per_reported_moved_14"] = round(
-            ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
+    # df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
+    # df["Total_reported_moved_12"] = df["Total_reported"].shift(12)
+    # df["Total_reported_moved_-12"] = df["Total_reported"].shift(-12)
+    # df["Total_reported_moved_6"] = df["Total_reported"].shift(6)
+    # df["Reported_min_positive"] = df["Total_reported"]-df["Tested_positive"]
+    # df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
+    # df["hosp_adm_per_reported"] = round(
+    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported"] * 100), 2
+    #     )
 
-    df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
-    df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
-    df["Total_reported_cumm"] = df["Total_reported"].cumsum()
-    df["Total_reported_log10"] = np.log10(df["Total_reported"])
-    df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Total_reported_cumm"]
+    # df["IC_adm_per_reported"] = round(
+    #         ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported"] * 100), 2
+    #     )
+    # df["Deceased_per_reported"] = round(
+    #         ((df["Deceased"] ) / df["Total_reported"] * 100), 2)
+    # df["hosp_adm_per_reported_moved_6"] = round(
+    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_6"] * 100), 2
+    #     )
+    # df["hosp_adm_per_reported_moved_12"] = round(
+    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_12"] * 100), 2
+    #     )
+    # df["hosp_adm_per_reported_moved_-12"] = round(
+    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_-12"] * 100), 2
+    #     )
 
-    df["Deceased_cumm"] = df["Deceased"].cumsum()
-    df["Deceased_cumm_div_prev_div_days_contagious_cumm"] =  df["Deceased_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
-    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
-    df["Hospital_admission_RIVM_cumm"] = df["Hospital_admission_RIVM"].cumsum()
-    #df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
-    df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
-    df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
+    # df["IC_adm_per_reported_moved_6"] = round(
+    #         ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported_moved_6"] * 100), 2
+    #     )
+    # try:
+    #     df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
+    # except:
+    #     df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / 8)
+    # df["prev_div_days_contagious_cumm"] = df["prev_div_days_contagious"].cumsum()
 
-    df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"]
-    df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"]
-    df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
-    df["Rt_corr_transit"] = df["Rt_avg"] * (1/ (1-(-1* df["transit_stations"]/100) ))
 
+    # df["deceased_per_prev_div_days_contagious"] = ( df["Deceased"] / df["prev_div_days_contagious"] )*100
+
+    # df["Deceased_per_reported_moved_14"] = round(
+    #         ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
+
+    # df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
+    # df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
+    # df["Total_reported_cumm"] = df["Total_reported"].cumsum()
+    # df["Total_reported_log10"] = np.log10(df["Total_reported"])
+    # df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Total_reported_cumm"]
+
+    # df["Deceased_cumm"] = df["Deceased"].cumsum()
+    # df["Deceased_cumm_div_prev_div_days_contagious_cumm"] =  df["Deceased_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
+    # df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
+    # df["Hospital_admission_RIVM_cumm"] = df["Hospital_admission_RIVM"].cumsum()
+    # #df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
+    # df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
+    # df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
+
+    # df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"]
+    # df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"]
+    # df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
+    # df["Rt_corr_transit"] = df["Rt_avg"] * (1/ (1-(-1* df["transit_stations"]/100) ))
+    pass
     return df
 
 def extra_calculations_period(df):
-    df["Total_reported_cumm_period"] = df["Total_reported"].cumsum()
-    df["Deceased_cumm_period"] = df["Deceased"].cumsum()
-    df["IC_Nieuwe_Opnames_LCPS_cumm_period"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
-    df["Hospital_admission_RIVM_cumm_period"] = df["Hospital_admission_RIVM"].cumsum()
-    df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
-    df["Deceased_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["Deceased_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
-    first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
-    df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
-    df["reported_corrected2"] = round(
-        (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
-    )
+    # df["Total_reported_cumm_period"] = df["Total_reported"].cumsum()
+    # df["Deceased_cumm_period"] = df["Deceased"].cumsum()
+    # df["IC_Nieuwe_Opnames_LCPS_cumm_period"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
+    # df["Hospital_admission_RIVM_cumm_period"] = df["Hospital_admission_RIVM"].cumsum()
+    # df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
+    # df["Deceased_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["Deceased_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
+    # first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
+    # df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
+    # df["reported_corrected2"] = round(
+    #     (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
+    # )`
+    pass
     return df
 
 ###################################################
@@ -1811,7 +1812,8 @@ def main():
 
     df = extra_calculations(df)
     save_df(df, "EINDTABELx")
-    lijst = [
+    lijst = []
+    lijst_oud = [
         "IC_Bedden_COVID",
         "IC_Bedden_Non_COVID",
         "Kliniek_Bedden",
@@ -1939,6 +1941,9 @@ def main():
     df = df.drop_duplicates()
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
+    mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
+
+    lijst.extend(mzelst)
 
     # df,newcolumns = week_to_week(df,["Total_reported"])
 
@@ -1947,10 +1952,10 @@ def main():
     # st.write(df.dtypes)
 
     w2w = [
-        "Total_reported",
+        "positivetests",
 
-        "Deceased",
-        "spec_humidity_knmi_derived"
+        "new.deaths",
+    #     "spec_humidity_knmi_derived"
     ]
 
     how_to_smoothen = "SMA"
@@ -1959,8 +1964,8 @@ def main():
 
 
     #st.write(get_duplicate_cols(df))
-    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, "Total_reported", 7)
-    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df, "Total_reported", 14)
+    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, "positivetests", 7)
+    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df, "positivetests", 14)
     lijst.extend(newcolumns_w2w7) # percentage
     lijst.extend(newcolumns2_w2w7) # index
 
@@ -1980,11 +1985,9 @@ def main():
 
     lijst.extend(newcolumns_w2w2) # percentage
     save_df(df,"whyowyhasdf")
-    chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
-    mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
+    #chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
 
-    lijst.extend(chd)
-    lijst.extend(mzelst)
+    #lijst.extend(chd)
     # for n in newcolumns:
     #     .write(df[n])
     # graph_daily       (df,newcolumns,None, "SMA", "line")
@@ -2009,7 +2012,7 @@ def main():
 
     if how_to_display != "bar":
         what_to_show_day_l = st.sidebar.multiselect(
-            "What to show left-axis (multiple possible)", lijst, ["Total_reported"]
+            "What to show left-axis (multiple possible)", lijst, ["positivetests"]
         )
         what_to_show_day_r = st.sidebar.multiselect(
             "What to show right-axis (multiple possible)", lijst
@@ -2359,5 +2362,5 @@ def main():
     )
 
 if __name__ == "__main__":
-
+    #caching.clear_cache()
     main()
