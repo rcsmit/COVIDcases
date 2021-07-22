@@ -276,6 +276,7 @@ def get_data():
 
         for d in range(1, len(data)):
             try:
+                print (f"Loading { data[d]["url"]}...")
                 df_temp_x = download_data_file(
                     data[d]["url"],
                     data[d]["name"],
