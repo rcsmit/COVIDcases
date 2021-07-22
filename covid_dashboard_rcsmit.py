@@ -42,20 +42,17 @@ def download_data_file(url, filename, delimiter_, fileformat):
     # df_temp = None
     download = True
     with st.spinner(f"Downloading...{url}"):
-        print (f"Downloading...{url}")
         if download:  # download from the internet
             url = url
         elif fileformat == "json":
             url = INPUT_DIR + filename + ".json"
         else:
             url = INPUT_DIR + filename + ".csv"
-        try:
-            if fileformat == "csv":
-                df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
-            elif fileformat == "json":
-                df_temp = pd.read_json(url)
-        except:
-            st.alert(f"Error downloading {url}")
+
+        if fileformat == "csv":
+            df_temp = pd.read_csv(url, delimiter=delimiter_, low_memory=False)
+        elif fileformat == "json":
+            df_temp = pd.read_json(url)
 
         # elif fileformat =='json_x':   # workaround for NICE IC data
         #     pass
@@ -276,46 +273,43 @@ def get_data():
         # Read the other files
 
         for d in range(1, len(data)):
+
+            df_temp_x = download_data_file(
+                data[d]["url"],
+                data[d]["name"],
+                data[d]["delimiter"],
+                data[d]["fileformat"],
+            )
+            # df_temp_x = df_temp_x.replace({pd.np.nan: None})
+            oldkey = data[d]["key"]
+            newkey = "key" + str(d)
+            df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
+            #st.write (df_temp_x.dtypes)
             try:
-                print (f"Loading { data[d]["url"]}...")
-                df_temp_x = download_data_file(
-                    data[d]["url"],
-                    data[d]["name"],
-                    data[d]["delimiter"],
-                    data[d]["fileformat"],
-                )
-                # df_temp_x = df_temp_x.replace({pd.np.nan: None})
-                oldkey = data[d]["key"]
-                newkey = "key" + str(d)
-                df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
-                #st.write (df_temp_x.dtypes)
-                try:
-                    df_temp_x[newkey] = pd.to_datetime(df_temp_x[newkey], format=data[d]["dateformat"]           )
-                except:
-                    st.error(f"error in {oldkey} {newkey}")
-                    st.stop()
-                if data[d]["groupby"] != None:
-                    if df_ungrouped is not None:
-                        df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
-                        print(df_ungrouped.dtypes)
-                        print(firstkey_ungrouped)
-                        print(newkey)
-                        df_ungrouped.loc[
-                            df_ungrouped[firstkey_ungrouped].isnull(), firstkey_ungrouped
-                        ] = df_ungrouped[newkey]
-
-                    else:
-                        df_ungrouped = df_temp_x.reset_index()
-                        firstkey_ungrouped = newkey
-                    df_temp_x = df_temp_x.groupby([newkey], sort=True).sum().reset_index()
-
-                df_temp = pd.merge(
-                    df_temp, df_temp_x, how=type_of_join, left_on=firstkey, right_on=newkey
-                )
-                df_temp.loc[df_temp[firstkey].isnull(), firstkey] = df_temp[newkey]
-                df_temp = df_temp.sort_values(by=firstkey)
+                df_temp_x[newkey] = pd.to_datetime(df_temp_x[newkey], format=data[d]["dateformat"]           )
             except:
-                st.alert(f"Error loading/merging {data[d]["url"]}")
+                st.error(f"error in {oldkey} {newkey}")
+                st.stop()
+            if data[d]["groupby"] != None:
+                if df_ungrouped is not None:
+                    df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
+                    print(df_ungrouped.dtypes)
+                    print(firstkey_ungrouped)
+                    print(newkey)
+                    df_ungrouped.loc[
+                        df_ungrouped[firstkey_ungrouped].isnull(), firstkey_ungrouped
+                    ] = df_ungrouped[newkey]
+
+                else:
+                    df_ungrouped = df_temp_x.reset_index()
+                    firstkey_ungrouped = newkey
+                df_temp_x = df_temp_x.groupby([newkey], sort=True).sum().reset_index()
+
+            df_temp = pd.merge(
+                df_temp, df_temp_x, how=type_of_join, left_on=firstkey, right_on=newkey
+            )
+            df_temp.loc[df_temp[firstkey].isnull(), firstkey] = df_temp[newkey]
+            df_temp = df_temp.sort_values(by=firstkey)
         # the tool is build around "date"
         df_temp = df_temp.rename(columns={firstkey: "date"})
 
@@ -702,11 +696,9 @@ def drop_columns(df, what_to_drop):
 
 def select_period_oud(df, field, show_from, show_until):
     """Shows two inputfields (from/until and Select a period in a df (helpers.py).
-
     Args:
         df (df): dataframe
         field (string): Field containing the date
-
     Returns:
         df: filtered dataframe
     """
