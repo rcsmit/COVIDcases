@@ -273,43 +273,45 @@ def get_data():
         # Read the other files
 
         for d in range(1, len(data)):
-
-            df_temp_x = download_data_file(
-                data[d]["url"],
-                data[d]["name"],
-                data[d]["delimiter"],
-                data[d]["fileformat"],
-            )
-            # df_temp_x = df_temp_x.replace({pd.np.nan: None})
-            oldkey = data[d]["key"]
-            newkey = "key" + str(d)
-            df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
-            #st.write (df_temp_x.dtypes)
             try:
-                df_temp_x[newkey] = pd.to_datetime(df_temp_x[newkey], format=data[d]["dateformat"]           )
+                df_temp_x = download_data_file(
+                    data[d]["url"],
+                    data[d]["name"],
+                    data[d]["delimiter"],
+                    data[d]["fileformat"],
+                )
+                # df_temp_x = df_temp_x.replace({pd.np.nan: None})
+                oldkey = data[d]["key"]
+                newkey = "key" + str(d)
+                df_temp_x = df_temp_x.rename(columns={oldkey: newkey})
+                #st.write (df_temp_x.dtypes)
+                try:
+                    df_temp_x[newkey] = pd.to_datetime(df_temp_x[newkey], format=data[d]["dateformat"]           )
+                except:
+                    st.error(f"error in {oldkey} {newkey}")
+                    st.stop()
+                if data[d]["groupby"] != None:
+                    if df_ungrouped is not None:
+                        df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
+                        print(df_ungrouped.dtypes)
+                        print(firstkey_ungrouped)
+                        print(newkey)
+                        df_ungrouped.loc[
+                            df_ungrouped[firstkey_ungrouped].isnull(), firstkey_ungrouped
+                        ] = df_ungrouped[newkey]
+
+                    else:
+                        df_ungrouped = df_temp_x.reset_index()
+                        firstkey_ungrouped = newkey
+                    df_temp_x = df_temp_x.groupby([newkey], sort=True).sum().reset_index()
+
+                df_temp = pd.merge(
+                    df_temp, df_temp_x, how=type_of_join, left_on=firstkey, right_on=newkey
+                )
+                df_temp.loc[df_temp[firstkey].isnull(), firstkey] = df_temp[newkey]
+                df_temp = df_temp.sort_values(by=firstkey)
             except:
-                st.error(f"error in {oldkey} {newkey}")
-                st.stop()
-            if data[d]["groupby"] != None:
-                if df_ungrouped is not None:
-                    df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
-                    print(df_ungrouped.dtypes)
-                    print(firstkey_ungrouped)
-                    print(newkey)
-                    df_ungrouped.loc[
-                        df_ungrouped[firstkey_ungrouped].isnull(), firstkey_ungrouped
-                    ] = df_ungrouped[newkey]
-
-                else:
-                    df_ungrouped = df_temp_x.reset_index()
-                    firstkey_ungrouped = newkey
-                df_temp_x = df_temp_x.groupby([newkey], sort=True).sum().reset_index()
-
-            df_temp = pd.merge(
-                df_temp, df_temp_x, how=type_of_join, left_on=firstkey, right_on=newkey
-            )
-            df_temp.loc[df_temp[firstkey].isnull(), firstkey] = df_temp[newkey]
-            df_temp = df_temp.sort_values(by=firstkey)
+                st.alert(f"Error loading/merging {data[d]["url"]}")
         # the tool is build around "date"
         df_temp = df_temp.rename(columns={firstkey: "date"})
 
