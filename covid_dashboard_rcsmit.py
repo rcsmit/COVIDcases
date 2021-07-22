@@ -42,6 +42,7 @@ def download_data_file(url, filename, delimiter_, fileformat):
     # df_temp = None
     download = True
     with st.spinner(f"Downloading...{url}"):
+        print (f"Downloading...{url}")
         if download:  # download from the internet
             url = url
         elif fileformat == "json":
