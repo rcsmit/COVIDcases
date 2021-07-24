@@ -14,6 +14,10 @@ import datetime as dt
 from datetime import datetime
 from streamlit import caching
 
+from  matplotlib import pyplot
+import seaborn
+
+
 def cell_background_helper(val,method, max, color):
     """Creates the CSS code for a cell with a certain value to create a heatmap effect
        st.write (df.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,[method], [top_waarde])).set_precision(2))
@@ -310,46 +314,43 @@ def RGBtoHexConverion(R, G, B):
         return "-1"    # If the hexadecimal color code does not exist, return -1
 
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show_month, smoothed):
+    seaborn.set(style='ticks')
 
     what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
     colorlegenda=""
     with _lock:
-            fig1xy = plt.figure()
-            ax = fig1xy.add_subplot(111)
-
-            if show_month==True:
-                num_months = (UNTIL.year - FROM.year) * 12 + (UNTIL.month - FROM.month)
-                colors=cm.rainbow(np.linspace(0,1,num_months+1))
-
-                for y in range (2020,2022):
-                    for m,c in zip(range (1,13),colors):
-
-
-                        df_temp_month = df_temp[(df_temp['date'].dt.month==m) & (df_temp['date'].dt.year==y)]
-                        x__ = df_temp_month[what_to_show_l].values.tolist()
-                        y__ = df_temp_month[what_to_show_r].values.tolist()
-
-
-                        plt.scatter(x__, y__,  s=2,color=c)
-
-                #         r,g,b,z = c
-                #         colorlegenda += (f"<font color ='{RGBtoHexConverion(int(r*255),int(g*255),int(b*255))}'>{m}-{y}</font> | ")
-                # st.markdown(colorlegenda, unsafe_allow_html=True)
-
-            else:
-                x_ = np.array(df_temp[what_to_show_l])
-                y_ = np.array(df_temp[what_to_show_r])
-
-
-                plt.scatter(x_, y_)
+            fig1xy,ax = plt.subplots()
 
             x_ = np.array(df_temp[what_to_show_l])
             y_ = np.array(df_temp[what_to_show_r])
+            cat_ = df_temp['year_month'].to_numpy()
+
+            #we converting it into categorical data
+            cat_col = df_temp['year_month'].astype('category')
+
+            #we are getting codes for it
+            cat_col_ = cat_col.cat.codes
+            scatter = plt.scatter(x_, y_, c = cat_col_, label=cat_)
+
+            legend1 = ax.legend(*scatter.legend_elements(),
+                    loc="best")
+            ax.add_artist(legend1)
 
 
+            # months = df_temp["year_month"].drop_duplicates()
+            # months = df_temp['year_month'].astype('category')
+            # df_temp['year_month'] = df_temp['year_month'].astype('category')
+            # fg = seaborn.FacetGrid(data=df_temp, hue='year_month', hue_order=months, aspect=1.61)
+            # # fg.map(pyplot.scatter, df_temp[what_to_show_l],df_temp[what_to_show_r]).add_legend()
 
+            # #fg.map(pyplot.scatter, x_, y_).add_legend()
+            # fg.map(plt.scatter, x_, y_).add_legend()
+
+            plt.show()
             #obtain m (slope) and b(intercept) of linear regression line
+
+
             idx = np.isfinite(x_) & np.isfinite(y_)
             m, b = np.polyfit(x_[idx], y_[idx], 1)
             model = np.polyfit(x_[idx], y_[idx], 1)

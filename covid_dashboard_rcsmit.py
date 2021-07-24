@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 from scipy import stats
 import datetime as dt
 from datetime import datetime, timedelta
-
+from dashboard_helpers import *
 import json
 
 from matplotlib.font_manager import FontProperties
@@ -107,8 +107,8 @@ def get_data():
                 "fileformat": "json",
             },
             # {
-            #     "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
-            #     "name": "LCPS",
+            #     "url": "https://hospital_intake_rivm.nu/wp-content/uploads/covid-19.csv",
+            #     "name": "hospital_intake_rivm",
             #     "delimiter": ",",
             #     "key": "Datum",
             #     "dateformat": "%d-%m-%Y",
@@ -167,9 +167,9 @@ def get_data():
 
             {
 
-            #     #"url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_deceased__ages.csv",
+            #     #"url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_new.deaths__ages.csv",
                 "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/final_result_vanuit_casus_landelijk.csv",
-                "name": "cases_hospital_deceased__ages",
+                "name": "cases_hospital_new.deaths__ages",
                 "delimiter": ",",
                 "key": "pos_test_Date_statistics",
                 "dateformat": "%Y-%m-%d",
@@ -229,14 +229,14 @@ def get_data():
             # 'groupby'    : None,
             # 'fileformat' : 'csv'},
             #  {'url'      : 'https://stichting-nice.nl/covid-19/public/new-intake/',
-            # 'name'       : 'IC_opnames_LCPS',
+            # 'name'       : 'IC_opnames_hospital_intake_rivm',
             # 'delimiter'  : ',',
             # 'key'        : 'date',
             # 'dateformat' : '%Y-%m-%d',
             # 'groupby'    : 'date',
             # 'fileformat' : 'json_x'}
             # {'url'       : 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\download_NICE.json',
-            # 'name'       : 'IC_opnames_LCPS',
+            # 'name'       : 'IC_opnames_hospital_intake_rivm',
             # 'delimiter'  : ',',
             # 'key'        : 'date',
             # 'dateformat' : '%Y-%m-%d',
@@ -316,6 +316,8 @@ def get_data():
         UPDATETIME = datetime.now()
         df = splitupweekweekend(df_temp)
 
+        df['year_month'] = df['date'].dt.strftime('%Y-%m')
+        print (df)
         return df, df_ungrouped, UPDATETIME
 
 
@@ -367,92 +369,92 @@ def extra_calculations(df):
     df["temp_max"] = df["temp_max"] / 10
     df["temp_min"] = df["temp_min"] / 10
     #st.write(df.dtypes)
-    # try:
-    #     df["RNA_per_reported"] = round(
-    #         ((df["RNA_flow_per_100000"] / 1e15) / df["Total_reported"] * 100), 2
-    #     )
-    # except:
-    #     pass
-    # df["reported_corrected"] = round(
-    #     (df["Total_reported"] * (df["Percentage_positive"] / 12.8)), 2
-    # # 12.8 is percentage positief getest in week 1-2021
+    try:
+        df["RNA_per_reported"] = round(
+            ((df["RNA_flow_per_100000"] / 1e15) / df["new.infection"] * 100), 2
+        )
+    except:
+        pass
+    df["reported_corrected"] = round(
+        (df["new.infection"] * (df["Percentage_positive"] / 12.8)), 2
+    # 12.8 is percentage positief getest in week 1-2021
 
-    # )
-
-
-
-    # df["reported_div_tested"] =  round((df["Total_reported"] / df["Tested_with_result"]),4)
-    # df["Total_reported_moved_12"] = df["Total_reported"].shift(12)
-    # df["Total_reported_moved_-12"] = df["Total_reported"].shift(-12)
-    # df["Total_reported_moved_6"] = df["Total_reported"].shift(6)
-    # df["Reported_min_positive"] = df["Total_reported"]-df["Tested_positive"]
-    # df["Total_reported_moved_14"] = df["Total_reported"].shift(14)
-    # df["hosp_adm_per_reported"] = round(
-    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported"] * 100), 2
-    #     )
-
-    # df["IC_adm_per_reported"] = round(
-    #         ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported"] * 100), 2
-    #     )
-    # df["Deceased_per_reported"] = round(
-    #         ((df["Deceased"] ) / df["Total_reported"] * 100), 2)
-    # df["hosp_adm_per_reported_moved_6"] = round(
-    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_6"] * 100), 2
-    #     )
-    # df["hosp_adm_per_reported_moved_12"] = round(
-    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_12"] * 100), 2
-    #     )
-    # df["hosp_adm_per_reported_moved_-12"] = round(
-    #         ((df["Hospital_admission_RIVM"] ) / df["Total_reported_moved_-12"] * 100), 2
-    #     )
-
-    # df["IC_adm_per_reported_moved_6"] = round(
-    #         ((df["IC_Nieuwe_Opnames_LCPS"] ) / df["Total_reported_moved_6"] * 100), 2
-    #     )
-    # try:
-    #     df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
-    # except:
-    #     df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / 8)
-    # df["prev_div_days_contagious_cumm"] = df["prev_div_days_contagious"].cumsum()
+    )
 
 
-    # df["deceased_per_prev_div_days_contagious"] = ( df["Deceased"] / df["prev_div_days_contagious"] )*100
 
-    # df["Deceased_per_reported_moved_14"] = round(
-    #         ((df["Deceased"] ) / df["Total_reported_moved_14"] * 100), 2)
+    df["reported_div_tested"] =  round((df["new.infection"] / df["Tested_with_result"]),4)
+    df["new.infection_moved_12"] = df["new.infection"].shift(12)
+    df["new.infection_moved_-12"] = df["new.infection"].shift(-12)
+    df["new.infection_moved_6"] = df["new.infection"].shift(6)
+    df["Reported_min_positive"] = df["new.infection"]-df["Tested_positive"]
+    df["new.infection_moved_14"] = df["new.infection"].shift(14)
+    df["hosp_adm_per_reported"] = round(
+            ((df["hospital_intake_rivm"] ) / df["new.infection"] * 100), 2
+        )
 
-    # df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
-    # df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
-    # df["Total_reported_cumm"] = df["Total_reported"].cumsum()
-    # df["Total_reported_log10"] = np.log10(df["Total_reported"])
-    # df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Total_reported_cumm"]
+    df["IC_adm_per_reported"] = round(
+            ((df["IC_Nieuwe_Opnames_COVID"] ) / df["new.infection"] * 100), 2
+        )
+    df["new.deaths_per_reported"] = round(
+            ((df["new.deaths"] ) / df["new.infection"] * 100), 2)
+    df["hosp_adm_per_reported_moved_6"] = round(
+            ((df["hospital_intake_rivm"] ) / df["new.infection_moved_6"] * 100), 2
+        )
+    df["hosp_adm_per_reported_moved_12"] = round(
+            ((df["hospital_intake_rivm"] ) / df["new.infection_moved_12"] * 100), 2
+        )
+    df["hosp_adm_per_reported_moved_-12"] = round(
+            ((df["hospital_intake_rivm"] ) / df["new.infection_moved_-12"] * 100), 2
+        )
 
-    # df["Deceased_cumm"] = df["Deceased"].cumsum()
-    # df["Deceased_cumm_div_prev_div_days_contagious_cumm"] =  df["Deceased_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
-    # df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
-    # df["Hospital_admission_RIVM_cumm"] = df["Hospital_admission_RIVM"].cumsum()
-    # #df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
-    # df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
-    # df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
+    df["IC_adm_per_reported_moved_6"] = round(
+            ((df["IC_Nieuwe_Opnames_COVID"] ) / df["new.infection_moved_6"] * 100), 2
+        )
+    try:
+        df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
+    except:
+        df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / 8)
+    df["prev_div_days_contagious_cumm"] = df["prev_div_days_contagious"].cumsum()
 
-    # df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"]
-    # df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"]
-    # df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
-    # df["Rt_corr_transit"] = df["Rt_avg"] * (1/ (1-(-1* df["transit_stations"]/100) ))
-    pass
+
+    df["new.deaths_per_prev_div_days_contagious"] = ( df["new.deaths"] / df["prev_div_days_contagious"] )*100
+
+    df["new.deaths_per_reported_moved_14"] = round(
+            ((df["new.deaths"] ) / df["new.infection_moved_14"] * 100), 2)
+
+    df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
+    df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
+    df["new.infection_cumm"] = df["new.infection"].cumsum()
+    df["new.infection_log10"] = np.log10(df["new.infection"])
+    df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["new.infection_cumm"]
+
+    df["new.deaths_cumm"] = df["new.deaths"].cumsum()
+    df["new.deaths_cumm_div_prev_div_days_contagious_cumm"] =  df["new.deaths_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
+    df["IC_Nieuwe_Opnames_COVID_cumm"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
+    df["hospital_intake_rivm_cumm"] = df["hospital_intake_rivm"].cumsum()
+    #df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
+    df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
+    df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
+
+    df["hosp_0-49"] = df["hosp_0-9"] + df["hosp_10-19"] + df["hosp_20-29"] + df["hosp_30-39"] + df["hosp_40-49"]
+    df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"]
+    df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
+    df["Rt_corr_transit"] = df["Rt_avg"] * (1/ (1-(-1* df["transit_stations"]/100) ))
+
     return df
 
 def extra_calculations_period(df):
-    # df["Total_reported_cumm_period"] = df["Total_reported"].cumsum()
-    # df["Deceased_cumm_period"] = df["Deceased"].cumsum()
-    # df["IC_Nieuwe_Opnames_LCPS_cumm_period"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
-    # df["Hospital_admission_RIVM_cumm_period"] = df["Hospital_admission_RIVM"].cumsum()
+    # df["new.infection_cumm_period"] = df["new.infection"].cumsum()
+    # df["new.deaths_cumm_period"] = df["new.deaths"].cumsum()
+    # df["IC_Nieuwe_Opnames_COVID_cumm_period"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
+    # df["hospital_intake_rivm_cumm_period"] = df["hospital_intake_rivm"].cumsum()
     # df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
-    # df["Deceased_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["Deceased_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
+    # df["new.deaths_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["new.deaths_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
     # first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
     # df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
     # df["reported_corrected2"] = round(
-    #     (df["Total_reported"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
+    #     (df["new.infection"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
     # )`
     pass
     return df
@@ -1302,7 +1304,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
             plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
         if groupby_timeperiod == "none":
             add_restrictions(df, ax)
-        plt.axhline(y=0, color="black", alpha=0.6, linestyle="--")
+
+        plt.axhline(y=horiz_line, color="black", alpha=0.6, linestyle="--")
         if t == "line":
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
@@ -1316,84 +1319,6 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 right_sm = str(r) + "_" + how_to_smooth_
                 make_scatterplot(df_temp, l,r, FROM, UNTIL,  True, False)
                 make_scatterplot(df_temp,left_sm, right_sm, FROM, UNTIL, True, True)
-def make_scatterplot_DELETE(df_temp, what_to_show_l, what_to_show_r):
-    if type(what_to_show_l) == list:
-        what_to_show_l = what_to_show_l
-    else:
-        what_to_show_l = [what_to_show_l]
-    if type(what_to_show_r) == list:
-        what_to_show_r = what_to_show_r
-    else:
-        what_to_show_r = [what_to_show_r]
-    with _lock:
-            fig1xy = plt.figure()
-            ax = fig1xy.add_subplot(111)
-
-            showmonth = True
-
-            if showmonth==True:
-                num_months = (UNTIL.year - FROM.year) * 12 + (UNTIL.month - FROM.month)
-                colors=cm.rainbow(np.linspace(0,1,num_months+1))
-
-                for y in range (2020,2022):
-                    for m,c in zip(range (1,13),colors):
-
-
-                        df_temp_month = df_temp[(df_temp['date'].dt.month==m) & (df_temp['date'].dt.year==y)]
-                        x__ = df_temp_month[what_to_show_l].values.tolist()
-                        y__ = df_temp_month[what_to_show_r].values.tolist()
-
-
-                        plt.scatter(x__, y__,  s=2,color=c)
-            else:
-                x_ = np.array(df_temp[what_to_show_l])
-                y_ = np.array(df_temp[what_to_show_r])
-
-
-                plt.scatter(x_, y_)
-
-            x_ = np.array(df_temp[what_to_show_l])
-            y_ = np.array(df_temp[what_to_show_r])
-
-
-
-            #obtain m (slope) and b(intercept) of linear regression line
-            idx = np.isfinite(x_) & np.isfinite(y_)
-            m, b = np.polyfit(x_[idx], y_[idx], 1)
-            model = np.polyfit(x_[idx], y_[idx], 1)
-
-            predict = np.poly1d(model)
-            r2 = r2_score  (y_[idx], predict(x_[idx]))
-
-            # De kolom 'R square' is een zogenaamde goodness-of-fit maat.
-            # Deze maat geeft uitdrukking aan hoe goed de geobserveerde data clusteren rond de geschatte regressielijn.
-            # In een enkelvoudige lineaire regressie is dat het kwadraat van de correlatie.
-            # De proportie wordt meestal in een percentage ‘verklaarde variantie’ uitgedrukt.
-            #  In dit voorbeeld betekent R square dus dat de totale variatie in vetpercentages voor 66% verklaard
-            #    kan worden door de lineaire regressie c.q. de verschillen in leeftijd.
-            # https://wikistatistiek.amc.nl/index.php/Lineaire_regressie
-
-            #print (r2)
-            #m, b = np.polyfit(x_, y_, 1)
-            # print (m,b)
-
-            #add linear regression line to scatterplot
-            plt.plot(x_, m*x_+b, 'r')
-            title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-            plt.title(title_scatter)
-
-
-            ax.text(
-                1,
-                1.1,
-                "Created by Rene Smit — @rcsmit",
-                transform=ax.transAxes,
-                fontsize="xx-small",
-                va="top",
-                ha="right",
-            )
-            st.pyplot(fig1xy)
-
 
 
 def set_xmargin(ax, left=0.0, right=0.3):
@@ -1787,12 +1712,12 @@ def main():
     # #CONFIG
     df.rename(
         columns={
-            "Hospital_admission_x": "Hospital_admission_RIVM",
+            "Hospital_admission_x": "hospital_intake_rivm",
             "IC_admission": "IC_admission_RIVM",
             "Hospital_admission_y": "Hospital_admission_GGD",
-            "Kliniek_Nieuwe_Opnames_COVID_x": "Hospital_admission_LCPS",
+            #"Kliniek_Nieuwe_Opnames_COVID_x": "Hospital_admission_hospital_intake_rivm",
             #   "value"                             : "IC_opnames_NICE",
-            "IC_Nieuwe_Opnames_COVID_x": "IC_Nieuwe_Opnames_LCPS",
+            "IC_Nieuwe_Opnames_COVID_x": "IC_Nieuwe_Opnames_COVID",
             "IC_Nieuwe_Opnames_COVID_y": "IC_Nieuwe_Opnames_COVID",
             "IC_Bedden_COVID_x": "IC_Bedden_COVID",
             "IC_Bedden_Non_COVID_x":"IC_Bedden_Non_COVID",
@@ -1814,17 +1739,17 @@ def main():
     save_df(df, "EINDTABELx")
     lijst = []
     lijst_oud = [
-        "IC_Bedden_COVID",
-        "IC_Bedden_Non_COVID",
-        "Kliniek_Bedden",
-        "IC_Nieuwe_Opnames_LCPS",
-        "IC_admission_RIVM",
-        "IC_Intake_Proven",
-        "Hospital_admission_RIVM",
-        "Hospital_admission_LCPS",
-        "Hospital_admission_GGD",
-        "Total_reported",
-        "Deceased",
+        # "IC_Bedden_COVID",
+        # "IC_Bedden_Non_COVID",
+        # "Kliniek_Bedden",
+        # "IC_Nieuwe_Opnames_COVID",
+        # "IC_admission_RIVM",
+        # "IC_Intake_Proven",
+        # "hospital_intake_rivm",
+        # "Hospital_admission_hospital_intake_rivm",
+        # "Hospital_admission_GGD",
+        # "new.infection",
+        # "new.deaths",
         "Rt_avg",
         "Tested_with_result",
         "Tested_positive",
@@ -1832,10 +1757,10 @@ def main():
         "reported_div_tested",
         "Reported_min_positive",
         "prev_avg",
-        #"total_vaccinations",
+        "total_vaccinations",
         "people_vaccinated",
         "people_fully_vaccinated",
-        #"total_vaccinations_diff",
+        "total_vaccinations_diff",
         "people_vaccinated_diff",
         "people_fully_vaccinated_diff",
         "retail_and_recreation",
@@ -1861,33 +1786,33 @@ def main():
         "RNA_per_reported",
         "hosp_adm_per_reported",
         "IC_adm_per_reported",
-        "Deceased_per_reported",
+        "new.deaths_per_reported",
         "hosp_adm_per_reported_moved_6",
         "hosp_adm_per_reported_moved_12",
         "hosp_adm_per_reported_moved_-12",
         "IC_adm_per_reported_moved_6",
-        "Deceased_per_reported_moved_14",
+        "new.deaths_per_reported_moved_14",
 
 
-        "Total_reported_cumm",
-        "Hospital_admission_RIVM_cumm",
-        "Deceased_cumm",
-        "IC_Nieuwe_Opnames_LCPS_cumm",
-        "Total_reported_cumm_period",
-        "Hospital_admission_RIVM_cumm_period",
-        "Deceased_cumm_period",
-        "IC_Nieuwe_Opnames_LCPS_cumm_period",
+        "new.infection_cumm",
+        "hospital_intake_rivm_cumm",
+        "new.deaths_cumm",
+        "IC_Nieuwe_Opnames_COVID_cumm",
+        "new.infection_cumm_period",
+        "hospital_intake_rivm_cumm_period",
+        "new.deaths_cumm_period",
+        "IC_Nieuwe_Opnames_COVID_cumm_period",
         "prev_div_days_contagious",
         "prev_div_days_contagious_cumm",
         "prev_div_days_contagious_cumm_period",
-        "deceased_per_prev_div_days_contagious",
-        "Deceased_cumm_div_prev_div_days_contagious_cumm",
-        "Deceased_cumm_period_div_prev_div_days_contagious_cumm_period",
+        "new.deaths_per_prev_div_days_contagious",
+        "new.deaths_cumm_div_prev_div_days_contagious_cumm",
+        "new.deaths_cumm_period_div_prev_div_days_contagious_cumm_period",
 
         "reported_corrected",
         "reported_corrected2",
         "onderrapportagefactor",
-        "Total_reported_log10",
+        "new.infection_log10",
         "Rt_corr_transit",
         "Rt_corr_transit_period"
     ]
@@ -1935,6 +1860,20 @@ def main():
             caching.clear_cache()
             st.success("Cache is cleared, please reload to scrape new values")
 
+
+    mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven",
+    "Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative",
+    "Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative",
+    "Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum",
+    "IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID",
+    "Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d",
+    "Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals",
+    "corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery",
+    "infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery",
+    "values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
+
+    lijst.extend(mzelst)
+    lijst.extend(lijst_oud)
     df = select_period_oud(df, "date", FROM, UNTIL)
     df = extra_calculations_period(df)
 
@@ -1942,11 +1881,8 @@ def main():
     df = df.drop_duplicates()
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
-    mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID","Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals","corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
 
-    lijst.extend(mzelst)
-
-    # df,newcolumns = week_to_week(df,["Total_reported"])
+    # df,newcolumns = week_to_week(df,["new.infection"])
 
     # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
     # WDW2=7
@@ -1954,7 +1890,7 @@ def main():
 
     w2w = [
         "positivetests",
-
+        "hospital_intake_rivm",
         "new.deaths",
     #     "spec_humidity_knmi_derived"
     ]
@@ -1965,8 +1901,8 @@ def main():
 
 
     #st.write(get_duplicate_cols(df))
-    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, "positivetests", 7)
-    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df, "positivetests", 14)
+    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, ["positivetests", "hospital_intake_rivm"], 7)
+    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df,["positivetests", "hospital_intake_rivm"], 14)
     lijst.extend(newcolumns_w2w7) # percentage
     lijst.extend(newcolumns2_w2w7) # index
 
@@ -1986,7 +1922,7 @@ def main():
 
     lijst.extend(newcolumns_w2w2) # percentage
     save_df(df,"whyowyhasdf")
-    #chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "deceased_<50", "deceased_50-59", "deceased_60-69", "deceased_70-79", "deceased_80-89", "deceased_90+", "deceased_0-99"]
+    #chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "new.deaths_<50", "new.deaths_50-59", "new.deaths_60-69", "new.deaths_70-79", "new.deaths_80-89", "new.deaths_90+", "new.deaths_0-99"]
 
     #lijst.extend(chd)
     # for n in newcolumns:
@@ -2029,14 +1965,14 @@ def main():
         what_to_show_day_l = st.sidebar.selectbox(
             "What to show left-axis (bar -one possible)", lijst, index=7
         )
-        # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Total_reported"]  )
+        # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["new.infection"]  )
 
         showR = st.sidebar.selectbox("Show R number", [True, False], index=0)
         if what_to_show_day_l == []:
             st.error("Choose something for the left-axis")
         if showR == False:
             what_to_show_day_r = st.sidebar.multiselect(
-                "What to show right-axis (multiple possible)", lijst, ["Total_reported"]
+                "What to show right-axis (multiple possible)", lijst, ["new.infection"]
             )
             show_R_value_graph = False
             show_R_value_RIVM = False
@@ -2116,6 +2052,10 @@ def main():
             "How to agg right (sum/mean)", ["sum", "mean"], index=0
         )
     number_days_contagious = st.sidebar.slider("Aantal dagen besmettelijk", 1, 21, 8)
+    global horiz_line
+    horiz_line = st.sidebar.number_input(
+            "Horizontal line", None, None, 0
+        )
 
     show_scenario = st.sidebar.selectbox("Show Scenario", [True, False], index=1)
     if show_scenario:
@@ -2240,15 +2180,15 @@ def main():
     toelichting = (
         "<h2>Toelichting bij de keuzevelden</h2>"
         "<p>Order may/might have been changed</p>"
-        "<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten (LCPS)"
-        "<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden (LCPS) "
-        "<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden (LCPS)"
+        "<i>IC_Bedden_COVID</i> - Aantal bezette bedden met COVID patienten (hospital_intake_rivm)"
+        "<br><i>IC_Bedden_Non_COVID</i> - Totaal aantal bezette bedden (hospital_intake_rivm) "
+        "<br><i>Kliniek_Bedden</i> - Totaal aantal ziekenhuisbedden (hospital_intake_rivm)"
         "<br><i>IC_Nieuwe_Opnames_COVID</i> - Nieuwe opnames op de IC "
-        "<br><br><i>Hospital_admission_LCPS</i> - Nieuwe opnames in de ziekenhuizen LCPS. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting "
-        "<br><i>Hospital_admission_RIVM</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn."
+        "<br><br><i>Hospital_admission_hospital_intake_rivm</i> - Nieuwe opnames in de ziekenhuizen hospital_intake_rivm. Vanaf oktober 2020. Verzameld op geaggreerd niveau en gericht op bezetting "
+        "<br><i>hospital_intake_rivm</i> - Nieuwe opnames in de ziekenhuizen RIVM door NICE. Is in principe gelijk aan het officiele dashboard. Bevat ook mensen die wegens een andere reden worden opgenomen maar positief getest zijn."
         "<br><i>Hospital_admission_GGD</i> - Nieuwe opnames in de ziekenhuizen GGD, lager omdat niet alles vanuit GGD wordt doorgegeven "
-        "<br><br><i>Total_reported</i> - Totaal aantal gevallen (GGD + ..?.. ) "
-        "<br><i>Deceased</i> - Totaal overledenen "
+        "<br><br><i>new.infection</i> - Totaal aantal gevallen (GGD + ..?.. ) "
+        "<br><i>new.deaths</i> - Totaal overledenen "
         "<br><i>Rt_avg</i> - Rt-getal berekend door RIVM"
         "<br><i>Tested_with_result</i> - Totaal aantal testen bij GGD "
         "<br><i>Tested_positive</i> - Totaal aantal positief getesten bij GGD "
@@ -2274,15 +2214,15 @@ def main():
         "<br><i>RH_avg, RH_max, RH_min</i> - Relatieve luchtvochtigheid - 24 uurs gemiddelde, minimaal en maximaal"
         "<br><br><i>RNA_per_ml</i> - Rioolwater tot 9/9/2020"
         "<br><i>RNA_flow_per_100000</i> - Rioolwater vanaf 9/9/2020"
-        "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (Total_reported * 100)"
+        "<br><i>RNA_per_reported</i> - (RNA_flow_per_100000/1e15)/ (new.infection * 100)"
 
         "<br><br><i>hosp_adm_per_reported</i> - Percentage hospital admissions "
         "<br><i>IC_adm_per_reported</i> - Percentage ICU admissions"
-        "<br><i>Deceased_per_reported</i> - Percentage hospital admissions "
+        "<br><i>new.deaths_per_reported</i> - Percentage hospital admissions "
 
         "<br><i>hosp_adm_per_reported_moved_5</i> - Percentage hospital admissions, total reported moved 5 days"
         "<br><i>IC_adm_per_reported_moved_5</i>  - Percentage hospital admissions, total reported moved 5 days - "
-        "<br><i>Deceased_per_reported_moved_14</i> - Percentage hospital admissions, total reported moved 14 days "
+        "<br><i>new.deaths_per_reported_moved_14</i> - Percentage hospital admissions, total reported moved 14 days "
 
         "<br><br><i>*_cumm</i> - cummulative numbers, from the start"
         "<br><i>*_cumm_period</i> - cummulative numbers for the chosen period"
@@ -2290,17 +2230,17 @@ def main():
         "<br><br><i>prev_div_days_contagious</i> - Prevalentie gedeeld door "+ str(number_days_contagious) + " (aantal dagen dat men besmettelijk is) "
         "<br><i>prev_div_days_contagious_cumm</i> -"
         "<br><i>prev_div_days_contagious_cumm_period</i> -"
-        "<br><i>deceased_per_prev_div_days_contagious</i> -"
-        "<br><i>Deceased_cumm_div_prev_div_days_contagious_cumm</i> -"
-        "<br><i>Deceased_cumm_period_div_prev_div_days_contagious_cumm_period</i> -"
+        "<br><i>new.deaths_per_prev_div_days_contagious</i> -"
+        "<br><i>new.deaths_cumm_div_prev_div_days_contagious_cumm</i> -"
+        "<br><i>new.deaths_cumm_period_div_prev_div_days_contagious_cumm_period</i> -"
 
-        "<br><br><i>reported_corrected</i> - Total_reported * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
-        "<br><i>reported_corrected</i> - Total_reported * (getest_positief / 1e waarde van getest_postief in tijdsperiode) "
+        "<br><br><i>reported_corrected</i> - new.infection * (getest_positief / 12.8) - waarbij 12.8% het percentage positief was in week 1 van 2021"
+        "<br><i>reported_corrected</i> - new.infection * (getest_positief / 1e waarde van getest_postief in tijdsperiode) "
 
-        "<br><i>onderrapportagefactor</i> - prev_div_days_contagious_cumm / Total_reported_cumm"
+        "<br><i>onderrapportagefactor</i> - prev_div_days_contagious_cumm / new.infection_cumm"
         "<br><br><i>*__diff_n_days</i> - Verschil tov een n dagen  terug in procenten [((nieuw-oud)/oud)*100]"
         "<br><i>*__diff_n_days_index</i> - Verschil tov n dagen terug als index [(nieuw/oud)*100] -> NB: Om rekenen naar R getal : [(nieuw/oud)^(4/7)]"
-        "<br><br><i>pos_test_x-y, hosp_x-y, deceased_x-y</i> - Number of positive tests, hospital admissions and deceased by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
+        "<br><br><i>pos_test_x-y, hosp_x-y, new.deaths_x-y</i> - Number of positive tests, hospital admissions and new.deaths by agecategory. Attention, the date is mostly the date of disease onset, so the first day of desease and given with a delay! These numbers are updated manually."
         "<br><br><i>Rt_corr_transit</i> -  Rt_avg * (1/ (1- transit_stations)). What would the R-number be if people don't change the number of contacts? Assumed is that the number of contacts between people is in direct correlation with the Google Transit. "
         "<br><i>Rt_corr_transit_period</i> -  Rt_avg * (1/ (1- transit_stations)) for the period chosen"
         "<h2>Toelichting bij de opties</h2>"
@@ -2326,7 +2266,7 @@ def main():
         "<h2>Show specific weekday</h2>"
         "When you choose (day or week)[week] and (what to plot)[bar], you can choose one specific weekday to compare them more easily"
         "<h2>Datasource</h2>"
-        "Data is scraped from https://data.rivm.nl/covid-19/ and LCPS and cached. "
+        "Data is scraped from https://data.rivm.nl/covid-19/ and hospital_intake_rivm and cached. "
         ' <a href=/"https://coronadashboard.rijksoverheid.nl/verantwoording#ziekenhuizen/" target=/"_blank/">Info here</a>.<br>'
         "For the moment most of the data is be updated automatically every 24h."
         ' The <a href=/"https://www.knmi.nl/nederland-nu/klimatologie/daggegevens/" target=/"_blank/">KNMI</a> and  Google  data will be updated manually at a lower frequency.<br><br>'
