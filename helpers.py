@@ -93,10 +93,10 @@ def show_heatmap(df, method, max_value, color):
         max_value ([type]): [description]
         color ([type]): [description]
     """
-    #try:
-    st.write (df.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,method, max_value, color)).set_precision(2))
-    #except:
-    #    st.write (df.applymap(lambda x:  cell_background_helper(x,method, max_value, color)))
+    try:
+        st.write (df.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,method, max_value, color)).set_precision(2))
+    except:
+        st.write (df.applymap(lambda x:  cell_background_helper(x,method, max_value, color)))
 
     make_legenda("lineair", 1.5)
 def  make_legenda(method, max_value):
