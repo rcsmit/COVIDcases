@@ -94,7 +94,7 @@ def show_heatmap(df, method, max_value, color):
         color ([type]): [description]
     """
     try:
-        st.write (df.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,method, max_value, color)).set_precision(2))
+        st.write (df.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,method, max_value, color)).set_precision(2))
     except:
         st.write (df.applymap(lambda x:  cell_background_helper(x,method, max_value, color)))
 
