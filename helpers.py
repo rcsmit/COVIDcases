@@ -530,3 +530,192 @@ def add_walking_r(df, smoothed_columns, datefield, how_to_smooth, window_smooth,
 
         sliding_r_df = sliding_r_df.reset_index()
     return df, column_list_r_smoothened
+
+def find_color_x(firstday, showoneday, showday):
+    COLOR_weekday = "#3e5c76"  # blue 6
+    COLOR_weekend = "#e49273"  # dark salmon 7
+    bittersweet = "#ff6666"  # reddish 0
+    white = "#eeeeee"
+    if firstday == 0:
+        color_x = [
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekend,
+            COLOR_weekend,
+        ]
+    elif firstday == 1:
+        color_x = [
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekend,
+            COLOR_weekend,
+            COLOR_weekday,
+        ]
+    elif firstday == 2:
+        color_x = [
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekend,
+            COLOR_weekend,
+            COLOR_weekday,
+            COLOR_weekday,
+        ]
+    elif firstday == 3:
+        color_x = [
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekend,
+            COLOR_weekend,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+        ]
+    elif firstday == 4:
+        color_x = [
+            COLOR_weekday,
+            COLOR_weekend,
+            COLOR_weekend,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+        ]
+    elif firstday == 5:
+        color_x = [
+            COLOR_weekend,
+            COLOR_weekend,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+        ]
+    elif firstday == 6:
+        color_x = [
+            COLOR_weekend,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekday,
+            COLOR_weekend,
+        ]
+
+    if showoneday:
+        if showday == 0:
+            color_x = [
+                bittersweet,
+                white,
+                white,
+                white,
+                white,
+                white,
+                white,
+            ]
+        elif showday == 1:
+            color_x = [
+                white,
+                bittersweet,
+                white,
+                white,
+                white,
+                white,
+                white,
+            ]
+        elif showday == 2:
+            color_x = [
+                white,
+                white,
+                bittersweet,
+                white,
+                white,
+                white,
+                white,
+            ]
+        elif showday == 3:
+            color_x = [
+                white,
+                white,
+                white,
+                bittersweet,
+                white,
+                white,
+                white,
+            ]
+        elif showday == 4:
+            color_x = [
+                white,
+                white,
+                white,
+                white,
+                bittersweet,
+                white,
+                white,
+            ]
+        elif showday == 5:
+            color_x = [
+                white,
+                white,
+                white,
+                white,
+                white,
+                bittersweet,
+                white,
+            ]
+        elif showday == 6:
+            color_x = [
+                white,
+                white,
+                white,
+                white,
+                white,
+                white,
+                bittersweet,
+            ]
+    return color_x
+
+
+@st.cache(ttl=60 * 60 * 24)
+def getdata_knmi():
+    with st.spinner(f"GETTING ALL DATA ..."):
+        #url =  "https://www.daggegevens.knmi.nl/klimatologie/daggegevens?stns=251&vars=TEMP&start=18210301&end=20210310"
+        # https://www.knmi.nl/kennis-en-datacentrum/achtergrond/data-ophalen-vanuit-een-script
+        #url = f"https://www.daggegevens.knmi.nl/klimatologie/daggegevens?stns={stn}&vars=ALL&start={fromx}&end={until}"
+        url = f"https://www.daggegevens.knmi.nl/klimatologie/daggegevens?stns=260&vars=TEMP:Q:UN:UX:UG:SQ:RH&start=20200101"
+        try:
+            df = pd.read_csv(url, delimiter=",", header=None,  comment="#",low_memory=False,)
+
+        except:
+            st.write("FOUT BIJ HET INLADEN.")
+            st.stop()
+
+
+        column_replacements =  [[0, 'STN'],
+                             [1, 'YYYYMMDD'],
+                             [2, 'temp_etmaal'],
+                            [3, 'temp_min'],
+                            [4, 'temp_max'],
+                            [5, 'T10N'],
+                             [6, 'globale_straling'],
+                             [7, 'RH_min'],
+                            [8, 'RH_max'],
+                            [9, 'RH_avg'],
+                            [10, 'zonneschijnduur'],
+                               [11, 'neerslag']]
+
+        for c in column_replacements:
+            df = df.rename(columns={c[0]:c[1]})
+
+        df["date_knmi"] = pd.to_datetime(df["YYYYMMDD"], format="%Y%m%d")
+        to_divide_by_10 = ["temp_etmaal", "temp_min", "temp_max", "neerslag", "zonneschijnduur"]
+        for d in to_divide_by_10:
+            df[d] = df[d]/10
+
+
+    return df
