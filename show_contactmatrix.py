@@ -112,8 +112,8 @@ def main():
 
     st.subheader(f"Verschil als percentage -- ({df1}-{df2})/{df1} * 100" )
     df_difference_as_perc =   (df_first_pivot - df_second_pivot) / df_first_pivot*100
-    st.write (df_difference_as_perc)
-
+    #st.write (df_difference_as_perc)
+    show_heatmap (df_difference_as_perc,"lineair", 100,None)
     fig2a = plt.figure(facecolor='w')
     ax = fig2a.add_subplot(111, axisbelow=True)
     ax.plot (age_groups, all_first, label= df1)
