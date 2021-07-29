@@ -300,10 +300,11 @@ def  make_legenda(max_value):
         d = {'legenda': stapjes}
 
         df_legenda = pd.DataFrame(data=d)
-        if platform.processor() != "":
-            st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
-        else:
-            st.write (df_legenda)
+        #if platform.processor() != "":
+        # THIS DOESNT WORK IN PANDAS 1.3.0
+        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
+        #else:
+        #    st.write (df_legenda)
 def main():
     start_ = "2021-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
