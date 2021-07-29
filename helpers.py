@@ -99,7 +99,7 @@ def show_heatmap(df, method, max_value, color):
     except:
         st.write (df.applymap(lambda x:  cell_background_helper(x,method, max_value, color)))
 
-    make_legenda("lineair", 1.5)
+    make_legenda("lineair", max_value)
 def  make_legenda(method, max_value):
     if method == "exponential":
         stapfracties =   [0, 0.00390625, 0.0078125, 0.015625,  0.03125,  0.0625 , 0.125,  0.25,  0.50, 0.75,  1]
