@@ -111,7 +111,7 @@ def  make_legenda(method, max_value):
         d = {'legenda': stapjes}
 
         df_legenda = pd.DataFrame(data=d)
-        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 1.5,None)).set_precision(2))
+        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", max_value,None)).set_precision(2))
 
 
 
