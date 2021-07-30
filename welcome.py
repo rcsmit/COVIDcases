@@ -2,7 +2,7 @@ import streamlit as st
 
 
 def main():
-    st.header ("Welcome!")
+    st.header ("Welcome_!")
     toelichting = (
         "<p>Here you'll find the scripts I made in the last months regarding to COVID-19 in the Netherlands.</p>"
         "<br><br><i>1. covid_dashboard_rcsmit</i> - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs."
