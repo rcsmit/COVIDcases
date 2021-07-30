@@ -611,9 +611,12 @@ def splitupweekweekend(df):
 def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     """  _ _ _ """
     # Calculate walking R from a certain base. Included a second methode to calculate R
-    # de rekenstappen: (1) n=lopend gemiddelde over 7 dagen; (2) Rt=exp(Tc*d(ln(n))/dt)
-    # met Tc=4 dagen, (3) data opschuiven met rapportagevertraging (10 d) + vertraging
-    # lopend gemiddelde (3 d).
+    # de rekenstappen:
+    # (1) X =  gemiddelde over 7 dagen over parameter X
+
+    # (2) Rt =   (X(t) / X(t-d) ^ (tg / d))   (d = 7, tg = 4)
+
+    # (3) data opschuiven met 7 dagen - (tijd tussen ziekworden en testen, rapportagevertraging, vertraging, lopend gemiddelde (3 d)
     # https://twitter.com/hk_nien/status/1320671955796844546
     # https://twitter.com/hk_nien/status/1364943234934390792/photo/1
     column_list_r_smoothened = []
@@ -673,6 +676,10 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
                     },
                     ignore_index=True,
                 )
+        #st.warning(column_name_r_smoothened)
+        sliding_r_df = sliding_r_df.fillna(0)
+        #st.write (df[column_name_r_smoothened])
+        #st.write(sliding_r_df)
 
         sliding_r_df[column_name_r_smoothened] = round(
             sliding_r_df.iloc[:, 1].rolling(window=WDW3, center=True).mean(), 2
@@ -870,10 +877,10 @@ def graph_daily_normed(
     df, smoothed_columns_r = smooth_columnlist(df, what_to_show_day_r, how_to_smoothen, WDW2, centersmooth)
     df, normed_columns_r = normeren(df, smoothed_columns_r)
 
-    graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display)
+    graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display, showday)
 
 
-def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
+def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showday):
     """  _ _ _ """
     #st.write(f"t = {t}")
     df_temp = pd.DataFrame(columns=["date"])
@@ -1312,7 +1319,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         # plt.show()
 
 
-def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
+def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t, showday):
     """  _ _ _ """
     if t == "bar":
         if type(what_to_show_l) == list:
@@ -1334,7 +1341,7 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
             title += tx + "\n"
         print (f"titel 1277{title}")
 
-        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
+        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t, showday)
     else:
         tl = ""
         tr = ""
@@ -1398,7 +1405,7 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t):
 
         for t in t1:
             title += t + "\n"
-        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t)
+        graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t, showday)
 
 
 def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
@@ -1517,8 +1524,8 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     plt.grid(alpha=0.2, linestyle="--")
     plt.title(title, fontsize=10)
     plt.show()
-    graph_daily(df, [a], [b], "SMA", "line")
-    graph_daily(df, [a], [max_column], "SMA", "line")
+    graph_daily(df, [a], [b], "SMA", "line", showday)
+    graph_daily(df, [a], [max_column], "SMA", "line", showday)
     # if the optimum is negative, the second one is that x days later
 
 
@@ -1811,6 +1818,7 @@ def main():
     global scale_to_x
 
     week_or_day = st.sidebar.selectbox("Day or Week", ["day", "week"], index=0)
+    showday = 0
     if week_or_day != "week":
         how_to_display = st.sidebar.selectbox(
             "What to plot (line/bar)",
@@ -1842,7 +1850,7 @@ def main():
     showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox(
-            "What to show left-axis (bar -one possible)", lijst, index=7
+            "What to show left-axis (bar -one possible)", lijst, index=4
         )
         # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["new.infection"]  )
 
@@ -1919,7 +1927,7 @@ def main():
         WDW3 = st.sidebar.slider("Window smoothing R-number", 1, 14, 7)
         WDW4 = st.sidebar.slider("Calculate R-number over .. days", 1, 14, 4)
 
-        MOVE_WR = st.sidebar.slider("Move the R-curve", -20, 10, -8)
+        MOVE_WR = st.sidebar.slider("Move the R-curve", -20, 10, -11)
     else:
         showR = False
 
@@ -1977,11 +1985,11 @@ def main():
                     what_to_show_day_l,
                     what_to_show_day_r,
                     how_to_smoothen,
-                    how_to_display,
+                    how_to_display, showday
                 )
                 if len(what_to_show_day_l) > 1:
                     for xx in what_to_show_day_l:
-                        graph_daily(df, [xx], None, how_to_smoothen, how_to_display)
+                        graph_daily(df, [xx], None, how_to_smoothen, how_to_display, showday)
 
             elif how_to_display == "line_scaled_to_peak":
                 how_to_norm = "max"
@@ -2019,7 +2027,7 @@ def main():
                     what_to_show_day_l,
                     what_to_show_day_r,
                     how_to_smoothen,
-                    how_to_display,
+                    how_to_display, showday
                 )
 
         else:
