@@ -392,45 +392,45 @@ def extra_calculations(df):
     #st.write(df.dtypes)
     try:
         df["RNA_per_reported"] = round(
-            ((df["RNA_flow_per_100000"] / 1e15) / df["new.infection"] * 100), 2
+            ((df["RNA_flow_per_100000"] / 1e15) / df["positivetests"] * 100), 2
         )
     except:
         pass
     df["reported_corrected"] = round(
-        (df["new.infection"] * (df["Percentage_positive"] / 12.8)), 2
+        (df["positivetests"] * (df["Percentage_positive"] / 12.8)), 2
     # 12.8 is percentage positief getest in week 1-2021
 
     )
 
 
 
-    df["reported_div_tested"] =  round((df["new.infection"] / df["Tested_with_result"]),4)
-    df["new.infection_moved_12"] = df["new.infection"].shift(12)
-    df["new.infection_moved_-12"] = df["new.infection"].shift(-12)
-    df["new.infection_moved_6"] = df["new.infection"].shift(6)
-    df["Reported_min_positive"] = df["new.infection"]-df["Tested_positive"]
-    df["new.infection_moved_14"] = df["new.infection"].shift(14)
+    df["reported_div_tested"] =  round((df["positivetests"] / df["Tested_with_result"]),4)
+    df["positivetests_moved_12"] = df["positivetests"].shift(12)
+    df["positivetests_moved_-12"] = df["positivetests"].shift(-12)
+    df["positivetests_moved_6"] = df["positivetests"].shift(6)
+    df["Reported_min_positive"] = df["positivetests"]-df["Tested_positive"]
+    df["positivetests_moved_14"] = df["positivetests"].shift(14)
     df["hosp_adm_per_reported"] = round(
-            ((df["hospital_intake_rivm"] ) / df["new.infection"] * 100), 2
+            ((df["hospital_intake_rivm"] ) / df["positivetests"] * 100), 2
         )
 
     df["IC_adm_per_reported"] = round(
-            ((df["IC_Nieuwe_Opnames_COVID"] ) / df["new.infection"] * 100), 2
+            ((df["IC_Nieuwe_Opnames_COVID"] ) / df["positivetests"] * 100), 2
         )
     df["new.deaths_per_reported"] = round(
-            ((df["new.deaths"] ) / df["new.infection"] * 100), 2)
+            ((df["new.deaths"] ) / df["positivetests"] * 100), 2)
     df["hosp_adm_per_reported_moved_6"] = round(
-            ((df["hospital_intake_rivm"] ) / df["new.infection_moved_6"] * 100), 2
+            ((df["hospital_intake_rivm"] ) / df["positivetests_moved_6"] * 100), 2
         )
     df["hosp_adm_per_reported_moved_12"] = round(
-            ((df["hospital_intake_rivm"] ) / df["new.infection_moved_12"] * 100), 2
+            ((df["hospital_intake_rivm"] ) / df["positivetests_moved_12"] * 100), 2
         )
     df["hosp_adm_per_reported_moved_-12"] = round(
-            ((df["hospital_intake_rivm"] ) / df["new.infection_moved_-12"] * 100), 2
+            ((df["hospital_intake_rivm"] ) / df["positivetests_moved_-12"] * 100), 2
         )
 
     df["IC_adm_per_reported_moved_6"] = round(
-            ((df["IC_Nieuwe_Opnames_COVID"] ) / df["new.infection_moved_6"] * 100), 2
+            ((df["IC_Nieuwe_Opnames_COVID"] ) / df["positivetests_moved_6"] * 100), 2
         )
     try:
         df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
@@ -442,13 +442,13 @@ def extra_calculations(df):
     df["new.deaths_per_prev_div_days_contagious"] = ( df["new.deaths"] / df["prev_div_days_contagious"] )*100
 
     df["new.deaths_per_reported_moved_14"] = round(
-            ((df["new.deaths"] ) / df["new.infection_moved_14"] * 100), 2)
+            ((df["new.deaths"] ) / df["positivetests_moved_14"] * 100), 2)
 
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
     df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
-    df["new.infection_cumm"] = df["new.infection"].cumsum()
-    df["new.infection_log10"] = np.log10(df["new.infection"])
-    df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["new.infection_cumm"]
+    df["positivetests_cumm"] = df["positivetests"].cumsum()
+    df["positivetests_log10"] = np.log10(df["positivetests"])
+    df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["positivetests_cumm"]
 
     df["new.deaths_cumm"] = df["new.deaths"].cumsum()
     df["new.deaths_cumm_div_prev_div_days_contagious_cumm"] =  df["new.deaths_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
@@ -466,7 +466,7 @@ def extra_calculations(df):
     return df
 
 def extra_calculations_period(df):
-    df["new.infection_cumm_period"] = df["new.infection"].cumsum()
+    df["positivetests_cumm_period"] = df["positivetests"].cumsum()
     df["new.deaths_cumm_period"] = df["new.deaths"].cumsum()
     df["IC_Nieuwe_Opnames_COVID_cumm_period"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
     df["hospital_intake_rivm_cumm_period"] = df["hospital_intake_rivm"].cumsum()
@@ -475,7 +475,7 @@ def extra_calculations_period(df):
     first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
     df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
     df["reported_corrected2"] = round(
-        (df["new.infection"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
+        (df["positivetests"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
     )
 
     return df
@@ -1634,7 +1634,7 @@ def main():
         # "hospital_intake_rivm",
         # "Hospital_admission_hospital_intake_rivm",
         # "Hospital_admission_GGD",
-        # "new.infection",
+        # "positivetests",
         # "new.deaths",
         "Rt_avg",
         "Tested_with_result",
@@ -1680,11 +1680,11 @@ def main():
         "new.deaths_per_reported_moved_14",
 
 
-        "new.infection_cumm",
+        "positivetests_cumm",
         "hospital_intake_rivm_cumm",
         "new.deaths_cumm",
         "IC_Nieuwe_Opnames_COVID_cumm",
-        "new.infection_cumm_period",
+        "positivetests_cumm_period",
         "hospital_intake_rivm_cumm_period",
         "new.deaths_cumm_period",
         "IC_Nieuwe_Opnames_COVID_cumm_period",
@@ -1698,7 +1698,7 @@ def main():
         "reported_corrected",
         "reported_corrected2",
         "onderrapportagefactor",
-        "new.infection_log10",
+        "positivetests_log10",
         "Rt_corr_transit",
         "Rt_corr_transit_period"
     ]
@@ -1753,7 +1753,7 @@ def main():
     "Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum",
     "IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID","Kliniek_Nieuwe_Opnames_COVID",
     "Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d",
-    "Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","new.infection","corrections.cases","net.infection","new.hospitals",
+    "Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","positivetests","corrections.cases","net.infection","new.hospitals",
     "corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery",
     "infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery",
     "values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
@@ -1768,7 +1768,7 @@ def main():
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
 
-    # df,newcolumns = week_to_week(df,["new.infection"])
+    # df,newcolumns = week_to_week(df,["positivetests"])
 
     # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
     # WDW2=7
@@ -1852,14 +1852,14 @@ def main():
         what_to_show_day_l = st.sidebar.selectbox(
             "What to show left-axis (bar -one possible)", lijst, index=4
         )
-        # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["new.infection"]  )
+        # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["positivetests"]  )
 
         showR = st.sidebar.selectbox("Show R number", [True, False], index=0)
         if what_to_show_day_l == []:
             st.error("Choose something for the left-axis")
         if showR == False:
             what_to_show_day_r = st.sidebar.multiselect(
-                "What to show right-axis (multiple possible)", lijst, ["new.infection"]
+                "What to show right-axis (multiple possible)", lijst, ["positivetests"]
             )
             show_R_value_graph = False
             show_R_value_RIVM = False
