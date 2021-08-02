@@ -108,7 +108,7 @@ def show_toelichting_footer():
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
     now = UPDATETIME
     UPDATETIME_ = now.strftime("%d/%m/%Y %H:%M:%S")
-    st.write(f"\n\n\nData last updated : {str(UPDATETIME_)}")
+    #st.write(f"\n\n\nData last updated : {str(UPDATETIME_)}")
     st.markdown("<hr>", unsafe_allow_html=True)
 
     st.image(
