@@ -466,18 +466,18 @@ def extra_calculations(df):
     return df
 
 def extra_calculations_period(df):
-    # df["new.infection_cumm_period"] = df["new.infection"].cumsum()
-    # df["new.deaths_cumm_period"] = df["new.deaths"].cumsum()
-    # df["IC_Nieuwe_Opnames_COVID_cumm_period"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
-    # df["hospital_intake_rivm_cumm_period"] = df["hospital_intake_rivm"].cumsum()
-    # df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
-    # df["new.deaths_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["new.deaths_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
-    # first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
-    # df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
-    # df["reported_corrected2"] = round(
-    #     (df["new.infection"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
-    # )`
-    pass
+    df["new.infection_cumm_period"] = df["new.infection"].cumsum()
+    df["new.deaths_cumm_period"] = df["new.deaths"].cumsum()
+    df["IC_Nieuwe_Opnames_COVID_cumm_period"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
+    df["hospital_intake_rivm_cumm_period"] = df["hospital_intake_rivm"].cumsum()
+    df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
+    df["new.deaths_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["new.deaths_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
+    first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
+    df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
+    df["reported_corrected2"] = round(
+        (df["new.infection"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
+    )
+
     return df
 
 ###################################################
