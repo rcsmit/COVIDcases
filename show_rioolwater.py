@@ -79,6 +79,7 @@ def graph_day(df, what_to_show_l, title):
         ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
         xticks = ax.xaxis.get_major_ticks()
 
+
         # for i, tick in enumerate(xticks):
         #     if i % 10 != 0:
         #         tick.label1.set_visible(False)
