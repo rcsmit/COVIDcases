@@ -40,7 +40,8 @@ def main():
             ["17. Show rioolwaardes", "show_rioolwater"],
             ["18. SIR model met leeftijdsgroepen","SIR_age_structured_streamlit"],
             ["19. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
-            ["20. per provincie per leeftijd","perprovincieperleeftijd"]]
+            ["20. per provincie per leeftijd","perprovincieperleeftijd"],
+            ["21. kans om covid op te lopen","kans_om_covid_op_te_lopen"]]
 
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
