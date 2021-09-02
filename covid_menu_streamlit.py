@@ -44,6 +44,7 @@ def main():
             ["21. kans om covid op te lopen","kans_om_covid_op_te_lopen"]]
 
 
+
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 
     choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value
