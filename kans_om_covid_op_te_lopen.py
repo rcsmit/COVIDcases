@@ -8,11 +8,11 @@ def bereken_kans_periode (kans_jaar, periode):
 
 def main():
 
-    ratio = st.sidebar.number_input("verhoudingen besmettingen/cases", 0, None, 3.0)
-    incidentie = st.sidebar.number_input("incidentie per 100k/week",  0, None,  100.0)
-    vaccinatiebonus= st.sidebar.number_input("Vaccinatiebonus",  0, 1, 0.85)
-    gedragsbonus = st.sidebar.number_input("Gedragsbonus/-malus",  0, 10, 0.75)
-    clusterfactor = st.sidebar.number_input("cluster-/locatiefactor",  0, 10,  1.0)
+    ratio = st.sidebar.number_input("verhoudingen besmettingen/cases", 0.0, 10.0, 3.0)
+    incidentie = st.sidebar.number_input("incidentie per 100k/week",  0, 100000,  100)
+    vaccinatiebonus= st.sidebar.number_input("Vaccinatiebonus",  0.0, 1.0, 0.85)
+    gedragsbonus = st.sidebar.number_input("Gedragsbonus/-malus",  0.0, 10.0, 0.75)
+    clusterfactor = st.sidebar.number_input("cluster-/locatiefactor",  0.0, 10.0,  1.0)
 
     kans_besm_100k_jaar = ratio * 52 * incidentie / 1000
     st.sidebar.write (f"Kans om besmet te worden per jaar {kans_besm_100k_jaar} %")
