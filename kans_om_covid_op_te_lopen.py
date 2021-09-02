@@ -22,7 +22,7 @@ def main():
     #col1,col2 = st.columns([1,3])
     #with col1:
 
-    for x in range (1,50,1):
+    for x in range (1,30,1):
         y = round((100 - (bereken_kans_periode(kans_jaar,x)*100)),2)
         x_ax.append(x)
         y_ax.append(y)
