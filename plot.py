@@ -100,4 +100,5 @@ plt.gcf().autofmt_xdate()
 
 # Show the plot
 plt.show()
+
   
