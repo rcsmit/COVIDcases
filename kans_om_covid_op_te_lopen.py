@@ -53,9 +53,9 @@ def main():
     toelichting = ("<b>Incidentie</b> - Aantal gemelde cases per 100.000 inwoners per week<br>"
                 "<b>Verhoudingen besmettingen/cases</b> - Wat is de verhouding tussen gemelde cases en daadwerkelijke besmettingen?<br>"
 
-                    "<b>Vaccinatiebonus</b> - <i>Default : 0.85</i>. Dat betekent niet dat er maar 15% bescherming is, maar dat je hierdoor 15% minder risico loopt dan de gemiddelde Nederlander (waarvan straks misschien 70% gevaccineerd is)<br>"
+                    "<b>Vaccinatiebonus</b> - <i>Default : 0.85</i>. Dat betekent niet dat er maar 15% bescherming is, maar dat je hierdoor 15% minder risico loopt dan de gemiddelde Nederlander (waarvan straks misschien 70% gevaccineerd is) (1=neutraal)<br>"
 
-                    "<b>Gedragsbonus</b> - <i>Default : 0,75</i> oftewel ik zal 25% minder vaak besmet raken dan de gemiddelde Nederlander<br>"
+                    "<b>Gedragsbonus</b> - <i>Default : 0,75</i> oftewel ik zal 25% minder vaak besmet raken dan de gemiddelde Nederlander (1=neutraal)<br>"
 
                     "<b>Cluster-/locatiefactor</b> - <i>Default 1</i>. Vergroting/ verlaging van kans door clusters of locatie (1=neutraal)<br>")
 
