@@ -26,7 +26,6 @@ def main():
     except:
         col1,col2 = st.beta_columns([1,3])
 
-
     for x in range (1,30,1):
         y = round((100 - (bereken_kans_periode(kans_jaar,x)*100)),2)
         x_ax.append(x)
@@ -50,9 +49,7 @@ def main():
             plt.title ("Kans om COVID op te lopen in x jaar")
             st.pyplot(fig1x)
 
-
-
-    st.write ("Geinspireerd door Roel Griffioen: https://twitter.com/roelgrif/status/1433215573912080388")
+    st.write ("Info over de parameters en berekening: https://twitter.com/roelgrif/status/1433215517901344771")
     st.write ("Sourcecode: https://github.com/rcsmit/COVIDcases/blob/main/kans_om_covid_op_te_lopen.py")
 main()
 
