@@ -1,6 +1,8 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import pandas as pd
 from matplotlib.backends.backend_agg import RendererAgg
+from helpers import cell_background_helper
 _lock = RendererAgg.lock
 
 def bereken_kans_periode (kans_jaar, periode):
@@ -19,27 +21,33 @@ def main():
     st.sidebar.write (f"Kans om besmet te worden per jaar met bonussen : {kans_jaar}%")
     x_ax, y_ax = [],[]
 
-    #col1,col2 = st.columns([1,3])
-    #with col1:
+    col1,col2 = st.columns([1,3])
+
 
     for x in range (1,30,1):
         y = round((100 - (bereken_kans_periode(kans_jaar,x)*100)),2)
         x_ax.append(x)
         y_ax.append(y)
 
-    #with col2:
+    d = {'jaren': x_ax, 'kans':y_ax}
 
-    with _lock:
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
-        plt.plot(x_ax,y_ax)
-        plt.grid()
-        plt.title ("Kans om COVID op te lopen in x jaar")
-        st.pyplot(fig1x)
+    df_legenda = pd.DataFrame(data=d)
+    df_legenda.set_index('jaren', inplace=True)
+    with col1:
+        st.write (f"Kans om >=1 keer COVID op te lopen in x jaar:" )
+        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"kwartiel", 100,None)).set_precision(1))
 
-    st.write (f"Kans om het >=1 keer op te lopen in x jaar:" )
-    for x,y in zip(x_ax,y_ax):
-        st.write (f" {x} jaar - {y} %")
+    with col2:
+
+        with _lock:
+            fig1x = plt.figure()
+            ax = fig1x.add_subplot(111)
+            plt.plot(x_ax,y_ax)
+            plt.grid()
+            plt.title ("Kans om COVID op te lopen in x jaar")
+            st.pyplot(fig1x)
+
+
 
     st.write ("Geinspireerd door Roel Griffioen: https://twitter.com/roelgrif/status/1433215573912080388")
     st.write ("Sourcecode: https://github.com/rcsmit/COVIDcases/blob/main/kans_om_covid_op_te_lopen.py")

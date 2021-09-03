@@ -33,6 +33,7 @@ def cell_background_helper(val,method, max, color):
     if color == None : color = '193, 57, 43'
     opacity = 0
     try:
+
         v = abs(val)
         if method == "percentages":
             # scale from -100 to 100
@@ -46,6 +47,12 @@ def cell_background_helper(val,method, max, color):
                 color = '255,255,173'
         elif method == "lineair":
             opacity = v / max
+        elif method == "kwartiel":
+            if val <100: color = '255,199,206'
+            if val <75: color = '255,235,156'
+            if val <50: color = '225,237,217'
+            if val <25: color = '198,223,180'
+            opacity = 1
         else:
             if method == "exponential":
                 value_table = [ [0,0],
