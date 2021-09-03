@@ -9,11 +9,12 @@ def bereken_kans_periode (kans_jaar, periode):
     return (1-(kans_jaar/100))**periode
 
 def main():
-    ratio = st.sidebar.number_input("verhoudingen besmettingen/cases", 0.0, 10.0, 3.0)
     incidentie = st.sidebar.number_input("incidentie per 100k/week",  0, 100000,  100)
+
+    ratio = st.sidebar.number_input("verhoudingen besmettingen/cases", 0.0, 10.0, 3.0)
     vaccinatiebonus= st.sidebar.number_input("Vaccinatiebonus",  0.0, 1.0, 0.85)
-    gedragsbonus = st.sidebar.number_input("Gedragsbonus/-malus",  0.0, 10.0, 0.75)
-    clusterfactor = st.sidebar.number_input("cluster-/locatiefactor",  0.0, 10.0,  1.0)
+    gedragsbonus = st.sidebar.number_input("Gedragsbonus/-malus (1=neutraal)",  0.0, 10.0, 0.75)
+    clusterfactor = st.sidebar.number_input("cluster-/locatiefactor (1=neutraal)",  0.0, 10.0,  1.0)
 
     kans_besm_100k_jaar = ratio * 52 * incidentie / 1000
     st.sidebar.write (f"Kans om besmet te worden per jaar {kans_besm_100k_jaar} %")
@@ -48,6 +49,18 @@ def main():
             plt.grid()
             plt.title ("Kans om COVID op te lopen in x jaar")
             st.pyplot(fig1x)
+
+    toelichting = ("<b>Incidentie</b> - Aantal gemelde cases per 100.000 inwoners per week<br>"
+                "<b>Verhoudingen besmettingen/cases</b> - Wat is de verhouding tussen gemelde cases en daadwerkelijke besmettingen?<br>"
+
+                    "<b>Vaccinatiebonus</b> - <i>Default : 0.85</i>. Dat betekent niet dat er maar 15% bescherming is, maar dat je hierdoor 15% minder risico loopt dan de gemiddelde Nederlander (waarvan straks misschien 70% gevaccineerd is)<br>"
+
+                    "<b>Gedragsbonus</b> - <i>Default : 0,75</i> oftewel ik zal 25% minder vaak besmet raken dan de gemiddelde Nederlander<br>"
+
+                    "<b>Cluster-/locatiefactor</b> - <i>Default 1</i>. Vergroting/ verlaging van kans door clusters of locatie (1=neutraal)<br>")
+
+    st.subheader( "Parameters")
+    st.markdown(toelichting, unsafe_allow_html=True)
 
     st.write ("Info over de parameters en berekening: https://twitter.com/roelgrif/status/1433215517901344771")
     st.write ("Sourcecode: https://github.com/rcsmit/COVIDcases/blob/main/kans_om_covid_op_te_lopen.py")
