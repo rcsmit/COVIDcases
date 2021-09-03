@@ -21,7 +21,10 @@ def main():
     st.sidebar.write (f"Kans om besmet te worden per jaar met bonussen : {kans_jaar}%")
     x_ax, y_ax = [],[]
 
-    col1,col2 = st.columns([1,3])
+    try:
+        col1,col2 = st.columns([1,3])
+    except:
+        col1,col2 = st.beta_columns([1,3])
 
 
     for x in range (1,30,1):
