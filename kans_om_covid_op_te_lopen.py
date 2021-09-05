@@ -10,7 +10,6 @@ def bereken_kans_periode (kans_jaar, periode):
 
 def main():
     incidentie = st.sidebar.number_input("incidentie per 100k/week",  0, 100000,  100)
-
     ratio = st.sidebar.number_input("verhoudingen besmettingen/cases", 0.0, 10.0, 3.0)
     vaccinatiebonus= st.sidebar.number_input("Vaccinatiebonus",  0.0, 1.0, 0.85)
     gedragsbonus = st.sidebar.number_input("Gedragsbonus/-malus (1=neutraal)",  0.0, 10.0, 0.75)
