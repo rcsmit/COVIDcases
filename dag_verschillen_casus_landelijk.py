@@ -211,7 +211,7 @@ def accumulate_first_rows(df, x):
             data.append(row_data)
 
     df_accumulated = pd.DataFrame(data, columns=column_list)
-    with st.beta_expander('First rows accumulated',  expanded=False):
+    with st.expander('First rows accumulated',  expanded=False):
         st.subheader (f"The first {number_of_first_rows} rows accumated")
         st.write (df_accumulated)
     return df_accumulated
@@ -274,7 +274,7 @@ def do_the_rudi(df_):
                     row_data.append( df.iat[r,c])
             data.append(row_data)
     df_fractions = pd.DataFrame(data, columns=column_list)
-    with st.beta_expander('The fractions',  expanded=False):
+    with st.expander('The fractions',  expanded=False):
         st.subheader ("The fractions")
         st.write (df_fractions)
 
@@ -395,7 +395,7 @@ def main():
     df_pivot.rename(columns={"Date_statistics": "date"},  inplace=True)
     column_list = column_list[1:]
     numberofdays = st.sidebar.slider("Vergelijken met x dagen ervoor", 0, 21, 7)
-    with st.beta_expander('Number of cases',  expanded=True):
+    with st.expander('Number of cases',  expanded=True):
         st.subheader("Number of cases per age")
         st.write ("Er wordt teruggerekend naar eeste ziektedag")
         #df_pivot['pos_test_Date_statistics'] = df_pivot['pos_test_Date_statistics'].dt.date
@@ -424,7 +424,7 @@ def main():
     df_pivot_2,df_new, newcolumns,= day_to_day(df_pivot, column_list, numberofdays)
     st.sidebar.write("Attention : slow script!!!")
     df_new.reset_index(drop=True)
-    with st.beta_expander('Percentual changes of cases',  expanded=False):
+    with st.expander('Percentual changes of cases',  expanded=False):
         st.subheader(f"Percentual change with {numberofdays} days before")
         #if platform.processor() != "":
         try:
@@ -436,7 +436,7 @@ def main():
 
     df_new_rudi = do_the_rudi(df_pivot_original)
 
-    with st.beta_expander('Percentual changes of fractions',  expanded=False):
+    with st.expander('Percentual changes of fractions',  expanded=False):
         st.subheader("Percentual change of the fractions per agegroup with the first day(s)")
         st.write ("fraction = cases in an agegroup / total cases")
         #if platform.processor() != "":

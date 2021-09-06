@@ -25,7 +25,7 @@ def main():
         col1,col2 = st.columns([1,3])
         b = "alfa"
     except:
-        col1,col2 = st.beta_columns([1,3])
+        col1,col2 = st.columns([1,3])
         b = "beta"
 
     for x in range (1,30,1):

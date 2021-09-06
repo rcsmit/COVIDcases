@@ -395,7 +395,7 @@ def main():
     
     plot_total(result_odeint, 1, what_to_show)
 
-    with st.beta_expander('Per leeftijdsgroep',  expanded=False):
+    with st.expander('Per leeftijdsgroep',  expanded=False):
         st.subheader("Per age group")
         for name in names:
             plot_single_age_group(name, result_odeint, names,  t, N, what_to_show)

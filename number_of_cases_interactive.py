@@ -533,7 +533,7 @@ def main():
     # output = output.groupby("weeknr").sum()
 
 
-    # with st.beta_expander("Show bargraph per week - Attention - doesn't display well when there are two years involved and/or the weeks aren't complete. Weeks are Monday until Sunday"):
+    # with st.expander("Show bargraph per week - Attention - doesn't display well when there are two years involved and/or the weeks aren't complete. Weeks are Monday until Sunday"):
     #     fig1x = plt.figure()
     #     output.plot()
     #     plt.legend(loc='best')
@@ -689,7 +689,7 @@ def main():
     #########################
     if showSIR:
 
-        with st.beta_expander("Show classical SIR-graphs"):
+        with st.expander("Show classical SIR-graphs"):
 
 
 

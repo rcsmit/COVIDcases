@@ -125,7 +125,7 @@ def main():
     st.pyplot(fig2a)
 
 
-    with st.sidebar.beta_expander('Data sources',  expanded=False):
+    with st.sidebar.expander('Data sources',  expanded=False):
         #st.write ("Retrieved from https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.full-text")
 
         #st.write ("https://www.medrxiv.org/content/10.1101/2020.05.18.20101501v1.supplementary-material")

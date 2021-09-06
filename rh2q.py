@@ -22,7 +22,7 @@ def rh2ah(rh, t):
 
 def main():
     st.header("Calculate specific and absolute humidity")
-    col1, col2, col3 = st.beta_columns(3)
+    col1, col2, col3 = st.columns(3)
     with col1:
         t = st.number_input("Temperature (Celcius)", None, None, 25)
     with col2:
