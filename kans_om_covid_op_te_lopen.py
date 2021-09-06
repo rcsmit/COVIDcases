@@ -23,8 +23,10 @@ def main():
 
     try:
         col1,col2 = st.columns([1,3])
+        b = "alfa"
     except:
         col1,col2 = st.beta_columns([1,3])
+        b = "beta"
 
     for x in range (1,30,1):
         y = round((100 - (bereken_kans_periode(kans_jaar,x)*100)),2)
@@ -63,6 +65,7 @@ def main():
 
     st.write ("Info over de parameters en berekening: https://twitter.com/roelgrif/status/1433215517901344771")
     st.write ("Sourcecode: https://github.com/rcsmit/COVIDcases/blob/main/kans_om_covid_op_te_lopen.py")
+    st.write(b)
 main()
 
 
