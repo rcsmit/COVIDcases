@@ -1,3 +1,4 @@
+streamlit
 scipy
 matplotlib==3.2.2
 numpy==1.18.1
