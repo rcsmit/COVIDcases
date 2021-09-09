@@ -62,6 +62,8 @@ def main():
 
     df_hospital = df_hospital.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
     df_deceased = df_deceased.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
+    #df_deceased = df_deceased.groupby([ "Agegroup"], sort=True).count().reset_index()
+
     df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
 
     print (df_hospital)
