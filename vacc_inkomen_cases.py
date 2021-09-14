@@ -9,14 +9,16 @@ def read():
     # df_yorick = pd.read_csv(url_yorick, delimiter=';', decimal=",", encoding="ISO-8859-1")
     # Attentie: bevat - waardes en Baarle Nassau
 
-    url_yorick = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\vaccinatie_incidentie.csv"
+    #url_yorick = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\vaccinatie_incidentie.csv"
+    url_yorick = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/vaccinatie_incidentie.csv"
     df_yorick = pd.read_csv(url_yorick, delimiter=';', encoding="ISO-8859-1")
     # Baarle Nassau is verwijderd (incidentie x*10E-15). Daarnaast worden er 3 gemeentes niet weergegeven ivm herindeingen)
     # Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0 ->
     # np.log geeft -inf, waardoor correlatie niet kan worden berekend
 
     # https://www.cbs.nl/nl-nl/maatwerk/2021/05/inkomen-per-gemeente-en-wijk-2018
-    url_inkomen = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\inkomen_per_gemeente.csv"
+    # url_inkomen = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\inkomen_per_gemeente.csv"
+    url_inkomen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/inkomen_per_gemeente.csv"
     df_inkomen =pd.read_csv(url_inkomen, delimiter=';')
 
     df_totaal= pd.merge(
