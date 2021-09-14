@@ -6,7 +6,7 @@ import streamlit as st
 import plotly.express as px
 #import statsmodels
 
-from streamlit_plotly_events import plotly_events
+#from streamlit_plotly_events import plotly_events
 
 import pandas as pd
 from sklearn.metrics import r2_score
@@ -120,7 +120,7 @@ def make_scatterplot_plotly(df_temp, what_to_show_l, what_to_show_r):
             #scatter = plt.scatter(x_, y_)
 
             fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='inwoners', trendline="ols",
-                 hover_name="Gemeente_Naam")
+                 hover_name="Gemeente_Naam", hover_data=["provincie"])
 
         #obtain m (slope) and b(intercept) of linear regression line
         idx = np.isfinite(x_) & np.isfinite(y_)
