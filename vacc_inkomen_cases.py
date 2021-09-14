@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
+import streamlit as st
 
 import pandas as pd
 from sklearn.metrics import r2_score
