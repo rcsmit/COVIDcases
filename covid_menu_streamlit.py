@@ -41,7 +41,8 @@ def main():
             ["18. SIR model met leeftijdsgroepen","SIR_age_structured_streamlit"],
             ["19. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
             ["20. per provincie per leeftijd","perprovincieperleeftijd"],
-            ["21. kans om covid op te lopen","kans_om_covid_op_te_lopen"]]
+            ["21. kans om covid op te lopen","kans_om_covid_op_te_lopen"],
+            ["22. Inkomen vs vaccinatie vs incidentie", "vacc_inkomen_cases"]  ]
 
 
 
