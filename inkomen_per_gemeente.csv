@@ -1,0 +1,356 @@
+﻿Gemeentecode;Gemeentenaam;gem_ink_x1000
+GM0003;Appingedam;22.2
+GM0010;Delfzijl;22.7
+GM0014;Groningen;23.8
+GM0024;Loppersum;23.6
+GM0034;Almere;25.3
+GM0037;Stadskanaal;21.0
+GM0047;Veendam;22.0
+GM0050;Zeewolde;26.5
+GM0059;Achtkarspelen;20.4
+GM0060;Ameland;23.1
+GM0072;Harlingen;22.2
+GM0074;Heerenveen;24.4
+GM0080;Leeuwarden;23.1
+GM0085;Ooststellingwerf;22.6
+GM0086;Opsterland;23.4
+GM0088;Schiermonnikoog;26.5
+GM0090;Smallingerland;22.7
+GM0093;Terschelling;25.3
+GM0096;Vlieland;27.2
+GM0098;Weststellingwerf;22.5
+GM0106;Assen;24.2
+GM0109;Coevorden;23.7
+GM0114;Emmen;22.2
+GM0118;Hoogeveen;21.9
+GM0119;Meppel;24.7
+GM0141;Almelo;22.0
+GM0147;Borne;25.7
+GM0148;Dalfsen;24.6
+GM0150;Deventer;24.5
+GM0153;Enschede;21.8
+GM0158;Haaksbergen;24.3
+GM0160;Hardenberg;22.4
+GM0163;Hellendoorn;23.7
+GM0164;Hengelo;24.2
+GM0166;Kampen;22.4
+GM0168;Losser;23.4
+GM0171;Noordoostpolder;22.9
+GM0173;Oldenzaal;24.5
+GM0175;Ommen;24.0
+GM0177;Raalte;24.3
+GM0180;Staphorst;21.3
+GM0183;Tubbergen;24.0
+GM0184;Urk;20.0
+GM0189;Wierden;24.7
+GM0193;Zwolle;25.4
+GM0197;Aalten;22.8
+GM0200;Apeldoorn;25.8
+GM0202;Arnhem;24.5
+GM0203;Barneveld;23.7
+GM0209;Beuningen;26.8
+GM0213;Brummen;25.6
+GM0214;Buren;27.2
+GM0216;Culemborg;26.6
+GM0221;Doesburg;23.9
+GM0222;Doetinchem;24.1
+GM0225;Druten;25.4
+GM0226;Duiven;25.8
+GM0228;Ede;24.9
+GM0230;Elburg;22.8
+GM0232;Epe;25.1
+GM0233;Ermelo;26.4
+GM0243;Harderwijk;24.8
+GM0244;Hattem;26.1
+GM0246;Heerde;24.7
+GM0252;Heumen;29.1
+GM0262;Lochem;27.4
+GM0263;Maasdriel;25.9
+GM0267;Nijkerk;25.5
+GM0268;Nijmegen;24.6
+GM0269;Oldebroek;22.5
+GM0273;Putten;24.9
+GM0274;Renkum;29.8
+GM0275;Rheden;25.9
+GM0277;Rozendaal;40.5
+GM0279;Scherpenzeel;24.4
+GM0281;Tiel;24.1
+GM0285;Voorst;26.1
+GM0289;Wageningen;23.8
+GM0293;Westervoort;24.3
+GM0294;Winterswijk;23.6
+GM0296;Wijchen;25.9
+GM0297;Zaltbommel;25.3
+GM0299;Zevenaar;24.1
+GM0301;Zutphen;24.0
+GM0302;Nunspeet;23.9
+GM0303;Dronten;24.8
+GM0307;Amersfoort;28.2
+GM0308;Baarn;31.1
+GM0310;De Bilt;33.1
+GM0312;Bunnik;30.9
+GM0313;Bunschoten;24.6
+GM0317;Eemnes;28.8
+GM0321;Houten;30.1
+GM0327;Leusden;29.6
+GM0331;Lopik;25.5
+GM0335;Montfoort;27.4
+GM0339;Renswoude;25.7
+GM0340;Rhenen;25.6
+GM0342;Soest;29.1
+GM0344;Utrecht;28.1
+GM0345;Veenendaal;24.1
+GM0351;Woudenberg;25.5
+GM0352;Wijk bij Duurstede;27.9
+GM0353;IJsselstein;27.9
+GM0355;Zeist;31.3
+GM0356;Nieuwegein;26.4
+GM0358;Aalsmeer;29.3
+GM0361;Alkmaar;26.1
+GM0362;Amstelveen;33.0
+GM0363;Amsterdam;29.7
+GM0370;Beemster;29.2
+GM0373;Bergen (NH.);30.9
+GM0375;Beverwijk;25.4
+GM0376;Blaricum;41.3
+GM0377;Bloemendaal;43.2
+GM0383;Castricum;30.0
+GM0384;Diemen;26.9
+GM0385;Edam-Volendam;27.6
+GM0388;Enkhuizen;24.5
+GM0392;Haarlem;29.1
+GM0394;Haarlemmermeer;28.9
+GM0396;Heemskerk;26.6
+GM0397;Heemstede;38.6
+GM0398;Heerhugowaard;24.9
+GM0399;Heiloo;30.4
+GM0400;Den Helder;24.0
+GM0402;Hilversum;29.9
+GM0405;Hoorn;25.1
+GM0406;Huizen;28.9
+GM0415;Landsmeer;30.6
+GM0416;Langedijk;26.1
+GM0417;Laren;41.1
+GM0420;Medemblik;24.9
+GM0431;Oostzaan;28.4
+GM0432;Opmeer;24.9
+GM0437;Ouder-Amstel;33.6
+GM0439;Purmerend;25.6
+GM0441;Schagen;25.7
+GM0448;Texel;24.3
+GM0450;Uitgeest;28.3
+GM0451;Uithoorn;28.2
+GM0453;Velsen;27.0
+GM0457;Weesp;29.1
+GM0473;Zandvoort;28.5
+GM0479;Zaanstad;24.9
+GM0482;Alblasserdam;24.2
+GM0484;Alphen aan den Rijn;27.3
+GM0489;Barendrecht;29.4
+GM0498;Drechterland;25.5
+GM0501;Brielle;30.7
+GM0502;Capelle aan den IJssel;25.9
+GM0503;Delft;24.7
+GM0505;Dordrecht;25.2
+GM0512;Gorinchem;25.6
+GM0513;Gouda;26.0
+GM0518;'s-Gravenhage;26.2
+GM0523;Hardinxveld-Giessendam;23.9
+GM0530;Hellevoetsluis;28.0
+GM0531;Hendrik-Ido-Ambacht;27.2
+GM0532;Stede Broec;23.8
+GM0534;Hillegom;27.2
+GM0537;Katwijk;24.8
+GM0542;Krimpen aan den IJssel;25.8
+GM0546;Leiden;27.2
+GM0547;Leiderdorp;29.4
+GM0553;Lisse;27.2
+GM0556;Maassluis;25.6
+GM0569;Nieuwkoop;27.7
+GM0575;Noordwijk;29.3
+GM0579;Oegstgeest;36.4
+GM0589;Oudewater;27.7
+GM0590;Papendrecht;26.6
+GM0597;Ridderkerk;25.4
+GM0599;Rotterdam;24.2
+GM0603;Rijswijk;28.2
+GM0606;Schiedam;24.0
+GM0610;Sliedrecht;23.8
+GM0613;Albrandswaard;31.1
+GM0614;Westvoorne;33.2
+GM0622;Vlaardingen;24.8
+GM0626;Voorschoten;32.0
+GM0627;Waddinxveen;26.1
+GM0629;Wassenaar;44.1
+GM0632;Woerden;28.7
+GM0637;Zoetermeer;26.8
+GM0638;Zoeterwoude;28.4
+GM0642;Zwijndrecht;25.2
+GM0654;Borsele;24.9
+GM0664;Goes;25.8
+GM0668;West Maas en Waal;25.8
+GM0677;Hulst;26.3
+GM0678;Kapelle;25.3
+GM0687;Middelburg;25.1
+GM0703;Reimerswaal;22.3
+GM0715;Terneuzen;25.4
+GM0716;Tholen;22.9
+GM0717;Veere;26.1
+GM0718;Vlissingen;24.0
+GM0736;De Ronde Venen;31.2
+GM0737;Tytsjerksteradiel;23.2
+GM0743;Asten;25.0
+GM0744;Baarle-Nassau;24.7
+GM0748;Bergen op Zoom;25.4
+GM0753;Best;28.2
+GM0755;Boekel;23.9
+GM0756;Boxmeer;25.7
+GM0757;Boxtel;25.7
+GM0758;Breda;27.6
+GM0762;Deurne;24.7
+GM0765;Pekela;20.2
+GM0766;Dongen;25.9
+GM0770;Eersel;28.4
+GM0772;Eindhoven;26.6
+GM0777;Etten-Leur;25.9
+GM0779;Geertruidenberg;25.9
+GM0784;Gilze en Rijen;25.6
+GM0785;Goirle;26.9
+GM0786;Grave;25.6
+GM0788;Haaren;28.9
+GM0794;Helmond;24.0
+GM0796;'s-Hertogenbosch;27.9
+GM0797;Heusden;26.2
+GM0798;Hilvarenbeek;27.4
+GM0809;Loon op Zand;25.8
+GM0815;Mill en Sint Hubert;24.4
+GM0820;Nuenen. Gerwen en Nederwetten;30.5
+GM0823;Oirschot;27.4
+GM0824;Oisterwijk;29.6
+GM0826;Oosterhout;26.2
+GM0828;Oss;25.2
+GM0840;Rucphen;24.4
+GM0845;Sint-Michielsgestel;28.3
+GM0847;Someren;24.7
+GM0848;Son en Breugel;30.1
+GM0851;Steenbergen;25.4
+GM0852;Waterland;30.1
+GM0855;Tilburg;24.0
+GM0856;Uden;25.3
+GM0858;Valkenswaard;26.4
+GM0861;Veldhoven;28.8
+GM0865;Vught;31.3
+GM0866;Waalre;32.4
+GM0867;Waalwijk;25.0
+GM0873;Woensdrecht;25.8
+GM0879;Zundert;25.6
+GM0880;Wormerland;27.3
+GM0882;Landgraaf;24.1
+GM0888;Beek;26.9
+GM0889;Beesel;23.8
+GM0893;Bergen (L.);23.8
+GM0899;Brunssum;23.0
+GM0907;Gennep;24.6
+GM0917;Heerlen;23.0
+GM0928;Kerkrade;22.4
+GM0935;Maastricht;24.7
+GM0938;Meerssen;28.3
+GM0944;Mook en Middelaar;30.1
+GM0946;Nederweert;25.2
+GM0957;Roermond;24.7
+GM0965;Simpelveld;25.0
+GM0971;Stein;25.7
+GM0981;Vaals;23.9
+GM0983;Venlo;23.6
+GM0984;Venray;24.8
+GM0986;Voerendaal;28.0
+GM0988;Weert;25.3
+GM0994;Valkenburg aan de Geul;26.8
+GM0995;Lelystad;23.6
+GM1507;Horst aan de Maas;25.2
+GM1509;Oude IJsselstreek;22.8
+GM1525;Teylingen;30.6
+GM1581;Utrechtse Heuvelrug;31.1
+GM1586;Oost Gelre;25.0
+GM1598;Koggenland;25.7
+GM1621;Lansingerland;30.0
+GM1640;Leudal;25.9
+GM1641;Maasgouw;26.8
+GM1652;Gemert-Bakel;24.4
+GM1655;Halderberge;25.6
+GM1658;Heeze-Leende;29.5
+GM1659;Laarbeek;25.4
+GM1667;Reusel-De Mierden;25.8
+GM1669;Roerdalen;25.5
+GM1674;Roosendaal;24.9
+GM1676;Schouwen-Duiveland;26.0
+GM1680;Aa en Hunze;26.3
+GM1681;Borger-Odoorn;23.8
+GM1684;Cuijk;24.5
+GM1685;Landerd;25.1
+GM1690;De Wolden;25.3
+GM1695;Noord-Beveland;25.3
+GM1696;Wijdemeren;31.1
+GM1699;Noordenveld;25.3
+GM1700;Twenterand;21.6
+GM1701;Westerveld;25.6
+GM1702;Sint Anthonis;25.6
+GM1705;Lingewaard;25.8
+GM1706;Cranendonck;25.9
+GM1708;Steenwijkerland;23.3
+GM1709;Moerdijk;26.5
+GM1711;Echt-Susteren;25.9
+GM1714;Sluis;25.0
+GM1719;Drimmelen;27.0
+GM1721;Bernheze;25.7
+GM1723;Alphen-Chaam;27.5
+GM1724;Bergeijk;26.4
+GM1728;Bladel;25.7
+GM1729;Gulpen-Wittem;26.2
+GM1730;Tynaarlo;28.1
+GM1731;Midden-Drenthe;24.5
+GM1734;Overbetuwe;26.2
+GM1735;Hof van Twente;25.0
+GM1740;Neder-Betuwe;22.6
+GM1742;Rijssen-Holten;22.4
+GM1771;Geldrop-Mierlo;26.3
+GM1773;Olst-Wijhe;24.9
+GM1774;Dinkelland;24.5
+GM1783;Westland;26.5
+GM1842;Midden-Delfland;29.4
+GM1859;Berkelland;23.7
+GM1876;Bronckhorst;25.0
+GM1883;Sittard-Geleen;25.4
+GM1884;Kaag en Braassem;28.0
+GM1891;Dantumadiel;20.6
+GM1892;Zuidplas;27.9
+GM1894;Peel en Maas;24.8
+GM1895;Oldambt;21.8
+GM1896;Zwartewaterland;22.7
+GM1900;Súdwest-Fryslân;23.3
+GM1901;Bodegraven-Reeuwijk;27.8
+GM1903;Eijsden-Margraten;28.0
+GM1904;Stichtse Vecht;30.4
+GM1911;Hollands Kroon;24.5
+GM1916;Leidschendam-Voorburg;30.8
+GM1924;Goeree-Overflakkee;26.2
+GM1926;Pijnacker-Nootdorp;29.4
+GM1930;Nissewaard;26.3
+GM1931;Krimpenerwaard;26.3
+GM1940;De Fryske Marren;24.0
+GM1942;Gooise Meren;36.2
+GM1945;Berg en Dal;25.6
+GM1948;Meierijstad;25.7
+GM1949;Waadhoeke;22.5
+GM1950;Westerwolde;22.2
+GM1952;Midden-Groningen;22.6
+GM1954;Beekdaelen;26.6
+GM1955;Montferland;23.8
+GM1959;Altena;25.3
+GM1960;West Betuwe;26.8
+GM1961;Vijfheerenlanden;25.3
+GM1963;Hoeksche Waard;28.0
+GM1966;Het Hogeland;22.7
+GM1969;Westerkwartier;23.6
+GM1970;Noardeast-Fryslân;21.0
+GM1978;Molenlanden;25.5

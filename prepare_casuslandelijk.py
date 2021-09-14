@@ -20,7 +20,8 @@
 
 import pandas as pd
 import numpy as np
-
+import datetime as dt
+from datetime import datetime
 
 def save_df(df, name):
     """  save dataframe on harddisk """
@@ -56,18 +57,25 @@ def main():
         inplace=True,
     )
 
+    #until = dt.datetime.strptime("2021-1-1", "%Y-%m-%d").date()
+    #mask = (df["Date_statistics"].dt.date >= dt.datetime.strptime("2020-1-1", "%Y-%m-%d").date()) & (df["Date_statistics"].dt.date <= until)
+    #df = df.loc[mask]
+
     df_hospital = df[df["Hospital_admission"] == "Yes"].copy(deep=False)
     df_deceased = df[df["Deceased"] == "Yes"].copy(deep=False)
 
-
-    df_hospital = df_hospital.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
+    df_all = df.groupby([ "Agegroup"], sort=True).count().reset_index()
+    df_hospital = df_hospital.groupby([ "Agegroup"], sort=True).count().reset_index()
     df_deceased = df_deceased.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
     #df_deceased = df_deceased.groupby([ "Agegroup"], sort=True).count().reset_index()
 
     df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
-
+    print ("CASES")
+    #df_all = df_all[["Agegroup", "count"]]
+    #df_hospital = df_hospital[["Agegroup", "count"]]
+    print (df_all)
+    print ("ZIEKENHUISOPNAMES")
     print (df_hospital)
-
 
     df_pivot = (
         pd.pivot_table(
@@ -125,6 +133,8 @@ def main():
     save_df(df_pivot, "landelijk_leeftijd_pivot_vanuit_casus_landelijk")
     save_df(df_pivot_hospital, "landelijk_leeftijd_pivot_hospital_vanuit_casus_landelijk")
     save_df(df_pivot_deceased, "landelijk_leeftijd_pivot_deceased_vanuit_casus_landelijk")
+
+
     df_pivot_cases_per_week = df_pivot.groupby(pd.Grouper(key='pos_test_Date_statistics', freq='W')).sum()
     df_pivot_cases_per_week.index -= pd.Timedelta(days=6)
     df_pivot_cases_per_week["weekstart"]= df_pivot_cases_per_week.index
