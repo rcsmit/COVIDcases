@@ -9,3 +9,5 @@ imageio
 tabulate
 sklearn
 gsheetsdb
+plotly
+statsmodels

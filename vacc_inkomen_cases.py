@@ -3,6 +3,10 @@ import numpy as np
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 import streamlit as st
+import plotly.express as px
+#import statsmodels
+
+from streamlit_plotly_events import plotly_events
 
 import pandas as pd
 from sklearn.metrics import r2_score
@@ -40,9 +44,9 @@ def read():
         df_totaal = df_totaal[(df_totaal[kolom] > mean -(factor*stdev)) & (df_totaal[kolom] < mean +(factor*stdev)) ]
 
     return df_totaal
+
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
     """Scatterplot maken
-
     """
     with _lock:
 
@@ -93,15 +97,87 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
         #plt.show()
         st.pyplot(fig1xy)
 
+def make_scatterplot_plotly(df_temp, what_to_show_l, what_to_show_r):
+    """Scatterplot maken
+
+    """
+    with _lock:
+
+        fig1xy,ax = plt.subplots()
+
+        x_ = np.array(df_temp[what_to_show_l])
+        y_ = np.array(df_temp[what_to_show_r])
+
+        show_cat = False
+        if show_cat == True:
+            cat_ = df_temp['provincie']
+            cat_col = df_temp['provincie'].astype('category')
+            cat_col_ = cat_col.cat.codes
+            scatter = plt.scatter(x_, y_, c = cat_col_, label=cat_)
+            legend1 = ax.legend(*scatter.legend_elements(), loc="best")
+            ax.add_artist(legend1)
+        else:
+            #scatter = plt.scatter(x_, y_)
+
+            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='inwoners', trendline="ols",
+                 hover_name="Gemeente_Naam")
+
+        #obtain m (slope) and b(intercept) of linear regression line
+        idx = np.isfinite(x_) & np.isfinite(y_)
+        m, b = np.polyfit(x_[idx], y_[idx], 1)
+        model = np.polyfit(x_[idx], y_[idx], 1)
+
+        predict = np.poly1d(model)
+        r2 = r2_score  (y_[idx], predict(x_[idx]))
+
+        #add linear regression line to scatterplot
+        plt.plot(x_, m*x_+b, 'r')
+
+        correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+        correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+        title_scatter = (f"<b>{what_to_show_l} -  {what_to_show_r}</b><br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+        plt.title(title_scatter)
+
+        fig1xy.update_layout(
+
+            title=dict(
+                text=title_scatter,
+                x=0.5,
+                y=0.95,
+                font=dict(
+                    family="Arial",
+                    size=10,
+                    color='#000000'
+                )
+            ),
+            xaxis_title=what_to_show_l,
+            yaxis_title=what_to_show_r,
+            font=dict(
+                family="Courier New, Monospace",
+                size=12,
+                color='#000000'
+            )
+        )
+        ax.text(
+            1,
+            1.3,
+            "Created by Rene Smit — @rcsmit",
+            transform=ax.transAxes,
+            fontsize="xx-small",
+            va="top",
+            ha="right",
+        )
+        st.plotly_chart(fig1xy)
+
 def main():
     df = read()
 
-    make_scatterplot(df,  "gem_ink_x1000","log_e_incidentie" )
-    make_scatterplot(df,  "gem_ink_x1000", "volledige.vaccinatie" )
+    make_scatterplot_plotly(df,  "gem_ink_x1000","log_e_incidentie" )
+    make_scatterplot_plotly(df,  "gem_ink_x1000", "volledige.vaccinatie" )
 
-    make_scatterplot(df,  "volledige.vaccinatie", "incidentie", )
-    make_scatterplot(df,  "volledige.vaccinatie", "log_e_incidentie" )
-    make_scatterplot(df,  "volledige.vaccinatie", "log_10_incidentie" )
+    make_scatterplot_plotly(df,  "volledige.vaccinatie", "incidentie", )
+    make_scatterplot_plotly(df,  "volledige.vaccinatie", "log_e_incidentie" )
+    make_scatterplot_plotly(df,  "volledige.vaccinatie", "log_10_incidentie" )
 
 if __name__ == "__main__":
     main()
