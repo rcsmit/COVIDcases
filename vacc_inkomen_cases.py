@@ -91,7 +91,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
             ha="right",
         )
         #plt.show()
-        st.pyplot(fig1x)
+        st.pyplot(fig1xy)
 
 def main():
     df = read()
