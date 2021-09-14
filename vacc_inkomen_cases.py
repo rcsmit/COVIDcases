@@ -76,9 +76,9 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
         #add linear regression line to scatterplot
         plt.plot(x_, m*x_+b, 'r')
 
-        correlation = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
-        # correlation = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
-        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}\nCorrelation = {correlation}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+        correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+        correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}\nCorrelation spearman = {correlation_sp} - Correlation pearson = {correlation_p}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
         plt.title(title_scatter)
 
         ax.text(
