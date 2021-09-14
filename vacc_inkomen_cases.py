@@ -178,6 +178,6 @@ def main():
     make_scatterplot_plotly(df,  "volledige.vaccinatie", "incidentie", )
     make_scatterplot_plotly(df,  "volledige.vaccinatie", "log_e_incidentie" )
     make_scatterplot_plotly(df,  "volledige.vaccinatie", "log_10_incidentie" )
-
+    st.write("Datafile met vaccinatiegraad en incidentie samengesteld door Yorick Bleijenberg / @YorickB.  3 gemeentes worden niet weergegeven ivm herindelingen. Baarle Nassau is verwijderd (incidentie x*10E-15). ). Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0")
 if __name__ == "__main__":
     main()
