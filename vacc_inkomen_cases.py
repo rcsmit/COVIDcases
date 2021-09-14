@@ -146,7 +146,7 @@ def make_scatterplot_plotly(df_temp, what_to_show_l, what_to_show_r):
                 y=0.95,
                 font=dict(
                     family="Arial",
-                    size=10,
+                    size=14,
                     color='#000000'
                 )
             ),
@@ -172,9 +172,9 @@ def make_scatterplot_plotly(df_temp, what_to_show_l, what_to_show_r):
 def main():
     df = read()
 
-    make_scatterplot_plotly(df,  "gem_ink_x1000","log_e_incidentie" )
-    make_scatterplot_plotly(df,  "gem_ink_x1000", "volledige.vaccinatie" )
 
+    make_scatterplot_plotly(df,  "gem_ink_x1000", "volledige.vaccinatie" )
+    make_scatterplot_plotly(df,  "gem_ink_x1000","log_e_incidentie" )
     make_scatterplot_plotly(df,  "volledige.vaccinatie", "incidentie", )
     make_scatterplot_plotly(df,  "volledige.vaccinatie", "log_e_incidentie" )
     make_scatterplot_plotly(df,  "volledige.vaccinatie", "log_10_incidentie" )
