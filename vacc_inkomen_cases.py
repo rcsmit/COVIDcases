@@ -83,7 +83,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r):
 
         ax.text(
             1,
-            1.1,
+            1.3,
             "Created by Rene Smit — @rcsmit",
             transform=ax.transAxes,
             fontsize="xx-small",
