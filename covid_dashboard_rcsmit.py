@@ -2179,7 +2179,7 @@ def main():
     # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
 
-    covid_dashboard_show_toelichting_footer.show_toelichting_footer(UPDATETIME)
+    covid_dashboard_show_toelichting_footer.show_toelichting_footer()
 if __name__ == "__main__":
     #caching.clear_cache()
     main()

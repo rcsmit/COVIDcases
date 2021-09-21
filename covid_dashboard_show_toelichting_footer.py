@@ -1,5 +1,5 @@
 import streamlit as st
-def show_toelichting_footer(UPDATETIME):
+def show_toelichting_footer():
     toelichting = (
         "<h2>Toelichting bij de keuzevelden:</h2>"
         "<p>Order may/might have been changed</p>"
@@ -106,8 +106,9 @@ def show_toelichting_footer(UPDATETIME):
 
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    now = UPDATETIME
-    UPDATETIME_ = now.strftime("%d/%m/%Y %H:%M:%S")
+    #now = UPDATETIME
+    #UPDATETIME_ = now.strftime("%d/%m/%Y %H:%M:%S")
+
     #st.write(f"\n\n\nData last updated : {str(UPDATETIME_)}")
     st.markdown("<hr>", unsafe_allow_html=True)
 
