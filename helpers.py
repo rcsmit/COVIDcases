@@ -13,7 +13,7 @@ import pandas as pd
 import datetime as dt
 from datetime import datetime
 from streamlit import caching
-
+import plotly.express as px
 from  matplotlib import pyplot
 import seaborn
 
@@ -223,6 +223,7 @@ def select_period(df, field):
     df = df.reset_index()
     return df
 
+
 def select_period_oud(df, field):
     """Shows two inputfields (from/until and Select a period in a df (helpers.py).
 
@@ -401,6 +402,47 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show
             )
             st.pyplot(fig1xy)
 
+
+
+
+
+            fig1xyz = px.scatter(df_temp, x=what_to_show_l[0], y=what_to_show_r[0],  color =cat_col,hover_data=["date"],
+                                trendline="ols", trendline_scope = 'overall',trendline_color_override = 'black'
+                    )
+
+            correlation_sp = round(df_temp[what_to_show_l[0]].corr(df_temp[what_to_show_r[0]], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+            correlation_p = round(df_temp[what_to_show_l[0]].corr(df_temp[what_to_show_r[0]], method='pearson'), 3)
+
+            title_scatter_plotly = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+
+            fig1xyz.update_layout(
+                title=dict(
+                    text=title_scatter_plotly,
+                    x=0.5,
+                    y=0.95,
+                    font=dict(
+                        family="Arial",
+                        size=14,
+                        color='#000000'
+                    )
+                ),
+                xaxis_title=what_to_show_l[0],
+                yaxis_title=what_to_show_r[0],
+
+            )
+
+            ax.text(
+                1,
+                1.3,
+                "Created by Rene Smit — @rcsmit",
+                transform=ax.transAxes,
+                fontsize="xx-small",
+                va="top",
+                ha="right",
+            )
+
+
+            st.plotly_chart(fig1xyz)
 
 def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
     """Smooth columns (helpers.py)

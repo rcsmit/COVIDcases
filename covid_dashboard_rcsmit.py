@@ -11,7 +11,7 @@ import datetime as dt
 from datetime import datetime, timedelta
 from dashboard_helpers import *
 import json
-
+import plotly.express as px
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
@@ -21,6 +21,8 @@ _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
 import streamlit as st
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import urllib
 import urllib.request
 from pathlib import Path
@@ -894,6 +896,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
         what_to_show_l_ = [what_to_show_l]
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
+    title_plotly = title
+
 
     with _lock:
         fig1x = plt.figure()
@@ -1118,12 +1122,13 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
                 )
                 ax3.set_ylabel("_")
 
-
             if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
                 correlation_sm = find_correlation_pair(df, b_, c_)
                 title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
                 title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
+                title_plotly = f"{title}<br>Correlation = {correlation}<br>Correlation smoothed = {correlation_sm}"
+
 
             if len(what_to_show_r) == 1:
                 mean = df[what_to_show_r].mean()
@@ -1177,15 +1182,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
         # plt.legend(handles,labels)
         # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
         plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=2)
-        ax.text(
-            1,
-            1.1,
-            "Created by Rene Smit — @rcsmit",
-            transform=ax.transAxes,
-            fontsize="xx-small",
-            va="top",
-            ha="right",
-        )
+        ax.text(1,1.1,"Created by Rene Smit — @rcsmit",transform=ax.transAxes,
+            fontsize="xx-small",va="top",ha="right",)
         if show_R_value_graph or show_R_value_RIVM:
             plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
         if groupby_timeperiod == "none":
@@ -1195,6 +1193,84 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
         if t == "line":
             set_xmargin(ax, left=-0.04, right=-0.04)
         st.pyplot(fig1x)
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df_temp["date"], y= df_temp[b_], mode='lines', name=b, line=dict(
+            color='LightSkyBlue')))
+        fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[b], mode='markers', name = b, showlegend=False,marker=dict(
+            color='LightSkyBlue',
+            size=2)))
+
+        fig.update_layout(
+
+            yaxis=dict(
+                title=b,
+                titlefont=dict(
+                    color="#1f77b4"
+                ),
+                tickfont=dict(
+                    color="#1f77b4"
+                )
+            ),
+            title=dict(
+                    text=title_plotly,
+                    x=0.5,
+                    y=0.95,
+                    font=dict(
+                        family="Arial",
+                        size=14,
+                        color='#000000'
+                    )
+                ),
+
+
+        )
+
+        if type(what_to_show_r) == list:
+            what_to_show_r = what_to_show_r
+        else:
+            what_to_show_r = [what_to_show_r]
+
+        n = len(color_list)
+        x = n
+        for a in what_to_show_r:
+            x -= 1
+            lbl = a + " (right ax)"
+            df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
+            for c_ in columnlist:
+                # smoothed
+                lbl2 = a + " (right ax)"
+                fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[c_],  name=a, mode='lines',   line=dict(color='red'),yaxis="y2"))
+
+            fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[a], mode='markers', name = a, showlegend=False,   yaxis="y2", marker=dict(
+            color='red',
+            size=2)))
+            fig.update_layout(
+                yaxis2=dict(
+                    title=a,
+                    titlefont=dict(
+                        color="red"
+                    ),
+                    tickfont=dict(
+                        color="red"
+                    ),
+
+                    overlaying="y",
+                    side="right",
+                    position=1.0
+                )
+
+            )
+
+        # Create axis objects
+
+
+
+
+        st.plotly_chart(fig)
+
+
+
 
     #if len(what_to_show_l) >= 1 and len(what_to_show_r) >= 1:  # add scatter plot
     if what_to_show_l is not None and what_to_show_r is not None:
@@ -1277,46 +1353,82 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
         what_to_show_l = [what_to_show_l]
 
     for show_l in what_to_show_l:
-        fig1y = plt.figure()
-        ax = fig1y.add_subplot(111)
-        ax.set_xticks(dfweek_l["weeknr"])
-        ax.set_xticklabels(dfweek_l["weekalt"], fontsize=6, rotation=45)
         label_l = show_l + " (" + how_l + ")"
-        dfweek_l[show_l].plot.bar(label=label_l, color="#F05225")
+        label_r = None
+        if graph_how == "pyplot":
 
-        if what_to_show_r != None:
-            for what_to_show_r_ in what_to_show_r:
-                label_r = what_to_show_r_ + " (" + how_r + ")"
-                ax3 = dfweek_r[what_to_show_r_].plot(
-                    secondary_y=True, color="r", label=label_r
-                )
+            fig1y = plt.figure()
+            ax = fig1y.add_subplot(111)
+            ax.set_xticks(dfweek_l["weeknr"])
+            ax.set_xticklabels(dfweek_l["weekalt"], fontsize=6, rotation=45)
 
-        # Add a grid
-        plt.grid(alpha=0.2, linestyle="--")
+            dfweek_l[show_l].plot.bar(label=label_l, color="#F05225")
 
-        # Add a Legend
-        fontP = FontProperties()
-        fontP.set_size("xx-small")
-        plt.legend(loc="best", prop=fontP)
+            if what_to_show_r != None:
+                for what_to_show_r_ in what_to_show_r:
+                    label_r = what_to_show_r_ + " (" + how_r + ")"
+                    ax3 = dfweek_r[what_to_show_r_].plot(
+                        secondary_y=True, color="r", label=label_r
+                    )
 
-        ax.xaxis.set_major_locator(MultipleLocator(1))
-        # ax.xaxis.set_major_formatter()
-        # everything in legend
-        # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
-        handles, labels = [], []
-        for ax in fig1y.axes:
-            for h, l in zip(*ax.get_legend_handles_labels()):
-                handles.append(h)
-                labels.append(l)
+            # Add a grid
+            plt.grid(alpha=0.2, linestyle="--")
 
-        plt.legend(handles, labels)
-        plt.xlabel("Week counted from " + str(FROM))
-        # configgraph(titlex)
-        if show_R_value_graph or show_R_value_RIVM:
-            pass
-            #ax3.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
-        st.pyplot(fig1y)
-        # plt.show()
+            # Add a Legend
+            fontP = FontProperties()
+            fontP.set_size("xx-small")
+            plt.legend(loc="best", prop=fontP)
+
+            ax.xaxis.set_major_locator(MultipleLocator(1))
+            # ax.xaxis.set_major_formatter()
+            # everything in legend
+            # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
+            handles, labels = [], []
+            for ax in fig1y.axes:
+                for h, l in zip(*ax.get_legend_handles_labels()):
+                    handles.append(h)
+                    labels.append(l)
+
+            plt.legend(handles, labels)
+            plt.xlabel("Week counted from " + str(FROM))
+            # configgraph(titlex)
+            if show_R_value_graph or show_R_value_RIVM:
+                pass
+                #ax3.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
+            st.pyplot(fig1y)
+            # plt.show()
+
+        else:
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+            # Add traces
+            fig.add_trace(
+                go.Bar(x=dfweek_l["weeknr"], y=dfweek_l[show_l], name=show_l),
+                secondary_y=False,
+            )
+            if what_to_show_r != None:
+                for what_to_show_r_ in what_to_show_r:
+                    label_r = what_to_show_r_ + " (" + how_r + ")"
+                    fig.add_trace(
+                        go.line(x=dfweek_l["weeknr"], y= dfweek_r[what_to_show_r_], name=label_r),
+                        secondary_y=True,
+                                )
+
+
+
+            # Add figure title
+            fig.update_layout(
+                title_text=f"{show_l} - {label_r}"
+            )
+
+            # Set x-axis title
+            fig.update_xaxes(title_text="Week counted from " + str(FROM))
+
+            # Set y-axes titles
+            fig.update_yaxes(title_text=show_l, secondary_y=False)
+            fig.update_yaxes(title_text=label_r, secondary_y=True)
+
+            st.plotly_chart(fig)
 
 
 def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t, showday):
@@ -1712,7 +1824,6 @@ def main():
     st.title("Interactive Corona Dashboard")
     # st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
-    st.write ("In the process to restructure the datafields at the moment!  ")
 
     # DAILY STATISTICS ################
     df_temp = None
@@ -1840,7 +1951,7 @@ def main():
             "What to show left-axis (multiple possible)", lijst, ["positivetests"]
         )
         what_to_show_day_r = st.sidebar.multiselect(
-            "What to show right-axis (multiple possible)", lijst
+            "What to show right-axis (multiple possible)", lijst, ["hospital_intake_rivm"]
         )
         if what_to_show_day_l == None:
             st.warning("Choose something")
@@ -1896,6 +2007,9 @@ def main():
         showday = 0
     global groupby_timeperiod
     global groupby_how
+    global graph_how
+    # graph_how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=1)
+    graph_how = "pyplot"
     showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10", "logit"], index=0)
     groupby_timeperiod =  st.sidebar.selectbox("GROUPBY : none, week or month", ["none", "1W", "1M"], index=0)
     if groupby_timeperiod != "none":
@@ -2065,7 +2179,7 @@ def main():
     # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
 
-    covid_dashboard_show_toelichting_footer.show_toelichting_footer()
+    covid_dashboard_show_toelichting_footer.show_toelichting_footer(UPDATETIME)
 if __name__ == "__main__":
     #caching.clear_cache()
     main()

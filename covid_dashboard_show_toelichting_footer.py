@@ -1,5 +1,5 @@
 import streamlit as st
-def show_toelichting_footer():
+def show_toelichting_footer(UPDATETIME):
     toelichting = (
         "<h2>Toelichting bij de keuzevelden:</h2>"
         "<p>Order may/might have been changed</p>"
