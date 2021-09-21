@@ -448,8 +448,8 @@ def extra_calculations(df):
     df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
     df["positivetests_cumm"] = df["positivetests"].cumsum()
     df["positivetests_log10"] = np.log10(df["positivetests"])
+    df["globale_straling_log10"] = np.log10(df["globale_straling"])
     df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["positivetests_cumm"]
-
     df["new.deaths_cumm"] = df["new.deaths"].cumsum()
     df["new.deaths_cumm_div_prev_div_days_contagious_cumm"] =  df["new.deaths_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
     df["IC_Nieuwe_Opnames_COVID_cumm"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
@@ -1661,6 +1661,7 @@ def main():
         "temp_max",
         "zonneschijnduur",
         "globale_straling",
+        "globale_straling_log10",
         "spec_humidity_knmi_derived",
         "abs_humidity_knmi_derived",
         "RH_avg",
