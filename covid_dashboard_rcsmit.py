@@ -12,6 +12,9 @@ from datetime import datetime, timedelta
 from dashboard_helpers import *
 import json
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
@@ -21,8 +24,6 @@ _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
 import streamlit as st
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import urllib
 import urllib.request
 from pathlib import Path

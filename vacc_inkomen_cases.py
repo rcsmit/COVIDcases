@@ -149,6 +149,6 @@ def main():
     make_scatterplot(df,  "inwoners", "incidentie" , how)
     make_scatterplot(df,  "inwoners", "volledige.vaccinatie", how )
     make_scatterplot(df,  "inwoners","gem_ink_x1000", how )
-    st.write("Datafile met vaccinatiegraad en incidentie samengesteld door Yorick Bleijenberg / @YorickB.  3 gemeentes worden niet weergegeven ivm herindelingen. Baarle Nassau is verwijderd (incidentie x*10E-15). ). Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0")
+    st.write("Cijfers dd. 8 september 2021. Datafile met vaccinatiegraad en incidentie samengesteld door Yorick Bleijenberg / @YorickB.  3 gemeentes worden niet weergegeven ivm herindelingen. Baarle Nassau is verwijderd (incidentie x*10E-15). ). Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0")
 if __name__ == "__main__":
     main()
