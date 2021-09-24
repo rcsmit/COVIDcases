@@ -2176,8 +2176,9 @@ def main():
     # import base64
     # coded_data = base64.b64encode(df.to_csv(index=False).encode()).decode()
     # st.markdown(f'<a href="data:file/csv;base64,{coded_data}" download="data.csv">Download Data<a>', unsafe_allow_html = True)
-
-    # find_lag_time(df,"transit_stations","Rt_avg", 0,10)
+    if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add lagtime
+        if st.sidebar.button("Find lagtime"):
+            find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
 
     covid_dashboard_show_toelichting_footer.show_toelichting_footer()
