@@ -9,6 +9,8 @@ import matplotlib.cm as cm
 from scipy import stats
 import datetime as dt
 from datetime import datetime, timedelta
+
+from streamlit.errors import NoSessionContext
 from dashboard_helpers import *
 import json
 import plotly.express as px
@@ -711,7 +713,17 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
 
 
 def move_column(df, column_, days):
-    """  _ _ _ """
+    """Move/shift a column
+
+    Args:
+        df (df): df
+        column_ (string): which column to move
+        days (int): how many days
+
+    Returns:
+        df: df
+        new_column : name of the new column
+    """    """  _ _ _ """
     column_ = column_ if type(column_) == list else [column_]
     for column in column_:
         new_column = column + "_moved_" + str(days)
@@ -1434,12 +1446,13 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
 
 def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t, showday):
     """  _ _ _ """
+
+    if type(what_to_show_l) == list:
+        what_to_show_l = what_to_show_l
+    else:
+        what_to_show_l = [what_to_show_l]
+    title = ""
     if t == "bar":
-        if type(what_to_show_l) == list:
-            what_to_show_l = what_to_show_l
-        else:
-            what_to_show_l = [what_to_show_l]
-        title = ""
         for c in what_to_show_l:
 
             #    what_to_show_r = what_to_show_r
@@ -1611,34 +1624,38 @@ def find_correlation_pair(df, first, second):
 
 def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     b = what_happens_first
-    a = what_happens_second
+    a = what_happens_second  # shape (266,1)
     x = []
     y = []
+
     max = 0
+    df, nx = move_column(df, a, 0) #strange way to prevent error
     max_column = None
     for n in range(r1, (r2 + 1)):
-        df, m = move_column(df, b, n)
-        c = round(df[m].corr(df[a]), 3)
+        df, m = move_column(df, b, n) #(shape (266,)
+        c = round(df[m].corr(df[nx]), 3)
         if c > max:
             max = c
             max_column = m
             m_days = n
         x.append(n)
         y.append(c)
-    title = f"Correlation between : {a} - {b} "
+    title = f"Correlation between : {a} - {b} with moved days"
     title2 = f" {a} - b - moved {m_days} days "
+    with _lock:
+        fig1x = plt.figure()
+        ax = fig1x.add_subplot(111)
+        plt.xlabel("shift in days")
+        plt.plot(x, y)
+        #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
+        # Add a grid
+        plt.grid(alpha=0.2, linestyle="--")
+        plt.title(title, fontsize=10)
+        st.pyplot(fig1x)
+    # plt.show()
 
-    fig1x = plt.figure()
-    ax = fig1x.add_subplot(111)
-    plt.xlabel("shift in days")
-    plt.plot(x, y)
-    plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
-    # Add a grid
-    plt.grid(alpha=0.2, linestyle="--")
-    plt.title(title, fontsize=10)
-    plt.show()
-    graph_daily(df, [a], [b], "SMA", "line", showday)
-    graph_daily(df, [a], [max_column], "SMA", "line", showday)
+    # graph_daily(df, [a], [b], "SMA", "line", showday)
+    # graph_daily(df, [a], [max_column], "SMA", "line", showday)
     # if the optimum is negative, the second one is that x days later
 
 
@@ -1920,7 +1937,7 @@ def main():
     df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1, 7)
 
     lijst.extend(newcolumns_w2w2) # percentage
-    save_df(df,"whyowyhasdf")
+
     #chd = ["pos_test_0-9", "pos_test_10-19", "pos_test_20-29", "pos_test_30-39", "pos_test_40-49", "pos_test_50-59", "pos_test_60-69", "pos_test_70-79", "pos_test_80-89", "pos_test_90+", "pos_test_20-99","pos_test_0-99", "hosp_0-9", "hosp_10-19", "hosp_20-29", "hosp_30-39", "hosp_40-49", "hosp_50-59", "hosp_60-69", "hosp_70-79", "hosp_80-89", "hosp_90+", "hosp_0-49","hosp_50-79","hosp_70+", "hosp_0-90", "new.deaths_<50", "new.deaths_50-59", "new.deaths_60-69", "new.deaths_70-79", "new.deaths_80-89", "new.deaths_90+", "new.deaths_0-99"]
 
     #lijst.extend(chd)
@@ -1960,6 +1977,7 @@ def main():
         move_right = st.sidebar.slider("Move curves at right axis (days)", -14, 14, 0)
     else:
         move_right = 0
+
     showR = False
     if how_to_display == "bar":
         what_to_show_day_l = st.sidebar.selectbox(
@@ -2177,9 +2195,23 @@ def main():
     # coded_data = base64.b64encode(df.to_csv(index=False).encode()).decode()
     # st.markdown(f'<a href="data:file/csv;base64,{coded_data}" download="data.csv">Download Data<a>', unsafe_allow_html = True)
     if len(what_to_show_day_l) == 1 and len(what_to_show_day_r) == 1:  # add lagtime
-        if st.sidebar.button("Find lagtime"):
-            find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,10)
+        #if st.sidebar.button("Find lagtime"):
+        find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,10)
     # correlation_matrix(df,werkdagen, weekend_)
+
+    @st.cache
+    def convert_df(df):
+        # IMPORTANT: Cache the conversion to prevent computation on every rerun
+        return df.to_csv().encode('utf-8')
+
+    csv = convert_df(df)
+
+    # st.download_button(
+    #     label="Download data as CSV",
+    #     data=csv,
+
+    #     mime='text/csv',
+    # )
 
     covid_dashboard_show_toelichting_footer.show_toelichting_footer()
 if __name__ == "__main__":
