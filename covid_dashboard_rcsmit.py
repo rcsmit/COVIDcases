@@ -1627,28 +1627,46 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
     a = what_happens_second  # shape (266,1)
     x = []
     y = []
+    y_sma =[]
 
     max = 0
+    max_sma = 0
+    df, b_sma = smooth_columnlist(df, b, "SMA", 7, True )
+    df, a_sma = smooth_columnlist(df, a, "SMA", 7, True )
+
+
     df, nx = move_column(df, a, 0) #strange way to prevent error
+    df, nx_sma = move_column(df, a_sma, 0) #strange way to prevent error
+
     max_column = None
     for n in range(r1, (r2 + 1)):
+
         df, m = move_column(df, b, n) #(shape (266,)
         c = round(df[m].corr(df[nx]), 3)
         if c > max:
             max = c
-            max_column = m
-            m_days = n
+
         x.append(n)
         y.append(c)
+
+        df, m_sma = move_column(df, b_sma, n) #(shape (266,)
+        c_sma = round(df[m_sma].corr(df[nx_sma]), 3)
+        if c_sma > max_sma:
+            max_sma = c_sma
+        y_sma.append(c_sma)
+
+
     title = f"Correlation between : {a} - {b} with moved days"
-    title2 = f" {a} - b - moved {m_days} days "
+
     with _lock:
         fig1x = plt.figure()
         ax = fig1x.add_subplot(111)
         plt.xlabel("shift in days")
-        plt.plot(x, y)
+        plt.plot(x, y, label = "Values")
+        plt.plot(x, y_sma, label = "Smoothed")
         #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
         # Add a grid
+        plt.legend()
         plt.grid(alpha=0.2, linestyle="--")
         plt.title(title, fontsize=10)
         st.pyplot(fig1x)
@@ -2196,7 +2214,7 @@ def main():
     # st.markdown(f'<a href="data:file/csv;base64,{coded_data}" download="data.csv">Download Data<a>', unsafe_allow_html = True)
     if len(what_to_show_day_l) == 1 and len(what_to_show_day_r) == 1:  # add lagtime
         #if st.sidebar.button("Find lagtime"):
-        find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,10)
+        find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,14)
     # correlation_matrix(df,werkdagen, weekend_)
 
     @st.cache
