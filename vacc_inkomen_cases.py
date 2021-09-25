@@ -56,8 +56,8 @@ def read():
         mean = df_totaal[kolom].mean()
         stdev = df_totaal[kolom].std()
         df_totaal = df_totaal[(df_totaal[kolom] > mean -(factor*stdev)) & (df_totaal[kolom] < mean +(factor*stdev)) ]
-    url_uitslag =  "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\uitslag_per_partij2021.csv"
-    #url_uitslag = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/uitslag_per_partij2021.csv"
+    #url_uitslag =  "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\uitslag_per_partij2021.csv"
+    url_uitslag = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/uitslag_per_partij2021.csv"
     uitslag =pd.read_csv(url_uitslag, delimiter=',')
 
 
