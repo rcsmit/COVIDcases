@@ -213,17 +213,16 @@ def main():
     make_scatterplot(df,  "volledige.vaccinatie", "log_10_incidentie" , how, None)
 
 
+    st.subheader("Naar inwoners")
+    make_scatterplot(df,  "inwoners", "incidentie" , how, None)
+    make_scatterplot(df,  "inwoners", "volledige.vaccinatie", how, None)
+    make_scatterplot(df,  "inwoners","gem_ink_x1000", how, None)
+
     st.subheader("Naar geselecteerde partijen")
     make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent", "volledige.vaccinatie", how, None)
     make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent", "incidentie", how, None)
     make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent","gem_ink_x1000", how, None)
     make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent","inwoners", how, None)
-
-
-    st.subheader("Naar inwoners")
-    make_scatterplot(df,  "inwoners", "incidentie" , how, None)
-    make_scatterplot(df,  "inwoners", "volledige.vaccinatie", how, None)
-    make_scatterplot(df,  "inwoners","gem_ink_x1000", how, None)
 
     st.subheader("Correlaties partijen - vacc.graad")
     corr_tabel = make_corr_tabel(df, partijen, uitslag)
