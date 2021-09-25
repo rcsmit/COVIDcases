@@ -28,9 +28,23 @@ def read():
     url_inkomen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/inkomen_per_gemeente.csv"
     df_inkomen =pd.read_csv(url_inkomen, delimiter=';')
 
+
+    # BRON: https://www.verkiezingsuitslagen.nl/data/gemeenten/10910
+    #url_verkiezingen="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\verkiezingen2021.csv"
+    url_verkiezingen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/verkiezingen2021.csv"
+    df_verkiezingen = pd.read_csv(url_verkiezingen, delimiter=',')
+
+    partijen = df_verkiezingen.columns.values.tolist()
+    partijen = partijen[7:]
+
     df_totaal= pd.merge(
                 df_yorick, df_inkomen, how="inner", left_on="Municipality_code", right_on="Gemeentecode"
             )
+
+    df_totaal= pd.merge(
+                df_totaal, df_verkiezingen, how="inner", left_on="Municipality_code", right_on="ReGMioCode"
+            )
+
     df_totaal["log_e_incidentie"] = np.log(df_totaal["incidentie"])
     df_totaal["log_10_incidentie"] = np.log10(df_totaal["incidentie"])
     df_totaal['volledige.vaccinatie'] = df_totaal['volledige.vaccinatie'].astype(float)
@@ -43,7 +57,7 @@ def read():
         stdev = df_totaal[kolom].std()
         df_totaal = df_totaal[(df_totaal[kolom] > mean -(factor*stdev)) & (df_totaal[kolom] < mean +(factor*stdev)) ]
 
-    return df_totaal
+    return df_totaal, partijen
 
 
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how):
@@ -134,17 +148,40 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how):
             st.plotly_chart(fig1xy)
 
 
+def bewerk_df(df, partijen_selected):
+    df["stemmen_op_geselecteerde_partijen"] = df[partijen_selected].sum(axis=1)
+    return df
 
 def main():
-    df = read()
+    df, partijen = read()
     how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
+
+    partijen_default =  [ 'PVV (Partij voor de Vrijheid)', 'Forum voor Democratie']
+
+    partijen_selected = st.sidebar.multiselect(
+            "What to show left-axis (multiple possible)", partijen, partijen_default)
+    df = bewerk_df(df, partijen_selected)
+
+
     st.subheader("Naar inkomen")
     make_scatterplot(df,  "gem_ink_x1000", "volledige.vaccinatie", how )
     make_scatterplot(df,  "gem_ink_x1000","log_e_incidentie", how )
+    make_scatterplot(df,  "gem_ink_x1000","stemmen_op_geselecteerde_partijen", how )
+
     st.subheader("Naar vaccinatiegraad")
     make_scatterplot(df,  "volledige.vaccinatie", "incidentie", how )
+
     make_scatterplot(df,  "volledige.vaccinatie", "log_e_incidentie", how )
     make_scatterplot(df,  "volledige.vaccinatie", "log_10_incidentie" , how)
+
+
+    st.subheader("Naar geselecteerde partijen")
+    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen", "volledige.vaccinatie", how )
+    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen", "incidentie", how )
+    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen","gem_ink_x1000", how )
+    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen","inwoners", how )
+
+
     st.subheader("Naar inwoners")
     make_scatterplot(df,  "inwoners", "incidentie" , how)
     make_scatterplot(df,  "inwoners", "volledige.vaccinatie", how )
