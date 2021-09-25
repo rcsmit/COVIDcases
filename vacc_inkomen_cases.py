@@ -162,7 +162,6 @@ def main():
             "What to show left-axis (multiple possible)", partijen, partijen_default)
     df = bewerk_df(df, partijen_selected)
 
-
     st.subheader("Naar inkomen")
     make_scatterplot(df,  "gem_ink_x1000", "volledige.vaccinatie", how )
     make_scatterplot(df,  "gem_ink_x1000","log_e_incidentie", how )
