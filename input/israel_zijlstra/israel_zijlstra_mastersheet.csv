@@ -1,7 +1,7 @@
 einddag_week,Age_group,positive_1_6_days_after_1st_dose,positive_7_13_days_after_1st_dose,positive_14_20_days_after_1st_dose,positive_above_20_days_after_1st_dose,positive_1_6_days_after_2nd_dose,positive_7_13_days_after_2nd_dose,positive_14_20_days_after_2nd_dose,positive_above_20_days_after_2nd_dose,positive_1_6_days_after_3rd_dose,positive_7_13_days_after_3rd_dose,positive_14_20_days_after_3rd_dose,positive_above_20_days_after_3rd_dose,Sum_positive_without_vaccination,first_dose,second_dose,third_dose,first_dose_cumm,sec_cumm,third_cumm,totale groep,ongevacced,ongeboosterd
 26-12-2020,0-19,,,,,,,,,,,,,8109,92,0,0,767,0,0,3313200,3313200,3313200
 2-1-2021,0-19,46,2.5,,,,,,,,,,,12752,859,0,0,8898,0,0,3313200,3313200,3313200
-9-1-2021,0-19,98,82.5,,,,,,,,,,18254,1019,0,0,21708,0,0,3313200,3313200,3313200
+9-1-2021,0-19,98,8,2.5,,,,,,,,,,18254,1019,0,0,21708,0,0,3313200,3313200,3313200
 16-1-2021,0-19,45,164,49,,,,,,,,,,22193.542,65,0,26086,628,0,3313200,3312572,3313200
 23-1-2021,0-19,83,85.59,18,7,2.5,,,,,,,19739,6650,483,0,48799,7059,0,3313200,3306141,3313200
 30-1-2021,0-19,268,190,23,15,11,2.5,,,,,,,18362,4972,905,0,129678,19149,0,3313200,3294051,3313200
