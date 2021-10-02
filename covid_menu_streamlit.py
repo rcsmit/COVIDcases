@@ -42,7 +42,7 @@ def main():
             ["19. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
             ["20. per provincie per leeftijd","perprovincieperleeftijd"],
             ["21. kans om covid op te lopen","kans_om_covid_op_te_lopen"],
-            ["22. Inkomen vs vaccinatie vs incidentie vs verkiezingen", "vacc_inkomen_cases"]  ]
+            ["22. Inkomen vs vaccinatie vs incidentie vs verkiezingen", "vacc_inkomen_cases"] ,
             ["23. VE Israel", "israel_zijlstra"]  ]
 
 
