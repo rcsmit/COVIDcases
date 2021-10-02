@@ -11,7 +11,7 @@ import datetime as dt
 from datetime import datetime, timedelta
 
 from streamlit.errors import NoSessionContext
-from dashboard_helpers import *
+
 import json
 import plotly.express as px
 import plotly.graph_objects as go
@@ -416,7 +416,7 @@ def extra_calculations(df):
     df["Reported_min_positive"] = df["positivetests"]-df["Tested_positive"]
     df["positivetests_moved_14"] = df["positivetests"].shift(14)
     df["hosp_adm_per_reported"] = round(
-            ((df["hospital_intake_rivm"] ) / df["positivetests"] * 100), 2
+            ((df["Kliniek_Nieuwe_Opnames_COVID"] ) / df["positivetests"] * 100), 2
         )
 
     df["IC_adm_per_reported"] = round(
@@ -425,13 +425,13 @@ def extra_calculations(df):
     df["new.deaths_per_reported"] = round(
             ((df["new.deaths"] ) / df["positivetests"] * 100), 2)
     df["hosp_adm_per_reported_moved_6"] = round(
-            ((df["hospital_intake_rivm"] ) / df["positivetests_moved_6"] * 100), 2
+            ((df["Kliniek_Nieuwe_Opnames_COVID"] ) / df["positivetests_moved_6"] * 100), 2
         )
     df["hosp_adm_per_reported_moved_12"] = round(
-            ((df["hospital_intake_rivm"] ) / df["positivetests_moved_12"] * 100), 2
+            ((df["Kliniek_Nieuwe_Opnames_COVID"] ) / df["positivetests_moved_12"] * 100), 2
         )
     df["hosp_adm_per_reported_moved_-12"] = round(
-            ((df["hospital_intake_rivm"] ) / df["positivetests_moved_-12"] * 100), 2
+            ((df["Kliniek_Nieuwe_Opnames_COVID"] ) / df["positivetests_moved_-12"] * 100), 2
         )
 
     df["IC_adm_per_reported_moved_6"] = round(
@@ -458,7 +458,7 @@ def extra_calculations(df):
     df["new.deaths_cumm"] = df["new.deaths"].cumsum()
     df["new.deaths_cumm_div_prev_div_days_contagious_cumm"] =  df["new.deaths_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
     df["IC_Nieuwe_Opnames_COVID_cumm"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
-    df["hospital_intake_rivm_cumm"] = df["hospital_intake_rivm"].cumsum()
+    df["Kliniek_Nieuwe_Opnames_COVID_cumm"] = df["Kliniek_Nieuwe_Opnames_COVID"].cumsum()
     #df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
     df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
     df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
@@ -474,7 +474,7 @@ def extra_calculations_period(df):
     df["positivetests_cumm_period"] = df["positivetests"].cumsum()
     df["new.deaths_cumm_period"] = df["new.deaths"].cumsum()
     df["IC_Nieuwe_Opnames_COVID_cumm_period"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
-    df["hospital_intake_rivm_cumm_period"] = df["hospital_intake_rivm"].cumsum()
+    df["Kliniek_Nieuwe_Opnames_COVID_cumm_period"] = df["Kliniek_Nieuwe_Opnames_COVID"].cumsum()
     df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
     df["new.deaths_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["new.deaths_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
     first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
@@ -1830,11 +1830,11 @@ def main():
 
 
         "positivetests_cumm",
-        "hospital_intake_rivm_cumm",
+        "Kliniek_Nieuwe_Opnames_COVID_cumm",
         "new.deaths_cumm",
         "IC_Nieuwe_Opnames_COVID_cumm",
         "positivetests_cumm_period",
-        "hospital_intake_rivm_cumm_period",
+        "Kliniek_Nieuwe_Opnames_COVID_cumm_period",
         "new.deaths_cumm_period",
         "IC_Nieuwe_Opnames_COVID_cumm_period",
         "prev_div_days_contagious",
@@ -1924,7 +1924,7 @@ def main():
 
     w2w = [
         "positivetests",
-        "hospital_intake_rivm",
+        "Kliniek_Nieuwe_Opnames_COVID",
         "new.deaths",
     #     "spec_humidity_knmi_derived"
     ]
@@ -1935,8 +1935,8 @@ def main():
 
 
     #st.write(get_duplicate_cols(df))
-    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, ["positivetests", "hospital_intake_rivm"], 7)
-    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df,["positivetests", "hospital_intake_rivm"], 14)
+    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, ["positivetests", "Kliniek_Nieuwe_Opnames_COVID"], 7)
+    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df,["positivetests", "Kliniek_Nieuwe_Opnames_COVID"], 14)
     lijst.extend(newcolumns_w2w7) # percentage
     lijst.extend(newcolumns2_w2w7) # index
 
@@ -1987,7 +1987,7 @@ def main():
             "What to show left-axis (multiple possible)", lijst, ["positivetests"]
         )
         what_to_show_day_r = st.sidebar.multiselect(
-            "What to show right-axis (multiple possible)", lijst, ["hospital_intake_rivm"]
+            "What to show right-axis (multiple possible)", lijst, ["Kliniek_Nieuwe_Opnames_COVID"]
         )
         if what_to_show_day_l == None:
             st.warning("Choose something")

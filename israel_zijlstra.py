@@ -93,10 +93,19 @@ def line_chart_pivot (df, title):
         fig.add_trace(go.Scatter(x=df["einddag_week"], y= df[col_sma], mode='lines', name=col ))
 
     fig.update_layout(
-        title=title + " (SMA 3)",
+        title=dict(
+                text=title+ " (SMA 3)",
+                x=0.5,
+                y=0.85,
+                font=dict(
+                    family="Arial",
+                    size=14,
+                    color='#000000'
+                )),
+
+
         xaxis_title="Einddag vd week",
-        yaxis_title="VE",
-    )
+        yaxis_title="VE"    )
     st.plotly_chart(fig)
 
 
