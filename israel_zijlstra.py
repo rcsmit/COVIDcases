@@ -60,23 +60,25 @@ def line_chart (df, what_to_show):
         what_to_show ([type]): [description]
     """
     # fig = go.Figure()
-    fig = px.line(df, x="einddag_week", y=what_to_show, color='Age_group')
-
-
+    try:
+        fig = px.line(df, x="einddag_week", y=what_to_show, color='Age_group')
+    except:
+        fig = px.line(df, x="einddag_week", y=what_to_show)
     fig.update_layout(
         title=what_to_show,
         xaxis_title="Einddag vd week",
-        yaxis_title="VE",
+        yaxis_title=what_to_show,
     )
     st.plotly_chart(fig)
 
-def line_chart_pivot (df, title):
+def line_chart_pivot (df_, field, title):
     """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
 
     Args:
         df ([type]): [description]
         title ([type]): [description]
     """
+    df = make_pivot(df_, field)
     fig = go.Figure()
 
     columns = df.columns.tolist()
@@ -190,6 +192,7 @@ def make_calculations(df):
     df["ziek_V_3_per_100k"] = df["positive_above_20_days_after_3rd_dose"] /  df["third_cumm"] *100_000
     df["ziek_N_per_100k"] = df["Sum_positive_without_vaccination"] / df["unvaxxed_new"] *100_000
     df["VE_2_N"] = (1 - ( df["ziek_V_2_per_100k"]/ df["ziek_N_per_100k"]))*100
+    df["HR_2_N"] = ( ( df["ziek_V_2_per_100k"]/ df["ziek_N_per_100k"]))*100 # zelfde als RR of IRR
     df["VE_3_N"] = (1 - ( df["ziek_V_3_per_100k"]/ df["ziek_N_per_100k"]))*100
     df["VE_3_N_2_N"]= (1 - ( df["ziek_V_3_per_100k"]/ df["ziek_V_2_per_100k"]))*100
     df["healthy_vax"] =   df["sec_cumm"] - df["positive_above_20_days_after_2nd_dose"]
@@ -207,6 +210,7 @@ def make_calculations(df):
     df["odds_ratio_V_2_N"] = (  df["p_inf_vacc"]/(1-  df["p_inf_vacc"])) /  (   df["p_inf_non_vacc"] / (1-   df["p_inf_non_vacc"]))
     # https://wikistatistiek.amc.nl/index.php/Logistische_regressie
     df["odds_ratio_amc"] = ( df["positive_above_20_days_after_2nd_dose"]*   df["healthy_nonvax"] ) / ( df["healthy_vax"] *  df["Sum_positive_without_vaccination"])
+
     df["IRR"] =  df["odds_ratio_V_2_N"] / ((1-df["p_inf_non_vacc"]) + (df["p_inf_non_vacc"] *  df["odds_ratio_V_2_N"] ))
     return df
 def toelichting():
@@ -235,8 +239,16 @@ def toelichting():
     st.write("    odds_ratio = (  p_inf_vacc/(1-  p_inf_vacc)) /  (   p_inf_non_vacc / (1-   p_inf_non_vacc))")
     st.write("    https://wikistatistiek.amc.nl/index.php/Logistische_regressie")
     st.write("    odds_ratio_amc = ( positive_above_20_days_after_2nd_dose*   healthy_nonvax ) / ( healthy_vax *  Sum_positive_without_vaccination)")
-    st.write("    IRR =  odds_ratio / ((1-p_inf_non_vacc) + (p_inf_non_vacc *  odds_ratio ))")
+    st.write("    IRR =  odds_ratio / ((1-p_inf_non_vacc) + (p_inf_non_vacc *  odds_ratio )) Incidence Rate Ratio")
     st.write(df)
+
+def group_table(df, valuefield):
+    print (len(df))
+    df = df[df["Age_group"] != "0-19"]
+    print (len(df))
+    df_grouped = df.groupby([df[valuefield]], sort=True).sum().reset_index()
+    return df_grouped
+
 def make_pivot(df, valuefield):
     df_pivot = (
     pd.pivot_table(
@@ -253,25 +265,23 @@ def make_pivot(df, valuefield):
     return df_pivot
 
 def main():
-    df = read()
-    df = df.fillna(0)
+    df_ = read()
+    df_ = df_.fillna(0)
 
-    df = make_calculations(df)
+    df = make_calculations(df_)
     #st.write(df)
-
-
-    df_pivot_VE_2_N = make_pivot(df,"VE_2_N")
-    df_pivot_VE_3_N = make_pivot(df,"VE_3_N")
-    df_pivot_odds_2_N = make_pivot(df,"odds_ratio_V_2_N")
-    df_pivot_VE_3_N_2_N =  make_pivot(df,"VE_3_N_2_N")
-
+    df_grouped = group_table(df_, "einddag_week").copy(deep = True)
+    df_grouped = make_calculations(df_grouped)
 
     st.subheader ("VE vs non vax - smoothed")
 
-    line_chart_pivot ( df_pivot_VE_2_N, "VE (2 vaccins / N)")
+    line_chart_pivot (df,  "VE_2_N", "VE (2 vaccins / N)")
+    line_chart_pivot ( df,"odds_ratio_V_2_N", "Odds Ratio (2 vaccins / N)")
 
-    line_chart_pivot ( df_pivot_odds_2_N, "Odds Ratio (2 vaccins / N)")
-
+    st.subheader("All ages together (excl. 0-19)")
+    line_chart (df_grouped,  "VE_2_N")
+    line_chart (df_grouped,  "IRR")
+    line_chart ( df_grouped,"odds_ratio_V_2_N")
     with st.expander ("Non smoothed", expanded = False):
         st.subheader ("VE and odds ratio vs non vax")
         line_chart (df, "VE_2_N")
@@ -287,11 +297,13 @@ def main():
     make_scatterplot(df_boostered, "perc_boostered","VE_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
 
     st.subheader ("Booster vs nonvax and booster vs doublevaxx")
-    line_chart_pivot ( df_pivot_VE_3_N,  "VE (3 vaccins / N)")
-    line_chart_pivot ( df_pivot_VE_3_N_2_N, "VE (3 vaccins / 2vaccins")
+    line_chart_pivot ( df,  "VE_3_N", "VE (3 vaccins / N)")
+    line_chart_pivot ( df,"VE_3_N_2_N", "VE (3 vaccins / 2vaccins")
 
     st.subheader("Relation between VE, odds_ratio and IRR")
     make_scatterplot(df, "odds_ratio_V_2_N","VE_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
+    make_scatterplot(df, "odds_ratio_V_2_N","HR_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
+
     make_scatterplot(df, "odds_ratio_V_2_N","IRR",True, "Age_group", None, ["Age_group", "einddag_week"])
     make_scatterplot(df, "odds_ratio_V_2_N","odds_ratio_amc",True, "Age_group", None, ["Age_group", "einddag_week"])
 
