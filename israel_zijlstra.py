@@ -29,7 +29,7 @@ from plotly.subplots import make_subplots
 
 
 # na 21/8 zelfde waardes voor de vaccinaties voor 90+ aangehoude
-#@st.cache(ttl=60 * 60 * 24)
+@st.cache(ttl=60 * 60 * 24)
 def read():
     sheet_id = "104fiQWDNmLP73CBEo5Lu-fXeTOYiTx_7PZb0N-b3joE"
     sheet_name = "mastersheet"
@@ -77,10 +77,6 @@ def line_chart_pivot (df, title):
         df ([type]): [description]
         title ([type]): [description]
     """
-    with st.expander (f"dataframe pivottable {title}"):
-        df_temp = df.astype(str).copy(deep = True)
-        st.write (df_temp)
-
     fig = go.Figure()
 
     columns = df.columns.tolist()
@@ -107,7 +103,9 @@ def line_chart_pivot (df, title):
         xaxis_title="Einddag vd week",
         yaxis_title="VE"    )
     st.plotly_chart(fig)
-
+    with st.expander (f"dataframe pivottable {title}"):
+        df_temp = df.astype(str).copy(deep = True)
+        st.write (df_temp)
 
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categoryfield, hover_name, hover_data):
     """Makes a scatterplot with trendline and statistics
@@ -183,11 +181,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
 
 
         st.plotly_chart(fig1xy)
-
-def main():
-    df = read()
-    df = df.fillna(0)
-
+def make_calculations(df):
     df["unvaxxed_new"] = df["populatie_grootte"] -  df["sec_cumm"]
     df["unboostered_new"] = df["populatie_grootte"] -  df["third_cumm"]
     df["perc_sec_dose"] = round((df["sec_cumm"] / df["populatie_grootte"])*100,1)
@@ -198,6 +192,8 @@ def main():
     df["VE_2_N"] = (1 - ( df["ziek_V_2_per_100k"]/ df["ziek_N_per_100k"]))*100
     df["VE_3_N"] = (1 - ( df["ziek_V_3_per_100k"]/ df["ziek_N_per_100k"]))*100
     df["VE_3_N_2_N"]= (1 - ( df["ziek_V_3_per_100k"]/ df["ziek_V_2_per_100k"]))*100
+    df["healthy_vax"] =   df["sec_cumm"] - df["positive_above_20_days_after_2nd_dose"]
+    df["healthy_nonvax"] =  df["unvaxxed_new"] - df["Sum_positive_without_vaccination"]
 
     # after second dose
     # https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/
@@ -205,67 +201,103 @@ def main():
     df["p_inf_vacc"] = df["positive_above_20_days_after_2nd_dose"] /  df["sec_cumm"]
     df["p_inf_non_vacc"] = df["Sum_positive_without_vaccination"] / df["unvaxxed_new"]
 
-    df["odds_ratio"] = (  df["p_inf_vacc"]/(1-  df["p_inf_vacc"])) /  (   df["p_inf_non_vacc"] / (1-   df["p_inf_non_vacc"]))
+    # ODDS RATIO = IRR
+    # VE = -100 * OR + 100
 
-    df["IRR"] =  df["odds_ratio"] / ((1-df["p_inf_non_vacc"]) + (df["p_inf_non_vacc"] *  df["odds_ratio"] ))
+    df["odds_ratio_V_2_N"] = (  df["p_inf_vacc"]/(1-  df["p_inf_vacc"])) /  (   df["p_inf_non_vacc"] / (1-   df["p_inf_non_vacc"]))
+    # https://wikistatistiek.amc.nl/index.php/Logistische_regressie
+    df["odds_ratio_amc"] = ( df["positive_above_20_days_after_2nd_dose"]*   df["healthy_nonvax"] ) / ( df["healthy_vax"] *  df["Sum_positive_without_vaccination"])
+    df["IRR"] =  df["odds_ratio_V_2_N"] / ((1-df["p_inf_non_vacc"]) + (df["p_inf_non_vacc"] *  df["odds_ratio_V_2_N"] ))
+    return df
+def toelichting():
+    st.write("    unvaxxed_new = populatie_grootte -  sec_cumm")
+    st.write("    unboostered_new = populatie_grootte -  third_cumm")
+    st.write("    perc_sec_dose = round((sec_cumm / populatie_grootte)*100,1)")
+    st.write("    perc_boostered = round((third_cumm / populatie_grootte)*100,1)")
+    st.write("    ziek_V_2_per_100k = positive_above_20_days_after_2nd_dose /  sec_cumm *100_000")
+    st.write("    ziek_V_3_per_100k = positive_above_20_days_after_3rd_dose /  third_cumm *100_000")
+    st.write("    ziek_N_per_100k = Sum_positive_without_vaccination / unvaxxed_new *100_000")
+    st.write("    VE_2_N = (1 - ( ziek_V_2_per_100k/ ziek_N_per_100k))*100")
+    st.write("    VE_3_N = (1 - ( ziek_V_3_per_100k/ ziek_N_per_100k))*100")
+    st.write("    VE_3_N_2_N= (1 - ( ziek_V_3_per_100k/ ziek_V_2_per_100k))*100")
+    st.write("    healthy_vax =   sec_cumm - positive_above_20_days_after_2nd_dose")
+    st.write("    healthy_nonvax =  unvaxxed_new - Sum_positive_without_vaccination")
+    st.write("")
+    st.write("    after second dose")
+    st.write("    https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/")
+    st.write("")
+    st.write("    p_inf_vacc = positive_above_20_days_after_2nd_dose /  sec_cumm")
+    st.write("    p_inf_non_vacc = Sum_positive_without_vaccination / unvaxxed_new")
+    st.write("")
+    st.write("    ODDS RATIO = IRR")
+    st.write("    VE = -100 * OR + 100")
+    st.write("")
+    st.write("    odds_ratio = (  p_inf_vacc/(1-  p_inf_vacc)) /  (   p_inf_non_vacc / (1-   p_inf_non_vacc))")
+    st.write("    https://wikistatistiek.amc.nl/index.php/Logistische_regressie")
+    st.write("    odds_ratio_amc = ( positive_above_20_days_after_2nd_dose*   healthy_nonvax ) / ( healthy_vax *  Sum_positive_without_vaccination)")
+    st.write("    IRR =  odds_ratio / ((1-p_inf_non_vacc) + (p_inf_non_vacc *  odds_ratio ))")
     st.write(df)
-
-
-    df_pivot_VE_2_N = (
-        pd.pivot_table(
-            df,
-            values="VE_2_N",
-            index=["einddag_week"],
-            columns=["Age_group"],
-            aggfunc=np.sum,
-        )
-        .reset_index()
-        .copy(deep=False)
-    )
-    df_pivot_VE_2_N_SMA = pd.DataFrame()
-    df_pivot_VE_2_N_SMA["einddag_week"] = df_pivot_VE_2_N["einddag_week"]
-
-    columns =  df_pivot_VE_2_N .columns.tolist()
-    columnlist = columns[1:]
-    # st.write(columnlist)
-
-
-    df_pivot_VE_3_N = (
-        pd.pivot_table(
-            df,
-            values="VE_3_N",
-            index=["einddag_week"],
-            columns=["Age_group"],
-            aggfunc=np.sum,
+def make_pivot(df, valuefield):
+    df_pivot = (
+    pd.pivot_table(
+        df,
+        values=valuefield,
+        index=["einddag_week"],
+        columns=["Age_group"],
+        aggfunc=np.sum,
         )
         .reset_index()
         .copy(deep=False)
     )
 
-    df_pivot_VE_3_N_2_N = (
-        pd.pivot_table(
-            df,
-            values="VE_3_N_2_N",
-            index=["einddag_week"],
-            columns=["Age_group"],
-            aggfunc=np.sum,
-        )
-        .reset_index()
-        .copy(deep=False)
-    )
+    return df_pivot
+
+def main():
+    df = read()
+    df = df.fillna(0)
+
+    df = make_calculations(df)
+    #st.write(df)
 
 
-    line_chart (df, "VE_2_N")
+    df_pivot_VE_2_N = make_pivot(df,"VE_2_N")
+    df_pivot_VE_3_N = make_pivot(df,"VE_3_N")
+    df_pivot_odds_2_N = make_pivot(df,"odds_ratio_V_2_N")
+    df_pivot_VE_3_N_2_N =  make_pivot(df,"VE_3_N_2_N")
+
+
+    st.subheader ("VE vs non vax - smoothed")
+
+    line_chart_pivot ( df_pivot_VE_2_N, "VE (2 vaccins / N)")
+
+    line_chart_pivot ( df_pivot_odds_2_N, "Odds Ratio (2 vaccins / N)")
+
+    with st.expander ("Non smoothed", expanded = False):
+        st.subheader ("VE and odds ratio vs non vax")
+        line_chart (df, "VE_2_N")
+        line_chart (df, "odds_ratio_V_2_N")
+
+    st.subheader ("Percentage vaccinated - 2nd and 3rd")
     line_chart (df, "perc_sec_dose")
     line_chart (df, "perc_boostered")
-    line_chart_pivot ( df_pivot_VE_2_N, "VE (2 vaccins / N)")
+
+    st.subheader("Are boostershots succesfull?")
+
     df_boostered = df[df["perc_boostered"] >0 ]
     make_scatterplot(df_boostered, "perc_boostered","VE_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
-    make_scatterplot(df, "odds_ratio","VE_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
-    make_scatterplot(df, "odds_ratio","IRR",True, "Age_group", None, ["Age_group", "einddag_week"])
 
-
+    st.subheader ("Booster vs nonvax and booster vs doublevaxx")
     line_chart_pivot ( df_pivot_VE_3_N,  "VE (3 vaccins / N)")
     line_chart_pivot ( df_pivot_VE_3_N_2_N, "VE (3 vaccins / 2vaccins")
 
-main()
+    st.subheader("Relation between VE, odds_ratio and IRR")
+    make_scatterplot(df, "odds_ratio_V_2_N","VE_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
+    make_scatterplot(df, "odds_ratio_V_2_N","IRR",True, "Age_group", None, ["Age_group", "einddag_week"])
+    make_scatterplot(df, "odds_ratio_V_2_N","odds_ratio_amc",True, "Age_group", None, ["Age_group", "einddag_week"])
+
+    toelichting()
+
+if __name__ == "__main__":
+    #caching.clear_cache()
+    #st.set_page_config(layout="wide")
+    main()
