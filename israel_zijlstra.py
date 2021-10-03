@@ -287,6 +287,7 @@ def main():
         line_chart (df, "VE_2_N")
         line_chart (df, "odds_ratio_V_2_N")
 
+
     st.subheader ("Percentage vaccinated - 2nd and 3rd")
     line_chart (df, "perc_sec_dose")
     line_chart (df, "perc_boostered")
