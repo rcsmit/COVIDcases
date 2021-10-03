@@ -213,7 +213,8 @@ def make_calculations(df):
 
     df["IRR"] =  df["odds_ratio_V_2_N"] / ((1-df["p_inf_non_vacc"]) + (df["p_inf_non_vacc"] *  df["odds_ratio_V_2_N"] ))
     return df
-def toelichting():
+def toelichting(df):
+    st.write ("Gemaakt nav https://twitter.com/DennisZeilstra/status/1442121747361374217")
     st.write("    unvaxxed_new = populatie_grootte -  sec_cumm")
     st.write("    unboostered_new = populatie_grootte -  third_cumm")
     st.write("    perc_sec_dose = round((sec_cumm / populatie_grootte)*100,1)")
@@ -308,7 +309,7 @@ def main():
     make_scatterplot(df, "odds_ratio_V_2_N","IRR",True, "Age_group", None, ["Age_group", "einddag_week"])
     make_scatterplot(df, "odds_ratio_V_2_N","odds_ratio_amc",True, "Age_group", None, ["Age_group", "einddag_week"])
 
-    toelichting()
+    toelichting(df)
 
 if __name__ == "__main__":
     #caching.clear_cache()
