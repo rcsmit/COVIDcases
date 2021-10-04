@@ -19,6 +19,7 @@ def calculate_aantallen(ziek, header, h_, ic_opn, ifr_, long_covid):
         )
     df_calculated.loc['Totaal']= df_calculated.sum()
     df_calculated.loc['Totaal', "_agegroup"] = ""
+    df_calculated=df_calculated.astype(str).copy(deep = True)
     st.write (df_calculated)
 
 def main():
@@ -65,7 +66,7 @@ def main():
     if which_hospital == "yorick": h_ = h_yorick
     if which_hospital == "rene": h_ = h_rene
     if which_hospital == "rivm": h_ = h_rivm
-    if which_hospital == "rene_q2_2021": h_ = h_rene_q2_2021 
+    if which_hospital == "rene_q2_2021": h_ = h_rene_q2_2021
 
     header = [ "0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"]
     one = [ 1.0,   1.0   ,    1.0      , 1.0      , 1.0    , 1.0      , 1.0    , 1.0 ,     1.0]
@@ -128,6 +129,7 @@ def main():
             )
         df_calculated.loc['Totaal']= df_calculated.sum()
         df_calculated.loc['Totaal', "_agegroup"] = ""
+        df_calculated=df_calculated.astype(str).copy(deep = True)
         st.write (df_calculated)
 
         st.subheader ("suspectibles")
