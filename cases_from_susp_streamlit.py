@@ -19,7 +19,7 @@ def calculate_aantallen(ziek, header, h_, ic_opn, ifr_, long_covid):
         )
     df_calculated.loc['Totaal']= df_calculated.sum()
     df_calculated.loc['Totaal', "_agegroup"] = ""
-    df_calculated=df_calculated.astype(str).copy(deep = True)
+    df_calculated=df_calculated.astype(str)
     st.write (df_calculated)
 
 def main():
