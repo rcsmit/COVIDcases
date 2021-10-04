@@ -356,6 +356,7 @@ def calculate_fisher(df):
         df.at[i, "fischer_odds"]= odds
         df.at[i, "fischer_p_val"]= p
     return df
+
 def toelichting(df):
     st.write ("Gemaakt nav https://twitter.com/DennisZeilstra/status/1442121747361374217")
     st.write("    unvaxxed_new = populatie_grootte -  sec_cumm")
