@@ -49,9 +49,9 @@ def read_df( kids_split_up):
 
 
     if kids_split_up:
-        url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input_latest_age_pos_test_kids_seperated.csv"
+        url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/input_latest_age_pos_test_kids_seperated.csv"
     else:
-        url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input_latest_age_pos_tests.csv"
+        url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/input_latest_age_pos_tests.csv"
 
     #id;datum;leeftijdscat;methode;mannen_pos;mannen_getest;vrouwen_pos ;vrouwen_getest ;
     # totaal_pos;totaal_getest;weeknr2021;van2021;tot2021

@@ -24,11 +24,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-url1 = 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/postestennaarleeftijd2.csv'
+url1 = 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/postestennaarleeftijd2.csv'
 df1   = pd.read_csv(url1,
                     delimiter=";",
                     low_memory=False)
-url2 = 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/weektabel.csv'
+url2 = 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/weektabel.csv'
 df2   = pd.read_csv(url2,
                     delimiter=",",
                     low_memory=False)

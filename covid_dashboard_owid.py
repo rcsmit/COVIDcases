@@ -158,7 +158,7 @@ def get_data():
                     "where_criterium": "country"
                 },
                 {
-                    "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/google_mob_world.csv",
+                    "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/google_mob_world.csv",
 
                     #  https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
                     "name": "googlemobility",
@@ -1033,7 +1033,7 @@ def add_restrictions_original(df, ax):
     # Add restrictions
     # From Han-Kwang Nienhuys - MIT-licence
     df_restrictions = pd.read_csv(
-        "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv",
+        "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/restrictions.csv",
         comment="#",
         delimiter=",",
         low_memory=False,
@@ -1448,7 +1448,7 @@ def google_or_waze(df___):
     st.write(f"Google wins {google_wins} - Waze wins {waze_wins}")
 
     #url ="C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\COVIDcases\\motorvehicles.csv"
-    url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/motorvehicles.csv"
+    url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/motorvehicles.csv"
     # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
     df_motorveh = pd.read_csv(url, delimiter=";", low_memory=False)
 
@@ -1456,7 +1456,7 @@ def google_or_waze(df___):
                 df_output, df_motorveh, how="left", left_on="_", right_on="country"
             )
 
-    url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/GDPpercapita.csv"
+    url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/GDPpercapita.csv"
     # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
     df_gdp_per_capita = pd.read_csv(url, delimiter=",", low_memory=False)
     for column in df_gdp_per_capita:

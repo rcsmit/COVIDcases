@@ -24,7 +24,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-url = 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/postestennaarleeftijd2.csv'
+url = 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/postestennaarleeftijd2.csv'
 df   = pd.read_csv(url,
                     delimiter=";",
                     low_memory=False)

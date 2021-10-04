@@ -173,7 +173,7 @@ def get_data():
             {
 
             #     #"url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_hospital_new.deaths__ages.csv",
-                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/final_result_vanuit_casus_landelijk.csv",
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/final_result_vanuit_casus_landelijk.csv",
                 "name": "cases_hospital_new.deaths__ages",
                 "delimiter": ",",
                 "key": "pos_test_Date_statistics",
@@ -184,7 +184,7 @@ def get_data():
 
 
             {
-                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/mobility.csv",
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/mobility.csv",
                 "name": "mobility",
                 "delimiter": ",",
                 "key": "date",
@@ -226,7 +226,7 @@ def get_data():
             },
 
 
-            # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/SWEDEN_our_world_in_data.csv',
+            # {'url'       : 'https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/SWEDEN_our_world_in_data.csv',
             # 'name'       : 'sweden',
             # 'delimiter'  : ';',
             # 'key'        : 'Day',
@@ -1316,7 +1316,7 @@ def add_restrictions_original(df, ax):
     # Add restrictions
     # From Han-Kwang Nienhuys - MIT-licence
     df_restrictions = pd.read_csv(
-        "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/restrictions.csv",
+        "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/restrictions.csv",
         comment="#",
         delimiter=",",
         low_memory=False,

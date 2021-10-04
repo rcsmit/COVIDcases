@@ -40,7 +40,7 @@ def main():
     df2  = st.sidebar.selectbox("Second dataframe",["2016/-17", "April2020", "June2020"], index=1)
     #test 13:40  14:49
     df= pd.read_csv(
-            "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/contactmatrix.tsv",
+            "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/contactmatrix.tsv",
             # "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\contactmatrix.tsv",
             comment="#",
             delimiter="\t",
