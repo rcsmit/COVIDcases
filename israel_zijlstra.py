@@ -27,6 +27,7 @@ import plotly.graph_objects as go
 
 from plotly.subplots import make_subplots
 
+from scipy.stats import fisher_exact
 
 # na 21/8 zelfde waardes voor de vaccinaties voor 90+ aangehoude
 @st.cache(ttl=60 * 60 * 24)
@@ -184,25 +185,36 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
 
         st.plotly_chart(fig1xy)
 def make_calculations(df):
-    df["unvaxxed_new"] = df["populatie_grootte"] -  df["sec_cumm"]
+
+    df["unvaxxed_new"] = df["populatie_grootte"] - ( df["sec_cumm"]  - df["third_cumm"] ) - df["third_cumm"] #NB Unvaxxed is vanaf 2e vaccin
+    df["healthy_vax"] =   df["sec_cumm"] - df["positive_above_20_days_after_2nd_dose"]
+    df["healthy_nonvax"] =  df["unvaxxed_new"] - df["Sum_positive_without_vaccination"]
+
     df["unboostered_new"] = df["populatie_grootte"] -  df["third_cumm"]
-    df["perc_sec_dose"] = round((df["sec_cumm"] / df["populatie_grootte"])*100,1)
+    df["perc_sec_dose"] = round(((df["sec_cumm"] -  df["third_cumm"]) / df["populatie_grootte"])*100,1)
     df["perc_boostered"] = round((df["third_cumm"] / df["populatie_grootte"])*100,1)
-    df["ziek_V_2_per_100k"] = df["positive_above_20_days_after_2nd_dose"] /  df["sec_cumm"] *100_000
-    df["ziek_V_3_per_100k"] = df["positive_above_20_days_after_3rd_dose"] /  df["third_cumm"] *100_000
-    df["ziek_N_per_100k"] = df["Sum_positive_without_vaccination"] / df["unvaxxed_new"] *100_000
+    df["ziek_V_2_per_100k"] = (df["positive_above_20_days_after_2nd_dose"] / ( df["sec_cumm"] - df["third_cumm"])*100_000)
+    df["ziek_V_3_per_100k"] = (df["positive_above_20_days_after_3rd_dose"] /  df["third_cumm"] *100_000)
+    df["ziek_N_per_100k"] = (df["Sum_positive_without_vaccination"] /  df["unvaxxed_new"]  *100_000)
     df["VE_2_N"] = (1 - ( df["ziek_V_2_per_100k"]/ df["ziek_N_per_100k"]))*100
     df["HR_2_N"] = ( ( df["ziek_V_2_per_100k"]/ df["ziek_N_per_100k"]))*100 # zelfde als RR of IRR
     df["VE_3_N"] = (1 - ( df["ziek_V_3_per_100k"]/ df["ziek_N_per_100k"]))*100
     df["VE_3_N_2_N"]= (1 - ( df["ziek_V_3_per_100k"]/ df["ziek_V_2_per_100k"]))*100
-    df["healthy_vax"] =   df["sec_cumm"] - df["positive_above_20_days_after_2nd_dose"]
-    df["healthy_nonvax"] =  df["unvaxxed_new"] - df["Sum_positive_without_vaccination"]
+
 
     # after second dose
     # https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/
 
     df["p_inf_vacc"] = df["positive_above_20_days_after_2nd_dose"] /  df["sec_cumm"]
     df["p_inf_non_vacc"] = df["Sum_positive_without_vaccination"] / df["unvaxxed_new"]
+
+
+
+
+
+            # df["fisher_oddsratio"], df["fisher_pvalue"] = fisher_exact(([df["positive_above_20_days_after_2nd_dose"], df["healthy_vax"]),
+            #                                              (df["Sum_positive_without_vaccination"],      df["healthy_nonvax"])])
+
 
     # ODDS RATIO = IRR
     # VE = -100 * OR + 100
@@ -212,6 +224,137 @@ def make_calculations(df):
     df["odds_ratio_amc"] = ( df["positive_above_20_days_after_2nd_dose"]*   df["healthy_nonvax"] ) / ( df["healthy_vax"] *  df["Sum_positive_without_vaccination"])
 
     df["IRR"] =  df["odds_ratio_V_2_N"] / ((1-df["p_inf_non_vacc"]) + (df["p_inf_non_vacc"] *  df["odds_ratio_V_2_N"] ))
+
+
+
+    df = calculate_fisher(df)
+    df = calculate_ci(df)
+    #st.write(df)
+    return df
+
+def calculate_ci(df):
+    import math
+
+    # https://stats.stackexchange.com/questions/297837/how-are-p-value-and-odds-ratio-confidence-interval-in-fisher-test-are-related
+    #  p<0.05 should be true only when the 95% CI does not include 1. All these results apply for other α levels as well.
+    # https://stats.stackexchange.com/questions/21298/confidence-interval-around-the-ratio-of-two-proportions
+    # https://select-statistics.co.uk/calculators/confidence-interval-calculator-odds-ratio/
+
+    # 90%	1.64	1.28
+    # 95%	1.96	1.65
+    # 99%	2.58	2.33
+    Za2 = 2.58
+    for i in range(0,len(df)):
+
+        a = df.iloc[i]["positive_above_20_days_after_2nd_dose"]
+        d = df.iloc[i]["healthy_vax"]
+        b = df.iloc[i]["Sum_positive_without_vaccination"]
+        c = df.iloc[i]["healthy_nonvax"]
+        df.at[i,"a"] =a
+        df.at[i,"b"] = b
+        df.at[i,"c"] =c
+        df.at[i,"d"] = d
+
+        # https://stats.stackexchange.com/questions/21298/confidence-interval-around-the-ratio-of-two-proportions
+        #https://twitter.com/MrOoijer/status/1445074609506852878
+        rel_risk = (a/(a+c))/(b/(b+d)) # relative risk !!
+        # SE_theta = ((1/a) - (1/(a+c))  + (1/b)  - (1/(b+d)))**2
+        yyy = 1/a  + 1/c
+        # df.at[i,"CI_low_theta"] =   theta * np.exp(  Za2 * SE_theta)
+        # df.at[i,"or_theta"] = theta
+        # df.at[i,"CI_high_theta"]=  theta - np.exp(  Za2 * SE_theta)
+        df.at[i,"CI_rel_risk_low"] = np.exp(np.log(rel_risk) -Za2 * math.sqrt(yyy))
+        df.at[i,"rel_risk"] = rel_risk
+        df.at[i,"CI_rel_risk_high"]= np.exp(np.log(rel_risk) +Za2 * math.sqrt(yyy))
+
+
+        #  https://select-statistics.co.uk/calculators/confidence-interval-calculator-odds-ratio/
+        # Explained in Martin Bland, An Introduction to Medical Statistics, appendix 13C
+        or_ = (a*d) / (b*c)
+        xxx = 1/a + 1/b + 1/c + 1/d
+        df.at[i,"CI_OR_low"] = np.exp(np.log(or_) -Za2 * math.sqrt(xxx))
+        df.at[i,"or_fisher_2"] = or_
+        df.at[i,"CI_OR_high"]= np.exp(np.log(or_) +Za2 * math.sqrt(xxx))
+
+
+
+    return df
+
+def plot_line_with_ci(dataframe,title, lower, line, upper):
+    """
+    Interactive plotting for volatility
+
+    input:
+    dataframe: Dataframe with upperbound, lowerbound, moving average, close.
+    filename: Plot is saved as html file. Assign a name for the file.
+
+    output:
+    Interactive plotly plot and html file
+    """
+    fig = go.Figure()
+    upper_bound = go.Scatter(
+        name='Upper Bound',
+        x=dataframe["einddag_week"],
+        y=dataframe[upper] ,
+        mode='lines',
+        line=dict(width=0.5,
+                 color="rgb(255, 188, 0)"),
+        fillcolor='rgba(68, 68, 68, 0.1)',
+        fill='tonexty')
+
+    trace1 = go.Scatter(
+        name=line,
+        x=dataframe["einddag_week"],
+        y=dataframe[line],
+        mode='lines',
+        line=dict(color='rgba(68, 68, 68, 0.8)'),
+    	)
+
+
+    lower_bound = go.Scatter(
+        name='Lower Bound',
+        x=dataframe["einddag_week"],
+        y=dataframe[lower],
+        mode='lines',
+        line=dict(width=0.5,
+                 color="rgb(255, 188, 0)"),
+        fillcolor='rgba(68, 68, 68, 0.1)',
+       )
+
+    data = [lower_bound, upper_bound, trace1 ]
+
+    layout = go.Layout(
+        yaxis=dict(title=title),
+        title=title,)
+    fig = go.Figure(data=data, layout=layout)
+    st.plotly_chart(fig)
+
+def calculate_fisher_from_R(df):
+    pass
+
+def calculate_fisher(df):
+    """Calculate odds- and p-value of each row with statpy
+
+    Args:
+        df ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+
+    # The calculated odds ratio is different from the one R uses. The scipy
+    # implementation returns the (more common) "unconditional Maximum
+    # Likelihood Estimate", while R uses the "conditional Maximum Likelihood
+    # Estimate".
+    for i in range(len(df)):
+        a =  df.iloc[i]["positive_above_20_days_after_2nd_dose"]
+        b =   df.iloc[i]["healthy_vax"]
+        c = df.iloc[i]["Sum_positive_without_vaccination"]
+        d =   df.iloc[i]["healthy_nonvax"]
+
+        odds, p =  fisher_exact([[a,b],[c,d]])
+        df.at[i, "fischer_odds"]= odds
+        df.at[i, "fischer_p_val"]= p
     return df
 def toelichting(df):
     st.write ("Gemaakt nav https://twitter.com/DennisZeilstra/status/1442121747361374217")
@@ -244,9 +387,9 @@ def toelichting(df):
     st.write(df)
 
 def group_table(df, valuefield):
-    print (len(df))
+
     df = df[df["Age_group"] != "0-19"]
-    print (len(df))
+
     df_grouped = df.groupby([df[valuefield]], sort=True).sum().reset_index()
     return df_grouped
 
@@ -268,21 +411,33 @@ def make_pivot(df, valuefield):
 def main():
     df_ = read()
     df_ = df_.fillna(0)
+    # df_["fischer_odds"] = None
+    # df_["fischer_p_val"] = None
 
     df = make_calculations(df_)
+
     #st.write(df)
     df_grouped = group_table(df_, "einddag_week").copy(deep = True)
     df_grouped = make_calculations(df_grouped)
+
+
+
+    #st.write(df_grouped)
 
     st.subheader ("VE vs non vax - smoothed")
 
     line_chart_pivot (df,  "VE_2_N", "VE (2 vaccins / N)")
     line_chart_pivot ( df,"odds_ratio_V_2_N", "Odds Ratio (2 vaccins / N)")
-
+    line_chart (df, "fischer_p_val")
     st.subheader("All ages together (excl. 0-19)")
+
     line_chart (df_grouped,  "VE_2_N")
     line_chart (df_grouped,  "IRR")
     line_chart ( df_grouped,"odds_ratio_V_2_N")
+    plot_line_with_ci(df_grouped, "Odds Ratio", "CI_OR_low", "or_fisher_2", "CI_OR_high")
+    plot_line_with_ci(df_grouped, "Relative Risk",  "CI_rel_risk_low", "rel_risk", "CI_rel_risk_high")
+
+    line_chart ( df_grouped,"fischer_p_val")
     with st.expander ("Non smoothed", expanded = False):
         st.subheader ("VE and odds ratio vs non vax")
         line_chart (df, "VE_2_N")
@@ -297,6 +452,7 @@ def main():
 
     df_boostered = df[df["perc_boostered"] >0 ]
     make_scatterplot(df_boostered, "perc_boostered","VE_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
+    make_scatterplot(df_boostered, "perc_boostered","odds_ratio_V_2_N",True, "Age_group", None, ["Age_group", "einddag_week"])
 
     st.subheader ("Booster vs nonvax and booster vs doublevaxx")
     line_chart_pivot ( df,  "VE_3_N", "VE (3 vaccins / N)")
