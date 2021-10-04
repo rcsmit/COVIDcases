@@ -215,7 +215,7 @@ def get_data():
 
 
             {
-                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/waze.csv",
+                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/waze.csv",
                 #  # https://raw.githubusercontent.com/ActiveConclusion/COVID19_mobility/master/waze_reports/waze_mobility.csv
                 "name": "waze",
                 "delimiter": ",",
