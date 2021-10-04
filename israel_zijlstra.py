@@ -247,9 +247,10 @@ def calculate_ci(df):
     for i in range(0,len(df)):
 
         a = df.iloc[i]["positive_above_20_days_after_2nd_dose"]
-        d = df.iloc[i]["healthy_vax"]
-        b = df.iloc[i]["Sum_positive_without_vaccination"]
-        c = df.iloc[i]["healthy_nonvax"]
+        b = df.iloc[i]["healthy_vax"]
+        c = df.iloc[i]["Sum_positive_without_vaccination"]
+        d = df.iloc[i]["healthy_nonvax"]
+
         df.at[i,"a"] =a
         df.at[i,"b"] = b
         df.at[i,"c"] =c
