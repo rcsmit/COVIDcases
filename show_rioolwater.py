@@ -117,7 +117,7 @@ def graph_day(df, what_to_show_l, title):
         st.pyplot(fig1x)
 
 
-def main():
+def main_oud():
     """  _ _ _ """
 
     df_getdata, UPDATETIME = get_data()
@@ -170,6 +170,8 @@ def main():
         unsafe_allow_html=True,
     )
 
+def main():
+    st.write ("Out of order")
 if __name__ == "__main__":
 
     main()
