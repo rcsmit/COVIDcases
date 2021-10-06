@@ -107,7 +107,7 @@ def prepare_data():
     print (df)
     save_df(df_week, "landelijk_leeftijd_week_vanuit_casus_landelijk_20211006")
 
-def line_chart (df, what_to_show, aggregate,y_ax_label_supp):
+def line_chart_enkel (df, what_to_show, aggregate,y_ax_label_supp, log_y):
     """Make a linechart from an unpivoted table, with different lines (agegroups)
 
     Args:
@@ -116,9 +116,9 @@ def line_chart (df, what_to_show, aggregate,y_ax_label_supp):
     """
     # fig = go.Figure()
     if aggregate == True:
-        fig = px.line(df, x="Date_statistics", y=what_to_show, color='Agegroup',  hover_data=["Hospital_admission", "Deceased", "cases"])
+        fig = px.line(df, x="Date_statistics", y=what_to_show, color='Agegroup', log_y=log_y, hover_data=["Hospital_admission", "Deceased", "cases"])
     else:
-        fig = px.line(df, x="Date_statistics", y=what_to_show, hover_data=["Hospital_admission", "Deceased", "cases"])
+        fig = px.line(df, x="Date_statistics", y=what_to_show,log_y=log_y, hover_data=["Hospital_admission", "Deceased", "cases"])
 
     fig.update_layout(
         title=what_to_show,
@@ -127,6 +127,59 @@ def line_chart (df, what_to_show, aggregate,y_ax_label_supp):
     )
     st.plotly_chart(fig)
 
+def make_pivot(df, valuefield):
+    df_pivot = (
+    pd.pivot_table(
+        df,
+        values=valuefield,
+        index=["Date_statistics"],
+        columns=["Agegroup"],
+        aggfunc=np.sum,
+        )
+        .reset_index()
+        .copy(deep=False)
+    )
+
+    return df_pivot
+
+def line_chart  (df, what_to_show, aggregate,y_ax_label_supp, sma_wdw,log_y):
+    """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
+
+    Args:
+        df ([type]): [description]
+        title ([type]): [description]
+    """
+    df = make_pivot(df,what_to_show)
+    fig = go.Figure()
+
+    columns = df.columns.tolist()
+    columnlist = columns[1:]
+    # st.write(columnlist)
+    for col in columnlist:
+        col_sma = col +"_sma"
+        df[col_sma] =  df[col].rolling(window = sma_wdw, center = False).mean()
+        fig.add_trace(go.Scatter(x=df["Date_statistics"], y= df[col_sma], mode='lines', name=col ))
+    if log_y == True:
+        fig.update_yaxes(type="log")
+
+    fig.update_layout(
+        title=dict(
+                text=what_to_show+ " (SMA "+ str(sma_wdw)+")",
+                x=0.5,
+                y=0.85,
+                font=dict(
+                    family="Arial",
+                    size=14,
+                    color='#000000'
+                )),
+
+
+        xaxis_title="Einddag vd week",
+        yaxis_title=what_to_show + " ("+ y_ax_label_supp+ ")"    )
+    st.plotly_chart(fig)
+    with st.expander (f"dataframe pivottable {what_to_show}"):
+        df_temp = df.astype(str).copy(deep = True)
+        st.write (df_temp)
 
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categoryfield, hover_name, hover_data):
     """Makes a scatterplot with trendline and statistics
@@ -212,21 +265,24 @@ def main():
     st.header("Chance of hospitalization / death after having covid - per week")
     st.subheader("These graphs says nothing about vaccination effect, since the numbers aren't splitted up")
     st.write ("You can zoom in the graph by using your mouse, click in one corner and drag to the opposite corner ")
-    st.subheader("Per case")
-    line_chart (df, "Hosp_per_reported", True, "%")
-    line_chart (df, "Deceased_per_reported", True, "%")
-    st.subheader("Per 100k (agegroup)")
-    line_chart (df, "Cases_per_100k", True, "#")
+    sma_wdw= st.sidebar.slider("Smoothing window", 1, 9, 3)
+    log_y  = st.sidebar.selectbox("Y axis on log-scale", [True, False], index=1)
 
-    line_chart (df, "Hosp_per_100k", True, "#")
-    line_chart (df, "Deceased_per_100k", True, "#")
+    st.subheader("Per case")
+    line_chart (df, "Hosp_per_reported", True, "%", sma_wdw,log_y)
+    line_chart (df, "Deceased_per_reported", True, "%", sma_wdw,log_y)
+    st.subheader("Per 100k (agegroup)")
+    line_chart (df, "Cases_per_100k", True, "#", sma_wdw,log_y)
+
+    line_chart (df, "Hosp_per_100k", True, "#", sma_wdw,log_y)
+    line_chart (df, "Deceased_per_100k", True, "#", sma_wdw,log_y)
     st.subheader("Total per week ")
-    line_chart (df_agg, "Hosp_per_reported_week", False, "%")
-    line_chart (df_agg, "Deceased_per_reported_week", False, "%")
+    line_chart_enkel (df_agg, "Hosp_per_reported_week", False, "%", log_y)
+    line_chart_enkel (df_agg, "Deceased_per_reported_week", False, "%", log_y)
     st.subheader("Absolute numbers")
-    line_chart (df, "cases", True, "#")
-    line_chart (df, "Hospital_admission", True, "#")
-    line_chart (df, "Deceased", True, "#")
+    line_chart (df, "cases", True, "#", sma_wdw,log_y)
+    line_chart (df, "Hospital_admission", True, "#", sma_wdw,log_y)
+    line_chart (df, "Deceased", True, "#, sma_wdw,log_y")
 
 if __name__ == "__main__":
     caching.clear_cache()
