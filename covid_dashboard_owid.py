@@ -1526,9 +1526,10 @@ def main():
     )
     lijst = df.columns.tolist()
 
+    df["perc_positief"] = df["new cases"] / df["new_tests"]
 
     del lijst[0:4]
-
+    lijst.append("perc_positief")
 
     st.title("Interactive Corona Dashboard OWID/waze")
     # st.header("")
