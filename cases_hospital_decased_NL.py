@@ -25,24 +25,88 @@ from sklearn.metrics import r2_score
 import plotly.express as px
 import plotly.graph_objects as go
 
-from plotly.subplots import make_subplots
 
-from scipy.stats import fisher_exact
+
+def save_df(df, name):
+    """  save dataframe on harddisk """
+    OUTPUT_DIR = (
+        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+    )
+    OUTPUT_DIR = (
+      "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\")
+    name_ = OUTPUT_DIR + name + ".csv"
+    compression_opts = dict(method=None, archive_name=name_)
+    df.to_csv(name_, index=False, compression=compression_opts)
+
+    print("--- Saving " + name_ + " ---")
+
+
+def drop_columns(df, what_to_drop):
+    """  drop columns. what_to_drop : list """
+    if what_to_drop != None:
+        print("dropping " + str(what_to_drop))
+        for d in what_to_drop:
+            df = df.drop(columns=[d], axis=1)
+    return df
+
+
 
 #@st.cache(ttl=60 * 60 * 24)
 def read():
     url="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
-    # url="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
+    url="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
+    url_pop="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\pop_size_age_NL.csv"
+
     df= pd.read_csv(url, delimiter=',', error_bad_lines=False)
+    df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
+
+
     df = df[df["Agegroup"] != "<50"]
     df = df[df["Agegroup"] != "0"]
+    df  = pd.merge(
+                df, df_pop, how="outer", on="Agegroup"
+            )
     df["Hosp_per_reported"]= df["Hosp_per_reported"]*100
     df["Deceased_per_reported"]= df["Deceased_per_reported"]*100
-    df_agg = df.groupby( "Date_statistics" ).sum().reset_index().copy(deep = True)
-    return df, df_agg
+
+    df["Cases_per_100k"]= df["cases"]/df["pop_size"]*100000
+    df["Hosp_per_100k"]= df["Hospital_admission"]/df["pop_size"]*100000
+    df["Deceased_per_100k"]= df["Deceased"]/df["pop_size"]*100000
 
 
-def line_chart (df, what_to_show, aggregate):
+    df_week = df.groupby( "Date_statistics" ).sum().reset_index().copy(deep = True)
+    df_week["Hosp_per_reported_week"] = df_week["Hospital_admission"]/df_week["cases"]*100
+    df_week["Deceased_per_reported_week"] = df_week["Deceased"]/df_week["cases"]*100
+
+    return df, df_week
+
+def prepare_data():
+    """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
+    """
+    # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
+    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+    df = pd.read_csv(url1, delimiter=";", low_memory=False)
+    todrop = [
+        "Date_statistics_type",
+        "Sex",
+        "Province",
+        "Week_of_death",
+        "Municipal_health_service",
+    ]
+    df = drop_columns(df, todrop)
+
+    df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
+    df = df.replace("Yes", 1)
+    df = df.replace("No", 0)
+    df = df.replace("Unknown", 0)
+    df["cases"] = 1
+    print(df)
+    #df = df.groupby([ "Date_statistics", "Agegroup"], sort=True).sum().reset_index()
+    df_week = df.groupby([  pd.Grouper(key='Date_statistics', freq='W'), "Agegroup",] ).sum().reset_index()
+    print (df)
+    save_df(df_week, "landelijk_leeftijd_week_vanuit_casus_landelijk_20211006")
+
+def line_chart (df, what_to_show, aggregate,y_ax_label_supp):
     """Make a linechart from an unpivoted table, with different lines (agegroups)
 
     Args:
@@ -51,16 +115,14 @@ def line_chart (df, what_to_show, aggregate):
     """
     # fig = go.Figure()
     if aggregate == True:
-        try:
-            fig = px.line(df, x="Date_statistics", y=what_to_show, color='Agegroup')
-        except:
-            fig = px.line(df, x="Date_statistics", y=what_to_show)
+        fig = px.line(df, x="Date_statistics", y=what_to_show, color='Agegroup',  hover_data=["Hospital_admission", "Deceased", "cases"])
     else:
-        fig = px.line(df, x="Date_statistics", y=what_to_show)
+        fig = px.line(df, x="Date_statistics", y=what_to_show, hover_data=["Hospital_admission", "Deceased", "cases"])
+
     fig.update_layout(
         title=what_to_show,
-        xaxis_title=" Date_statistics",
-        yaxis_title=what_to_show + " (%)",
+        xaxis_title="Date_statistics (week)",
+        yaxis_title=what_to_show + " ("+ y_ax_label_supp+ ")",
     )
     st.plotly_chart(fig)
 
@@ -141,18 +203,32 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         st.plotly_chart(fig1xy)
 
 def main():
+    # prepare_data()
+
     df, df_agg = read()
 
 
-    st.header("Chance of hospitalization / death after having covid.")
+    st.header("Chance of hospitalization / death after having covid - per week")
     st.subheader("These graphs says nothing about vaccination effect, since the numbers aren't splitted up")
+    st.write ("You can zoom in the graph by using your mouse, click in one corner and drag to the opposite corner ")
+    st.subheader("Per case")
+    line_chart (df, "Hosp_per_reported", True, "%")
+    line_chart (df, "Deceased_per_reported", True, "%")
+    st.subheader("Per 100k (agegroup)")
+    line_chart (df, "Cases_per_100k", True, "#")
 
-    line_chart (df, "Hosp_per_reported", True)
-    line_chart (df, "Deceased_per_reported", True)
-    line_chart (df_agg, "Hosp_per_reported", False)
-    line_chart (df_agg, "Deceased_per_reported", False)
+    line_chart (df, "Hosp_per_100k", True, "#")
+    line_chart (df, "Deceased_per_100k", True, "#")
+    st.subheader("Total per week ")
+    line_chart (df_agg, "Hosp_per_reported_week", False, "%")
+    line_chart (df_agg, "Deceased_per_reported_week", False, "%")
+    st.subheader("Absolute numbers")
+    line_chart (df, "cases", True, "#")
+    line_chart (df, "Hospital_admission", True, "#")
+    line_chart (df, "Deceased", True, "#")
 
 if __name__ == "__main__":
     caching.clear_cache()
     #st.set_page_config(layout="wide")
+
     main()

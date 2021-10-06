@@ -166,7 +166,7 @@ def main_x():
 
 def main_week_data():
     """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
-    """    
+    """
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
     url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
@@ -186,7 +186,7 @@ def main_week_data():
     df["cases"] = 1
     print(df)
     #df = df.groupby([ "Date_statistics", "Agegroup"], sort=True).sum().reset_index()
-    df_week = df.groupby([ "Agegroup", pd.Grouper(key='Date_statistics', freq='W')] ).sum().reset_index()
+    df_week = df.groupby([  pd.Grouper(key='Date_statistics', freq='W'), "Agegroup",] ).sum().reset_index()
     print (df)
     df_week["Hosp_per_reported"] = df_week["Hospital_admission"]/df_week["cases"]
     df_week["Deceased_per_reported"] = df_week["Deceased"]/df_week["cases"]
