@@ -54,9 +54,10 @@ def drop_columns(df, what_to_drop):
 #@st.cache(ttl=60 * 60 * 24)
 def read():
     url="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
-    url="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
-    url_pop="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\pop_size_age_NL.csv"
+    #url="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
 
+    #url_pop="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\pop_size_age_NL.csv"
+    url_pop = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/pop_size_age_NL.csv"
     df= pd.read_csv(url, delimiter=',', error_bad_lines=False)
     df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
 
