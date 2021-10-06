@@ -28,7 +28,8 @@ def save_df(df, name):
     OUTPUT_DIR = (
         "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
     )
-
+    OUTPUT_DIR = (
+      "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\")
     name_ = OUTPUT_DIR + name + ".csv"
     compression_opts = dict(method=None, archive_name=name_)
     df.to_csv(name_, index=False, compression=compression_opts)
@@ -45,7 +46,7 @@ def drop_columns(df, what_to_drop):
     return df
 
 
-def main():
+def main_x():
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
     url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
@@ -163,4 +164,32 @@ def main():
     save_df(df_temp_per_week, "final_result_per_week_vanuit_casus_landelijk")
 
 
-main()
+def main_week_data():
+    """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
+    """    
+    # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
+    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+    df = pd.read_csv(url1, delimiter=";", low_memory=False)
+    todrop = [
+        "Date_statistics_type",
+        "Sex",
+        "Province",
+        "Week_of_death",
+        "Municipal_health_service",
+    ]
+    df = drop_columns(df, todrop)
+
+    df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
+    df = df.replace("Yes", 1)
+    df = df.replace("No", 0)
+    df = df.replace("Unknown", 0)
+    df["cases"] = 1
+    print(df)
+    #df = df.groupby([ "Date_statistics", "Agegroup"], sort=True).sum().reset_index()
+    df_week = df.groupby([ "Agegroup", pd.Grouper(key='Date_statistics', freq='W')] ).sum().reset_index()
+    print (df)
+    df_week["Hosp_per_reported"] = df_week["Hospital_admission"]/df_week["cases"]
+    df_week["Deceased_per_reported"] = df_week["Deceased"]/df_week["cases"]
+    save_df(df_week, "landelijk_leeftijd_week_vanuit_casus_landelijk_20211006")
+
+main_week_data()
