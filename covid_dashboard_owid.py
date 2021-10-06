@@ -1526,7 +1526,7 @@ def main():
     )
     lijst = df.columns.tolist()
 
-    df["perc_positief"] = df["new cases"] / df["new_tests"]
+    df["perc_positief"] = df["new_cases"] / df["new_tests"] * 100
 
     del lijst[0:4]
     lijst.append("perc_positief")
