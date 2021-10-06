@@ -43,7 +43,8 @@ def main():
             ["20. per provincie per leeftijd","perprovincieperleeftijd"],
             ["21. kans om covid op te lopen","kans_om_covid_op_te_lopen"],
             ["22. Inkomen vs vaccinatie vs incidentie vs verkiezingen", "vacc_inkomen_cases"] ,
-            ["23. VE Israel", "israel_zijlstra"]  ]
+            ["23. VE Israel", "israel_zijlstra"],
+            ["24. Hosp/death NL", "cases_hospital_decased_NL"]  ]
 
 
 
