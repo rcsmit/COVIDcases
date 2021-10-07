@@ -106,7 +106,7 @@ def line_chart_pivot (df_, field, title):
 
 
         xaxis_title="Einddag vd week",
-        yaxis_title="VE"    )
+        yaxis_title=col    )
     st.plotly_chart(fig)
     with st.expander (f"dataframe pivottable {title}"):
         df_temp = df.astype(str).copy(deep = True)
@@ -421,10 +421,12 @@ def main():
     #st.write(df_grouped)
     st.header("VE in NL")
     st.write("Attention: very rough estimation due the high number of unknown vaccin statusses. Assumed is that they have the same ratio as the known numbers. vaccination% of 11-17 is linked to the cases10-19, 18-30 to 20-29. ")
-    st.subheader ("VE vs non vax - smoothed")
+    #with st.expander ("Non smoothed", expanded = False):
+    line_chart (df, "VE_2_N")
+    line_chart (df, "odds_ratio_V_2_N")
 
-    line_chart_pivot (df,  "VE_2_N", "VE (2 vaccins / N)")
-    line_chart_pivot ( df,"odds_ratio_V_2_N", "Odds Ratio (2 vaccins / N)")
+    # line_chart_pivot (df,  "VE_2_N", "VE (2 vaccins / N)")
+    # line_chart_pivot ( df,"odds_ratio_V_2_N", "Odds Ratio (2 vaccins / N)")
     # line_chart (df, "fischer_p_val")
     # st.subheader("All ages together (excl. 0-19)")
 
@@ -435,10 +437,6 @@ def main():
     # plot_line_with_ci(df_grouped, "Relative Risk",  "CI_rel_risk_low", "rel_risk", "CI_rel_risk_high")
 
     # line_chart ( df_grouped,"fischer_p_val")
-    with st.expander ("Non smoothed", expanded = False):
-        st.subheader ("VE and odds ratio vs non vax")
-        line_chart (df, "VE_2_N")
-        line_chart (df, "odds_ratio_V_2_N")
 
 
 
