@@ -1520,7 +1520,6 @@ def main():
             "transit_stations_percent_change_from_baseline" : "transit_stations",
             "workplaces_percent_change_from_baseline":   "workplaces",
             "residential_percent_change_from_baseline":  "residential",
-
         },
         inplace=True,
     )
