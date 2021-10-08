@@ -17,7 +17,6 @@ import random
 #import openpyxl
 import streamlit as st
 import datetime as dt
-# from datetime import datetime, timedelta
 from sklearn.metrics import r2_score
 
 import plotly.express as px
