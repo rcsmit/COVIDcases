@@ -4,7 +4,6 @@ import traceback
 
 st.set_page_config(page_title="COVID SCRIPTS of René Smit")
 
-
 def dynamic_import(module):
     """Import a module stored in a variable
 
@@ -45,9 +44,7 @@ def main():
             ["22. Inkomen vs vaccinatie vs incidentie vs verkiezingen", "vacc_inkomen_cases"] ,
             ["23. VE Israel", "israel_zijlstra"],
             ["24. Hosp/death NL", "cases_hospital_decased_NL"],
-            ["23. VE Nederland", "VE_nederland"] ]
-
-
+            ["25. VE Nederland", "VE_nederland"] ]
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 
@@ -68,8 +65,6 @@ def main():
             st.warning(traceback.format_exc())
             st.stop()
         st.stop()
-
-
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 

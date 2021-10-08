@@ -116,7 +116,6 @@ def graph_day(df, what_to_show_l, title):
         )
         st.pyplot(fig1x)
 
-
 def main_oud():
     """  _ _ _ """
 
@@ -172,6 +171,7 @@ def main_oud():
 
 def main():
     st.write ("Out of order")
+
 if __name__ == "__main__":
 
     main()

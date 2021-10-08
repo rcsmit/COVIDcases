@@ -1,25 +1,23 @@
 #import scipy.stats as ss
 import matplotlib.pyplot as plt
 import numpy as np
-import math
-from scipy import stats
+# import math
+# from scipy import stats
 #from scipy.stats import weibull_min
 import pandas as pd
-from statistics import mean
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from statistics import mean
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import streamlit as st
 import random
-from itertools import cycle
-from streamlit import caching
-import time
+# from itertools import cycle
+# from streamlit import caching
+# import time
 # partly derived from https://stackoverflow.com/a/37036082/4173718
-import pandas as pd
-import numpy as np
 #import openpyxl
 import streamlit as st
 import datetime as dt
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 from sklearn.metrics import r2_score
 
 import plotly.express as px
@@ -54,6 +52,14 @@ def read():
     print (df.dtypes)
     return df
 
+def perc_gevacc():
+    sheet_id = "12pLaItlz1Lw1BM-f1Zu66rq6nnXcw0qSOO64o3xuWco"
+    sheet_name = "VACC__GRAAD" # sheet copied as values
+    url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+
+    df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
+    print (df_data.dtypes)
+    line_chart_pivot (df_data, None, "% Volledig gevaccineerd", False)
 
 def line_chart (df, what_to_show):
     """Make a linechart from an unpivoted table, with different lines (agegroups)
@@ -74,28 +80,36 @@ def line_chart (df, what_to_show):
     )
     st.plotly_chart(fig)
 
-def line_chart_pivot (df_, field, title):
+def line_chart_pivot (df_, field, title,sma):
     """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
 
     Args:
         df ([type]): [description]
         title ([type]): [description]
+        sma(boolean) : show smooth averages?
     """
-    df = make_pivot(df_, field)
+    if field != None:
+        df = make_pivot(df_, field)
+    else:
+        df = df_
     fig = go.Figure()
 
     columns = df.columns.tolist()
     columnlist = columns[1:]
     # st.write(columnlist)
     for col in columnlist:
-        col_sma = col +"_sma"
+        if sma:
+            col_sma = col +"_sma"
+            df[col_sma] =  df[col].rolling(window = 3, center = False).mean()
+            fig.add_trace(go.Scatter(x=df["einddag_week"], y= df[col_sma], mode='lines', name=col ))
+            title = title+ " (SMA 3)"
+        else:
+            fig.add_trace(go.Scatter(x=df["einddag_week"], y= df[col], mode='lines', name=col ))
 
-        df[col_sma] =  df[col].rolling(window = 3, center = False).mean()
-        fig.add_trace(go.Scatter(x=df["einddag_week"], y= df[col_sma], mode='lines', name=col ))
 
     fig.update_layout(
         title=dict(
-                text=title+ " (SMA 3)",
+                text=title,
                 x=0.5,
                 y=0.85,
                 font=dict(
@@ -106,7 +120,7 @@ def line_chart_pivot (df_, field, title):
 
 
         xaxis_title="Einddag vd week",
-        yaxis_title=col    )
+        yaxis_title=title    )
     st.plotly_chart(fig)
     with st.expander (f"dataframe pivottable {title}"):
         df_temp = df.astype(str).copy(deep = True)
@@ -184,10 +198,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
             ha="right",
         )
 
-
         st.plotly_chart(fig1xy)
 def make_calculations(df):
-
     df["unvaxxed_new"] = (df["pop_size"]*(1-(df["vacc_graad"]/100))) #NB Unvaxxed is vanaf 2e vaccin
     df["vaxxed_new"] = df["pop_size"]* (df["vacc_graad"]/100) #NB Unvaxxed is vanaf 2e vaccin
 
@@ -439,7 +451,8 @@ def main():
     # line_chart ( df_grouped,"fischer_p_val")
 
 
-
+    perc_gevacc()
+    st.write ("eg. 30-39 = 30-34 and 30-39.1 = 35-39")
 
     toelichting(df)
 
