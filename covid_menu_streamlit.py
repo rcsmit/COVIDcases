@@ -12,14 +12,11 @@ def show_info():
         'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
     )
 
-
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
 def dynamic_import(module):
     """Import a module stored in a variable
-
     Args:
         module (string): The module to import
-
     Returns:
         the module you want
     """
@@ -51,7 +48,7 @@ def main():
             ["19. grafiek pos testen per leeftijdscat","grafiek pos testen per leeftijdscategorie streamlit"],
             ["20. per provincie per leeftijd","perprovincieperleeftijd"],
             ["21. kans om covid op te lopen","kans_om_covid_op_te_lopen"],
-            ["22. Inkomen vs vaccinatie vs incidentie vs verkiezingen", "vacc_inkomen_cases"] ,
+            ["22. Data per gemeente", "vacc_inkomen_cases"] ,
             ["23. VE Israel", "israel_zijlstra"],
             ["24. Hosp/death NL", "cases_hospital_decased_NL"],
             ["25. VE Nederland", "VE_nederland"] ]
@@ -81,9 +78,8 @@ def main():
     with st.sidebar.expander('MENU: Choose a script | scroll down for options/parameters',  expanded=True):
         menu_choice = st.radio("",menuchoicelist, index=choice)
 
-    st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
+    st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
     st.experimental_set_query_params(choice=menuchoicelist.index(menu_choice)) # setting the choice in the URL
-    show_info()
 
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
@@ -99,10 +95,9 @@ def main():
             except Exception as e:
                 st.error(f"Function 'main()' in module '{m}' not found or error in the script")
                 st.warning(f"{e}")
-
                 st.warning(traceback.format_exc())
-
                 st.stop()
 
 if __name__ == "__main__":
     main()
+    show_info()
