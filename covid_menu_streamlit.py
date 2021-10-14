@@ -4,6 +4,16 @@ import traceback
 
 st.set_page_config(page_title="COVID SCRIPTS of René Smit")
 
+def show_info():
+    tekst = (
+        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
+        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/covid_dashboard_rcsmit.py" target="_blank">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
+    )
+
+
+    st.sidebar.markdown(tekst, unsafe_allow_html=True)
 def dynamic_import(module):
     """Import a module stored in a variable
 
@@ -73,6 +83,7 @@ def main():
 
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
     st.experimental_set_query_params(choice=menuchoicelist.index(menu_choice)) # setting the choice in the URL
+    show_info()
 
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:

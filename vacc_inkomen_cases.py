@@ -17,8 +17,8 @@ def read():
     # Attentie: bevat - waardes en Baarle Nassau
 
     #url_yorick = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\vaccinatie_incidentie.csv"
-    url_yorick = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/vaccinatie_incidentie.csv"
-    df_yorick = pd.read_csv(url_yorick, delimiter=';', encoding="ISO-8859-1")
+    # url_yorick = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/vaccinatie_incidentie.csv"
+
     # Baarle Nassau is verwijderd (incidentie x*10E-15). Daarnaast worden er 3 gemeentes niet weergegeven ivm herindeingen)
     # Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0 ->
     # np.log geeft -inf, waardoor correlatie niet kan worden berekend
@@ -34,20 +34,51 @@ def read():
     url_verkiezingen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/verkiezingen2021.csv"
     df_verkiezingen = pd.read_csv(url_verkiezingen, delimiter=',')
 
+    url_gemeente_info = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_inwoners_oppervlakte.csv"
+    df_gemeente_info = pd.read_csv(url_gemeente_info, delimiter=',')
+
+
+    url_rene = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_reported_hospital_deceased.csv"
+    df_rene = pd.read_csv(url_rene, delimiter=',', encoding="ISO-8859-1")
+
+    url_vaccinatie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/COVID-19_vaccinatiegraad_per_gemeente_per_week_leeftijd.csv"
+    df_vaccinatie = pd.read_csv(url_vaccinatie, delimiter=';', encoding="ISO-8859-1")
+    df_vaccinatie = df_vaccinatie[df_vaccinatie["Age_group"] == "18+"]
+
+    url_migratie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/percentage_migratieachtergrond_per_gemeente.csv"
+    df_migratie = pd.read_csv(url_migratie, delimiter=',')
+
+    url_niet_w_migratie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_niet_west_immigr.csv"
+    df_niet_west_migratie = pd.read_csv(url_niet_w_migratie, delimiter=',')
     partijen = df_verkiezingen.columns.values.tolist()
     partijen = partijen[7:]
 
-    df_totaal= pd.merge(
-                df_yorick, df_inkomen, how="inner", left_on="Municipality_code", right_on="Gemeentecode"
-            )
+
 
     df_totaal= pd.merge(
-                df_totaal, df_verkiezingen, how="inner", left_on="Municipality_code", right_on="ReGMioCode"
+                 df_inkomen, df_verkiezingen, how="outer", left_on="Gemeentecode", right_on="ReGMioCode"
+            )
+    df_totaal= pd.merge(
+                 df_totaal, df_gemeente_info, how="outer", left_on="RegioNaam", right_on="gemeentenaam"
+            )
+    #print (df_totaal.dtypes)
+    df_totaal= pd.merge(
+                df_totaal, df_rene, how="outer", left_on="Gemeentecode", right_on="Municipality_code",
+            )
+    df_totaal= pd.merge(
+                df_totaal, df_vaccinatie, how="outer", left_on="Gemeentecode", right_on="Region_code",
+            )
+    df_totaal= pd.merge(
+                 df_totaal, df_migratie, how="outer", left_on="RegioNaam", right_on="gemeente"
+            )
+    df_totaal= pd.merge(
+                 df_totaal, df_niet_west_migratie, how="outer", left_on="RegioNaam", right_on="gemeentenaam"
             )
 
+    df_totaal["incidentie"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
     df_totaal["log_e_incidentie"] = np.log(df_totaal["incidentie"])
     df_totaal["log_10_incidentie"] = np.log10(df_totaal["incidentie"])
-    df_totaal['volledige.vaccinatie'] = df_totaal['volledige.vaccinatie'].astype(float)
+    df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].astype(float)
 
     # uitschieters verwiijderen
     factor =2
@@ -100,8 +131,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
                     fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='perc_stemmen', text="partij", trendline="ols")
 
                 else:
-                    fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='inwoners', trendline="ols",
-                        hover_name="Gemeente_Naam", hover_data=["provincie"])
+                    fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='inwoners_2021', trendline="ols",
+                        hover_name="Gemeentenaam", hover_data=["provincie"])
 
 
         #add linear regression line to scatterplot
@@ -182,7 +213,7 @@ def make_corr_tabel(df, partijen, uitslag):
                     ignore_index=True,
                 )
     corr_tabel= pd.merge(
-                corr_tabel, uitslag, how="inner", left_on="partij", right_on="partij"
+                corr_tabel, uitslag, how="outer", left_on="partij", right_on="partij"
             )
 
 
@@ -195,40 +226,29 @@ def main():
     df, partijen,uitslag = read()
     how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
 
-    partijen_default =  [ 'PVV (Partij voor de Vrijheid)', 'Forum voor Democratie']
 
-    partijen_selected = st.sidebar.multiselect(
-            "What to show left-axis (multiple possible)", partijen, partijen_default)
-    df = bewerk_df(df, partijen_selected)
+    lijst = ["gem_ink_x1000", "volledige.vaccinatie","incidentie","inwoners_2021","inwoners_per_km2",
+            "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr", "perc_migratieachtergrond", "log_e_incidentie", "log_10_incidentie"]
+    x  = st.sidebar.selectbox("Wat op X as", lijst, index=0)
+    y = st.sidebar.selectbox("Wat op Y as", lijst, index=1)
+    if (x == "stemmen_op_geselecteerde_partijen_procent" or y == "stemmen_op_geselecteerde_partijen_procent"):
+        partijen_default =  [ 'PVV (Partij voor de Vrijheid)', 'Forum voor Democratie']
+        partijen_selected = st.sidebar.multiselect(
+                "Welke politieke partijen", partijen, partijen_default)
+        df = bewerk_df(df, partijen_selected)
 
-    st.subheader("Naar inkomen")
-    make_scatterplot(df,  "gem_ink_x1000", "volledige.vaccinatie", how, None)
-    make_scatterplot(df,  "gem_ink_x1000","log_e_incidentie", how, None)
-    make_scatterplot(df,  "gem_ink_x1000","stemmen_op_geselecteerde_partijen_procent", how, None)
-
-    st.subheader("Naar vaccinatiegraad")
-    make_scatterplot(df,  "volledige.vaccinatie", "incidentie", how, None)
-
-    make_scatterplot(df,  "volledige.vaccinatie", "log_e_incidentie", how, None)
-    make_scatterplot(df,  "volledige.vaccinatie", "log_10_incidentie" , how, None)
+    make_scatterplot(df,  x, y , how, None)
 
 
-    st.subheader("Naar inwoners")
-    make_scatterplot(df,  "inwoners", "incidentie" , how, None)
-    make_scatterplot(df,  "inwoners", "volledige.vaccinatie", how, None)
-    make_scatterplot(df,  "inwoners","gem_ink_x1000", how, None)
-
-    st.subheader("Naar geselecteerde partijen")
-    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent", "volledige.vaccinatie", how, None)
-    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent", "incidentie", how, None)
-    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent","gem_ink_x1000", how, None)
-    make_scatterplot(df,  "stemmen_op_geselecteerde_partijen_procent","inwoners", how, None)
 
     st.subheader("Correlaties partijen - vacc.graad")
     corr_tabel = make_corr_tabel(df, partijen, uitslag)
     make_scatterplot(corr_tabel,  "corr_vaccinatie","corr_incidentie", how, "verkiezingen")
 
 
-    st.write("Cijfers dd. 8 september 2021. Datafile met vaccinatiegraad en incidentie samengesteld door Yorick Bleijenberg / @YorickB.  3 gemeentes worden niet weergegeven ivm herindelingen. Baarle Nassau is verwijderd (incidentie x*10E-15). ). Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0")
+    st.write("Incidentiecijfers zijn totaal tussen 8 en 13 oktober 2021, per inwoner. Vaccinatiegraad dd 13 otkober 2021. ")
+    st.write("Er kunnen gemeentes misssen ivm herindelingen of incidentie = 0.")
+    #st.write("3 gemeentes worden niet weergegeven ivm herindelingen. Baarle Nassau is verwijderd (incidentie x*10E-15). ).")
+    #st.write(" Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0")
 if __name__ == "__main__":
     main()
