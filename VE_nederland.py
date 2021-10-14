@@ -264,6 +264,7 @@ def calculate_ci(df):
         # df.at[i,"CI_low_theta"] =   theta * np.exp(  Za2 * SE_theta)
         # df.at[i,"or_theta"] = theta
         # df.at[i,"CI_high_theta"]=  theta - np.exp(  Za2 * SE_theta)
+        
         df.at[i,"CI_rel_risk_low"] = np.exp(np.log(rel_risk) -Za2 * math.sqrt(yyy))
         df.at[i,"rel_risk"] = rel_risk
         df.at[i,"CI_rel_risk_high"]= np.exp(np.log(rel_risk) +Za2 * math.sqrt(yyy))
