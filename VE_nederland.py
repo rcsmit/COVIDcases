@@ -125,6 +125,42 @@ def line_chart_pivot (df_, field, title,sma):
         df_temp = df.astype(str).copy(deep = True)
         st.write (df_temp)
 
+def line_chart_VE_as_index (df):
+    """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
+
+    Args:
+        df ([type]): [description]
+        title ([type]): [description]
+        sma(boolean) : show smooth averages?
+    """
+
+    fig = go.Figure()
+
+    columnlist = df.columns.tolist()
+    title = "VE as index"
+    # st.write(columnlist)
+    for col in columnlist:
+            fig.add_trace(go.Scatter( y= df[col], mode='lines', name=col ))
+
+
+    fig.update_layout(
+        title=dict(
+                text=title,
+                x=0.5,
+                y=0.85,
+                font=dict(
+                    family="Arial",
+                    size=14,
+                    color='#000000'
+                )),
+
+
+        xaxis_title="Einddag vd week",
+        yaxis_title=title    )
+    st.plotly_chart(fig)
+
+
+
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categoryfield, hover_name, hover_data):
     """Makes a scatterplot with trendline and statistics
 
@@ -264,7 +300,7 @@ def calculate_ci(df):
         # df.at[i,"CI_low_theta"] =   theta * np.exp(  Za2 * SE_theta)
         # df.at[i,"or_theta"] = theta
         # df.at[i,"CI_high_theta"]=  theta - np.exp(  Za2 * SE_theta)
-        
+
         df.at[i,"CI_rel_risk_low"] = np.exp(np.log(rel_risk) -Za2 * math.sqrt(yyy))
         df.at[i,"rel_risk"] = rel_risk
         df.at[i,"CI_rel_risk_high"]= np.exp(np.log(rel_risk) +Za2 * math.sqrt(yyy))
@@ -402,6 +438,8 @@ def group_table(df, valuefield):
     return df_grouped
 
 def make_pivot(df, valuefield):
+    df = df[df["Agegroup"] != "0-9"]
+    df = df[df["Agegroup"] != "10-19"]
     df_pivot = (
     pd.pivot_table(
         df,
@@ -416,6 +454,41 @@ def make_pivot(df, valuefield):
 
     return df_pivot
 
+def normeren(df):
+
+
+    """In : columlijst
+    Bewerking : max = 1
+    Out : columlijst met genormeerde kolommen"""
+
+    what_to_norm_ = list(df.columns.values)
+    what_to_norm = what_to_norm_[1:]
+
+    # print(df.dtypes)
+    how_to_norm_ = ["index", "rel"]
+    how_to_norm_ = ["index"]
+
+    normed_columns = []
+    for how_to_norm in how_to_norm_:
+
+        for column in what_to_norm:
+            maxvalue = (df[column].max())
+            firstvalue = df[column].iloc[0]
+
+            for i in range(len(df)):
+                if how_to_norm == "max":
+                    name = f"{column}_normed"
+                    df.loc[i, name] = df.loc[i, column] / maxvalue
+                elif how_to_norm == "index":
+                    name = f"{column}_indexed"
+                    df.loc[i, name] = df.loc[i, column] / firstvalue * 100
+                elif how_to_norm == "rel":
+                    name = f"{column}_relative"
+                    df.loc[i, name] = (df.loc[i, column] - firstvalue) / firstvalue * 100
+            normed_columns.append(name)
+            # print(f"{name} generated")
+    return df, normed_columns
+
 def main():
     df_ = read()
     df_ = df_.fillna(0)
@@ -425,8 +498,6 @@ def main():
     df = make_calculations(df_)
 
     #st.write(df)
-    df_grouped = group_table(df_, "einddag_week").copy(deep = True)
-    df_grouped = make_calculations(df_grouped)
 
 
 
@@ -437,10 +508,22 @@ def main():
     line_chart (df, "VE_2_N")
     line_chart (df, "odds_ratio_V_2_N")
 
-    # line_chart_pivot (df,  "VE_2_N", "VE (2 vaccins / N)")
+
+
+    df_pivot = make_pivot(df, "VE_2_N").copy(deep = True)
+    df_pivot, normed_columns = normeren(df_pivot)
+    df_pivot = df_pivot[normed_columns]
+    line_chart_VE_as_index (df_pivot)
+    st.write(df_pivot)
+
+    #line_chart_pivot (df_pivot,  "VE_2_N", "VE (2 vaccins / N)", None)
     # line_chart_pivot ( df,"odds_ratio_V_2_N", "Odds Ratio (2 vaccins / N)")
     # line_chart (df, "fischer_p_val")
     # st.subheader("All ages together (excl. 0-19)")
+
+    # group table, all age groups in one total
+    #df_grouped = group_table(df_, "einddag_week").copy(deep = True)
+    #df_grouped = make_calculations(df_grouped)
 
     # line_chart (df_grouped,  "VE_2_N")
     # line_chart (df_grouped,  "IRR")

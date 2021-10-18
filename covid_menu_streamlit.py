@@ -51,7 +51,8 @@ def main():
             ["22. Data per gemeente", "vacc_inkomen_cases"] ,
             ["23. VE Israel", "israel_zijlstra"],
             ["24. Hosp/death NL", "cases_hospital_decased_NL"],
-            ["25. VE Nederland", "VE_nederland"] ]
+            ["25. VE Nederland", "VE_nederland"],
+            ["26. Scatterplots CoG OWID", "cog_owid"]  ]
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 
