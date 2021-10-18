@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 from streamlit import caching
-
+from sklearn.metrics import r2_score
 
 
 def download_data_file(url, filename, delimiter_, fileformat):
@@ -51,8 +51,6 @@ def get_data():
     Out : df        : dataframe
          UPDATETIME : Date and time from the last update"""
     with st.spinner(f"GETTING ALL DATA ..."):
-
-
 
         data = [
 
@@ -128,40 +126,39 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,   categoryfield, h
         show_cat ([type]): [description]
         categoryfield ([type]): [description]
     """
+    df_temp = df_temp[df_temp[what_to_show_l] != None]
+    df_temp = df_temp[df_temp[what_to_show_r] != None]
+
+    correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+    correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+
     with _lock:
         fig1xy,ax = plt.subplots()
-        # try:
+        try:
 
-        #     x_ = np.array(df_temp[what_to_show_l])
-        #     y_ = np.array(df_temp[what_to_show_r])
-        #     #obtain m (slope) and b(intercept) of linear regression line
-        #     idx = np.isfinite(x_) & np.isfinite(y_)
-        #     m, b = np.polyfit(x_[idx], y_[idx], 1)
-        #     model = np.polyfit(x_[idx], y_[idx], 1)
+            x_ = np.array(df_temp[what_to_show_l])
+            y_ = np.array(df_temp[what_to_show_r])
+            #obtain m (slope) and b(intercept) of linear regression line
+            idx = np.isfinite(x_) & np.isfinite(y_)
+            m, b = np.polyfit(x_[idx], y_[idx], 1)
+            model = np.polyfit(x_[idx], y_[idx], 1)
 
-        #     predict = np.poly1d(model)
-        #     r2 = r2_score  (y_[idx], predict(x_[idx]))
-        # except:
-        #     m,b,model,predict,r2 =None,None,None,None,None
+            predict = np.poly1d(model)
+            r2 = r2_score  (y_[idx], predict(x_[idx]))
+            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data, trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
+            title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
-        # try:
+        except:
 
-        #     fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data, trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
-        # except:
-        #     # avoid exog contains inf or nans
-        #     fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
-
-        # #add linear regression line to scatterplot
+            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
+            title_scatter = (f"{what_to_show_l} -  {what_to_show_r}")
 
 
-        # correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
-        # correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
 
-        fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r,  hover_name=hover_name, color=categoryfield)
 
-        #title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}")
+        #fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r,  hover_name=hover_name, color=categoryfield)
 
+        #
         fig1xy.update_layout(
             title=dict(
                 text=title_scatter,
@@ -197,8 +194,12 @@ def main():
     st.header ("COG OWID")
     df_getdata = get_data().copy(deep=False)
     df = rename_columns(df_getdata)
-    df = df.fillna(0)
-    df = df[df["continent"] == "Europe"]
+    #df = df.fillna(0)
+    continent_list_ =  df["continent"].drop_duplicates().sort_values().tolist()
+    continent_list = ["All"] + continent_list_
+    continent = st.sidebar.selectbox("Continent", continent_list, index=0)
+    if continent_list != "All":
+        df = df[df["continent"] == continent]
     #df.dropna(subset=[ "Trust in Politicians"])
     columnlist = df.columns.tolist()
     #st.write(df["Trust in Politicians"])
@@ -206,15 +207,16 @@ def main():
     what_to_show_left = st.sidebar.selectbox("X as", columnlist, index=119)
     what_to_show_right = st.sidebar.selectbox("Y as", columnlist, index=387)
     #st.write("For vacc.grade choose -Percentage_vaccinated_sop-")
-    try:
-        make_scatterplot(df, what_to_show_left, what_to_show_right,   "continent", "location", None)
-    except:
-        st.warning("Error")
-    # make_scatterplot(df, "Trust in Politicians", "Percentage_vaccinated_sop",   "continent", "location", None)
-    # make_scatterplot(df, "Trust in Other People", "Percentage_vaccinated_sop",   "continent", "location", None)
-    # make_scatterplot(df, "Trust in Other People", "new_cases_per_million",   "continent", "location", None)
+    #try:
+    make_scatterplot(df, what_to_show_left, what_to_show_right,   "continent", "location", None)
+
+    st.subheader("Source for QoG data")
     st.write("Dahlberg, Stefan,  Aksel Sundström, Sören Holmberg, Bo Rothstein, Natalia Alvarado Pachon & Cem Mert Dalli. 2021. The Quality of Government Basic Dataset, version Jan21. University of Gothenburg: The Quality of Government Institute, http://www.qog.pol.gu.se doi:10.18157/qogbasjan21")
+    st.subheader("Source for Vaccination rates")
     st.write("https://www.sortiraparis.com/news/coronavirus/articles/240384-vaccine-in-the-world-as-of-datadatestodayfrlatest-the-percentage-of-people-vacci/lang/en dd 18/10/2021")
+    st.subheader("Source for Our World In Data-data")
+    st.write("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv")
+    st.header( "Fields")
     st.write(columnlist)
 
 if __name__ == "__main__":
