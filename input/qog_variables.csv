@@ -1,0 +1,326 @@
+﻿abbrevation;description
+ajr_settmort;Log Settler Mortality
+atop_ally;Member of an Alliance
+atop_number;Number of Alliances
+bci_bci;The Bayesian Corruption Indicator
+bicc_gmi;Global Militarization Index
+biu_offrel;Official Religion
+bi_total;Threatened Species: Total
+bmr_dem;Dichotomous democracy measure
+bmr_demdur;Consecutive years of current regime type
+bti_aar;Associational/Assembly Rights
+bti_acp;Anti-Corruption Policy
+bti_aod;Approval of Democracy
+bti_cdi;Commitment to Democratic Institutions
+bti_ci;Conflict Intensity
+bti_cps;Monetary and fiscal stability
+bti_cr;Civil Rights
+bti_ds;Democracy Status
+bti_eo;Equal Opportunity
+bti_eos;Economic Output Strength
+bti_ep;Economic Performance
+bti_ffe;Free and Fair Elections
+bti_foe;Freedom of Expression
+bti_ij;Independent Judiciary
+bti_mes;Economy Status
+bti_muf;Monopoly on the Use of Force
+bti_pdi;Performance of Democratic Institutions
+bti_pp;Political Participation
+bti_prp;Private Property
+bti_ps;Party System
+bti_rol;Rule of Law
+bti_sdi;Stability of Democratic Institutions
+bti_seb;Socio-Economic Barriers
+bti_sel;Socio-Economic Level
+bti_sop;Separation of Powers
+bti_ssn;Social Safety Nets
+bti_su;Sustainability
+bti_wr;Welfare Regime
+cai_cai2;Comparative Abortion Index 2 (0 to 1)
+ccode;Country Code
+ccodealp;3-letter Country Code
+ccodealp_year;3-letter Country Code and Year
+ccodecow;Country Code COW
+ccodewb;Country Code World Bank
+ccp_cc;Corruption Commission Present in Constitution
+ccp_childwrk;Limits on Child Work in Constitution
+ccp_equal;Equality Before the Law Mentioned in Constitution
+ccp_freerel;Freedom of Religion in Constitution
+ccp_slave;Status of Slavery in Constitution
+ccp_strike;Right to Strike in Constitution
+cname;Country Name
+cname_year;Country Name and Year
+cpds_enps;Effective number of parties on the seats level
+cpds_enpv;Effective number of parties on the votes level
+cpds_la;Share of seats in parliament: agrarian
+cpds_lall;Share of seats in parliament: electoral alliance
+cpds_lcom;Share of seats in parliament: communist
+cpds_lcon;Share of seats in parliament: conservative
+cpds_le;Share of seats in parliament: ethnic
+cpds_lfe;Share of seats in parliament: feminist
+cpds_lg;Share of seats in parliament: green
+cpds_ll;Share of seats in parliament: liberal
+cpds_lls;Share of seats in parliament: left-socialist
+cpds_lmo;Share of seats in parliament: monarchist
+cpds_lnl;Share of seats in parliament: non-labelled
+cpds_lo;Share of seats in parliament: other
+cpds_lp;Share of seats in parliament: protest
+cpds_lpc;Share of seats in parliament: post-communist
+cpds_lpen;Share of seats in parliament: pensioners
+cpds_lper;Share of seats in parliament: personalist
+cpds_lr;Share of seats in parliament: right
+cpds_lreg;Share of seats in parliament: regionalist
+cpds_lrel;Share of seats in parliament: religious
+cpds_ls;Share of seats in parliament: social democratic
+cpds_tg;Type of Government
+cpds_vt;Voter turnout in election
+cri_contr;Number of awarded contracts above EUR 130,000
+cses_pc;Close to Political Party
+cses_sd;Satisfaction with Democracy
+cspf_sfi;State Fragility Index
+dr_eg;Economic Globalization
+dr_ig;Index of Globalization
+dr_pg;Political Globalization
+dr_sg;Social Globalization
+ef_ef;Total Ecological Footprint of Consumption (GHA per person)
+egov_egov;E-Government Index
+epi_eh;Environmental Health (0-100)
+epi_epi;Environmental Performance Index (0-100)
+ess_happy;Subjective Happiness
+ess_health;Subjective Health
+ess_relig;Religiosity
+ess_trlegal;Trust in Legal System
+ess_trparl;Trust in Parliament
+ess_trpart;Trust in Political Parties
+ess_trpeople;Trust in Other People
+ess_trpolice;Trust in Police
+ess_trpolit;Trust in Politicians
+ffp_ext;External Intervention
+ffp_fsi;Fragile States Index
+ffp_hf;Human Flight and Brain Drain
+ffp_hr;Human Rights and Rule of Law
+ffp_ps;Public Services
+ffp_ref;Refugees and IDPs
+ffp_sec;Security Apparatus
+ffp_sl;State Legitimacy
+ffp_ued;Uneven Economic Development
+fi_ftradeint;Freedom to Trade Internationally (current)
+fi_index;Economic Freedom of the World Index (current)
+gcb_br;Total bribery rate, total population
+gcb_fcwell;Fight aganist corruption: Well (% respondents)
+gcb_orcag;Feel personally obliged to report corruption: agree (% respondents)
+gcb_pcbmost;Corruption Perception-Business Executives: Most (% respondents)
+gcb_pcjmost;Corruption Perception-Judges: Most (% respondents)
+gcb_pclgcmost;Corruption Perception-Local Gov Council: Most (% respondents)
+gcb_pclmost;Corruption Perception-Legislature: Most (% respondents)
+gcb_pcori;Corruption Perception Change: Increase (% respondents)
+gcb_pcpmost;Corruption Perception-Head of State: Most (% respondents)
+gcb_pcpolmost;Corruption Perception-Police: Most (% respondents)
+gcb_pcrmost;Corruption Perception-Religious Leaders: Most (% respondents)
+gcb_pctaxmost;Corruption Perception-Tax officers: Most (% respondents)
+gcb_pfcaag;Can people fight aganist corruption: agree (% respondents)
+gcb_sarcag;Is socially acceptable to report corruption: agree (% respondents)
+gcb_wsdag;Would spend a whole day in court to give evidence: agree (% respondents)
+gd_ptsa;Political Terror Scale - Amnesty International
+gd_ptsh;Political Terror Scale - Human Rights Watch
+gfs_rcr;Expenditure on social protection, as % of total gen. gov. exp.
+gii_gii;Gender Inequality Index (0 to 1 higher disparity)
+gol_enep;Effective Number of Electoral Parties
+gol_est;Electoral System Type-3 classes
+gol_est_spec;Electoral System Type-11 classes
+gol_pr;PR Type
+gpi_gpi;Global Peace Index (1-5 Less peaceful)
+hf_efiscore;Economic Freedom Index
+hf_financ;Financial Freedom
+hf_invest;Investment Freedom
+hf_labor;Labor Freedom
+hf_prights;Property Rights
+ht_colonial;Colonial Origin
+ht_region;The Region of the Country
+ht_regtype;Regime Type
+ht_regtype1;Regime Type (simplified)
+h_j;Independent Judiciary
+ibp_obi;Open Budget Index
+icrg_qog;ICRG Indicator of Quality of Government
+ideavt_legvt;Parliamentary Election: Voter Turnout
+ideavt_presvt;Presidential Election: Voter Turnout
+iiag_be;Business Environment
+iiag_edu;Education
+iiag_gov;Overall Governance
+iiag_hd;Human Development
+iiag_he;Health
+iiag_inf;Infrastructure
+iiag_srol;Security and Rule of Law
+ipi_tradeopen;Trade Openness (index)
+ipu_l_sw;Share of Women (Lower and Single Houses)
+ipu_u_sw;Share of Women (Upper House)
+lis_gini;Gini Coefficient
+lp_lat_abst;Latitude
+lp_legor;Legal Origin
+mad_gdppc;Real GDP per Capita
+mad_gdppc1900;Real GDP per Capita (year 1900)
+nelda_mbbe;Media Bias before Election
+nelda_mtop;Was More Than One Party Legal
+nelda_oa;Was Opposition Allowed
+nelda_rpae;Riots and Protests after Election
+nunn_desert;Percentage desert in 2012
+nunn_dist_coast;Average distance to nearest ice-free coast (1000 km) in 2012
+nunn_tropical;Percentage tropical climate in 2012
+ohi_ohi;The Ocean Health Index
+pei_eir;Electoral Integrity Rating
+pei_peii;Perception of Electoral Integrity Index
+prp_prp;The Property Right Protection Index
+pwt_hci;Human capital index, see note hc
+pwt_pop;Population (in millions)
+p_durable;Regime Durability
+p_polity2;Revised Combined Polity Score
+qs_closed;Closed Public Administration
+qs_impar;Impartial Public Administration
+qs_proff;Professional Public Administration
+ross_gas_value_2014;Gas production value in 2014 dollars
+ross_oil_value_2014;Oil production value in 2014 dollars
+rsf_pfi;Press Freedom Index
+sgi_ec;Policy Performance: Economic Policies - Overall
+sgi_ecbg;Policy Performance: Economic Policies - Budgets
+sgi_ecec;Policy Performance: Economic Policies - Economy
+sgi_eclm;Policy Performance: Economic Policies - Labor Markets
+sgi_ectx;Policy Performance: Economic Policies - Taxes
+sgi_en;Policy Performance: Environmental Policies - Overall
+sgi_enen;Policy Performance: Environmental Policies - Environment
+sgi_enge;Policy Performance: Environmental Policies - Global Environmental Protection
+sgi_qd;Quality of Democracy
+sgi_qdep;Quality of Democracy: Electoral Process
+sgi_so;Policy Performance: Social Policies - Overall
+sgi_soed;Policy Performance: Social Policies - Education
+sgi_sofa;Policy Performance: Social Policies - Families
+sgi_sogi;Policy Performance: Social Policies - Global Social Inequalities
+sgi_sohe;Policy Performance: Social Policies - Health
+sgi_soin;Policy Performance: Social Policies - Integration Policy
+sgi_sope;Policy Performance: Social Policies - Pensions
+sgi_sosi;Policy Performance: Social Policies - Social Inclusion
+sgi_sosl;Policy Performance: Social Policies - Safe Living Conditions
+ti_cpi;Corruption Perceptions Index
+top_top10_income_share;Top 10% income share
+top_top1_income_share;Top 1% income share
+undp_hdi;Human Development Index
+van_index;Index of Democratization
+vdem_corr;Political corruption index
+vdem_delibdem;Deliberative democracy index
+vdem_egaldem;Egalitarian democracy index
+vdem_gender;Women political empowerment index
+vdem_libdem;Liberal democracy index
+vdem_mecorrpt;Media corrupt
+vdem_partipdem;Participatory democracy index
+vdem_polyarchy;Electoral democracy index
+version;Version of the Dataset
+voh_gti;Global Terrorism Index
+wbgi_cce;Control of Corruption, Estimate
+wbgi_gee;Government Effectiveness, Estimate
+wbgi_pve;Political Stability and Absence of Violence/Terrorism, Estimate
+wbgi_rle;Rule of Law, Estimate
+wdi_acel;Access to electricity (% of population)
+wdi_acelr;Access to electricity, rural (% of rural population)
+wdi_acelu;Access to electricity, urban (% of urban population)
+wdi_afp;Armed forces personnel (% of total labor force)
+wdi_agedr;Age dependency ratio (% of working-age pop.)
+wdi_ane;Alternative and nuclear energy (% of total energy use)
+wdi_araland;Arable land (% of land area)
+wdi_area;Land area (sq. km)
+wdi_armexp;Arms exports (SIPRI trend indicator values)
+wdi_armimp;Arms imports (SIPRI trend indicator values)
+wdi_birth;Birth rate, crude (per 1,000 people)
+wdi_bribfirm;Bribery incidence (% of firms experiencing at least one bribe request)
+wdi_broadb;Fixed broadband subscriptions (per 100 people)
+wdi_busden;New business density (new registrations per 1,000 people ages 15-64)
+wdi_co2;CO2 emissions (metric tons per capita)
+wdi_death;Death rate, crude (per 1,000 people)
+wdi_debt;Central government debt, total (% of GDP)
+wdi_eduprp;School enrollment, primary, private (% of total primary)
+wdi_eduprs;School enrollment, secondary, private (% of total secondary)
+wdi_elerenew;Renewable electricity output (% of total electricity output)
+wdi_elprodcoal;Electricity production from coal sources (% of total)
+wdi_elprodgas;Electricity production from natural gas sources (% of total)
+wdi_elprodhyd;Electricity production from hydroelectric sources (% of total)
+wdi_elprodnuc;Electricity production from nuclear sources (% of total)
+wdi_elprodoil;Electricity production from oil sources (% of total)
+wdi_emp;Employers, total (% of total employment) (modeled ILO)
+wdi_empagr;Employment in agriculture (% of total employment) (modeled ILO)
+wdi_empagrf;Employment in agriculture, female (% female employment) (modeled ILO)
+wdi_empagrm;Employment in agriculture, male (% male employment) (modeled ILO)
+wdi_empch;Children in employment, total (% of children ages 7-14)
+wdi_empind;Employment in industry (% of total employment) (modeled ILO)
+wdi_empindf;Employment in industry, female (% female employment) (modeled ILO)
+wdi_empindm;Employment in industry, male (% of male employment) (modeled ILO)
+wdi_empser;Employment in services (% of total employment) (modeled ILO)
+wdi_empserf;Employment in services, female (% of female employment) (modeled ILO)
+wdi_empserm;Employment in services, male (% of male employment) (modeled ILO)
+wdi_eneimp;Energy imports, net (% of energy use)
+wdi_eodb;Ease of doing business index (1=most business-friendly regulations)
+wdi_expedu;Government expenditure on education, total (% of GDP)
+wdi_expeduge;Government expenditure on education, total (% of government expenditure)
+wdi_expedup;Expenditure on primary education (% of government expenditure on edu.)
+wdi_expedus;Expenditure on secondary education (% of government expenditure on edu.)
+wdi_expedut;Expenditure on tertiary education (% of government expenditure on edu.)
+wdi_expmil;Military expenditure (% of GDP)
+wdi_fdiin;Foreign direct investment, net inflows (% of GDP)
+wdi_fdiout;Foreign direct investment, net outflows (% of GDP)
+wdi_fertility;Fertility rate, total (births per woman)
+wdi_firftopm;Firms with female top manager (% of firms)
+wdi_firgifttax;Firms expected to give gifts in meetings w. tax officials (% of firms)
+wdi_forest;Forest area (% of land area)
+wdi_fossil;Fossil fuel energy consumption (% of total)
+wdi_gdpagr;Agriculture, forestry, and fishing, value added (% of GDP)
+wdi_gdpcapcon2010;GDP per capita (constant 2010 US dollar)
+wdi_gdpind;Industry (including construction), value added (% of GDP)
+wdi_gerp;School enrollment, primary (% gross)
+wdi_gerpp;School enrollment, preprimary (% gross)
+wdi_gers;School enrollment, secondary (% gross)
+wdi_gert;School enrollment, tertiary (% gross)
+wdi_gini;Gini index (World Bank estimate)
+wdi_homicides;Intentional homicides (per 100,000 people)
+wdi_idpdis;Internally displaced persons, new displacement-disasters (number)
+wdi_idpvc;Internally displaced persons, new displacement-conflict and violence (number)
+wdi_idpvp;Internally displaced persons, total displaced by conflict-violence (number)
+wdi_imig;International migrant stock (% of population)
+wdi_infpay;Informal payments to public officials (% of firms)
+wdi_internet;Individuals using the Internet (% of population)
+wdi_lfpf;Labor force, female (% of total labor force)
+wdi_lifexp;Life expectancy at birth, total (years)
+wdi_lifexpf;Life expectancy at birth, female (years)
+wdi_lifexpm;Life expectancy at birth, male (years)
+wdi_litrad;Literacy rate, adult total (% of people ages 15 and above)
+wdi_litradf;Literacy rate, adult female (% of females ages 15 and above)
+wdi_litradm;Literacy rate, adult male (% of males ages 15 and above)
+wdi_litry;Literacy rate, youth total (% of people ages 15-24)
+wdi_migration;Net migration
+wdi_nerp;School enrollment, primary (% net)
+wdi_ners;School enrollment, secondary (% net)
+wdi_peacekeep;Presence of peace keepers (number)
+wdi_pop;Population, total
+wdi_pop14;Population ages 0-14 (% of total population)
+wdi_pop1564;Population ages 15-64 (% of total population)
+wdi_pop65;Population ages 65 and above (% of total population)
+wdi_popden;Population density (people per sq. km of land area)
+wdi_poprul;Rural population (% of total population)
+wdi_popurb;Urban population (% of total population)
+wdi_povgap190;Poverty gap at USD 1.90 a day (2011 PPP) (%)
+wdi_refasy;Refugee population by country or territory of asylum
+wdi_refori;Refugee population by country or territory of origin
+wdi_semp;Self-employed, total (% of total employment) (modeled ILO)
+wdi_smokf;Smoking prevalence, females (% of adults)
+wdi_smokm;Smoking prevalence, males (% of adults)
+wdi_spr;CPIA social protection rating (1=low to 6=high)
+wdi_tacpsr;CPIA transparency-accountability-corruption in public sector rating (1-6)
+wdi_taxrev;Tax revenue (% of GDP)
+wdi_tele;Fixed telephone subscriptions (per 100 people)
+wdi_trade;Trade (% of GDP)
+wdi_unempfilo;Unemployment, female (% of female labor force) (modeled ILO)
+wdi_unempilo;Unemployment, total (% of total labor force) (modeled ILO)
+wdi_unempmilo;Unemployment, male (% of male labor force) (modeled ILO)
+wdi_unempyfilo;Unemployment, youth female (% of female labor force 15-24) (modeled ILO)
+wdi_unempyilo;Unemployment, youth total (% of total labor force 15-24) (modeled ILO)
+wdi_unempymilo;Unemployment, youth male (% of male labor force 15-24) (modeled ILO)
+wdi_wip;Proportion of seats held by women in national parliaments (%)
+wef_ci;Innovation capability. 0-100 (best)
+wef_elec;Electricity. 0-100 (best)
+wef_gci;Global Competitiveness Index 4.0. 0-100 (best)
