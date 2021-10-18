@@ -205,6 +205,7 @@ def main():
     make_scatterplot(df, "Trust in Politicians", "Percentage_vaccinated_sop",   "continent", "location", None)
     make_scatterplot(df, "Trust in Other People", "Percentage_vaccinated_sop",   "continent", "location", None)
     st.write("Dahlberg, Stefan,  Aksel Sundström, Sören Holmberg, Bo Rothstein, Natalia Alvarado Pachon & Cem Mert Dalli. 2021. The Quality of Government Basic Dataset, version Jan21. University of Gothenburg: The Quality of Government Institute, http://www.qog.pol.gu.se doi:10.18157/qogbasjan21")
+    st.write("https://www.sortiraparis.com/news/coronavirus/articles/240384-vaccine-in-the-world-as-of-datadatestodayfrlatest-the-percentage-of-people-vacci/lang/en dd 18/10/2021")
     st.write(columnlist)
 
 main()
