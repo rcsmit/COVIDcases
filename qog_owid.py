@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
+from streamlit import caching
 
 
 
@@ -43,7 +44,7 @@ def download_data_file(url, filename, delimiter_, fileformat):
         return df_temp
 
 
-#@st.cache(ttl=60 * 60 * 24, suppress_st_warning=True)
+@st.cache(ttl=60 * 60 * 24, suppress_st_warning=True)
 def get_data():
     """Get the data from various sources
     In : -
@@ -216,4 +217,6 @@ def main():
     st.write("https://www.sortiraparis.com/news/coronavirus/articles/240384-vaccine-in-the-world-as-of-datadatestodayfrlatest-the-percentage-of-people-vacci/lang/en dd 18/10/2021")
     st.write(columnlist)
 
-main()
+if __name__ == "__main__":
+    #caching.clear_cache()
+    main()
