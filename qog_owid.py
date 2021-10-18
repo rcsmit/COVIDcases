@@ -201,10 +201,18 @@ def main():
     if continent_list != "All":
         df = df[df["continent"] == continent]
     #df.dropna(subset=[ "Trust in Politicians"])
-    columnlist = df.columns.tolist()
+    columnlist = df.columns.tolist() +["Clear_cache"]
+
     #st.write(df["Trust in Politicians"])
     #st.write(df["people_vaccinated_per_hundred"])
     what_to_show_left = st.sidebar.selectbox("X as", columnlist, index=119)
+    if  what_to_show_left == "Clear_cache":
+        st.sidebar.error("Do you really, really, wanna do this?")
+        if st.sidebar.button("Yes I'm ready to rumble"):
+            caching.clear_cache()
+            st.success("Cache is cleared, please reload to scrape new values")
+        st.stop()
+
     what_to_show_right = st.sidebar.selectbox("Y as", columnlist, index=387)
     #st.write("For vacc.grade choose -Percentage_vaccinated_sop-")
     #try:
