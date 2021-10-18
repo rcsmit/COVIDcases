@@ -202,8 +202,16 @@ def main():
     columnlist = df.columns.tolist()
     #st.write(df["Trust in Politicians"])
     #st.write(df["people_vaccinated_per_hundred"])
-    make_scatterplot(df, "Trust in Politicians", "Percentage_vaccinated_sop",   "continent", "location", None)
-    make_scatterplot(df, "Trust in Other People", "Percentage_vaccinated_sop",   "continent", "location", None)
+    what_to_show_left = st.sidebar.selectbox("X as", columnlist, index=119)
+    what_to_show_right = st.sidebar.selectbox("Y as", columnlist, index=387)
+    #st.write("For vacc.grade choose -Percentage_vaccinated_sop-")
+    try:
+        make_scatterplot(df, what_to_show_left, what_to_show_right,   "continent", "location", None)
+    except:
+        st.warning("Error")
+    # make_scatterplot(df, "Trust in Politicians", "Percentage_vaccinated_sop",   "continent", "location", None)
+    # make_scatterplot(df, "Trust in Other People", "Percentage_vaccinated_sop",   "continent", "location", None)
+    # make_scatterplot(df, "Trust in Other People", "new_cases_per_million",   "continent", "location", None)
     st.write("Dahlberg, Stefan,  Aksel Sundström, Sören Holmberg, Bo Rothstein, Natalia Alvarado Pachon & Cem Mert Dalli. 2021. The Quality of Government Basic Dataset, version Jan21. University of Gothenburg: The Quality of Government Institute, http://www.qog.pol.gu.se doi:10.18157/qogbasjan21")
     st.write("https://www.sortiraparis.com/news/coronavirus/articles/240384-vaccine-in-the-world-as-of-datadatestodayfrlatest-the-percentage-of-people-vacci/lang/en dd 18/10/2021")
     st.write(columnlist)
