@@ -11,7 +11,7 @@ import plotly.express as px
 import pandas as pd
 from sklearn.metrics import r2_score
 
-def read():
+def read(inwonersgrens):
     # url_yorick = "https://raw.githubusercontent.com/YorickBleijenberg/COVID_data_RIVM_Netherlands/master/vaccination/2021-09-08_vac.cities.csv"
     # df_yorick = pd.read_csv(url_yorick, delimiter=';', decimal=",", encoding="ISO-8859-1")
     # Attentie: bevat - waardes en Baarle Nassau
@@ -75,16 +75,18 @@ def read():
                  df_totaal, df_niet_west_migratie, how="outer", left_on="RegioNaam", right_on="gemeentenaam"
             )
 
-    df_totaal["Total_reported_per_inwoner_6_wks"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
-    df_totaal["Hospital_admission_per_inwoner_6_wks"] = df_totaal["Hospital_admission"] / df_totaal["inwoners_2021"]
-    df_totaal["Deceased_per_inwoner_6_wks"] = df_totaal["Deceased"] / df_totaal["inwoners_2021"]
-    df_totaal["log_e_incidentie"] = np.log(df_totaal["incidentie"])
-    df_totaal["log_10_incidentie"] = np.log10(df_totaal["incidentie"])
+    df_totaal["Total_reported_per_inwoner_3_wks"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
+    df_totaal["Hospital_admission_per_inwoner_3_wks"] = df_totaal["Hospital_admission"] / df_totaal["inwoners_2021"]
+    df_totaal["Deceased_per_inwoner_3_wks"] = df_totaal["Deceased"] / df_totaal["inwoners_2021"]
+    df_totaal["log_e_incidentie"] = np.log(df_totaal["Total_reported_per_inwoner_3_wks"])
+    df_totaal["log_10_incidentie"] = np.log10(df_totaal["Total_reported_per_inwoner_3_wks"])
     df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].astype(float)
 
+    df_totaal = df_totaal[df_totaal["inwoners_2021"]>= inwonersgrens]
+
     # uitschieters verwiijderen
-    factor =2
-    kolommen = ["incidentie",  "volledige.vaccinatie"]
+    factor =3
+    kolommen = ["Total_reported_per_inwoner_3_wks",  "volledige.vaccinatie"]
     for kolom in kolommen:
         mean = df_totaal[kolom].mean()
         stdev = df_totaal[kolom].std()
@@ -202,7 +204,7 @@ def make_corr_tabel(df, partijen, uitslag):
     for p in partijen:
 
         corr_vv = round(df[p].corr(df['volledige.vaccinatie']),2)
-        corr_inc = round(df[p].corr(df['incidentie']),2)
+        corr_inc = round(df[p].corr(df['Total_reported_per_inwoner_3_wks']),2)
 
         corr_tabel = corr_tabel.append(
                     {
@@ -225,20 +227,22 @@ def make_corr_tabel(df, partijen, uitslag):
     return corr_tabel
 
 def main():
-    df, partijen,uitslag = read()
+
     how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
-
-
-    lijst = ["gem_ink_x1000", "volledige.vaccinatie", "Total_reported_per_inwoner_3_wks", "Hospital_admission_per_inwoner_3_wks","Deceased_per_inwoner_3_wks",    
-            "incidentie","inwoners_2021","inwoners_per_km2", "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr", 
+    lijst = ["gem_ink_x1000", "volledige.vaccinatie", "Total_reported_per_inwoner_3_wks", "Hospital_admission_per_inwoner_3_wks","Deceased_per_inwoner_3_wks",
+            "incidentie","inwoners_2021","inwoners_per_km2", "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr",
             "perc_migratieachtergrond", "log_e_incidentie", "log_10_incidentie"]
     x  = st.sidebar.selectbox("Wat op X as", lijst, index=0)
     y = st.sidebar.selectbox("Wat op Y as", lijst, index=1)
+
     if (x == "stemmen_op_geselecteerde_partijen_procent" or y == "stemmen_op_geselecteerde_partijen_procent"):
         partijen_default =  [ 'PVV (Partij voor de Vrijheid)', 'Forum voor Democratie']
         partijen_selected = st.sidebar.multiselect(
                 "Welke politieke partijen", partijen, partijen_default)
         df = bewerk_df(df, partijen_selected)
+    inwonersgrens = st.sidebar.number_input("Miniumum aantal inwoners", 0, None, value = 50_000)
+
+    df, partijen,uitslag = read(inwonersgrens)
 
     make_scatterplot(df,  x, y , how, None)
 
@@ -249,7 +253,7 @@ def main():
     make_scatterplot(corr_tabel,  "corr_vaccinatie","corr_incidentie", how, "verkiezingen")
 
 
-    st.write("Incidentiecijfers zijn totaal tussen 8 en 13 oktober 2021, per inwoner. Vaccinatiegraad dd 13 otkober 2021. ")
+    st.write("Incidentiecijfers zijn totaal tussen 29 september en 20 oktober 2021, per inwoner. Vaccinatiegraad dd 13 otkober 2021. ")
     st.write("Er kunnen gemeentes misssen ivm herindelingen of incidentie = 0.")
     #st.write("3 gemeentes worden niet weergegeven ivm herindelingen. Baarle Nassau is verwijderd (incidentie x*10E-15). ).")
     #st.write(" Ameland , Noord Beveland, Rozendaal en Schiermoninkoog ook verwijderd ivm incidentie = 0")
