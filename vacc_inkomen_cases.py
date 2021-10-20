@@ -75,7 +75,9 @@ def read():
                  df_totaal, df_niet_west_migratie, how="outer", left_on="RegioNaam", right_on="gemeentenaam"
             )
 
-    df_totaal["incidentie"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
+    df_totaal["Total_reported_per_inwoner_6_wks"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
+    df_totaal["Hospital_admission_per_inwoner_6_wks"] = df_totaal["Hospital_admission"] / df_totaal["inwoners_2021"]
+    df_totaal["Deceased_per_inwoner_6_wks"] = df_totaal["Deceased"] / df_totaal["inwoners_2021"]
     df_totaal["log_e_incidentie"] = np.log(df_totaal["incidentie"])
     df_totaal["log_10_incidentie"] = np.log10(df_totaal["incidentie"])
     df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].astype(float)
@@ -227,8 +229,9 @@ def main():
     how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
 
 
-    lijst = ["gem_ink_x1000", "volledige.vaccinatie","incidentie","inwoners_2021","inwoners_per_km2",
-            "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr", "perc_migratieachtergrond", "log_e_incidentie", "log_10_incidentie"]
+    lijst = ["gem_ink_x1000", "volledige.vaccinatie", "Total_reported_per_inwoner_3_wks", "Hospital_admission_per_inwoner_3_wks","Deceased_per_inwoner_3_wks",    
+            "incidentie","inwoners_2021","inwoners_per_km2", "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr", 
+            "perc_migratieachtergrond", "log_e_incidentie", "log_10_incidentie"]
     x  = st.sidebar.selectbox("Wat op X as", lijst, index=0)
     y = st.sidebar.selectbox("Wat op Y as", lijst, index=1)
     if (x == "stemmen_op_geselecteerde_partijen_procent" or y == "stemmen_op_geselecteerde_partijen_procent"):
