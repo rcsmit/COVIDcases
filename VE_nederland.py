@@ -18,6 +18,7 @@ import random
 import streamlit as st
 import datetime as dt
 from sklearn.metrics import r2_score
+from sklearn.linear_model import LinearRegression
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -173,6 +174,57 @@ def line_chart_VE_as_index (df):
         yaxis_title=title    )
     st.plotly_chart(fig)
 
+
+
+def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r):
+    """Find slope of regression line
+
+    Args:
+        df_temp ([type]): [description]
+        what_to_show_l ([type]): [description]
+        what_to_show_r ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    x = np.array(df_temp[what_to_show_l]).reshape((-1, 1))
+    y = np.array(df_temp[what_to_show_r])
+    #obtain m (slope) and b(intercept) of linear regression line
+
+    # Create an instance of a linear regression model and fit it to the data with the fit() function:
+    model = LinearRegression().fit(x, y)
+
+    # The following section will get results by interpreting the created instance:
+
+    # Obtain the coefficient of determination by calling the model with the score() function, then print the coefficient:
+    r_sq = model.score(x, y)
+
+    # Print the Intercept:
+    b = model.intercept_
+
+    # Print the Slope:
+    m= model.coef_
+
+    return m,b
+
+
+def find_slope(df_temp, what_to_show_l, what_to_show_r):
+    """Find slope of regression line
+
+    Args:
+        df_temp ([type]): [description]
+        what_to_show_l ([type]): [description]
+        what_to_show_r ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    x_ = np.array(df_temp[what_to_show_l])
+    y_ = np.array(df_temp[what_to_show_r])
+    #obtain m (slope) and b(intercept) of linear regression line
+    idx = np.isfinite(x_) & np.isfinite(y_)
+    m, b = np.polyfit(x_[idx], y_[idx], 1)
+    return m,b
 
 
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categoryfield, hover_name, hover_data):
@@ -443,7 +495,7 @@ def toelichting(df):
     st.write("    https://www.rivm.nl/covid-19-vaccinatie/cijfers-vaccinatieprogramma")
     st.write("    https://www.rivm.nl/coronavirus-covid-19/grafieken")
     st.write("    https://docs.google.com/spreadsheets/d/12pLaItlz1Lw1BM-f1Zu66rq6nnXcw0qSOO64o3xuWco/edit#gid=1548858810")
-    st.write(df)
+    #st.write(df)
 
 def group_table(df, valuefield):
 
@@ -517,6 +569,13 @@ def VE_door_tijd(df):
     make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
     make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "Agegroup", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
 
+    agegroups =  df["Agegroup"].drop_duplicates().sort_values().tolist()
+    for a in agegroups:
+        df_ =  df[df["Agegroup"] == a]
+        m,b = find_slope(df_, "days_bweteen_50_pct_and_einddag", "VE")
+        #m,b = find_slope_sklearn(df_, "days_bweteen_50_pct_and_einddag", "VE")
+
+        st.write(f"{a} - {round(m,2)} - {round (b,2)} - waning in {round(100/(m*-1),1)} days")
 
     #80+ verwijderen (is uitschieter)
     df = df[df["Agegroup"] != "80+"]
