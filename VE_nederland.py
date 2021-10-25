@@ -30,6 +30,13 @@ from scipy.stats import fisher_exact
 # na 21/8 zelfde waardes voor de vaccinaties voor 90+ aangehoude
 #@st.cache(ttl=60 * 60 * 24)
 def read():
+    """Read the data from a Google sheet
+    original data from
+    https://www.rivm.nl/coronavirus-covid-19/grafieken
+    https://www.rivm.nl/covid-19-vaccinatie/cijfers-vaccinatieprogramma
+    Returns:
+        [type]: [description]
+    """
     sheet_id = "12pLaItlz1Lw1BM-f1Zu66rq6nnXcw0qSOO64o3xuWco"
     sheet_name = "DATA2" # sheet copied as values
     url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
@@ -44,14 +51,12 @@ def read():
     df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
 
     df_voll_vax = pd.read_csv(url_voll_vax, delimiter=',', error_bad_lines=False)
-    # print(df_voll_vax)
+
     df_voll_vax["datum_50_pct_voll_gevaxx"] = pd.to_datetime(df_voll_vax["datum_50_pct_voll_gevaxx"], format="%m/%d/%Y" )
     df  = pd.merge(
                 df_data, df_pop, how="outer", on="Agegroup"
             )
-    #print(df.dtypes)
 
-    # print(df_voll_vax)
 
     df  = pd.merge(
                 df, df_voll_vax, how="outer", on="Agegroup"
@@ -67,6 +72,8 @@ def read():
     return df
 
 def perc_gevacc():
+    """Make a linegraph with the cumm-% of vaccinated people per age group
+    """
     sheet_id = "12pLaItlz1Lw1BM-f1Zu66rq6nnXcw0qSOO64o3xuWco"
     sheet_name = "VACC__GRAAD" # sheet copied as values
     url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
@@ -174,10 +181,8 @@ def line_chart_VE_as_index (df):
         yaxis_title=title    )
     st.plotly_chart(fig)
 
-
-
 def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r):
-    """Find slope of regression line
+    """Find slope of regression line - DOESNT WORK
 
     Args:
         df_temp ([type]): [description]
@@ -209,7 +214,7 @@ def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r):
 
 
 def find_slope(df_temp, what_to_show_l, what_to_show_r):
-    """Find slope of regression line
+    """Find slope and interception of regression line
 
     Args:
         df_temp ([type]): [description]
@@ -498,6 +503,15 @@ def toelichting(df):
     #st.write(df)
 
 def group_table(df, valuefield):
+    """Group the table by -valuefield-
+
+    Args:
+        df ([type]): [description]
+        valuefield ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
 
     df = df[df["Agegroup"] != "0-19"]
 
@@ -505,6 +519,15 @@ def group_table(df, valuefield):
     return df_grouped
 
 def make_pivot(df, valuefield):
+    """Pivot the table with valuefield as field
+
+    Args:
+        df ([type]): [description]
+        valuefield ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     df = df[df["Agegroup"] != "0-9"]
     df = df[df["Agegroup"] != "10-19"]
     df_pivot = (
@@ -522,7 +545,6 @@ def make_pivot(df, valuefield):
     return df_pivot
 
 def normeren(df):
-
 
     """In : columlijst
     Bewerking : max = 1
@@ -557,28 +579,32 @@ def normeren(df):
     return df, normed_columns
 
 def VE_door_tijd(df):
+    """Calculate the VE in time per agegroup
+
+
+    Args:
+        df ([type]): [description]
+    """
     df =df.sort_values(by=['einddag_week'])
-    #df = df.iloc[-8:]
-    curr_time = pd.to_datetime("now")
     df = df[df["datum_50_pct_voll_gevaxx"] !=0]
     df["datum_50_pct_voll_gevaxx"] = pd.to_datetime(df["datum_50_pct_voll_gevaxx"], format="%m/%d/%Y" )
-    #print(df.dtypes)
     df['days_bweteen_50_pct_and_einddag'] = (df['einddag_week_'] - df['datum_50_pct_voll_gevaxx']).dt.days #//np.timedelta64(1,'D')    #curr_time
     df = df[df["days_bweteen_50_pct_and_einddag"] >=0]
-    #st.write(df)
     make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
     make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "Agegroup", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
-
+    table=[]
     agegroups =  df["Agegroup"].drop_duplicates().sort_values().tolist()
     for a in agegroups:
         df_ =  df[df["Agegroup"] == a]
         m,b = find_slope(df_, "days_bweteen_50_pct_and_einddag", "VE")
         #m,b = find_slope_sklearn(df_, "days_bweteen_50_pct_and_einddag", "VE")
-
-        st.write(f"{a} - {round(m,2)} - {round (b,2)} - waning in {round(100/(m*-1),1)} days")
-
+        table.append([a,round(m,2),round (b,2),round(100/(m*-1),1)])
+        #st.write(f"{a} - {round(m,2)} - {round (b,2)} - waning in {round(100/(m*-1),1)} days")
+    df_result = pd.DataFrame(table, columns = ['Agegroup', 'slope', 'intercept', 'waning_in_x_days'])
+    st.write(df_result)
     #80+ verwijderen (is uitschieter)
     df = df[df["Agegroup"] != "80+"]
+    df = df[df["Agegroup"] != "10-19"]
     make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
     make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "Agegroup", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
 
