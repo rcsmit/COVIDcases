@@ -234,16 +234,16 @@ def main():
             "perc_migratieachtergrond", "log_e_incidentie", "log_10_incidentie"]
     x  = st.sidebar.selectbox("Wat op X as", lijst, index=0)
     y = st.sidebar.selectbox("Wat op Y as", lijst, index=1)
+    inwonersgrens = st.sidebar.number_input("Miniumum aantal inwoners", 0, None, value = 50_000)
+
+    df, partijen,uitslag = read(inwonersgrens)
 
     if (x == "stemmen_op_geselecteerde_partijen_procent" or y == "stemmen_op_geselecteerde_partijen_procent"):
         partijen_default =  [ 'PVV (Partij voor de Vrijheid)', 'Forum voor Democratie']
         partijen_selected = st.sidebar.multiselect(
                 "Welke politieke partijen", partijen, partijen_default)
         df = bewerk_df(df, partijen_selected)
-    inwonersgrens = st.sidebar.number_input("Miniumum aantal inwoners", 0, None, value = 50_000)
-
-    df, partijen,uitslag = read(inwonersgrens)
-
+    
     make_scatterplot(df,  x, y , how, None)
 
 
