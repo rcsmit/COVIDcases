@@ -128,84 +128,87 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,   categoryfield, h
     """
     df_temp = df_temp[df_temp[what_to_show_l] != None]
     df_temp = df_temp[df_temp[what_to_show_r] != None]
+    #df_temp = df_temp[df_temp["continent"] != None]
+    #df_temp = df_temp[df_temp["location"] != None]
+    #st.write(df_temp)
+    if len(df_temp) == 0:
+        st.warning ("Geen data")
+    else:
+        correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+        correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
 
-    correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
-    correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+        with _lock:
+            fig1xy,ax = plt.subplots()
+            try:
 
-    with _lock:
-        fig1xy,ax = plt.subplots()
-        try:
+                x_ = np.array(df_temp[what_to_show_l])
+                y_ = np.array(df_temp[what_to_show_r])
+                #obtain m (slope) and b(intercept) of linear regression line
+                idx = np.isfinite(x_) & np.isfinite(y_)
+                m, b = np.polyfit(x_[idx], y_[idx], 1)
+                model = np.polyfit(x_[idx], y_[idx], 1)
 
-            x_ = np.array(df_temp[what_to_show_l])
-            y_ = np.array(df_temp[what_to_show_r])
-            #obtain m (slope) and b(intercept) of linear regression line
-            idx = np.isfinite(x_) & np.isfinite(y_)
-            m, b = np.polyfit(x_[idx], y_[idx], 1)
-            model = np.polyfit(x_[idx], y_[idx], 1)
+                predict = np.poly1d(model)
+                r2 = r2_score  (y_[idx], predict(x_[idx]))
+                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data, trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
+                title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
-            predict = np.poly1d(model)
-            r2 = r2_score  (y_[idx], predict(x_[idx]))
-            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data, trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
-            title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            except:
 
-        except:
+                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
+                title_scatter = (f"{what_to_show_l} -  {what_to_show_r}")
 
-            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
-            title_scatter = (f"{what_to_show_l} -  {what_to_show_r}")
+            #fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r,  hover_name=hover_name, color=categoryfield)
 
-
-
-
-        #fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r,  hover_name=hover_name, color=categoryfield)
-
-        #
-        fig1xy.update_layout(
-            title=dict(
-                text=title_scatter,
-                x=0.5,
-                y=0.95,
+            #
+            fig1xy.update_layout(
+                title=dict(
+                    text=title_scatter,
+                    x=0.5,
+                    y=0.95,
+                    font=dict(
+                        family="Arial",
+                        size=14,
+                        color='#000000'
+                    )
+                ),
+                xaxis_title=what_to_show_l,
+                yaxis_title=what_to_show_r,
                 font=dict(
-                    family="Arial",
-                    size=14,
+                    family="Courier New, Monospace",
+                    size=12,
                     color='#000000'
                 )
-            ),
-            xaxis_title=what_to_show_l,
-            yaxis_title=what_to_show_r,
-            font=dict(
-                family="Courier New, Monospace",
-                size=12,
-                color='#000000'
             )
-        )
 
-        ax.text(
-            1,
-            1.3,
-            "Created by Rene Smit — @rcsmit",
-            transform=ax.transAxes,
-            fontsize="xx-small",
-            va="top",
-            ha="right",
-        )
+            ax.text(
+                1,
+                1.3,
+                "Created by Rene Smit — @rcsmit",
+                transform=ax.transAxes,
+                fontsize="xx-small",
+                va="top",
+                ha="right",
+            )
 
-        st.plotly_chart(fig1xy)
+            st.plotly_chart(fig1xy)
 def main():
     st.header ("COG OWID")
     df_getdata = get_data().copy(deep=False)
     df = rename_columns(df_getdata)
     #df = df.fillna(0)
     continent_list_ =  df["continent"].drop_duplicates().sort_values().tolist()
-    continent_list = ["All"] + continent_list_
+    #continent_list = ["All"] + continent_list_
+    continent_list =  continent_list_
     continent = st.sidebar.selectbox("Continent", continent_list, index=0)
-    if continent_list != "All":
+    if continent != "All":
         df = df[df["continent"] == continent]
     #df.dropna(subset=[ "Trust in Politicians"])
     columnlist = df.columns.tolist() +["Clear_cache"]
 
     #st.write(df["Trust in Politicians"])
     #st.write(df["people_vaccinated_per_hundred"])
-    what_to_show_left = st.sidebar.selectbox("X as", columnlist, index=119)
+    what_to_show_left = st.sidebar.selectbox("X as", columnlist, index=157)
     if  what_to_show_left == "Clear_cache":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
@@ -213,7 +216,7 @@ def main():
             st.success("Cache is cleared, please reload to scrape new values")
         st.stop()
 
-    what_to_show_right = st.sidebar.selectbox("Y as", columnlist, index=387)
+    what_to_show_right = st.sidebar.selectbox("Y as", columnlist, index=425)
     #st.write("For vacc.grade choose -Percentage_vaccinated_sop-")
     #try:
     make_scatterplot(df, what_to_show_left, what_to_show_right,   "continent", "location", None)

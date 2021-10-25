@@ -6,8 +6,8 @@ import numpy as np
 #from scipy.stats import weibull_min
 import pandas as pd
 # from statistics import mean
-# from matplotlib.backends.backend_agg import RendererAgg
-# _lock = RendererAgg.lock
+from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
 import streamlit as st
 import random
 # from itertools import cycle
@@ -34,12 +34,26 @@ def read():
     url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     url_pop = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/pop_size_age_NL2.csv"
 
+    url_voll_vax="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/datum_50_pct_voll_gevaxx.csv"
+
     df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
+
+    df_data["einddag_week_"] = pd.to_datetime(df_data["einddag_week"], format="%Y-%m-%d" )
 
     df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
 
+    df_voll_vax = pd.read_csv(url_voll_vax, delimiter=',', error_bad_lines=False)
+    # print(df_voll_vax)
+    df_voll_vax["datum_50_pct_voll_gevaxx"] = pd.to_datetime(df_voll_vax["datum_50_pct_voll_gevaxx"], format="%m/%d/%Y" )
     df  = pd.merge(
                 df_data, df_pop, how="outer", on="Agegroup"
+            )
+    #print(df.dtypes)
+
+    # print(df_voll_vax)
+
+    df  = pd.merge(
+                df, df_voll_vax, how="outer", on="Agegroup"
             )
     for col in df.select_dtypes(include=['object']).columns:
         try:
@@ -57,7 +71,7 @@ def perc_gevacc():
     url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 
     df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
-    print (df_data.dtypes)
+    # print (df_data.dtypes)
     line_chart_pivot (df_data, None, "% Volledig gevaccineerd", False)
 
 def line_chart (df, what_to_show):
@@ -189,7 +203,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
 
         try:
 
-            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data, trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
+            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data,
+                                trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
         except:
             # avoid exog contains inf or nans
             fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
@@ -489,6 +504,25 @@ def normeren(df):
             # print(f"{name} generated")
     return df, normed_columns
 
+def VE_door_tijd(df):
+    df =df.sort_values(by=['einddag_week'])
+    #df = df.iloc[-8:]
+    curr_time = pd.to_datetime("now")
+    df = df[df["datum_50_pct_voll_gevaxx"] !=0]
+    df["datum_50_pct_voll_gevaxx"] = pd.to_datetime(df["datum_50_pct_voll_gevaxx"], format="%m/%d/%Y" )
+    #print(df.dtypes)
+    df['days_bweteen_50_pct_and_einddag'] = (df['einddag_week_'] - df['datum_50_pct_voll_gevaxx']).dt.days #//np.timedelta64(1,'D')    #curr_time
+    df = df[df["days_bweteen_50_pct_and_einddag"] >=0]
+    #st.write(df)
+    make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
+    make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "Agegroup", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
+
+
+    #80+ verwijderen (is uitschieter)
+    df = df[df["Agegroup"] != "80+"]
+    make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
+    make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "Agegroup", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"])
+
 def main():
     df_ = read()
     df_ = df_.fillna(0)
@@ -536,7 +570,7 @@ def main():
 
     perc_gevacc()
     st.write ("eg. 30-39 = 30-34 and 30-39.1 = 35-39")
-
+    VE_door_tijd(df)
     toelichting(df)
 
 if __name__ == "__main__":

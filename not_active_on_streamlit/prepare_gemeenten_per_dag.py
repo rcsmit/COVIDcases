@@ -36,8 +36,8 @@ def main_week_data():
     df[datefield] = pd.to_datetime(df[datefield], format="%Y-%m-%d")
     df = df[df["Municipality_code"] != None]
     print (df)
-    from_  = dt.datetime.strptime("2021-10-7", "%Y-%m-%d").date()
-    until = dt.datetime.strptime("2021-10-14", "%Y-%m-%d").date()
+    from_  = dt.datetime.strptime("2021-9-29", "%Y-%m-%d").date()
+    until = dt.datetime.strptime("2021-10-20", "%Y-%m-%d").date()
     mask = (df[datefield].dt.date >= from_) & (df[datefield].dt.date <= until)
     df = df.loc[mask]
     print (df)
