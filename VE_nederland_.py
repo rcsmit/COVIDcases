@@ -198,10 +198,7 @@ def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100):
     m = model.coef_[0]
     b = model.intercept_+ i
     r_sq = model.score(x, y- i)
-
-
     return m,b,r_sq
-
 
 def find_slope(df_temp, what_to_show_l, what_to_show_r):
     """Find slope and interception of regression line with polyfit. Not used
@@ -228,17 +225,18 @@ def create_trendline(l,m,b, complete):
         l (int) : length
         m (float): slope
         b (float): intercept
+        complete (boolean) : Show trendline until VE =0 or only the given dataset
 
     Returns:
         df: dataframe
     """
     t = []
     if complete == True:
-        l_ = round(-100/m)+1
+        x_ = round(-100/m)+1
     else:
-        l_ = round(l)
+        x_ = round(l)
 
-    for i in range (l_):
+    for i in range (x_):
         j = m*i +b
         t.append([i,j])
     df_trendline = pd.DataFrame(t, columns = ['x', 'y'])
