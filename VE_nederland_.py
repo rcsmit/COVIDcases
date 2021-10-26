@@ -79,7 +79,7 @@ def line_chart (df, what_to_show):
     """Make a linechart from an unpivoted table, with different lines (agegroups)
 
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
         what_to_show ([type]): [description]
     """
     # fig = go.Figure()
@@ -98,7 +98,7 @@ def line_chart_pivot (df_, field, title,sma):
     """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
 
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
         title ([type]): [description]
         sma(boolean) : show smooth averages?
     """
@@ -144,7 +144,7 @@ def line_chart_VE_as_index (df):
     """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
 
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
         title ([type]): [description]
         sma(boolean) : show smooth averages?
     """
@@ -475,7 +475,7 @@ def calculate_fisher(df):
     """Calculate odds- and p-value of each row with statpy
 
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
 
     Returns:
         [type]: [description]
@@ -535,7 +535,7 @@ def group_table(df, valuefield):
     """Group the table by -valuefield-
 
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
         valuefield ([type]): [description]
 
     Returns:
@@ -551,7 +551,7 @@ def make_pivot(df, valuefield):
     """Pivot the table with valuefield as field
 
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
         valuefield ([type]): [description]
 
     Returns:
@@ -608,6 +608,12 @@ def normeren(df):
     return df, normed_columns
 
 def show_tabel_waningtime(df, agegroups, intercept_100):
+    """Show a table with the waningtime for the agegroups
+    Args:
+        df (dataframe): dataframe
+        agegroups (list): list with the agegroups to show
+        intercept_100 (boolean): intercept at (0,100)?
+    """
     table, table_bar=[],[]
 
     for a in agegroups:
@@ -623,10 +629,8 @@ def show_tabel_waningtime(df, agegroups, intercept_100):
 
 def VE_door_tijd(df):
     """Calculate the VE in time per agegroup
-
-
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
     """
     df =df.sort_values(by=['einddag_week'])
     df = df[df["datum_50_pct_voll_gevaxx"] !=0]
@@ -642,7 +646,6 @@ def VE_door_tijd(df):
     categoryfield =  st.sidebar.selectbox("Categoryfield", ["Agegroup","einddag_week"], index=0)
 
     if what_to_show == "All":
-        st.subheader("All")
         day_zero = days_zero[-1]
         make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
         show_tabel_waningtime(df,agegroups, intercept_100)
@@ -655,25 +658,19 @@ def VE_door_tijd(df):
         make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
     elif what_to_show == "All seperately":
         for a,day_zero in zip(agegroups,days_zero):
-
             df_ = df[df["Agegroup"] ==  a ]
             make_scatterplot(df_, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, a)
-
-
     else:
-
         day_zero = days_zero[agegroups.index(what_to_show)]
-
-        st.subheader(f"Only {what_to_show}")
         df = df[df["Agegroup"] ==  what_to_show ]
         make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
 
 
 def show_VE_totaal(df):
-    """Calculate VE for the total population, with and without kids
+    """Calculate VE for the total population, with and without kids in time
 
     Args:
-        df ([type]): [description]
+        df (dataframe): dataframe
     """
     df_VE_totaal = df[df["Agegroup"] == "80+"]
     df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL", "VE ZONDER KIDS"]]
