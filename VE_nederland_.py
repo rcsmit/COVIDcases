@@ -40,6 +40,7 @@ def read():
 
     df_data["einddag_week_"] = pd.to_datetime(df_data["einddag_week"], format="%Y-%m-%d" )
 
+
     df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
 
     df_voll_vax = pd.read_csv(url_voll_vax, delimiter=',', error_bad_lines=False)
@@ -668,7 +669,39 @@ def VE_door_tijd(df):
         make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
 
 
+def show_VE_totaal(df):
+    """Calculate VE for the total population, with and without kids
 
+    Args:
+        df ([type]): [description]
+    """
+    df_VE_totaal = df[df["Agegroup"] == "80+"]
+    df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL", "VE ZONDER KIDS"]]
+    # st.write (df_VE_totaal)
+    fig = go.Figure()
+
+    columns = df_VE_totaal.columns.tolist()
+    columnlist = columns[1:]
+
+    for col in columnlist:
+        fig.add_trace(go.Scatter(x=df_VE_totaal["einddag_week_"], y= df_VE_totaal[col], mode='lines', name=col ))
+
+
+    fig.update_layout(
+        title=dict(
+                text="VE Gehele bevolking door de tijd heen",
+                x=0.5,
+                y=0.85,
+                font=dict(
+                    family="Arial",
+                    size=14,
+                    color='#000000'
+                )),
+
+
+        xaxis_title="Einddag vd week",
+        yaxis_title="VE"    )
+    st.plotly_chart(fig)
 
 def main():
     df_ = read()
@@ -677,7 +710,9 @@ def main():
 
     st.header("VE in NL")
     st.write("Attention: very rough estimation due the high number of unknown vaccin statusses. Assumed is that they have the same ratio as the known numbers. vaccination% of 11-17 is linked to the cases10-19, 18-30 to 20-29. ")
+    show_VE_totaal(df)
     VE_door_tijd(df)
+
     line_chart (df, "VE_2_N")
     line_chart (df, "odds_ratio_V_2_N")
 
