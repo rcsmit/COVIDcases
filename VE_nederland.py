@@ -303,7 +303,6 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         st.subheader(f"{a}")
         st.write(f"Day zero = {day_zero.date()} | VE = 50% {day_half} | VE = 0% :  {day_end}")
 
-
         title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
         fig3.update_layout(
