@@ -31,7 +31,7 @@ def read(inwonersgrens):
 
     # BRON: https://www.verkiezingsuitslagen.nl/data/gemeenten/10910
     #url_verkiezingen="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\verkiezingen2021.csv"
-    url_verkiezingen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/verkiezingen2021.csv"
+    url_verkiezingen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_verkiezingen2021.csv"
     df_verkiezingen = pd.read_csv(url_verkiezingen, delimiter=',')
 
     url_gemeente_info = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_inwoners_oppervlakte.csv"
@@ -41,11 +41,11 @@ def read(inwonersgrens):
     url_rene = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_reported_hospital_deceased.csv"
     df_rene = pd.read_csv(url_rene, delimiter=',', encoding="ISO-8859-1")
 
-    url_vaccinatie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/COVID-19_vaccinatiegraad_per_gemeente_per_week_leeftijd.csv"
+    url_vaccinatie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_COVID-19_vaccinatiegraad_per_week_leeftijd.csv"
     df_vaccinatie = pd.read_csv(url_vaccinatie, delimiter=';', encoding="ISO-8859-1")
     df_vaccinatie = df_vaccinatie[df_vaccinatie["Age_group"] == "18+"]
 
-    url_migratie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/percentage_migratieachtergrond_per_gemeente.csv"
+    url_migratie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_percentage_migratieachtergrond.csv"
     df_migratie = pd.read_csv(url_migratie, delimiter=',')
 
     url_niet_w_migratie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_niet_west_immigr.csv"
@@ -92,7 +92,7 @@ def read(inwonersgrens):
         stdev = df_totaal[kolom].std()
         df_totaal = df_totaal[(df_totaal[kolom] > mean -(factor*stdev)) & (df_totaal[kolom] < mean +(factor*stdev)) ]
     #url_uitslag =  "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\uitslag_per_partij2021.csv"
-    url_uitslag = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/uitslag_per_partij2021.csv"
+    url_uitslag = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/landelijk_uitslag_per_partij2021.csv"
     uitslag =pd.read_csv(url_uitslag, delimiter=',')
 
 
@@ -243,7 +243,7 @@ def main():
         partijen_selected = st.sidebar.multiselect(
                 "Welke politieke partijen", partijen, partijen_default)
         df = bewerk_df(df, partijen_selected)
-    
+
     make_scatterplot(df,  x, y , how, None)
 
 
