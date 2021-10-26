@@ -236,7 +236,7 @@ def create_trendline(l,m,b, complete):
     if complete == True:
         l_ = round(-100/m)+1
     else:
-        l_ = l
+        l_ = round(l)
 
     for i in range (l_):
         j = m*i +b
