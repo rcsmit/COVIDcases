@@ -1,4 +1,5 @@
 #import scipy.stats as ss
+from math import e
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -220,7 +221,7 @@ def find_slope(df_temp, what_to_show_l, what_to_show_r):
     m, b = np.polyfit(x_[idx], y_[idx], 1)
     return m,b
 
-def create_trendline(l,m,b):
+def create_trendline(l,m,b, complete):
     """creates a dataframe with the values for a trendline. Apperentlu plotlyexpress needs a dataframe to plot sthg
 
     Args:
@@ -232,13 +233,17 @@ def create_trendline(l,m,b):
         df: dataframe
     """
     t = []
-    l_ = round(100/m)+1
+    if complete == True:
+        l_ = round(-100/m)+1
+    else:
+        l_ = l
+
     for i in range (l_):
         j = m*i +b
         t.append([i,j])
     df_trendline = pd.DataFrame(t, columns = ['x', 'y'])
     return df_trendline
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categoryfield, hover_name, hover_data, intercept_100):
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categoryfield, hover_name, hover_data, intercept_100, complete, day_zero, a):
     """Makes a scatterplot with trendline and statistics
 
     Args:
@@ -251,46 +256,52 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
     with _lock:
         fig1xy,ax = plt.subplots()
 
-        if intercept_100 == False:
-            try:
+        # if intercept_100 == False:
+        #     try:
 
-                x_ = np.array(df_temp[what_to_show_l])
-                y_ = np.array(df_temp[what_to_show_r])
-                #obtain m (slope) and b(intercept) of linear regression line
-                idx = np.isfinite(x_) & np.isfinite(y_)
-                m, b = np.polyfit(x_[idx], y_[idx], 1)
-                model = np.polyfit(x_[idx], y_[idx], 1)
+        #         x_ = np.array(df_temp[what_to_show_l])
+        #         y_ = np.array(df_temp[what_to_show_r])
+        #         #obtain m (slope) and b(intercept) of linear regression line
+        #         idx = np.isfinite(x_) & np.isfinite(y_)
+        #         m, b = np.polyfit(x_[idx], y_[idx], 1)
+        #         model = np.polyfit(x_[idx], y_[idx], 1)
 
-                predict = np.poly1d(model)
-                r2 = r2_score  (y_[idx], predict(x_[idx]))
-            except:
-                m,b,model,predict,r2 =None,None,None,None,None
+        #         predict = np.poly1d(model)
+        #         r2 = r2_score  (y_[idx], predict(x_[idx]))
+        #     except:
+        #         m,b,model,predict,r2 =None,None,None,None,None
 
-            try:
+        #     try:
 
-                fig3 = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data,
-                                    trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
-            except:
-                # avoid exog contains inf or nans
-                fig3 = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
+        #         fig3 = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data,
+        #                             trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
+        #     except:
+        #         # avoid exog contains inf or nans
+        #         fig3 = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
 
-        else:
+        # else:
 
 
-            #try:
-            m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100)
+        #try:
+        m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100)
 
-            l = 2 + df_temp["days_bweteen_50_pct_and_einddag"].max()
-            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
-            df_trendline = create_trendline(l,m,b)
+        l = 2 + df_temp["days_bweteen_50_pct_and_einddag"].max()
+        fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
+        df_trendline = create_trendline(l,m,b, complete)
 
-            fig2 = px.line(df_trendline, x="x", y="y")
-            fig2.update_traces(line=dict(color = 'rgba(50,50,50,0.8)'))
-            #add linear regression line to scatterplot
+        fig2 = px.line(df_trendline, x="x", y="y")
+        fig2.update_traces(line=dict(color = 'rgba(50,50,50,0.8)'))
+        #add linear regression line to scatterplot
 
-            fig3 = go.Figure(data=fig1xy.data + fig2.data)
+        fig3 = go.Figure(data=fig1xy.data + fig2.data)
         correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
         correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+        d_end = round(-100/m)
+        d_half = round (-50/m)
+        day_end = (day_zero+  pd.Timedelta(d_end, unit='D')   ).date()
+        day_half = (day_zero+  pd.Timedelta(d_half, unit='D')   ).date()
+        st.subheader(f"{a}")
+        st.write(f"Day zero = {day_zero.date()} | VE = 50% {day_half} | VE = 0% :  {day_end}")
 
 
         title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
@@ -612,7 +623,7 @@ def show_tabel_waningtime(df, agegroups, intercept_100):
     df_result_bar = pd.DataFrame(table_bar, columns = ['Agegroup', 'waning_in_x_days'])
     st.write(df_result)
 
-def VE_door_tijd(df, intercept_100):
+def VE_door_tijd(df):
     """Calculate the VE in time per agegroup
 
 
@@ -625,24 +636,39 @@ def VE_door_tijd(df, intercept_100):
     df['days_bweteen_50_pct_and_einddag'] = (df['einddag_week_'] - df['datum_50_pct_voll_gevaxx']).dt.days #//np.timedelta64(1,'D')    #curr_time
     df = df[df["days_bweteen_50_pct_and_einddag"] >=0]
     agegroups =  df["Agegroup"].drop_duplicates().sort_values().tolist()
-
-    what_to_list = ["All", "All except 10-19 and 80+"] + agegroups
+    days_zero =  df["datum_50_pct_voll_gevaxx"].drop_duplicates().sort_values(ascending=False).tolist()
+    intercept_100 = st.sidebar.selectbox("Intercept = 100", [True, False], index=0)
+    complete = st.sidebar.selectbox("Trendline until y=0", [True, False], index=0)
+    what_to_list = ["All", "All except 10-19 and 80+", "All seperately"] + agegroups
     what_to_show = st.sidebar.selectbox("What to show", what_to_list, index=0)
     categoryfield =  st.sidebar.selectbox("Categoryfield", ["Agegroup","einddag_week"], index=0)
+
     if what_to_show == "All":
         st.subheader("All")
-        make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100)
+        day_zero = days_zero[-1]
+        make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
         show_tabel_waningtime(df,agegroups, intercept_100)
     elif what_to_show == "All except 10-19 and 80+":
+        day_zero = days_zero[-1]
         st.subheader("Without 10-19 and 80+")
         #80+ verwijderen (is uitschieter)
         df = df[df["Agegroup"] != "80+"]
         df = df[df["Agegroup"] != "10-19"]
-        make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100)
+        make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
+    elif what_to_show == "All seperately":
+        for a,day_zero in zip(agegroups,days_zero):
+
+            df_ = df[df["Agegroup"] ==  a ]
+            make_scatterplot(df_, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, a)
+
+
     else:
+
+        day_zero = days_zero[agegroups.index(what_to_show)]
+
         st.subheader(f"Only {what_to_show}")
         df = df[df["Agegroup"] ==  what_to_show ]
-        make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100)
+        make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, "einddag_week", "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
 
 
 
@@ -651,10 +677,10 @@ def main():
     df_ = read()
     df_ = df_.fillna(0)
     df = make_calculations(df_)
-    intercept_100 = st.sidebar.selectbox("Intercept = 100", [True, False], index=0)
+
     st.header("VE in NL")
     st.write("Attention: very rough estimation due the high number of unknown vaccin statusses. Assumed is that they have the same ratio as the known numbers. vaccination% of 11-17 is linked to the cases10-19, 18-30 to 20-29. ")
-
+    VE_door_tijd(df)
     line_chart (df, "VE_2_N")
     line_chart (df, "odds_ratio_V_2_N")
 
@@ -684,7 +710,7 @@ def main():
 
     perc_gevacc()
     st.write ("eg. 30-39 = 30-34 and 30-39.1 = 35-39")
-    VE_door_tijd(df, intercept_100)
+
     toelichting(df)
 
 if __name__ == "__main__":
