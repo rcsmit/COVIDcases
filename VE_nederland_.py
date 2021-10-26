@@ -232,9 +232,9 @@ def create_trendline(l,m,b, complete):
     """
     t = []
     if complete == True:
-        x_ = round(-100/m)+1
+        x_ = int(-100/m)+1
     else:
-        x_ = round(l)
+        x_ = int(l)
 
     for i in range (x_):
         j = m*i +b
