@@ -51,7 +51,7 @@ def main():
             ["22. Data per gemeente", "vacc_inkomen_cases"] ,
             ["23. VE Israel", "israel_zijlstra"],
             ["24. Hosp/death NL", "cases_hospital_decased_NL"],
-            ["25. VE Nederland", "VE_nederland"],
+            ["25. VE Nederland", "VE_nederland_"],
             ["26. Scatterplots QoG OWID", "qog_owid"]
             ]
 
