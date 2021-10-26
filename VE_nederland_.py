@@ -706,7 +706,10 @@ def main():
     df = make_calculations(df_)
 
     st.header("VE in NL")
-    st.write("Attention: very rough estimation due the high number of unknown vaccin statusses. Assumed is that they have the same ratio as the known numbers. vaccination% of 11-17 is linked to the cases10-19, 18-30 to 20-29. ")
+    st.write("Article : https://rcsmit.medium.com/calculation-of-waning-of-vaccin-effectiveness-in-the-netherlands-82957de37ea3")
+    st.write("Attention: very rough estimation due the high number of unknown vaccin statusses. Assumed is that they have the same ratio as the known numbers.")
+
+    st.write("Vaccination% of 11-17 is linked to the cases10-19, 18-30 to 20-29. ")
     show_VE_totaal(df)
     VE_door_tijd(df)
 
