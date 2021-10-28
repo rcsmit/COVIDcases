@@ -296,6 +296,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
         correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
         d_end = round(-100/m)
+
         d_half = round (-50/m)
         day_end = (day_zero+  pd.Timedelta(d_end, unit='D')   ).date()
         day_half = (day_zero+  pd.Timedelta(d_half, unit='D')   ).date()
