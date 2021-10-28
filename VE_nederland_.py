@@ -61,7 +61,7 @@ def read():
         except:
             print (f"omzetten {col} niet gelukt ")
             pass
-    print (df.dtypes)
+    # print (df.dtypes)
     return df
 
 def perc_gevacc():
@@ -300,7 +300,10 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         day_end = (day_zero+  pd.Timedelta(d_end, unit='D')   ).date()
         day_half = (day_zero+  pd.Timedelta(d_half, unit='D')   ).date()
         st.subheader(f"{a}")
-        st.write(f"Day zero = {day_zero.date()} | VE = 50% {day_half} | VE = 0% :  {day_end}")
+        if a != "All" and a!= "All except 10-19 and 80+":
+            st.write(f"Day zero = {day_zero.date()} | VE = 50% : {day_half} | VE = 0% :  {day_end}")
+        else:
+            st.write(f"Day zero = {day_zero.date()} | VE = 50% : {d_half} days | VE = 0% :  {d_end} days")
 
         title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
@@ -651,7 +654,6 @@ def VE_door_tijd(df):
         show_tabel_waningtime(df,agegroups, intercept_100)
     elif what_to_show == "All except 10-19 and 80+":
         day_zero = days_zero[-1]
-        st.subheader("Without 10-19 and 80+")
         #80+ verwijderen (is uitschieter)
         df = df[df["Agegroup"] != "80+"]
         df = df[df["Agegroup"] != "10-19"]
