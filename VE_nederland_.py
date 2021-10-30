@@ -11,7 +11,7 @@ import streamlit as st
 import datetime as dt
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
-
+import math
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -675,8 +675,54 @@ def show_VE_totaal(df):
     Args:
         df (dataframe): dataframe
     """
+
+
+    def VE_low (df):
+        # Taylor series
+        # https://apps.who.int/iris/bitstream/handle/10665/264550/PMC2491112.pdf
+        a_b = df["TOTAAL aantal mensen vax"]
+        c_d = df["TOTAAL aantal mensen non vax"]
+        a = df["TOTAAL sick vax"]
+        c= df["TOTAAL sick non vax"]
+        Za2 = 1.96
+
+        ARV = a / (a_b)
+        ARU = c/ (c_d)
+        RR_taylor = ARV/ARU
+        zzz = ((1-ARV)/a)+((1-ARU)/c)
+        zzz = 1/a + 1/c
+        ci_low_taylor =( 1 - round( np.exp(np.log(RR_taylor) +Za2 * math.sqrt(zzz)),4))*100
+        return ci_low_taylor
+
+    def VE_high (row):
+        # Taylor series
+        # https://apps.who.int/iris/bitstream/handle/10665/264550/PMC2491112.pdf
+        a_b = row["TOTAAL aantal mensen vax"]
+        c_d = row["TOTAAL aantal mensen non vax"]
+        a = row["TOTAAL sick vax"]
+        c= row["TOTAAL sick non vax"]
+        Za2 = 1.96
+
+        ARV = a / (a_b)
+        ARU = c / (c_d)
+        RR_taylor =  ARV/ARU
+
+        zzz = ((1-ARV)/a)+((1-ARU)/c)
+        zzz = 1/a + 1/c
+        ci_high_taylor = (1- round( np.exp(np.log(RR_taylor) -Za2 * math.sqrt(zzz)),4))*100
+
+        return ci_high_taylor
     df_VE_totaal = df[df["Agegroup"] == "80+"]
-    df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL", "VE ZONDER KIDS"]]
+
+    df_VE_totaal['VE_totaal_low'] = df_VE_totaal.apply ( VE_low, axis=1)
+
+    df_VE_totaal['VE_totaal_high'] = df_VE_totaal.apply (VE_high, axis=1)
+    #df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL", "VE_totaal_low", "VE_totaal_high", "VE ZONDER KIDS" ]]
+    df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL",  "VE ZONDER KIDS" ]]
+
+
+    print (df_VE_totaal)
+
     # st.write (df_VE_totaal)
     fig = go.Figure()
 
