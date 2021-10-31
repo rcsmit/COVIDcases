@@ -128,7 +128,7 @@ def boyangzhao(a,b,c,d):
     # calculate VE and 95% CI
     VE_95ci_betabinom(a,b,c,d)
 
-def who(a,b,c,d, how):
+def farrington(a,b,c,d, distribution, method):
     # https://www.who.int/docs/default-source/coronaviruse/act-accelerator/covax/screening-method-r-script.zip?Status=Master&sfvrsn=d7d1f3e8_5
     # cited in file:///C:/Users/rcxsm/Downloads/WHO-2019-nCoV-vaccine-effectiveness-variants-2021.1-eng.pdf
 
@@ -143,7 +143,7 @@ def who(a,b,c,d, how):
     vaxcases = a #int(47498/174) #replace XXX with number of vaccinated cases
     pop_vax =  c
     pop_unvax = d
-    perpopvax = c/(c+d) # 0.7872 #replace XXX with percent of population vaccinated (as a decimal)
+    perpopvax =  12_365_333/ ( 12_365_333 + 3_342_667)# c/(c+d) # 0.7872 #replace XXX with percent of population vaccinated (as a decimal)
     p_sick_unvax = b/d # (cases-vaxcases)/100_000
 
     # Read in input data containing four columns: cohort case vac ppv
@@ -152,46 +152,63 @@ def who(a,b,c,d, how):
     vac =vaxcases
     ppv =perpopvax
     pcv=vac/case
+
     logit_ppv=np.log(ppv/(1-ppv))
-    # Restructure dataset to fit model
-    df = make_df(a,b,c,d )
-    df["logit_ppv"] = np.log(ppv/(1-ppv))
 
-    # l=[]
-    # for i in range(case):
-    #     if i<=vac:
-    #         l.append([cohort,case,vac,ppv,1,pcv,logit_ppv])
+    if method == "new":
+        # Restructure dataset to fit model
+        df = make_df(a,b,c,d )
+        df["logit_ppv"] = logit_ppv
 
-    #     else:
-    #         l.append([cohort,case,vac,ppv,0,pcv,logit_ppv])
-    # df = pd.DataFrame(l, columns = ['cohort','case','vac','ppv','y','pcv','logit_ppv'])
+        # still strugling with the translation of [ 1+ offset (logit_ppv) ]
+        if distribution =="neg_bin":
+            mylogit  = smf.glm(formula = 'INFECTED ~  VACCINATED', data=df,  family=sm.families.NegativeBinomial()).fit()
+        elif distribution == "bin":
+            mylogit  = smf.glm(formula = 'INFECTED ~  VACCINATED', data=df,  family=sm.families.Binomial()).fit()
+        elif distribution == "poisson":
+            mylogit  = smf.glm(formula = 'INFECTED ~  VACCINATED', data=df,  family=sm.families.Poisson()).fit()
+        elif distribution == "bin_offset":
+            mylogit  = smf.glm(formula = 'INFECTED ~  VACCINATED', data=df, offset=df['logit_ppv'], family=sm.families.Binomial()).fit()
+        else:
+            print ("ERROR")
+    elif method == "old":
+        # translation of the R script
+        l=[]
+        for i in range(case):
+            if i<=vac:
+                l.append([cohort,case,vac,ppv,1,pcv,logit_ppv])
+            else:
+                l.append([cohort,case,vac,ppv,0,pcv,logit_ppv])
+        df = pd.DataFrame(l, columns = ['cohort','case','vac','ppv','y','pcv','logit_ppv'])
 
 
-    #print (df)
-    # Fit logistic regression
-    #mylogit <- glm(y ~ 1+offset(logit_ppv), data=two, family="binomial")
+        print (df)
+        #Fit logistic regression
+        # mylogit <- glm(y ~ 1+offset(logit_ppv), data=two, family="binomial") -------- TE VERTALEN
 
 
-    #mylogit  = smf.glm(formula = "y ~ logit_ppv", data=df, family=sm.families.Binomial()).fit()
-#mylogit  = smf.glm(formula = "y ~ 1+logit_ppv", data=df,  family=sm.families.NegativeBinomial()).fit()
+        #mylogit  = smf.glm(formula = "y ~ logit_ppv", data=df, family=sm.families.Binomial()).fit()
+        mylogit  = smf.glm(formula = "y ~ 1+logit_ppv", data=df,  family=sm.families.Binomial()).fit()
+        mylogit  = smf.glm(formula = 'y ~', data=df, offset=df['logit_ppv'], family=sm.families.Binomial()).fit()
 
-    # still strugling with the translation of [ 1+ offset (logit_ppv) ]
-    if how=="neg_bin":
-        mylogit  = smf.glm(formula = 'INFECTED ~  VACCINATED', data=df,  family=sm.families.NegativeBinomial()).fit()
-    elif how == "bin":
-        mylogit  = smf.glm(formula = 'INFECTED ~  VACCINATED', data=df,  family=sm.families.Binomial()).fit()
-    else:
-        print ("ERROR")
 
     #print (mylogit .summary())
     params = mylogit.params
 
     VE = VE_(params[1], p_sick_unvax)
 
+    # rd = mylogit.resid_deviance[0]
+    # print ( mylogit.summary())
+    # nd = mylogit.null_deviance
+    # goodness_of_fit = 1-(rd/nd) # https://stats.stackexchange.com/questions/46345/how-to-calculate-goodness-of-fit-in-glm-r
+
+    # for attr in dir(mylogit):
+    #     if not attr.startswith('_'):
+    #         print(attr)
     conf =   mylogit.conf_int()
     high, low  = conf[0][1],  conf[1][1]
     VE_low, VE_high = VE_(low, p_sick_unvax), VE_(high, p_sick_unvax)
-    print (f"VE WHO smf {how}                     : {VE} % [{VE_low} , {VE_high}]")
+    print (f"VE WHO smf {distribution}                     : {VE} % [{VE_low} , {VE_high}]") # | GoF = {goodness_of_fit}")
 
 
 def VE_(x, p_sick_unvax):
@@ -207,7 +224,8 @@ def VE_(x, p_sick_unvax):
     VE = round((1-IRR)*100,2)
     return VE
 def make_df(a,b,c,d):
-    """Make dataframe used for GLM
+    """Make dataframe used for GLM.
+    Called design matrix
     """
     l=[]
     for i in range(c):
@@ -223,7 +241,7 @@ def make_df(a,b,c,d):
 
     df = pd.DataFrame(l, columns = ['VACCINATED', 'INFECTED'])
     return df
-def log_regression(a,b,c,d):
+def regression(a,b,c,d, distribution):
     """[summary]
     Calculate VE and CI's according
     https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/
@@ -248,9 +266,13 @@ def log_regression(a,b,c,d):
     y_train, X_train = dmatrices(expr, df, return_type='dataframe')
 
     #Build and train a Logit model
-    logit_model = sm.Logit(endog=y_train, exog=X_train, disp=False)
-    logit_results = logit_model.fit( disp=False)
-    params = logit_results.params
+    if distribution=="logit":
+        model = sm.Logit(endog=y_train, exog=X_train, disp=False)
+    elif distribution =="poisson":
+        model = sm.Poisson(endog=y_train, exog=X_train, disp=False)
+
+    results = model.fit( disp=False)
+    params = results.params
 
     #Print the model summary
     #print(logit_results.summary2())
@@ -262,10 +284,11 @@ def log_regression(a,b,c,d):
     # print (logit_results.conf_int())  # confidence intervals
 
 
-    conf =  logit_results.conf_int()
+    conf =  results.conf_int()
     high, low  = conf[0][1],  conf[1][1]
+    prsquared = results.prsquared
     VE_low, VE_high = VE_(low, p_sick_unvax), VE_(high, p_sick_unvax)
-    print (f"VE logit model                       : {VE} % [{VE_low} , {VE_high}]")
+    print (f"VE Regression {distribution}                       : {VE} % [{VE_low} , {VE_high}] | pseudo-R2 = {prsquared}")
 
 
     # print("\np values VACCINATED") # p values
@@ -297,7 +320,7 @@ def log_regression(a,b,c,d):
     # P_VACCINATED moet laag zijn
     #ln(odds) = -1.5* VACCINATED -4.1
 
-def r_script_who():
+def r_script_farrington():
     """ Results of the WHO R-script (see comments)
     """
     print ("R Script VE                           : 77.71003 % [67.24307   84.90514] ")
@@ -328,19 +351,25 @@ def remarks_links_info():
 def main():
     # Netherlands october 2021 without 0-9-years sick_vaxxed, sick_unvaxed, people_vaxxed, people_unvaxxed
     # adjusted to 100k people in each group
-    a,b,c,d = 47498/123.65,56063/33.43, 12_365_333/123.65, 3_342_667/33.43
+
+    a,b,c,d = 47498/123.65333,56063/ 33.42667, 12_365_333/123.65333, 3_342_667/33.42667
     # original values
     # a,b,c,d = 47498,56063, 12_365_333, 3_342_667
 
     x =1 # number to divide to speed up the script. The smaller the numbers, the wider the CI's (and vv). Groups of 100k makes results like in the literature
     a,b,c,d = int(a/x), int (b/x), int(c/x), int(d/x)
-    r_script_who()
+    print (f"{a=},{b=},{c= },{d=}")
+    r_script_farrington()
     traditional(a,b,c,d )
-    log_regression(a,b,c,d )
+    regression(a,b,c,d, "logit" )
+    regression(a,b,c,d, "poisson" )
     boyangzhao(a,b,c,d )
     pfizer(a,b,c,d )
-    who(a,b,c,d, "bin")
-    who(a,b,c,d, "neg_bin")
+    farrington(a,b,c,d, "bin", "new")
+    farrington(a,b,c,d, "neg_bin", "new")
+    farrington(a,b,c,d, "poisson", "new")
+    farrington(a,b,c,d, "bin_offset", "new")
+    farrington(a,b,c,d,None, "old")
 
 
 main()
