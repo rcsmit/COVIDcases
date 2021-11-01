@@ -403,7 +403,7 @@ def main():
     # original values
     stl.subheader ("VE and CI calculator (screening method)")
     a,b,c,d = interface()
-    stl.write(f"{a=}, {b=} {c=} {d=}")
+    #stl.write(f"{a=}, {b=} {c=} {d=}")
     r_script_farrington()
     traditional(a,b,c,d )
     regression(a,b,c,d, "logit" )
