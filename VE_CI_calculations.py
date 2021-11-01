@@ -366,7 +366,7 @@ def interface():
     input_total = stl.sidebar.selectbox("Input vax & total numbers", [True, False], index=1)
 
 
-    x_ =100 # number to divide to speed up the script. The smaller the numbers, the wider the CI's (and vv). Groups of 100k makes results like in the literature
+    x_ =1 # number to divide to speed up the script. The smaller the numbers, the wider the CI's (and vv). Groups of 100k makes results like in the literature
     if input_total == True:
         a__= stl.sidebar.number_input("Sick | vax", value=a_)
         e__= stl.sidebar.number_input("Sick | all", value=e_)
