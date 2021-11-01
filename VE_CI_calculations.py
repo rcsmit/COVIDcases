@@ -272,6 +272,8 @@ def regression(a,b,c,d, distribution):
         model = sm.Logit(endog=y_train, exog=X_train, disp=False)
     elif distribution =="poisson":
         model = sm.Poisson(endog=y_train, exog=X_train, disp=False)
+    elif distribution == "neg_bin":
+        model = sm.NegativeBinomial(endog=y_train, exog=X_train, disp=False)
 
     results = model.fit( disp=False)
     params = results.params
@@ -358,7 +360,7 @@ def links_1():
     stl.write("Regression : https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/")
     stl.write("boyangzhao : https://boyangzhao.github.io/posts/vaccine_efficacy_bayesian")
     stl.write("SKRANZ : http://skranz.github.io//r/2020/11/11/CovidVaccineBayesian.html")
-    stl.write("smf : -")
+    #stl.write("smf : -")
 
 def interface():
     a_,b_,c_,d_, e_, f_ = 47498,56063, 12_365_333, 3_342_667,103561, 15708000 # the Netherlands, okt 2021, without 0-9 years
@@ -366,7 +368,7 @@ def interface():
     input_total = stl.sidebar.selectbox("Input vax & total numbers", [True, False], index=1)
 
 
-    x_ =1 # number to divide to speed up the script. The smaller the numbers, the wider the CI's (and vv). Groups of 100k makes results like in the literature
+    x_ =100 # number to divide to speed up the script. The smaller the numbers, the wider the CI's (and vv). Groups of 100k makes results like in the literature
     if input_total == True:
         a__= stl.sidebar.number_input("Sick | vax", value=a_)
         e__= stl.sidebar.number_input("Sick | all", value=e_)
@@ -408,12 +410,13 @@ def main():
     traditional(a,b,c,d )
     regression(a,b,c,d, "logit" )
     regression(a,b,c,d, "poisson" )
+    #regression(a,b,c,d, "neg_bin" )
     boyangzhao(a,b,c,d )
     pfizer(a,b,c,d )
-    farrington(a,b,c,d, "bin", "new")
+    #farrington(a,b,c,d, "bin", "new")
     farrington(a,b,c,d, "neg_bin", "new")
-    farrington(a,b,c,d, "poisson", "new")
-    farrington(a,b,c,d, "bin_offset", "new")
+    # farrington(a,b,c,d, "poisson", "new")
+    # farrington(a,b,c,d, "bin_offset", "new")
     #farrington(a,b,c,d,None, "old")
 
     links_1()
