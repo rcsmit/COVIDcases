@@ -52,7 +52,8 @@ def main():
             ["23. VE Israel", "israel_zijlstra"],
             ["24. Hosp/death NL", "cases_hospital_decased_NL"],
             ["25. VE Nederland", "VE_nederland_"],
-            ["26. Scatterplots QoG OWID", "qog_owid"]
+            ["26. Scatterplots QoG OWID", "qog_owid"],
+            ["27. VE & CI calculations", "VE_CI_calculations"]
             ]
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
