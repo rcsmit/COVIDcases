@@ -129,7 +129,7 @@ def boyangzhao(a,b,c,d):
     # calculate VE and 95% CI
     VE_95ci_betabinom(a,b,c,d)
 
-def farrington(a,b,c,d, distribution, method):
+def farrington(df, a,b,c,d, distribution, method):
     # https://www.who.int/docs/default-source/coronaviruse/act-accelerator/covax/screening-method-r-script.zip?Status=Master&sfvrsn=d7d1f3e8_5
     # cited in file:///C:/Users/rcxsm/Downloads/WHO-2019-nCoV-vaccine-effectiveness-variants-2021.1-eng.pdf
 
@@ -158,7 +158,7 @@ def farrington(a,b,c,d, distribution, method):
 
     if method == "new":
         # Restructure dataset to fit model
-        df = make_df(a,b,c,d )
+
         df["logit_ppv"] = logit_ppv
 
         # still strugling with the translation of [ 1+ offset (logit_ppv) ]
@@ -243,7 +243,7 @@ def make_df(a,b,c,d):
 
     df = pd.DataFrame(l, columns = ['VACCINATED', 'INFECTED'])
     return df
-def regression(a,b,c,d, distribution):
+def regression(df, a,b,c,d, distribution):
     """[summary]
     Calculate VE and CI's according
     https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/
@@ -259,7 +259,7 @@ def regression(a,b,c,d, distribution):
     Returns:
         0"""
 
-    df = make_df(a,b,c,d)
+
     p_sick_unvax = b/d
     #Form the regression equation
     expr = 'INFECTED ~  VACCINATED'
@@ -405,19 +405,20 @@ def main():
     # original values
     stl.subheader ("VE and CI calculator (screening method)")
     a,b,c,d = interface()
+    df = make_df(a,b,c,d)
     #stl.write(f"{a=}, {b=} {c=} {d=}")
     r_script_farrington()
     traditional(a,b,c,d )
-    regression(a,b,c,d, "logit" )
-    regression(a,b,c,d, "poisson" )
+    regression(df,a,b,c,d, "logit" )
+    regression(df,a,b,c,d, "poisson" )
     #regression(a,b,c,d, "neg_bin" )
     boyangzhao(a,b,c,d )
     pfizer(a,b,c,d )
     #farrington(a,b,c,d, "bin", "new")
-    farrington(a,b,c,d, "neg_bin", "new")
-    # farrington(a,b,c,d, "poisson", "new")
-    # farrington(a,b,c,d, "bin_offset", "new")
-    #farrington(a,b,c,d,None, "old")
+    farrington(df,a,b,c,d, "neg_bin", "new")
+    # farrington(df,a,b,c,d, "poisson", "new")
+    # farrington(df,a,b,c,d, "bin_offset", "new")
+    #farrington(None,a,b,c,d,None, "old")
 
     links_1()
     links_2()
