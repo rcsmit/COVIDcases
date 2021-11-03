@@ -50,7 +50,7 @@ def interface():
     what = stl.sidebar.selectbox("Default values", ["hospital sept 2021", "ic sept 2021"], index=0)
     descr = stl.sidebar.text_input("Omschrijving in grafiek", value=what)
     if what == "ic sept 2021":
-        a_,b_,population,vac_rate_old_, vac_rate_new_ = 44,237,17400000,82,100
+        a_,b_,population_,vac_rate_old_, vac_rate_new_ = 44,237,17400000,82,100
     elif what == "hospital sept 2021":
         a_,b_,population_,vac_rate_old_, vac_rate_new_ = 340,1029,17400000,82,100
 
