@@ -63,12 +63,10 @@ def interface():
     on_y_axis=stl.sidebar.selectbox("On Y axis", [ "number_cases_new","difference_absolute",  "difference_percentage"], index=0)
     return a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days
 def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output, number_days):
-
     number_vax = population * vac_rate_old/100
     number_non_vax = (population * (100-vac_rate_old))/100
     pvc = a/number_vax
     puc = b/number_non_vax
-
 
     rr = (a/number_vax)/(b/number_non_vax)
     traditional (a,b,number_vax, number_non_vax, output)
@@ -99,7 +97,6 @@ def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output, numb
     elif on_y_axis == "number_cases_new":
         y = sick_total_new
     return y
-
 
 def main():
     a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days = interface()
