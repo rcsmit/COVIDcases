@@ -48,7 +48,8 @@ def traditional(e,f,g,h,output):
 def interface():
 
     what = stl.sidebar.selectbox("Default values", ["hospital sept 2021", "ic sept 2021"], index=0)
-    descr = stl.sidebar.text_input("Omschrijving in grafiek", value=what)
+    descr = stl.sidebar.text_input("Title in output", value=what)
+    number_days =stl.sidebar.number_input("Number of days", 0,100,value=30)
     if what == "ic sept 2021":
         a_,b_,population_,vac_rate_old_, vac_rate_new_ = 44,237,17400000,82,100
     elif what == "hospital sept 2021":
@@ -60,22 +61,22 @@ def interface():
     vac_rate_old= stl.sidebar.number_input("Vacc. rate old | all", 0,100,value=vac_rate_old_)
     vac_rate_new = stl.sidebar.number_input("Vacc. rate new | all",0,100, value=vac_rate_new_)
     on_y_axis=stl.sidebar.selectbox("On Y axis", [ "number_cases_new","difference_absolute",  "difference_percentage"], index=0)
-    return a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr
-def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output):
+    return a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days
+def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output, number_days):
 
     number_vax = population * vac_rate_old/100
     number_non_vax = (population * (100-vac_rate_old))/100
     pvc = a/number_vax
     puc = b/number_non_vax
 
-    if output == True:
-        #stl.write (f"Proportion vaccinated {pvc} | Proportion non-vaccinated {puc}" )
-        #stl.write (f"Cases 100% vax {int(pvc*population)} | Cases 0% vax {int(puc* population)}" )
-        stl.write(f"Factor unvax vs vax : {round((puc/pvc),1)} x ")
 
     rr = (a/number_vax)/(b/number_non_vax)
     traditional (a,b,number_vax, number_non_vax, output)
     #pfizer (a,b,number_vax, number_non_vax, output)
+    if output == True:
+        #stl.write (f"Proportion vaccinated {pvc} | Proportion non-vaccinated {puc}" )
+        #stl.write (f"Cases 100% vax {int(pvc*population)} | Cases 0% vax {int(puc* population)}" )
+        stl.write(f"Factor unvax vs vax : {round((puc/pvc),1)} x ")
 
     sick_vax_new = population *  vac_rate_new * pvc / 100
     sick_unvax_new = population * (100-vac_rate_new)*puc / 100
@@ -84,12 +85,12 @@ def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output):
     sick_difference =  sick_total_new - sick_total_old
     sick_difference_percentage = round((( sick_total_new - sick_total_old) / sick_total_old)*100,1)
     if output == True:
-        stl.write(f"Aantal cases oud {sick_total_old}")
-        stl.write(f"Aantal cases nieuw {sick_total_new}")
+        stl.write(f"Number of cases old {sick_total_old} | Per day {round(sick_total_old/number_days,1)}")
+        stl.write(f"Numer of cases new {sick_total_new}  | Per day {round(sick_total_new/number_days,1)}")
         if sick_difference != 0 :
-            stl.write(f"Verschil in cases : {sick_difference} ({sick_difference_percentage} %)")
+            stl.write(f"Difference in cases : {sick_difference} | Per day {round(sick_difference/number_days,1)} | ({sick_difference_percentage} %)")
         else:
-            stl.write(f"Geen Verschil in cases : {sick_difference} ")
+            stl.write(f"No difference in cases : {sick_difference} ")
 
     if on_y_axis == "difference_absolute":
         y = sick_difference
@@ -101,19 +102,19 @@ def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output):
 
 
 def main():
-    a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr = interface()
+    a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days = interface()
 
     stl.subheader ("VE scenario calculator (screening method)")
     stl.write("Very estimative. Doesn't take in account confounders, changes in R-number, variants etc.")
 
     stl.subheader (descr)
-    calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, True)
+    calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, True, number_days)
 
     x_, y_ = [],[]
 
     #for x in range(int(vac_rate_old), 101):
     for x in range(0, 101):
-        y = calculate(a,b,population,vac_rate_old, x, on_y_axis, False)
+        y = calculate(a,b,population,vac_rate_old, x, on_y_axis, False, number_days)
         x_.append(x)
         y_.append(y)
 
