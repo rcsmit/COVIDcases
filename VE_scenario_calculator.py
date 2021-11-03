@@ -47,20 +47,22 @@ def traditional(e,f,g,h,output):
 
 def interface():
 
-    what = stl.sidebar.selectbox("Default values", ["hospital sept 2021", "ic sept 2021"], index=0)
+    what = stl.sidebar.selectbox("Default values", ["hospital sept 2021", "ic sept 2021",  "cases mid sept - 31_10_21"], index=0)
     descr = stl.sidebar.text_input("Title in output", value=what)
-    number_days =stl.sidebar.number_input("Number of days", 0,100,value=30)
-    if what == "ic sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_ = 44,237,17400000,82,100
-    elif what == "hospital sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_ = 340,1029,17400000,82,100
 
+    if what == "ic sept 2021":
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 44,237,17400000,82,100,30
+    elif what == "hospital sept 2021":
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 340,1029,17400000,82,100,30
+    elif what == "cases mid sept - 31_10_21":
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 70318,82805,17400000,71,100,42
+    number_days =stl.sidebar.number_input("Number of days", 0,100,value=days_)
     a= stl.sidebar.number_input("Sick | vax", value=a_)
     b= stl.sidebar.number_input("Sick | non vax", value=b_)
     population= stl.sidebar.number_input("Population total", value=population_)
     vac_rate_old= stl.sidebar.number_input("Vacc. rate old | all", 0,100,value=vac_rate_old_)
     vac_rate_new = stl.sidebar.number_input("Vacc. rate new | all",0,100, value=vac_rate_new_)
-    on_y_axis=stl.sidebar.selectbox("On Y axis", [ "number_cases_new","difference_absolute",  "difference_percentage"], index=0)
+    on_y_axis=stl.sidebar.selectbox("On Y axis", [ "number_cases_new","number_cases_new_per_day", "difference_absolute",  "difference_percentage"], index=0)
     return a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days
 def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output, number_days):
     number_vax = population * vac_rate_old/100
@@ -96,6 +98,8 @@ def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output, numb
         y = sick_difference_percentage
     elif on_y_axis == "number_cases_new":
         y = sick_total_new
+    elif on_y_axis == "number_cases_new_per_day":
+        y = sick_total_new / number_days
     return y
 
 def main():
