@@ -675,6 +675,7 @@ def VE_door_tijd(df):
     if what_to_show == "All":
         day_zero = days_zero[-1]
         make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
+        make_scatterplot(df, "einddag_week", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
         show_tabel_waningtime(df,agegroups, intercept_100)
     elif what_to_show == "All except 10-19 and 80+":
         day_zero = days_zero[-1]
@@ -682,6 +683,7 @@ def VE_door_tijd(df):
         df = df[df["Agegroup"] != "80+"]
         df = df[df["Agegroup"] != "10-19"]
         make_scatterplot(df, "days_bweteen_50_pct_and_einddag", "VE" , None, categoryfield, "Agegroup", ["Agegroup", "datum_50_pct_voll_gevaxx", "VE"], intercept_100, complete, day_zero, what_to_show)
+
     elif what_to_show == "All seperately":
         for a,day_zero in zip(agegroups,days_zero):
             df_ = df[df["Agegroup"] ==  a ]
