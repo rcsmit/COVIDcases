@@ -49,8 +49,10 @@ def read():
     df  = pd.merge(
                 df_data, df_pop, how="outer", on="Agegroup"
             )
-
-
+    # corr_vax = st.sidebar.number_input("correction vax", value=1.0)
+    # corr_unvax = st.sidebar.number_input("correction non vax", value=1.0)
+    # df_data["TOTAAL sick vax"]  = df_data["TOTAAL sick vax"] * corr_vax
+    # df_data["TOTAAL sick non vax"]  =df_data["TOTAAL sick non vax"] * corr_unvax
     df  = pd.merge(
                 df, df_voll_vax, how="outer", on="Agegroup"
             )
@@ -61,6 +63,7 @@ def read():
         except:
             print (f"omzetten {col} niet gelukt ")
             pass
+
     # print (df.dtypes)
     return df
 
@@ -340,36 +343,56 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
 
         st.plotly_chart(fig3)
 def make_calculations(df):
+    # Vaccinatiestatus (nog) onbekend	(Nog) niet gevaccineerd	Niet volledig gevaccineerd	Volledig gevaccineerd
+    # SICK_UNVAX	SICK_VAX	vacc_graad	VE	aantal mensen	anatal mensen non vax	aantal mensen vax	sick non vax	sick vax
     df["unvaxxed_new"] = (df["pop_size"]*(1-(df["vacc_graad"]/100))) #NB Unvaxxed is vanaf 2e vaccin
     df["vaxxed_new"] = df["pop_size"]* (df["vacc_graad"]/100) #NB Unvaxxed is vanaf 2e vaccin
 
-    df["healthy_vax"] =   df["vaxxed_new"]  - df["SICK_VAX"]
-    df["healthy_nonvax"] =  df["unvaxxed_new"] - df["SICK_UNVAX"]
+
+    corr_vax = st.sidebar.number_input("correction vax", value=1.0)
+    corr_unvax = st.sidebar.number_input("correction nonvax", value=1.0)
+    df["SICK_VAX"]  = df["SICK_VAX"] * corr_vax
+    df["SICK_UNVAX"]  =df["SICK_UNVAX"] * corr_unvax
+
+    df["TOTAAL sick vax"]  = df["TOTAAL sick vax"] * corr_vax
+    df["TOTAAL sick non vax"]  =df["TOTAAL sick non vax"] * corr_unvax
+    df["TOTAAL sick vax no kids"]  = df["TOTAAL sick vax no kids"] * corr_vax
+    df["TOTAAL sick non vax no kids"]  =df["TOTAAL sick non vax no kids"] * corr_unvax
+
+    df["VE"] =(1-( (df["SICK_VAX"] /df["vaxxed_new"] ) / (df["SICK_UNVAX"]/ df["unvaxxed_new"])))*100
+    df["VE TOTAAL"] =(1-( (df["TOTAAL sick vax"] /df["TOTAAL aantal mensen vax"] ) / (df["TOTAAL sick non vax"]/ df["TOTAAL aantal mensen non vax"])))*100
+    df["VE ZONDER KIDS"] =(1-( (df["TOTAAL sick vax no kids"] /df["TOTAAL aantal mensen vax zonder kids"] ) / (df["TOTAAL sick non vax no kids"]/ df["TOTAAL aantal mensen non vax zonder kids"])))*100
+
+    dont_use = True
+    if dont_use == True:
+        df["unvaxxed_new"] = (df["pop_size"]*(1-(df["vacc_graad"]/100))) #NB Unvaxxed is vanaf 2e vaccin
+        df["vaxxed_new"] = df["pop_size"]* (df["vacc_graad"]/100) #NB Unvaxxed is vanaf 2e vaccin
+
+        df["healthy_vax"] =   df["vaxxed_new"]  - df["SICK_VAX"]
+        df["healthy_nonvax"] =  df["unvaxxed_new"] - df["SICK_UNVAX"]
+
+        # after second dose
+        # https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/
+
+        df["p_inf_vacc"] = df["SICK_VAX"] /  df["vaxxed_new"]
+        df["p_inf_non_vacc"] = df["SICK_UNVAX"] / df["unvaxxed_new"]
+
+        # df["fisher_oddsratio"], df["fisher_pvalue"] = fisher_exact(([df["SICK_VAX"], df["healthy_vax"]),
+        #                                              (df["SICK_UNVAX"],      df["healthy_nonvax"])])
+
+        # ODDS RATIO = IRR
+        # VE = -100 * OR + 100
+        df["VE_2_N"] = (1 - (   df["p_inf_vacc"]/df["p_inf_non_vacc"]))*100
+        df["odds_ratio_V_2_N"] = (  df["p_inf_vacc"]/(1-  df["p_inf_vacc"])) /  (   df["p_inf_non_vacc"] / (1-   df["p_inf_non_vacc"]))
+        # https://wikistatistiek.amc.nl/index.php/Logistische_regressie
+        df["odds_ratio_amc"] = ( df["SICK_VAX"]*   df["healthy_nonvax"] ) / ( df["healthy_vax"] *  df["SICK_UNVAX"])
+
+        df["IRR"] =  df["odds_ratio_V_2_N"] / ((1-df["p_inf_non_vacc"]) + (df["p_inf_non_vacc"] *  df["odds_ratio_V_2_N"] ))
 
 
 
-    # after second dose
-    # https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/
-
-    df["p_inf_vacc"] = df["SICK_VAX"] /  df["vaxxed_new"]
-    df["p_inf_non_vacc"] = df["SICK_UNVAX"] / df["unvaxxed_new"]
-
-    # df["fisher_oddsratio"], df["fisher_pvalue"] = fisher_exact(([df["SICK_VAX"], df["healthy_vax"]),
-    #                                              (df["SICK_UNVAX"],      df["healthy_nonvax"])])
-
-    # ODDS RATIO = IRR
-    # VE = -100 * OR + 100
-    df["VE_2_N"] = (1 - (   df["p_inf_vacc"]/df["p_inf_non_vacc"]))*100
-    df["odds_ratio_V_2_N"] = (  df["p_inf_vacc"]/(1-  df["p_inf_vacc"])) /  (   df["p_inf_non_vacc"] / (1-   df["p_inf_non_vacc"]))
-    # https://wikistatistiek.amc.nl/index.php/Logistische_regressie
-    df["odds_ratio_amc"] = ( df["SICK_VAX"]*   df["healthy_nonvax"] ) / ( df["healthy_vax"] *  df["SICK_UNVAX"])
-
-    df["IRR"] =  df["odds_ratio_V_2_N"] / ((1-df["p_inf_non_vacc"]) + (df["p_inf_non_vacc"] *  df["odds_ratio_V_2_N"] ))
-
-
-
-    #df = calculate_fisher(df)
-    df = calculate_ci(df)
+        #df = calculate_fisher(df)
+        df = calculate_ci(df)
     #st.write(df)
     return df
 
@@ -721,7 +744,7 @@ def show_VE_totaal(df):
     df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL",  "VE ZONDER KIDS" ]]
 
 
-    print (df_VE_totaal)
+    #print (df_VE_totaal)
 
     # st.write (df_VE_totaal)
     fig = go.Figure()
@@ -734,8 +757,9 @@ def show_VE_totaal(df):
 
 
     fig.update_layout(
+        yaxis={"range":[0,100]},
         title=dict(
-                text="VE Gehele bevolking door de tijd heen",
+                text="Crude VE Gehele bevolking door de tijd heen",
                 x=0.5,
                 y=0.85,
                 font=dict(
