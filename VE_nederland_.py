@@ -360,8 +360,14 @@ def make_calculations(df):
     df["TOTAAL sick non vax no kids"]  =df["TOTAAL sick non vax no kids"] * corr_unvax
 
     df["VE"] =(1-( (df["SICK_VAX"] /df["vaxxed_new"] ) / (df["SICK_UNVAX"]/ df["unvaxxed_new"])))*100
+
     df["VE TOTAAL"] =(1-( (df["TOTAAL sick vax"] /df["TOTAAL aantal mensen vax"] ) / (df["TOTAAL sick non vax"]/ df["TOTAAL aantal mensen non vax"])))*100
     df["VE ZONDER KIDS"] =(1-( (df["TOTAAL sick vax no kids"] /df["TOTAAL aantal mensen vax zonder kids"] ) / (df["TOTAAL sick non vax no kids"]/ df["TOTAAL aantal mensen non vax zonder kids"])))*100
+
+    df["ODDS"] = (df["SICK_UNVAX"]/ df["unvaxxed_new"]) / (df["SICK_VAX"] /df["vaxxed_new"] )
+
+    df["ODDS TOTAAL"] = (df["TOTAAL sick non vax"]/ df["TOTAAL aantal mensen non vax"]) / (df["TOTAAL sick vax"] /df["TOTAAL aantal mensen vax"] )
+    df["ODDS ZONDER KIDS"] =  (df["TOTAAL sick non vax no kids"]/ df["TOTAAL aantal mensen non vax zonder kids"]) /  (df["TOTAAL sick vax no kids"] /df["TOTAAL aantal mensen vax zonder kids"] )
 
     dont_use = True
     if dont_use == True:
@@ -743,12 +749,14 @@ def show_VE_totaal(df):
 
     df_VE_totaal['VE_totaal_high'] = df_VE_totaal.apply (VE_high, axis=1)
     #df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL", "VE_totaal_low", "VE_totaal_high", "VE ZONDER KIDS" ]]
-    df_VE_totaal = df_VE_totaal[["einddag_week_", "VE TOTAAL",  "VE ZONDER KIDS" ]]
+    df_VE_totaal_ = df_VE_totaal[["einddag_week_", "VE TOTAAL",  "VE ZONDER KIDS" ]]
+    df_odds_totaal_ = df_VE_totaal[["einddag_week_", "ODDS TOTAAL",  "ODDS ZONDER KIDS" ]]
 
+    linechart_columns_as_lines(df_VE_totaal_,"VE",[0,100])
+    st.subheader("... times the change that a vaccinated persion gets sick than an unvaccineted")
+    linechart_columns_as_lines(df_odds_totaal_,"inverse odds", None)
 
-    #print (df_VE_totaal)
-
-    # st.write (df_VE_totaal)
+def linechart_columns_as_lines(df_VE_totaal, yaxtitle, range_):
     fig = go.Figure()
 
     columns = df_VE_totaal.columns.tolist()
@@ -759,9 +767,9 @@ def show_VE_totaal(df):
 
 
     fig.update_layout(
-        yaxis={"range":[0,100]},
+        yaxis={"range":range_},
         title=dict(
-                text="Crude VE Gehele bevolking door de tijd heen",
+                text=f"{yaxtitle} Gehele bevolking door de tijd heen",
                 x=0.5,
                 y=0.85,
                 font=dict(
@@ -772,7 +780,55 @@ def show_VE_totaal(df):
 
 
         xaxis_title="Einddag vd week",
-        yaxis_title="VE"    )
+        yaxis_title=yaxtitle    )
+    st.plotly_chart(fig)
+
+def referentie_andere_studies():
+    sheet_id = "12pLaItlz1Lw1BM-f1Zu66rq6nnXcw0qSOO64o3xuWco"
+    sheet_name = "OTHER_STUDIES"
+    url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+    df_data = pd.read_csv(url_data, delimiter=',')
+    st.subheader("Other studies")
+
+    #print (df_data)
+    df_data = df_data[["NAME", "14", "30", "45", "60", "90", "120", "150", "180", "210" ]]
+    df_data = df_data.transpose()# .reset_index()
+    df_data.columns = df_data.iloc[0]
+    print (df_data)
+    df_data = df_data.iloc[1: , :]
+    #df_data.drop(["NAME"], axis=0)
+    print (df_data)
+    df_data = df_data.reset_index()
+
+    print (df_data)
+    df_data['index'].astype(str).astype(int)
+    print (df_data)
+    print (df_data.dtypes)
+
+    quit()
+    fig = go.Figure()
+
+    columnlist = df_data.columns.tolist()
+    title = "VE as index"
+    # st.write(columnlist)
+    for col in columnlist:
+            fig.add_trace(go.Scatter(x=df_data["NAME"], y= df_data[col], mode='lines', name=col ))
+
+
+    fig.update_layout(
+        title=dict(
+                text=title,
+                x=0.5,
+                y=0.85,
+                font=dict(
+                    family="Arial",
+                    size=14,
+                    color='#000000'
+                )),
+
+
+        xaxis_title="Einddag vd week",
+        yaxis_title=title    )
     st.plotly_chart(fig)
 
 def main():
@@ -824,3 +880,4 @@ if __name__ == "__main__":
     #caching.clear_cache()
     #st.set_page_config(layout="wide")
     main()
+    #referentie_andere_studies()
