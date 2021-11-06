@@ -20,7 +20,7 @@ def get_data():
     In : -
     Out : df        : dataframe
          UPDATETIME : Date and time from the last update"""
-    with st.spinner(f"GETTING ALL DATA ..."):
+    with st.spinner("GETTING ALL DATA ..."):
         url1 = "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.csv"
         df = pd.read_csv(url1, delimiter=";", low_memory=False)
         df["Date_measurement"] = pd.to_datetime(df["Date_measurement"], format="%Y-%m-%d")

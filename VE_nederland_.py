@@ -1,23 +1,20 @@
-#import scipy.stats as ss
+import streamlit as st
 from math import e
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
-import streamlit as st
-import random
-import streamlit as st
 import datetime as dt
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
 import math
 import plotly.express as px
 import plotly.graph_objects as go
-
 from plotly.subplots import make_subplots
-
 from scipy.stats import fisher_exact
+
+#import random
 
 # na 21/8 zelfde waardes voor de vaccinaties voor 90+ aangehoude
 #@st.cache(ttl=60 * 60 * 24)
@@ -62,7 +59,6 @@ def read():
             df[col] = df[col].fillna(0)
         except:
             print (f"omzetten {col} niet gelukt ")
-            pass
 
     # print (df.dtypes)
     return df
@@ -105,7 +101,7 @@ def line_chart_pivot (df_, field, title,sma):
         title ([type]): [description]
         sma(boolean) : show smooth averages?
     """
-    if field != None:
+    if field is not None:
         df = make_pivot(df_, field)
     else:
         df = df_
@@ -158,8 +154,7 @@ def line_chart_VE_as_index (df):
     title = "VE as index"
     # st.write(columnlist)
     for col in columnlist:
-            fig.add_trace(go.Scatter( y= df[col], mode='lines', name=col ))
-
+        fig.add_trace(go.Scatter( y= df[col], mode='lines', name=col ))
 
     fig.update_layout(
         title=dict(
@@ -171,8 +166,6 @@ def line_chart_VE_as_index (df):
                     size=14,
                     color='#000000'
                 )),
-
-
         xaxis_title="Einddag vd week",
         yaxis_title=title    )
     st.plotly_chart(fig)
@@ -191,7 +184,7 @@ def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100):
     x = np.array(df_temp[what_to_show_l]).reshape((-1, 1))
     y = np.array(df_temp[what_to_show_r])
     #obtain m (slope) and b(intercept) of linear regression line
-    if intercept_100 == True:
+    if intercept_100 :
         fit_intercept_=False
         i = 100
     else:

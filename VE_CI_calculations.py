@@ -414,7 +414,7 @@ def main():
     regression(df,a,b,c,d, "logit" )
     regression(df,a,b,c,d, "poisson" )
     #regression(a,b,c,d, "neg_bin" )
-    
+
     #farrington(a,b,c,d, "bin", "new")
     farrington(df,a,b,c,d, "neg_bin", "new")
     # farrington(df,a,b,c,d, "poisson", "new")

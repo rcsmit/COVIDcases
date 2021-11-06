@@ -46,6 +46,7 @@ def traditional(e,f,g,h,output):
         stl.write(f"VE Traditional method                    : {round((1- rel_risk)*100,2)}% [{round((1-(np.exp(np.log(rel_risk) +Za2 * math.sqrt(yyy))))*100,2)}-{round((1-(np.exp(np.log(rel_risk) -Za2 * math.sqrt(yyy))))*100,2)}]  ")
 
 
+
 def interface():
 
     what = stl.sidebar.selectbox("Default values", ["hospital okt 2021", "ic ok  t 2021","hospital sept 2021", "ic sept 2021",  "cases mid sept - 31_10_21"], index=0)
@@ -59,9 +60,9 @@ def interface():
 
 
     if what == "ic okt 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 117,270,17400000,90,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 117,270,17400000,90,100,31
     elif what == "hospital okt 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 897,1157,17400000,90,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 897,1157,17400000,90,100,31
 
 
     elif what == "cases mid sept - 31_10_21":
