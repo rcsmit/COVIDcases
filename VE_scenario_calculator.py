@@ -54,25 +54,25 @@ def interface():
 
     # onbekend toegerekend aan wat bekend is. Half gevacc aan niet gevacc.
     if what == "ic sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 49,241,17400000,83.6,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 49,241,17400000,83.6,100.0,30
     elif what == "hospital sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 369,1017,17400000,81.5,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 369,1017,17400000,81.5,100.0,30
 
 
     if what == "ic okt 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 117,270,17400000,87.4,100,31
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 117,270,17400000,87.4,100.0,31
     elif what == "hospital okt 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 897,1157,17400000,85.4,100,31
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 897,1157,17400000,85.4,100.0,31
 
 
     elif what == "cases mid sept - 31_10_21":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 70318,82805,17400000,71,100,42
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 70318,82805,17400000,71.0,100.0,42
     number_days =stl.sidebar.number_input("Number of days", 0,100,value=days_)
     a= stl.sidebar.number_input("Sick | vax", value=a_)
     b= stl.sidebar.number_input("Sick | non vax", value=b_)
     population= stl.sidebar.number_input("Population total", value=population_)
-    vac_rate_old= stl.sidebar.number_input("Vacc. rate old | all", 0,100,value=vac_rate_old_)
-    vac_rate_new = stl.sidebar.number_input("Vacc. rate new | all",0,100, value=vac_rate_new_)
+    vac_rate_old= stl.sidebar.number_input("Vacc. rate old | all", 0.0,100.0,value=vac_rate_old_)
+    vac_rate_new = stl.sidebar.number_input("Vacc. rate new | all",0.0,100.0, value=vac_rate_new_)
     on_y_axis=stl.sidebar.selectbox("On Y axis", [ "number_cases_new","number_cases_new_per_day", "difference_absolute",  "difference_percentage"], index=0)
     return a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days
 def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output, number_days):
