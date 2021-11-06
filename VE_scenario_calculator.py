@@ -2,6 +2,7 @@ import numpy as np
 import math
 import streamlit as stl
 import plotly.express as px
+import pandas as pd
 
 
 def traditional(e,f,g,h,output):
@@ -47,13 +48,22 @@ def traditional(e,f,g,h,output):
 
 def interface():
 
-    what = stl.sidebar.selectbox("Default values", ["hospital sept 2021", "ic sept 2021",  "cases mid sept - 31_10_21"], index=0)
+    what = stl.sidebar.selectbox("Default values", ["hospital okt 2021", "ic ok  t 2021","hospital sept 2021", "ic sept 2021",  "cases mid sept - 31_10_21"], index=0)
     descr = stl.sidebar.text_input("Title in output", value=what)
 
+    # onbekend toegerekend aan wat bekend is. Half gevacc aan niet gevacc.
     if what == "ic sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 44,237,17400000,82,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 49,241,17400000,90,100,30
     elif what == "hospital sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 340,1029,17400000,82,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 369,1017,17400000,90,100,30
+
+
+    if what == "ic okt 2021":
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 117,270,17400000,90,100,30
+    elif what == "hospital okt 2021":
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 897,1157,17400000,90,100,30
+
+
     elif what == "cases mid sept - 31_10_21":
         a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 70318,82805,17400000,71,100,42
     number_days =stl.sidebar.number_input("Number of days", 0,100,value=days_)
@@ -69,38 +79,43 @@ def calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, output, numb
     number_non_vax = (population * (100-vac_rate_old))/100
     pvc = a/number_vax
     puc = b/number_non_vax
-
+    #sick_vax_new, sick_unvax_new = None, None
     rr = (a/number_vax)/(b/number_non_vax)
     traditional (a,b,number_vax, number_non_vax, output)
     #pfizer (a,b,number_vax, number_non_vax, output)
     if output == True:
         #stl.write (f"Proportion vaccinated {pvc} | Proportion non-vaccinated {puc}" )
-        #stl.write (f"Cases 100% vax {int(pvc*population)} | Cases 0% vax {int(puc* population)}" )
-        stl.write(f"Factor unvax vs vax : {round((puc/pvc),1)} x ")
+        stl.write (f"Cases 0% vax : {int(puc* population)} | Cases 100% vax : {int(pvc*population)}" )
+        stl.write (f"y = {round(((int(pvc*population) - int(puc* population ) )/100),2)} * x +{ int(puc* population)} ")
+        stl.write(f"Odds rate / RR : {round((pvc/puc),3)} | Factor unvax vs vax : {round((puc/pvc),1)} x ")
 
     sick_vax_new = population *  vac_rate_new * pvc / 100
     sick_unvax_new = population * (100-vac_rate_new)*puc / 100
     sick_total_old = a+b
-    sick_total_new = round(sick_vax_new + sick_unvax_new)
+    sick_total_new = (sick_vax_new + sick_unvax_new)
     sick_difference =  sick_total_new - sick_total_old
     sick_difference_percentage = round((( sick_total_new - sick_total_old) / sick_total_old)*100,1)
     if output == True:
-        stl.write(f"Number of cases old {sick_total_old} | Per day {round(sick_total_old/number_days,1)}")
-        stl.write(f"Numer of cases new {sick_total_new}  | Per day {round(sick_total_new/number_days,1)}")
+        stl.write(f"Number of cases old {round(sick_total_old)} | Per day {round(sick_total_old/number_days,1)}")
+        stl.write(f"Numer of cases new {round(sick_total_new)} ({round(sick_vax_new)} vacc. + {round(sick_unvax_new)} non vacc.) | Per day {round(sick_total_new/number_days,1)}")
         if sick_difference != 0 :
-            stl.write(f"Difference in cases : {sick_difference} | Per day {round(sick_difference/number_days,1)} | ({sick_difference_percentage} %)")
+            stl.write(f"Difference in cases : {round(sick_difference)} | Per day {round(sick_difference/number_days,1)} | ({sick_difference_percentage} %)")
         else:
             stl.write(f"No difference in cases : {sick_difference} ")
 
     if on_y_axis == "difference_absolute":
         y = sick_difference
+        sick_vax_new, sick_unvax_new=0,0
     elif on_y_axis == "difference_percentage":
         y = sick_difference_percentage
+        sick_vax_new, sick_unvax_new=0,0
     elif on_y_axis == "number_cases_new":
         y = sick_total_new
     elif on_y_axis == "number_cases_new_per_day":
         y = sick_total_new / number_days
-    return y
+        sick_vax_new, sick_unvax_new=0,0
+    #stl.write( y, sick_vax_new, sick_unvax_new)
+    return y, sick_vax_new, sick_unvax_new
 
 def main():
     a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days = interface()
@@ -111,16 +126,23 @@ def main():
     stl.subheader (descr)
     calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, True, number_days)
 
-    x_, y_ = [],[]
-
+    x_, y_,sick_v_n, sick_u_n = [],[],[],[]
+    l = []
     #for x in range(int(vac_rate_old), 101):
     for x in range(0, 101):
-        y = calculate(a,b,population,vac_rate_old, x, on_y_axis, False, number_days)
-        x_.append(x)
-        y_.append(y)
+        y,  sick_vax_new, sick_unvax_new = calculate(a,b,population,vac_rate_old, x, on_y_axis, False, number_days)
+        # x_.append(x)
+        # y_.append(y)
+        # sick_v_n.append(sick_vax_new)
+        # sick_u_n.append(sick_unvax_new)
+        l.append([x,y,sick_vax_new, sick_unvax_new])
 
-    fig = px.line(x=x_, y=y_, labels={
-                     "x": "Vaccination percentage", "y": on_y_axis} ,   title = f"{descr} - {on_y_axis}")
+        wide_df = pd.DataFrame(l, columns = ['vacc perc', 'total', 'vacc.', 'not vacc'])
+    fig = px.line(wide_df, x='vacc perc', y=['total', 'vacc.', 'not vacc'])
+
+    # fig = px.line(df, x=x_, y=[y_, sick_v_n, sick_u_n], labels={
+    #                  "x": "Vaccination percentage", "y": [on_y_axis, "sick vacc", "sick non vacc"]} ,   title = f"{descr} - {on_y_axis}")
+
     fig.add_vline(x=vac_rate_old)
     stl.plotly_chart(fig)
 
