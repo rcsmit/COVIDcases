@@ -54,15 +54,15 @@ def interface():
 
     # onbekend toegerekend aan wat bekend is. Half gevacc aan niet gevacc.
     if what == "ic sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 49,241,17400000,90,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 49,241,17400000,83.6,100,30
     elif what == "hospital sept 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 369,1017,17400000,90,100,30
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 369,1017,17400000,81.5,100,30
 
 
     if what == "ic okt 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 117,270,17400000,90,100,31
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 117,270,17400000,87.4,100,31
     elif what == "hospital okt 2021":
-        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 897,1157,17400000,90,100,31
+        a_,b_,population_,vac_rate_old_, vac_rate_new_,days_ = 897,1157,17400000,85.4,100,31
 
 
     elif what == "cases mid sept - 31_10_21":
@@ -146,6 +146,7 @@ def main():
 
     fig.add_vline(x=vac_rate_old)
     stl.plotly_chart(fig)
+    st.write("The vaccination % in the scenarios is different due to the weighted average calculation.")
 
 if __name__ == "__main__":
     main()
