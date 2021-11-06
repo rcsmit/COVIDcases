@@ -49,7 +49,7 @@ def traditional(e,f,g,h,output):
 
 def interface():
 
-    what = stl.sidebar.selectbox("Default values", ["hospital okt 2021", "ic ok  t 2021","hospital sept 2021", "ic sept 2021",  "cases mid sept - 31_10_21"], index=0)
+    what = stl.sidebar.selectbox("Default values", ["hospital okt 2021", "ic okt 2021","hospital sept 2021", "ic sept 2021",  "cases mid sept - 31_10_21"], index=0)
     descr = stl.sidebar.text_input("Title in output", value=what)
 
     # onbekend toegerekend aan wat bekend is. Half gevacc aan niet gevacc.
