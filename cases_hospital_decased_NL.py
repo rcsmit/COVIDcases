@@ -125,7 +125,7 @@ def line_chart_enkel (df, what_to_show, aggregate,y_ax_label_supp, log_y):
         xaxis_title="Date_statistics (week)",
         yaxis_title=what_to_show + " ("+ y_ax_label_supp+ ")",
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def make_pivot(df, valuefield):
     df_pivot = (
@@ -176,7 +176,7 @@ def line_chart  (df, what_to_show, aggregate,y_ax_label_supp, sma_wdw,log_y):
 
         xaxis_title="Einddag vd week",
         yaxis_title=what_to_show + " ("+ y_ax_label_supp+ ")"    )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
     with st.expander (f"dataframe pivottable {what_to_show}"):
         df_temp = df.astype(str).copy(deep = True)
         st.write (df_temp)
@@ -254,7 +254,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         )
 
 
-        st.plotly_chart(fig1xy)
+        st.plotly_chart(fig1xy, use_container_width=True)
 
 def main():
     # prepare_data()

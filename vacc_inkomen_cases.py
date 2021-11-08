@@ -190,7 +190,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
             st.pyplot(fig1xy)
             #plt.show()
         elif how == "plotly":
-            st.plotly_chart(fig1xy)
+            st.plotly_chart(fig1xy, use_container_width=True)
 
 
 def bewerk_df(df, partijen_selected):

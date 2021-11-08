@@ -1280,7 +1280,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
 
 
 
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 
@@ -1441,7 +1441,7 @@ def graph_week(df, what_to_show_l, how_l, what_to_show_r, how_r):
             fig.update_yaxes(title_text=show_l, secondary_y=False)
             fig.update_yaxes(title_text=label_r, secondary_y=True)
 
-            st.plotly_chart(fig)
+            st.plotly_chart(fig, use_container_width=True)
 
 
 def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t, showday):

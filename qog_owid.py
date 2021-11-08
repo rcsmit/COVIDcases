@@ -191,7 +191,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,   categoryfield, h
                 ha="right",
             )
 
-            st.plotly_chart(fig1xy)
+            st.plotly_chart(fig1xy, use_container_width=True)
 def main():
     st.header ("COG OWID")
     df_getdata = get_data().copy(deep=False)

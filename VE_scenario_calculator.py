@@ -145,7 +145,7 @@ def main():
     #                  "x": "Vaccination percentage", "y": [on_y_axis, "sick vacc", "sick non vacc"]} ,   title = f"{descr} - {on_y_axis}")
 
     fig.add_vline(x=vac_rate_old)
-    stl.plotly_chart(fig)
+    stl.plotly_chart(fig, use_container_width=True)
     stl.write("The vaccination % in the scenarios is different due to the weighted average calculation.")
 
 if __name__ == "__main__":

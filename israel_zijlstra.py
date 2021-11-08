@@ -70,7 +70,7 @@ def line_chart (df, what_to_show):
         xaxis_title="Einddag vd week",
         yaxis_title=what_to_show,
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def line_chart_pivot (df_, field, title):
     """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
@@ -105,7 +105,7 @@ def line_chart_pivot (df_, field, title):
 
         xaxis_title="Einddag vd week",
         yaxis_title="VE"    )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
     with st.expander (f"dataframe pivottable {title}"):
         df_temp = df.astype(str).copy(deep = True)
         st.write (df_temp)
@@ -183,7 +183,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         )
 
 
-        st.plotly_chart(fig1xy)
+        st.plotly_chart(fig1xy, use_container_width=True)
 def make_calculations(df):
 
     df["unvaxxed_new"] = df["populatie_grootte"] - ( df["sec_cumm"]  - df["third_cumm"] ) - df["third_cumm"] #NB Unvaxxed is vanaf 2e vaccin
@@ -329,7 +329,7 @@ def plot_line_with_ci(dataframe,title, lower, line, upper):
         yaxis=dict(title=title),
         title=title,)
     fig = go.Figure(data=data, layout=layout)
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def calculate_fisher_from_R(df):
     pass

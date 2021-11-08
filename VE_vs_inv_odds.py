@@ -24,14 +24,14 @@ def main():
     fig.update_layout(
         xaxis_title="VE (%)",
         yaxis_title="aantal keer kans ongevacc. vs gevacc. / inv odds / factor"    )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
     fig2 = go.Figure()
     fig2.add_trace(go.Scatter(x=x_, y= y_, mode='lines' ))
     fig2.update_layout(
         yaxis_title="VE (%)",
         xaxis_title="aantal keer kans ongevacc. vs gevacc. / inv odds/ factor"    )
-    st.plotly_chart(fig2)
+    st.plotly_chart(fig2, use_container_width=True)
 
 
 main()

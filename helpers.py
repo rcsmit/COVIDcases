@@ -442,7 +442,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show
             )
 
 
-            st.plotly_chart(fig1xyz)
+            st.plotly_chart(fig1xyz, use_container_width=True)
 
 def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
     """Smooth columns (helpers.py)
