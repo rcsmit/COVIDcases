@@ -91,7 +91,7 @@ def line_chart (df, what_to_show):
         xaxis_title="Einddag vd week",
         yaxis_title=what_to_show,
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def line_chart_pivot (df_, field, title,sma):
     """Makes a linechart from a pivoted table, each column in a differnt line. Smooths the lines too.
@@ -134,7 +134,7 @@ def line_chart_pivot (df_, field, title,sma):
 
         xaxis_title="Einddag vd week",
         yaxis_title=title    )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
     with st.expander (f"dataframe pivottable {title}"):
         df_temp = df.astype(str).copy(deep = True)
         st.write (df_temp)
@@ -168,7 +168,7 @@ def line_chart_VE_as_index (df):
                 )),
         xaxis_title="Einddag vd week",
         yaxis_title=title    )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100):
     """Find slope of regression line - DOESNT WORK
@@ -334,7 +334,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
             ha="right",
         )
 
-        st.plotly_chart(fig3)
+        st.plotly_chart(fig3, use_container_width=True)
 def make_calculations(df):
     # Vaccinatiestatus (nog) onbekend	(Nog) niet gevaccineerd	Niet volledig gevaccineerd	Volledig gevaccineerd
     # SICK_UNVAX	SICK_VAX	vacc_graad	VE	aantal mensen	anatal mensen non vax	aantal mensen vax	sick non vax	sick vax
@@ -492,7 +492,7 @@ def plot_line_with_ci(dataframe,title, lower, line, upper):
         yaxis=dict(title=title),
         title=title,)
     fig = go.Figure(data=data, layout=layout)
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def calculate_fisher_from_R(df):
     pass
@@ -774,7 +774,7 @@ def linechart_columns_as_lines(df_VE_totaal, yaxtitle, range_):
 
         xaxis_title="Einddag vd week",
         yaxis_title=yaxtitle    )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def referentie_andere_studies():
     sheet_id = "12pLaItlz1Lw1BM-f1Zu66rq6nnXcw0qSOO64o3xuWco"
@@ -822,7 +822,7 @@ def referentie_andere_studies():
 
         xaxis_title="Einddag vd week",
         yaxis_title=title    )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def main():
     df_ = read()
@@ -862,7 +862,6 @@ def main():
     # plot_line_with_ci(df_grouped, "Relative Risk",  "CI_rel_risk_low", "rel_risk", "CI_rel_risk_high")
 
     # line_chart ( df_grouped,"fischer_p_val")
-
 
     perc_gevacc()
     st.write ("eg. 30-39 = 30-34 and 30-39.1 = 35-39")
