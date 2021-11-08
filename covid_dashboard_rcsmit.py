@@ -31,7 +31,7 @@ import urllib.request
 from pathlib import Path
 from streamlit import caching
 from inspect import currentframe, getframeinfo
-
+from helpers import *
 import covid_dashboard_show_toelichting_footer
 ###################################################################
 @st.cache(ttl=60 * 60 * 24)
