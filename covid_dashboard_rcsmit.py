@@ -5,7 +5,7 @@ import matplotlib as mpl
 import matplotlib.dates as mdates
 from textwrap import wrap
 import matplotlib.cm as cm
-# import seaborn as sn
+import seaborn as sn
 from scipy import stats
 import datetime as dt
 from datetime import datetime, timedelta
@@ -362,9 +362,7 @@ def rh2ah(rh, t ):
     Returns:
         [type]: [description]
     """
-    return (6.112 * math.exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (
-        273.15 + t
-    )
+    return (6.112 * math.exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (273.15 + t )
 
 def rh2q(rh, t, p ):
     """[summary]
@@ -404,10 +402,7 @@ def extra_calculations(df):
     df["reported_corrected"] = round(
         (df["positivetests"] * (df["Percentage_positive"] / 12.8)), 2
     # 12.8 is percentage positief getest in week 1-2021
-
     )
-
-
 
     df["reported_div_tested"] =  round((df["positivetests"] / df["Tested_with_result"]),4)
     df["positivetests_moved_12"] = df["positivetests"].shift(12)
@@ -1208,7 +1203,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
         st.pyplot(fig1x)
 
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df_temp["date"], y= df_temp[b_], mode='lines', name=b, line=dict(
+        # TOFIX
+        fig.add_trace(go.Scatter(x=df_temp["date"], y= df_temp[b], mode='lines', name=b, line=dict(
             color='LightSkyBlue')))
         fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[b], mode='markers', name = b, showlegend=False,marker=dict(
             color='LightSkyBlue',
