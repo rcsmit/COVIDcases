@@ -317,11 +317,13 @@ def get_data():
             df_temp = df_temp.sort_values(by=firstkey)
         # the tool is build around "date"
         df_temp = df_temp.rename(columns={firstkey: "date"})
-
-        df_knmi_data = getdata_knmi()
-        df_temp = pd.merge(
-                df_temp, df_knmi_data, how=type_of_join, left_on='date', right_on='date_knmi'
-            )
+        try:
+            df_knmi_data = getdata_knmi()
+            df_temp = pd.merge(
+                    df_temp, df_knmi_data, how=type_of_join, left_on='date', right_on='date_knmi'
+                )
+        except:
+            pass
 
         UPDATETIME = datetime.now()
         df = splitupweekweekend(df_temp)
@@ -362,6 +364,8 @@ def rh2ah(rh, t ):
     Returns:
         [type]: [description]
     """
+    # return (6.112 * ((17.67 * t) / (math.exp(t) + 243.5)) * rh * 2.1674) / (273.15 + t ) # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7831640/
+
     return (6.112 * math.exp((17.67 * t) / (t + 243.5)) * rh * 2.1674) / (273.15 + t )
 
 def rh2q(rh, t, p ):
@@ -381,7 +385,21 @@ def rh2q(rh, t, p ):
     e = es * (rh / 100)
     q_ = (0.622 * e)/(p - (0.378 * e)) * 1000
     return round(q_,2)
+def iptcc(t, rh, ah):
+    """
+    https://www.nature.com/articles/s41598-021-01392-2.pdf
 
+    Args:
+        t ([type]): [description]
+        rh ([type]): [description]
+        ah ([type]): [description]
+    """
+    a = ((t-7.5)**2)/196
+    b = ((rh-75)**2)/625
+    c = ((ah-6)**2)/2.89
+
+    iptcc = 100 * math.exp(0.5*(a+b+c))
+    return iptcc
 
 def extra_calculations(df):
     """Extra calculations
@@ -446,6 +464,8 @@ def extra_calculations(df):
 
     df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
     df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
+
+    df["iptcc"] = df.apply(lambda x: iptcc(x['temp_max'],x['rh_min'], x['abs_humidity_knmi_derived']),axis=1)
     df["positivetests_cumm"] = df["positivetests"].cumsum()
     df["positivetests_log10"] = np.log10(df["positivetests"])
     df["globale_straling_log10"] = np.log10(df["globale_straling"])
@@ -1808,6 +1828,7 @@ def main():
         "globale_straling_log10",
         "spec_humidity_knmi_derived",
         "abs_humidity_knmi_derived",
+        "iptcc",
         "RH_avg",
         "RH_min",
         "RH_max",
