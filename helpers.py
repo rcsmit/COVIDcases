@@ -741,31 +741,33 @@ def getdata_knmi():
         try:
             df = pd.read_csv(url, delimiter=",", header=None,  comment="#",low_memory=False,)
 
+            column_replacements =  [[0, 'STN'],
+                                [1, 'YYYYMMDD'],
+                                [2, 'temp_etmaal'],
+                                [3, 'temp_min'],
+                                [4, 'temp_max'],
+                                [5, 'T10N'],
+                                [6, 'globale_straling'],
+                                [7, 'RH_min'],
+                                [8, 'RH_max'],
+                                [9, 'RH_avg'],
+                                [10, 'zonneschijnduur'],
+                                [11, 'neerslag']]
+
+            for c in column_replacements:
+                df = df.rename(columns={c[0]:c[1]})
+
+            df["date_knmi"] = pd.to_datetime(df["YYYYMMDD"], format="%Y%m%d")
+            to_divide_by_10 = ["temp_etmaal", "temp_min", "temp_max", "neerslag", "zonneschijnduur"]
+            for d in to_divide_by_10:
+                df[d] = df[d]/10
+
         except:
             st.write("FOUT BIJ HET INLADEN.")
-            st.stop()
 
 
-        column_replacements =  [[0, 'STN'],
-                             [1, 'YYYYMMDD'],
-                             [2, 'temp_etmaal'],
-                            [3, 'temp_min'],
-                            [4, 'temp_max'],
-                            [5, 'T10N'],
-                             [6, 'globale_straling'],
-                             [7, 'RH_min'],
-                            [8, 'RH_max'],
-                            [9, 'RH_avg'],
-                            [10, 'zonneschijnduur'],
-                               [11, 'neerslag']]
 
-        for c in column_replacements:
-            df = df.rename(columns={c[0]:c[1]})
 
-        df["date_knmi"] = pd.to_datetime(df["YYYYMMDD"], format="%Y%m%d")
-        to_divide_by_10 = ["temp_etmaal", "temp_min", "temp_max", "neerslag", "zonneschijnduur"]
-        for d in to_divide_by_10:
-            df[d] = df[d]/10
 
 
     return df
