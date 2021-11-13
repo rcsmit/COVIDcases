@@ -462,10 +462,7 @@ def extra_calculations(df):
     df["new.deaths_per_reported_moved_14"] = round(
             ((df["new.deaths"] ) / df["positivetests_moved_14"] * 100), 2)
 
-    df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
-    df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
 
-    df["iptcc"] = df.apply(lambda x: iptcc(x['temp_max'],x['rh_min'], x['abs_humidity_knmi_derived']),axis=1)
     df["positivetests_cumm"] = df["positivetests"].cumsum()
     df["positivetests_log10"] = np.log10(df["positivetests"])
     df["globale_straling_log10"] = np.log10(df["globale_straling"])
@@ -482,6 +479,13 @@ def extra_calculations(df):
     df["hosp_50-79"] =  df["hosp_50-59"] + df["hosp_60-69"]
     df["hosp_70+"] =   df["hosp_70-79"]  + df["hosp_80-89"] + df["hosp_90+"]
     df["Rt_corr_transit"] = df["Rt_avg"] * (1/ (1-(-1* df["transit_stations"]/100) ))
+    try:
+        df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
+        df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
+
+        df["iptcc"] = df.apply(lambda x: iptcc(x['temp_max'],x['rh_min'], x['abs_humidity_knmi_derived']),axis=1)
+    except:
+        pass
 
     return df
 
