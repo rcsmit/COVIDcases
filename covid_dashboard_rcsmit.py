@@ -465,7 +465,6 @@ def extra_calculations(df):
 
     df["positivetests_cumm"] = df["positivetests"].cumsum()
     df["positivetests_log10"] = np.log10(df["positivetests"])
-    df["globale_straling_log10"] = np.log10(df["globale_straling"])
     df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["positivetests_cumm"]
     df["new.deaths_cumm"] = df["new.deaths"].cumsum()
     df["new.deaths_cumm_div_prev_div_days_contagious_cumm"] =  df["new.deaths_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
@@ -482,6 +481,7 @@ def extra_calculations(df):
     try:
         df["spec_humidity_knmi_derived"] = df.apply(lambda x: rh2q(x['RH_min'],x['temp_max'], 1020),axis=1)
         df["abs_humidity_knmi_derived"] =df.apply(lambda x: rh2ah(x['RH_min'],x['temp_max']),axis=1)
+        df["globale_straling_log10"] = np.log10(df["globale_straling"])
 
         df["iptcc"] = df.apply(lambda x: iptcc(x['temp_max'],x['rh_min'], x['abs_humidity_knmi_derived']),axis=1)
     except:
