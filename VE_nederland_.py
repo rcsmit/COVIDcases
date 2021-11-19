@@ -69,8 +69,10 @@ def perc_gevacc():
     sheet_id = "12pLaItlz1Lw1BM-f1Zu66rq6nnXcw0qSOO64o3xuWco"
     sheet_name = "VACC__GRAAD" # sheet copied as values
     url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+    #print (url_data)
 
     df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
+    #print (df_data)
     # print (df_data.dtypes)
     line_chart_pivot (df_data, None, "% Volledig gevaccineerd", False)
 
@@ -109,6 +111,8 @@ def line_chart_pivot (df_, field, title,sma):
 
     columns = df.columns.tolist()
     columnlist = columns[1:]
+    #print (df)
+    #print( columns[0])
     # st.write(columnlist)
     for col in columnlist:
         if sma:
