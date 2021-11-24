@@ -88,7 +88,7 @@ def get_data():
     df_temp_0 = download_data_file(
         data[0]["url"], data[0]["name"], data[0]["delimiter"], "csv"
     )
-    df_temp_0 = df_temp_0[df_temp_0["date"] = "2021-11-22"]
+    df_temp_0 = df_temp_0[df_temp_0["date"] == "2021-11-22"]
 
     df_temp_1 = download_data_file(
         data[1]["url"], data[1]["name"], data[1]["delimiter"], "csv"
