@@ -198,8 +198,8 @@ def main():
     df = rename_columns(df_getdata)
     #df = df.fillna(0)
     continent_list_ =  df["continent"].drop_duplicates().sort_values().tolist()
-    #continent_list = ["All"] + continent_list_
-    continent_list =  continent_list_
+    continent_list = ["All"] + continent_list_
+    #continent_list =  continent_list_
     continent = st.sidebar.selectbox("Continent", continent_list, index=0)
     if continent != "All":
         df = df[df["continent"] == continent]
