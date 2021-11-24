@@ -55,7 +55,8 @@ def get_data():
         data = [
 
             {
-                "url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_17_10_2021.csv",
+                "url" : "https://github.com/owid/covid-19-data/blob/master/public/data/owid-covid-data.csv?raw=true",
+                #"url": "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_17_10_2021.csv",
                 "name": "owid",
                 "delimiter": ",",
                 "key": "iso_code",
@@ -87,6 +88,8 @@ def get_data():
     df_temp_0 = download_data_file(
         data[0]["url"], data[0]["name"], data[0]["delimiter"], "csv"
     )
+    df_temp_0 = df_temp_0[df_temp_0["date"] = "2021-11-22"]
+
     df_temp_1 = download_data_file(
         data[1]["url"], data[1]["name"], data[1]["delimiter"], "csv"
     )
@@ -125,6 +128,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,   categoryfield, h
         what_to_show_r ([type]): [description]
         show_cat ([type]): [description]
         categoryfield ([type]): [description]
+        hovername
+        hoverdata
     """
     df_temp = df_temp[df_temp[what_to_show_l] != None]
     df_temp = df_temp[df_temp[what_to_show_r] != None]
@@ -192,6 +197,10 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,   categoryfield, h
             )
 
             st.plotly_chart(fig1xy, use_container_width=True)
+
+def left(s, amount):
+    return s[:amount]
+
 def main():
     st.header ("COG OWID")
     df_getdata = get_data().copy(deep=False)
@@ -199,10 +208,27 @@ def main():
     #df = df.fillna(0)
     continent_list_ =  df["continent"].drop_duplicates().sort_values().tolist()
     continent_list = ["All"] + continent_list_
+    print (continent_list)
     #continent_list =  continent_list_
     continent = st.sidebar.selectbox("Continent", continent_list, index=0)
+    #df = df[len(df["iso_code"]) <= 3]
+    print(df.dtypes)
+    df.sort_values("Country")
+    print (df)
+    #df = df[df['continent'].apply(lambda x: left(x,4) !="OWID")]
     if continent != "All":
-        df = df[df["continent"] == continent]
+        df = df[ df["continent"] ==    continent]
+    else:
+        df = df[(df["continent"] ==  'Africa')  |
+                 (df["continent"] ==        'Asia' ) |
+                (df["continent"] ==         'Europe' ) |
+                (df["continent"] ==         'North America' ) |
+                 (df["continent"] ==        'Oceania' ) |
+                 (df["continent"] ==        'South America')]
+
+
+
+    print(df)
     #df.dropna(subset=[ "Trust in Politicians"])
     columnlist = df.columns.tolist() +["Clear_cache"]
 
