@@ -803,7 +803,7 @@ def main():
     #st.write (statelist)
     # statelist = ["Goa", "Delhi", "India"]
     global country_
-    country_ = st.sidebar.selectbox("Which country",countrylist, 137)
+    country_ = st.sidebar.selectbox("Which country",countrylist, 149)
 
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
