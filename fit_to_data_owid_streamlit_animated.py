@@ -760,10 +760,11 @@ def main():
     )
 
     start__ = "2021-10-1"
-    until__ = "2021-1-31"
+    until__ = "2022-1-31"
     what_default = 1
     days_to_show = 150
     what_method_default = 1
+
 
     today = datetime.today().strftime("%Y-%m-%d")
     global from_
