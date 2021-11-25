@@ -759,10 +759,10 @@ def main():
         "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\"
     )
 
-    start__ = "2021-05-15"
-    until__ = "2021-06-12"
+    start__ = "2021-10-1"
+    until__ = "2021-1-31"
     what_default = 1
-    days_to_show = 45
+    days_to_show = 150
     what_method_default = 1
 
     today = datetime.today().strftime("%Y-%m-%d")
@@ -802,7 +802,7 @@ def main():
     #st.write (statelist)
     # statelist = ["Goa", "Delhi", "India"]
     global country_
-    country_ = st.sidebar.selectbox("Which country",countrylist, 216)
+    country_ = st.sidebar.selectbox("Which country",countrylist, 137)
 
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
