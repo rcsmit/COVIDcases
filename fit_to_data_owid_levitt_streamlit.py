@@ -123,16 +123,22 @@ def do_levitt(df, what_to_display):
 
     t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
     r_sq_opt = 0
-    for i in range (int(len(df)*.5),len(df)+1): # we start a bit later, because the first values have an R_sq = 1
-        how_much = len(df) - i+1
-        x_range = np.arange(len(df) - i+1, len(df)+1)
 
-        df_ = df.tail(i)
-        m_,b_,r_sq_ = find_slope_sklearn(df_, x_range,"log_exp_gr_factor", False, 55)
-        if r_sq_ > r_sq_opt:
-            m,b,r_sq,i_opt = m_,b_,r_sq_, i
-            r_sq_opt = r_sq
-    st.write(f"Optimal R SQ if I = {i_opt}")
+    optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=1)
+    if optimim == True:
+        for i in range (int(len(df)*.5),len(df)+1): # we start a bit later, because the first values have an R_sq = 1
+            how_much = len(df) - i+1
+            x_range = np.arange(len(df) - i+1, len(df)+1)
+
+            df_ = df.tail(i)
+            m_,b_,r_sq_ = find_slope_sklearn(df_, x_range,"log_exp_gr_factor", False, 55)
+            if r_sq_ > r_sq_opt:
+                m,b,r_sq,i_opt = m_,b_,r_sq_, i
+                r_sq_opt = r_sq
+        st.write(f"Optimal R SQ if I = {i_opt}")
+    else:
+        x_range = np.arange(len(df))
+        m,b,r_sq = find_slope_sklearn(df, x_range,"log_exp_gr_factor", False, 55)
 
 
 
@@ -475,9 +481,6 @@ def main():
         st.sidebar.write ("Animation disabled")
         prepare_for_animation = False
 
-    fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
-    #normal_c(df_to_use)  #FIXIT doesnt work :()
-    #loglognormal(df_to_use, what_to_display)
     do_levitt(df_to_use, what_to_display)
 
     tekst = (
