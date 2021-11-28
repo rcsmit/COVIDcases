@@ -174,7 +174,7 @@ def do_levitt(df, what_to_display):
 
 
 
-        st.write(f"{m=} {b=} {r_sq=}")
+        st.write(f"m = {m} | b = {b} | r_sq = {r_sq}")
 
         U    =(-1/m)/np.log(10)
         st.write(f"U = {U} days")
@@ -286,12 +286,10 @@ def add_column_levit(df, what_to_display):
     df["minus_background"] = df[what_to_display] - background_new_cases
     df["what_to_display_cumm"] = df[what_to_display].cumsum()
 
-    #df["minus_background_cumm"] = df["minus_background"].cumsum()
-    #df["minus_background_cumm"] = df["minus_background"] .cumsum()
     df["minus_background_cumm"] = df["new_cases_smoothed"] .cumsum()
     what_to_display_x = "minus_background_cumm"
     last_value = df[what_to_display].iloc[-1]
-    st.write(f"{last_value=}")
+
     log_factor_df = pd.DataFrame(
         {"date_log_factor": [], "waarde": [], "log_exp_gr_factor": []}
     )
