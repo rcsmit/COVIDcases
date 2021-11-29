@@ -441,6 +441,8 @@ def main():
         st.sidebar.write ("Animation disabled")
         prepare_for_animation = False
 
+    st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
+
     do_levitt(df_to_use, what_to_display)
 
     tekst = (
