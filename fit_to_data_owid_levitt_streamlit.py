@@ -11,27 +11,19 @@
 
 
 # Import required packages
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+
 import numpy as np
-from scipy.optimize import curve_fit
+
 import matplotlib.dates as mdates
-import copy, math
-from lmfit import Model
+
 import pandas as pd
 import streamlit as st
 import datetime as dt
-from datetime import datetime, timedelta
-import matplotlib.animation as animation
-import imageio
-import streamlit.components.v1 as components
-import os
+from datetime import datetime
+
 import platform
-import webbrowser
+
 from pandas import read_csv, Timestamp, Timedelta, date_range
-from io import StringIO
-from numpy import log, exp, sqrt, clip, argmax, put
-from scipy.special import erfc, erf
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
@@ -39,17 +31,12 @@ from matplotlib.backends.backend_agg import RendererAgg
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
-from streamlit import caching
-from sklearn.metrics import r2_score
+
+
 from sklearn.linear_model import LinearRegression
 
-from PIL import Image
-import glob
-
-
-
 def select_period(df, show_from, show_until):
-    """ _ _ _ """
+    """ Select a period in the dataframe """
     if show_from is None:
         show_from = "2020-2-27"
 
@@ -65,8 +52,7 @@ def select_period(df, show_from, show_until):
 
 
 
-
-def find_slope_sklearn(df_temp, x, what_to_show_r, intercept_100, last_values):
+def find_slope_sklearn(df_temp, x, what_to_show_r):
     """Find slope of regression line - DOESNT WORK
 
     Args:
@@ -82,17 +68,12 @@ def find_slope_sklearn(df_temp, x, what_to_show_r, intercept_100, last_values):
 
 
     #obtain m (slope) and b(intercept) of linear regression line
-    if intercept_100 :
-        fit_intercept_=False
-        i = 100
-    else:
-        fit_intercept_=True
-        i = 0
-    model = LinearRegression(fit_intercept=fit_intercept_)
-    model.fit(x, y - i)
+
+    model = LinearRegression()
+    model.fit(x, y)
     m = model.coef_[0]
-    b = model.intercept_+ i
-    r_sq = model.score(x, y- i)
+    b = model.intercept_
+    r_sq = model.score(x, y)
     return m,b,r_sq
 
 def straight_line(x,m,b):
@@ -101,7 +82,16 @@ def straight_line(x,m,b):
 def do_levitt(df, what_to_display):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
+    # G(T)=N/e=0.37N.
 
+    # G(t) = N exp(− exp(− (t − T)/ U)),
+    # U is time constant, measured in days
+
+    # . Parameter N is the asymptotic number, the maximum plateau value that G(t) reaches after a long time, t.
+    # Parameter T, is the point of inflection, which is the time in days at which the second-derivative of G(t)
+    #  is zero and its first derivative is a maximum. It is a natural mid-point of the function where the value
+    # of G(T)=N/e=0.37N. The Parameter U, is the most important as it changes the shape of the curve; it is a
+    #  time-constant measured in days.
 
     df, last_value, background_new_cases, background_total_cases =  add_column_levit(df, what_to_display)
     #print (df)
@@ -124,23 +114,22 @@ def do_levitt(df, what_to_display):
     t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
     r_sq_opt = 0
 
-    optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=1)
+    optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=0)
     if optimim == True:
+        # we search for the optimal value for how many days at the end we take to draw the trendline
         for i in range (int(len(df)*.5),len(df)+1): # we start a bit later, because the first values have an R_sq = 1
             how_much = len(df) - i+1
             x_range = np.arange(len(df) - i+1, len(df)+1)
 
             df_ = df.tail(i)
-            m_,b_,r_sq_ = find_slope_sklearn(df_, x_range,"log_exp_gr_factor", False, 55)
+            m_,b_,r_sq_ = find_slope_sklearn(df_, x_range,"log_exp_gr_factor")
             if r_sq_ > r_sq_opt:
                 m,b,r_sq,i_opt = m_,b_,r_sq_, i
                 r_sq_opt = r_sq
         st.write(f"Optimal R SQ if I = {i_opt}")
     else:
         x_range = np.arange(len(df))
-        m,b,r_sq = find_slope_sklearn(df, x_range,"log_exp_gr_factor", False, 55)
-
-
+        m,b,r_sq = find_slope_sklearn(df, x_range,"log_exp_gr_factor")
 
     # Number of months to extend
     extend = len(exdates)
@@ -163,7 +152,7 @@ def do_levitt(df, what_to_display):
         #fig1y = plt.figure()
         fig1yz, ax = subplots()
         ax3 = ax.twinx()
-        ax.set_title('NL COVID-19 à la Levitt')
+        ax.set_title('Prediction of COVID-19 à la Levitt')
 
         x = ((df.index - Timestamp('2020-01-01')) # independent
             // Timedelta('1d')).values # small day-of-year integers
@@ -171,68 +160,54 @@ def do_levitt(df, what_to_display):
         yi2 = df["log_exp_gr_factor"].values
         ax.scatter(alldates, yi, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(alldates, yi2, color="#b300b3", s=1, label=what_to_display)
-
-
-
         st.write(f"m = {m} | b = {b} | r_sq = {r_sq}")
 
-        U    =(-1/m)/np.log(10)
-        st.write(f"U = {U} days")
+        U  =(-1/m)/np.log(10)
+        st.write(f"U = {U} days [ (-1/m)/log(10) ] ")
 
         jtdm = np.log10(np.exp(1/U)-1)
 
-        st.write(f"J(t) delta_max = {jtdm}")
+        st.write(f"J(t) delta_max = {jtdm} [ log(exp(1/U)-1)] ")
+
+        day = ( jtdm-b) / m
+        st.write(f"Top reached on day  {round(day)}")
 
         df["predicted_growth"] = np.nan
         #df["predicted_value"] = np.nan
         df["predicted_new_cases"] = np.nan
         df["cumm_cases_predicted"] = np.nan
-
         df['trendline'] = (df['rownumber'] *m +b)
-        print (len_total)
         df = df.reset_index()
 
 
-        print (len_original)
         df["cumm_cases_minus_background"] = df["total_cases"] - background_total_cases + df.iloc[0]["new_cases_smoothed"]
+        df["cumm_cases_minus_background"] = df["cumm_cases_minus_background"].rolling(7).mean()
 
+        # we make the trendline
         for i in range(len_total):
             df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
             df.loc[i, "real_growth"] =    df.iloc[i]["cumm_cases_minus_background"] / df.iloc[i-1]["cumm_cases_minus_background"]
 
 
+        # we transfer the last known total cases to the column predicted cases
         df.loc[len_original-1, "cumm_cases_predicted"] =  df.iloc[len_original-1]["cumm_cases_minus_background"]
+
+        # we make the predictions
         df.loc[len_original, "cumm_cases_predicted"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["cumm_cases_predicted"]
-
-        st.write(f" df.iloc[len_original-1][minus_background_cumm]  { df.iloc[len_original-1]['minus_background_cumm']}")
-        st.write(df.iloc[len_original]["predicted_growth"])
-
-
-        st.write(df.loc[len_original, "cumm_cases_predicted"])
 
         for i in range(len_original, len_total):
             df.loc[i, "cumm_cases_predicted"] = df.iloc[i-1]["cumm_cases_predicted"] * df.iloc[i]["predicted_growth"]
             df.loc[i, "predicted_new_cases"] = df.iloc[i]["cumm_cases_predicted"] - df.iloc[i-1]["cumm_cases_predicted"]
 
-        df["predicted_new_cases"] = df["predicted_new_cases"]
         df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
         df = df.set_index("index")
         ax3.scatter(alldates, df["trendline"], color="#b30000", s=1, label=what_to_display)
-
         ax.scatter(alldates, df["predicted_new_cases"].values, color="#0000b3", s=1, label="predicted new cases")
         df_= df[["date", what_to_display, "cumm_cases_minus_background", "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"predicted_new_cases" ,"cumm_cases_predicted"]]
         df_as_str = df_.astype(str)
         st.write(df_as_str)
 
-
-
-        label_ = (f"{what_to_display} fit")
-
-
-
         ax.set_xlim(df.index[0], lastday)
-        #ax.set_yscale('log') # semilog
-        #ax.set_ylim(0, 1500000)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
         ax.legend(loc="upper left")
@@ -243,10 +218,10 @@ def do_levitt(df, what_to_display):
 
 
     with _lock:
-        #fig1y = plt.figure()
+
         fig1yza, ax = subplots()
         ax3 = ax.twinx()
-        ax.set_title('NL COVID-19 à la Levitt')
+        ax.set_title('Cummulative cases and growth COVID-19 à la Levitt')
 
         x = ((df.index - Timestamp('2020-01-01')) # independent
             // Timedelta('1d')).values # small day-of-year integers
@@ -260,12 +235,6 @@ def do_levitt(df, what_to_display):
         ax3.scatter(alldates,  df["real_growth"].values, color="#b300b3", s=1, label="real growth")
         ax3.scatter(alldates,  df["predicted_growth"].values, color="#b3bbb3", s=1, label="predicted growth")
 
-        st.write(f" df.iloc[len_original-1][minus_background_cumm]  { df.iloc[len_original-1]['minus_background_cumm']}")
-        st.write(df.iloc[len_original]["predicted_growth"])
-
-        df_= df[["date", what_to_display, "cumm_cases_minus_background", "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"predicted_new_cases" ,"cumm_cases_predicted"]]
-
-
         ax.set_xlim(df.index[0], lastday)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
@@ -277,6 +246,14 @@ def do_levitt(df, what_to_display):
 
 
 def add_column_levit(df, what_to_display):
+    """Add column with G(t)
+    Args:
+        df ([type]): [description]
+        what_to_display ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     print (what_to_display)
 
     background_new_cases = df.iloc[0][what_to_display]
@@ -432,6 +409,11 @@ def main():
         st.stop()
     global BASEVALUE
 
+    # df["cases_double_smooth"] =( df.iloc[:, "new_cases_smoothed"]
+    #                 .rolling(window=7, center=True)
+    #                 .mean()
+    #             )
+
     df_to_use = select_period(df, FROM, UNTIL)
     df_to_use.fillna(value=0, inplace=True)
 
@@ -446,28 +428,8 @@ def main():
 
 
 
-    global a_start, b_start, c_start, default_values
-
-    default_values  = st.sidebar.selectbox("Default values", [True, False], index=0)
-    if default_values:
-
-        st.sidebar.write("Default values:") #  UK  New cases 15/5/21-10/6/21 2339.47 110.156 9.2619
-        a_start = st.sidebar.number_input('a',None,None,2339)
-        b_start = st.sidebar.number_input('b',None,None,110)
-        c_start = st.sidebar.number_input('c',None,None,9)
-    else:
-        a_start, b_start, c_start = 0,0,0
 
 
-    global a_,b_,c_, compare_to
-
-    compare_to  = st.sidebar.selectbox("Make comparison (in lmfit-plot)", [True, False], index=1)
-    if compare_to:
-
-        st.sidebar.write("Compare to:")
-        a_ = st.sidebar.number_input('a',None,None,27003.56909)
-        b_ = st.sidebar.number_input('b',None,None,9.0)
-        c_ = st.sidebar.number_input('c',None,None,0.032)
 
 
 
