@@ -31,6 +31,7 @@ from matplotlib.backends.backend_agg import RendererAgg
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
+from scipy import stats
 
 
 from sklearn.linear_model import LinearRegression
@@ -52,7 +53,7 @@ def select_period(df, show_from, show_until):
 
 
 
-def find_slope_sklearn(df_temp, x, what_to_show_r):
+def find_slope_sklearn(x_,y_):
     """Find slope of regression line - DOESNT WORK
 
     Args:
@@ -63,9 +64,13 @@ def find_slope_sklearn(df_temp, x, what_to_show_r):
     Returns:
         [type]: [description]
     """
-    x = x.reshape((-1, 1))
-    y = np.array(df_temp[what_to_show_r])
+    x = np.reshape(x_, (-1, 1))
+    y = np.reshape(y_, (-1, 1))
+    #x = x.reshape((-1, 1))
+    #y = y.reshape((-1, 1))
+    # st.write(x)
 
+    # st.write(y)
 
     #obtain m (slope) and b(intercept) of linear regression line
 
@@ -76,6 +81,11 @@ def find_slope_sklearn(df_temp, x, what_to_show_r):
     r_sq = model.score(x, y)
     return m,b,r_sq
 
+def find_slope_scipy(x_,y_):
+
+    m, b, r_value, p_value, std_err = stats.linregress(x_, y_)
+    r_sq = r_value**2
+    return m,b,r_sq
 def straight_line(x,m,b):
     return x*m+b
 
@@ -115,14 +125,19 @@ def do_levitt(df, what_to_display):
     r_sq_opt = 0
 
     optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=0)
+
+    #x_values = list(range(2, len(df)+1))
+    x_values = list(range(0,len(df)+1))
+    y_values = df["log_exp_gr_factor"].to_list()
     if optimim == True:
         # we search for the optimal value for how many days at the end we take to draw the trendline
-        for i in range (int(len(df)*.5),len(df)+1): # we start a bit later, because the first values have an R_sq = 1
-            how_much = len(df) - i+1
-            x_range = np.arange(len(df) - i+1, len(df)+1)
+        for i in range (2,10): # we start a bit later, because the first values have an R_sq = 1
+
+            x = x_values[-i:]
+            y = y_values[-i:]
 
             df_ = df.tail(i)
-            m_,b_,r_sq_ = find_slope_sklearn(df_, x_range,"log_exp_gr_factor")
+            m_,b_,r_sq_ = find_slope_scipy(x,y)
             if r_sq_ > r_sq_opt:
                 m,b,r_sq,i_opt = m_,b_,r_sq_, i
                 r_sq_opt = r_sq
@@ -203,6 +218,7 @@ def do_levitt(df, what_to_display):
         df = df.set_index("index")
         ax3.scatter(alldates, df["trendline"], color="#b30000", s=1, label=what_to_display)
         ax.scatter(alldates, df["predicted_new_cases"].values, color="#0000b3", s=1, label="predicted new cases")
+
         df_= df[["date", what_to_display, "cumm_cases_minus_background", "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"predicted_new_cases" ,"cumm_cases_predicted"]]
         df_as_str = df_.astype(str)
         st.write(df_as_str)
