@@ -89,7 +89,7 @@ def find_slope_scipy(x_,y_):
 def straight_line(x,m,b):
     return x*m+b
 
-def do_levitt(df, what_to_display):
+def do_levitt(df, what_to_display, df_complete):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
     # G(T)=N/e=0.37N.
@@ -160,8 +160,22 @@ def do_levitt(df, what_to_display):
     )
     df['rownumber'] = np.arange(len(df))
     alldates = date_range(df.index[0], df.index[-1])
-    # Display
-    print (df)
+
+    # df_complete["new_cases_smoothed_original"] = df_complete["new_cases_smoothed"]
+    # df_complete["date_original"] = df_complete["date"]
+    # df_complete = df_complete[["date_original", "new_cases_smoothed_original"]]
+    # df__complete_as_str = df_complete.astype(str)
+    # st.write(df__complete_as_str)
+
+    # df = pd.merge(
+    #     df,
+    #     df_complete,
+    #     how="inner",
+    #     left_on="date",
+    #     right_on="date_original",
+    #     #left_index=True,
+    # )
+
 
     with _lock:
         #fig1y = plt.figure()
@@ -460,7 +474,7 @@ def main():
 
     st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
 
-    do_levitt(df_to_use, what_to_display)
+    do_levitt(df_to_use, what_to_display,df)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
