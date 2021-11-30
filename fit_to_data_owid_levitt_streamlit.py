@@ -175,14 +175,14 @@ def do_levitt(df, what_to_display):
         yi2 = df["log_exp_gr_factor"].values
         ax.scatter(alldates, yi, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(alldates, yi2, color="#b300b3", s=1, label=what_to_display)
-        st.write(f"m = {m} | b = {b} | r_sq = {r_sq}")
+        st.write(f"m = {round(m,2)} | b = {round(b,2)} | r_sq = {round(r_sq,2)}")
 
         U  =(-1/m)/np.log(10)
         st.write(f"U = {U} days [ (-1/m)/log(10) ] ")
 
         jtdm = np.log10(np.exp(1/U)-1)
 
-        st.write(f"J(t) delta_max = {jtdm} [ log(exp(1/U)-1)] ")
+        st.write(f"J(t) delta_max = {round(jtdm,2)} [ log(exp(1/U)-1)] ")
 
         day = ( jtdm-b) / m
         st.write(f"Top reached on day  {round(day)}")
