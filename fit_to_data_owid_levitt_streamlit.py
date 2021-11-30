@@ -185,8 +185,8 @@ def do_levitt(df, what_to_display):
         st.write(f"J(t) delta_max = {round(jtdm,2)} [ log(exp(1/U)-1)] ")
 
         day = ( jtdm-b) / m
-        topday = df.index[-1] + Timedelta(day, 'd') # extrapolate
-        st.write(f"Top reached on day  {round(day)} ({topday})")
+        topday = df.index[0] + Timedelta(day, 'd') # extrapolate
+        st.write(f"Top reached on day  {round(day)} ({topday.date()})")
 
         df["predicted_growth"] = np.nan
         #df["predicted_value"] = np.nan
