@@ -24,6 +24,7 @@ from datetime import datetime
 import platform
 
 from pandas import read_csv, Timestamp, Timedelta, date_range
+import matplotlib.pyplot as plt
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
@@ -89,7 +90,7 @@ def find_slope_scipy(x_,y_):
 def straight_line(x,m,b):
     return x*m+b
 
-def do_levitt(df, what_to_display):
+def do_levitt(df_complete, df, what_to_display):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
     # G(T)=N/e=0.37N.
@@ -111,17 +112,17 @@ def do_levitt(df, what_to_display):
     lastday = df.index[-1] + Timedelta(TOTAL_DAYS_IN_GRAPH - len(df), 'd') # extrapolate
 
     #yd = df['Deceased_cumm'].values # dependent
-    exrange = range((Timestamp(nextday)
-        - Timestamp(firstday)) // Timedelta('1d'),
-        (Timestamp(lastday) + Timedelta('1d')
-        - Timestamp(firstday)) // Timedelta('1d')) # day-of-year ints
+    # exrange = range((Timestamp(nextday)
+    #     - Timestamp(firstday)) // Timedelta('1d'),
+    #     (Timestamp(lastday) + Timedelta('1d')
+    #     - Timestamp(firstday)) // Timedelta('1d')) # day-of-year ints
     indates = date_range(df.index[0], df.index[-1])
     exdates = date_range(nextday, lastday)
     alldates = date_range(df.index[0], df.index[-1])
     len_original = len(indates)
     len_total = int(TOTAL_DAYS_IN_GRAPH)
 
-    t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
+    # t = np.linspace(0.0, TOTAL_DAYS_IN_GRAPH, 10000)
     r_sq_opt = 0
 
     optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=0)
@@ -161,72 +162,95 @@ def do_levitt(df, what_to_display):
     df['rownumber'] = np.arange(len(df))
     alldates = date_range(df.index[0], df.index[-1])
     # Display
-    print (df)
+
+
+    x = ((df.index - Timestamp('2020-01-01')) # independent
+        // Timedelta('1d')).values # small day-of-year integers
+    yi = df[what_to_display].values # dependent
+    yi2 = df["log_exp_gr_factor"].values
+    st.write(f"m = {m} | b = {b} | r_sq = {r_sq}")
+
+    U  =(-1/m)/np.log(10)
+    st.write(f"U = {U} days [ (-1/m)/log(10) ] ")
+
+    jtdm = np.log10(np.exp(1/U)-1)
+
+    st.write(f"J(t) at predicted peak  = {round(jtdm,2)} [ log(exp(1/U)-1)] ")
+
+    day = ( jtdm-b) / m
+    lastday_ = df.index[0] + Timedelta(day, 'd')
+    #lastday_ = pd.to_datetime(lastday_, format="%Y-%m-%d")
+    lastday = lastday_.date()
+    st.write(f"Top reached on day  {round(day)}  ({lastday})")
+
+    df["predicted_growth"] = np.nan
+    #df["predicted_value"] = np.nan
+    df["predicted_new_cases"] = np.nan
+    df["cumm_cases_predicted"] = np.nan
+    df['trendline'] = (df['rownumber'] *m +b)
+    df = df.reset_index()
+
+
+    df["cumm_cases_minus_background"] = df["total_cases"] - background_total_cases + df.iloc[0]["new_cases_smoothed"]
+    df["cumm_cases_minus_background"] = df["cumm_cases_minus_background"].rolling(7).mean()
+
+    # we make the trendline
+    for i in range(len_total):
+        df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
+        df.loc[i, "real_growth"] =    df.iloc[i]["cumm_cases_minus_background"] / df.iloc[i-1]["cumm_cases_minus_background"]
+
+
+    # we transfer the last known total cases to the column predicted cases
+    df.loc[len_original-1, "cumm_cases_predicted"] =  df.iloc[len_original-1]["cumm_cases_minus_background"]
+
+    # we make the predictions
+    df.loc[len_original, "cumm_cases_predicted"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["cumm_cases_predicted"]
+
+    for i in range(len_original, len_total):
+        df.loc[i, "cumm_cases_predicted"] = df.iloc[i-1]["cumm_cases_predicted"] * df.iloc[i]["predicted_growth"]
+        df.loc[i, "predicted_new_cases"] = df.iloc[i]["cumm_cases_predicted"] - df.iloc[i-1]["cumm_cases_predicted"]
+
+    df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
+    df = df.set_index("index")
+    df_= df[["date", what_to_display, "cumm_cases_minus_background", "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"predicted_new_cases" ,"cumm_cases_predicted"]]
+    df_as_str = df_.astype(str)
+    st.write(df_as_str)
+
+    # df = pd.merge(
+    #     df,
+    #     df_complete,
+    #     how="inner",
+    #     left_on="date",
+    #     right_on="date",
+    #     #left_index=True,
+    # )
+
+
 
     with _lock:
         #fig1y = plt.figure()
-        fig1yz, ax = subplots()
+        fig1yz = plt.figure()
+        ax = fig1yz.add_subplot(111)
         ax3 = ax.twinx()
         ax.set_title('Prediction of COVID-19 à la Levitt')
+        ax.scatter(alldates, yi, color="red", s=1, label=what_to_display)
+        ax.scatter(alldates, df["predicted_new_cases"].values, color="purple", s=1, label="predicted new cases")
 
-        x = ((df.index - Timestamp('2020-01-01')) # independent
-            // Timedelta('1d')).values # small day-of-year integers
-        yi = df[what_to_display].values # dependent
-        yi2 = df["log_exp_gr_factor"].values
-        ax.scatter(alldates, yi, color="#00b3b3", s=1, label=what_to_display)
-        ax3.scatter(alldates, yi2, color="#b300b3", s=1, label=what_to_display)
-        st.write(f"m = {m} | b = {b} | r_sq = {r_sq}")
-
-        U  =(-1/m)/np.log(10)
-        st.write(f"U = {U} days [ (-1/m)/log(10) ] ")
-
-        jtdm = np.log10(np.exp(1/U)-1)
-
-        st.write(f"J(t) delta_max = {jtdm} [ log(exp(1/U)-1)] ")
-
-        day = ( jtdm-b) / m
-        st.write(f"Top reached on day  {round(day)}")
-
-        df["predicted_growth"] = np.nan
-        #df["predicted_value"] = np.nan
-        df["predicted_new_cases"] = np.nan
-        df["cumm_cases_predicted"] = np.nan
-        df['trendline'] = (df['rownumber'] *m +b)
-        df = df.reset_index()
-
-
-        df["cumm_cases_minus_background"] = df["total_cases"] - background_total_cases + df.iloc[0]["new_cases_smoothed"]
-        df["cumm_cases_minus_background"] = df["cumm_cases_minus_background"].rolling(7).mean()
-
-        # we make the trendline
-        for i in range(len_total):
-            df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
-            df.loc[i, "real_growth"] =    df.iloc[i]["cumm_cases_minus_background"] / df.iloc[i-1]["cumm_cases_minus_background"]
-
-
-        # we transfer the last known total cases to the column predicted cases
-        df.loc[len_original-1, "cumm_cases_predicted"] =  df.iloc[len_original-1]["cumm_cases_minus_background"]
-
-        # we make the predictions
-        df.loc[len_original, "cumm_cases_predicted"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["cumm_cases_predicted"]
-
-        for i in range(len_original, len_total):
-            df.loc[i, "cumm_cases_predicted"] = df.iloc[i-1]["cumm_cases_predicted"] * df.iloc[i]["predicted_growth"]
-            df.loc[i, "predicted_new_cases"] = df.iloc[i]["cumm_cases_predicted"] - df.iloc[i-1]["cumm_cases_predicted"]
-
-        df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
-        df = df.set_index("index")
-        ax3.scatter(alldates, df["trendline"], color="#b30000", s=1, label=what_to_display)
-        ax.scatter(alldates, df["predicted_new_cases"].values, color="#0000b3", s=1, label="predicted new cases")
-
-        df_= df[["date", what_to_display, "cumm_cases_minus_background", "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"predicted_new_cases" ,"cumm_cases_predicted"]]
-        df_as_str = df_.astype(str)
-        st.write(df_as_str)
-
+        ax3.scatter(alldates, yi2, color="blue", s=1, label="log exp growth factor")
+        ax3.scatter(alldates, df["trendline"], color="cyan", s=1, label="log exp growth factor - trendline")
         ax.set_xlim(df.index[0], lastday)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
-        ax.legend(loc="upper left")
+
+        handles, labels = [], []
+        for ax in fig1yz.axes:
+            for h, l in zip(*ax.get_legend_handles_labels()):
+                handles.append(h)
+                labels.append(l)
+        # plt.legend(handles,labels)
+        # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
+        plt.legend(handles, labels)
+
         ax.xaxis.set_major_formatter(ConciseDateFormatter(AutoDateLocator(), show_offset=False))
 
         st.pyplot(fig1yz)
@@ -235,7 +259,8 @@ def do_levitt(df, what_to_display):
 
     with _lock:
 
-        fig1yza, ax = subplots()
+        fig1yza = plt.figure()
+        ax = fig1yza.add_subplot(111)
         ax3 = ax.twinx()
         ax.set_title('Cummulative cases and growth COVID-19 à la Levitt')
 
@@ -254,7 +279,15 @@ def do_levitt(df, what_to_display):
         ax.set_xlim(df.index[0], lastday)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
-        ax.legend(loc="upper left")
+        handles, labels = [], []
+        for ax in fig1yza.axes:
+            for h, l in zip(*ax.get_legend_handles_labels()):
+                handles.append(h)
+                labels.append(l)
+        # plt.legend(handles,labels)
+        # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
+        plt.legend(handles, labels)
+
         ax.xaxis.set_major_formatter(ConciseDateFormatter(AutoDateLocator(), show_offset=False))
 
         st.pyplot(fig1yza)
@@ -275,7 +308,7 @@ def add_column_levit(df, what_to_display):
     background_new_cases = df.iloc[0][what_to_display]
     background_total_cases = df.iloc[0]["total_cases"]
 
-    st.write (f"Background new cases {background_new_cases}")
+    #st.write (f"Background new cases {background_new_cases}")
     df["minus_background"] = df[what_to_display] - background_new_cases
     df["what_to_display_cumm"] = df[what_to_display].cumsum()
 
@@ -444,7 +477,7 @@ def main():
 
 
 
-
+    df_complete = df[["date", what_to_display]]
 
 
 
@@ -459,7 +492,7 @@ def main():
 
     st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
 
-    do_levitt(df_to_use, what_to_display)
+    do_levitt(df_complete, df_to_use, what_to_display)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
