@@ -66,13 +66,6 @@ def find_slope_sklearn(x_,y_):
     """
     x = np.reshape(x_, (-1, 1))
     y = np.reshape(y_, (-1, 1))
-    #x = x.reshape((-1, 1))
-    #y = y.reshape((-1, 1))
-    # st.write(x)
-
-    # st.write(y)
-
-    #obtain m (slope) and b(intercept) of linear regression line
 
     model = LinearRegression()
     model.fit(x, y)
@@ -89,7 +82,7 @@ def find_slope_scipy(x_,y_):
 def straight_line(x,m,b):
     return x*m+b
 
-def do_levitt(df, what_to_display, df_complete):
+def do_levitt(df, what_to_display, df_complete, show_from):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
     # G(T)=N/e=0.37N.
@@ -160,83 +153,96 @@ def do_levitt(df, what_to_display, df_complete):
     )
     df['rownumber'] = np.arange(len(df))
     alldates = date_range(df.index[0], df.index[-1])
+    #st.write (f"LENGTE DF {len(df)}")
 
-    # df_complete["new_cases_smoothed_original"] = df_complete["new_cases_smoothed"]
-    # df_complete["date_original"] = df_complete["date"]
-    # df_complete = df_complete[["date_original", "new_cases_smoothed_original"]]
-    # df__complete_as_str = df_complete.astype(str)
+    df_complete["new_cases_smoothed_original"] = df_complete["new_cases_smoothed"]
+    df_complete["date_original"] = df_complete["date"]
+    df_complete = df_complete[["date_original", "new_cases_smoothed_original"]]
+    mask = (df_complete["date_original"].dt.date >= show_from)
+    df_complete = df_complete.loc[mask]
+    df__complete_as_str = df_complete.astype(str)
     # st.write(df__complete_as_str)
+    # st.write(len(df_complete))
+    df = df.reset_index()
+    df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
+    df = pd.merge(
+        df,
+        df_complete,
+        how="outer",
+        left_on="date",
+        right_on="date_original",
+        #left_index=True,
+    )
 
-    # df = pd.merge(
-    #     df,
-    #     df_complete,
-    #     how="inner",
-    #     left_on="date",
-    #     right_on="date_original",
-    #     #left_index=True,
-    # )
+    df = df.set_index("date")
+    df_as_str = df.astype(str)
+    #st.write(df_as_str)
+
+    x = ((df.index - Timestamp('2020-01-01')) # independent
+        // Timedelta('1d')).values # small day-of-year integers
+
+    st.write(f"m = {round(m,2)} | b = {round(b,2)} | r_sq = {round(r_sq,2)}")
+
+    U  =(-1/m)/np.log(10)
+    st.write(f"U = {round(U,1)} days [ (-1/m)/log(10) ] ")
+
+    jtdm = np.log10(np.exp(1/U)-1)
+
+    st.write(f"J(t) delta_max = {round(jtdm,2)} [ log(exp(1/U)-1)] ")
+
+    day = ( jtdm-b) / m
+    topday = df.index[0] + Timedelta(day, 'd') # extrapolate
+    st.write(f"Top reached on day  {round(day)} ({topday.date()})")
+
+    df["predicted_growth"] = np.nan
+    #df["predicted_value"] = np.nan
+    df["predicted_new_cases"] = np.nan
+    df["cumm_cases_predicted"] = np.nan
+    df['trendline'] = (df['rownumber'] *m +b)
+    df = df.reset_index()
+
+
+    df["cumm_cases_minus_background"] = df["total_cases"] - background_total_cases + df.iloc[0]["new_cases_smoothed"]
+    df["cumm_cases_minus_background"] = df["cumm_cases_minus_background"].rolling(7).mean()
+
+    # we make the trendline
+    for i in range(len_total):
+        df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
+        df.loc[i, "real_growth"] =    df.iloc[i]["cumm_cases_minus_background"] / df.iloc[i-1]["cumm_cases_minus_background"]
+
+
+    # we transfer the last known total cases to the column predicted cases
+    df.loc[len_original-1, "cumm_cases_predicted"] =  df.iloc[len_original-1]["cumm_cases_minus_background"]
+
+    # we make the predictions
+    df.loc[len_original, "cumm_cases_predicted"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["cumm_cases_predicted"]
+
+    for i in range(len_original, len_total):
+        df.loc[i, "cumm_cases_predicted"] = df.iloc[i-1]["cumm_cases_predicted"] * df.iloc[i]["predicted_growth"]
+        df.loc[i, "predicted_new_cases"] = df.iloc[i]["cumm_cases_predicted"] - df.iloc[i-1]["cumm_cases_predicted"]
+
+    df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
+    df = df.set_index("index")
+    df_= df[["date", what_to_display, "cumm_cases_minus_background", "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"predicted_new_cases" ,"cumm_cases_predicted", "new_cases_smoothed_original"]]
+    # df_as_str = df_.astype(str)
+    # st.write(df_as_str)
+
+    df["new_cases_smoothed_original_cumm"] = df["new_cases_smoothed_original"].cumsum()
 
 
     with _lock:
         #fig1y = plt.figure()
+
+
         fig1yz, ax = subplots()
         ax3 = ax.twinx()
         ax.set_title('Prediction of COVID-19 à la Levitt')
-
-        x = ((df.index - Timestamp('2020-01-01')) # independent
-            // Timedelta('1d')).values # small day-of-year integers
-        yi = df[what_to_display].values # dependent
-        yi2 = df["log_exp_gr_factor"].values
-        ax.scatter(alldates, yi, color="#00b3b3", s=1, label=what_to_display)
-        ax3.scatter(alldates, yi2, color="#b300b3", s=1, label=what_to_display)
-        st.write(f"m = {round(m,2)} | b = {round(b,2)} | r_sq = {round(r_sq,2)}")
-
-        U  =(-1/m)/np.log(10)
-        st.write(f"U = {round(U,1)} days [ (-1/m)/log(10) ] ")
-
-        jtdm = np.log10(np.exp(1/U)-1)
-
-        st.write(f"J(t) delta_max = {round(jtdm,2)} [ log(exp(1/U)-1)] ")
-
-        day = ( jtdm-b) / m
-        topday = df.index[0] + Timedelta(day, 'd') # extrapolate
-        st.write(f"Top reached on day  {round(day)} ({topday.date()})")
-
-        df["predicted_growth"] = np.nan
-        #df["predicted_value"] = np.nan
-        df["predicted_new_cases"] = np.nan
-        df["cumm_cases_predicted"] = np.nan
-        df['trendline'] = (df['rownumber'] *m +b)
-        df = df.reset_index()
-
-
-        df["cumm_cases_minus_background"] = df["total_cases"] - background_total_cases + df.iloc[0]["new_cases_smoothed"]
-        df["cumm_cases_minus_background"] = df["cumm_cases_minus_background"].rolling(7).mean()
-
-        # we make the trendline
-        for i in range(len_total):
-            df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
-            df.loc[i, "real_growth"] =    df.iloc[i]["cumm_cases_minus_background"] / df.iloc[i-1]["cumm_cases_minus_background"]
-
-
-        # we transfer the last known total cases to the column predicted cases
-        df.loc[len_original-1, "cumm_cases_predicted"] =  df.iloc[len_original-1]["cumm_cases_minus_background"]
-
-        # we make the predictions
-        df.loc[len_original, "cumm_cases_predicted"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["cumm_cases_predicted"]
-
-        for i in range(len_original, len_total):
-            df.loc[i, "cumm_cases_predicted"] = df.iloc[i-1]["cumm_cases_predicted"] * df.iloc[i]["predicted_growth"]
-            df.loc[i, "predicted_new_cases"] = df.iloc[i]["cumm_cases_predicted"] - df.iloc[i-1]["cumm_cases_predicted"]
-
-        df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
-        df = df.set_index("index")
-        ax3.scatter(alldates, df["trendline"], color="#b30000", s=1, label=what_to_display)
+        # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
+        ax3.scatter(alldates, df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
+        ax3.scatter(alldates, df["trendline"], color="#b30000", s=1, label="J(t) predicted")
         ax.scatter(alldates, df["predicted_new_cases"].values, color="#0000b3", s=1, label="predicted new cases")
+        ax.scatter(alldates, df["new_cases_smoothed_original"].values, color="green", s=1, label="reality new cases")
 
-        df_= df[["date", what_to_display, "cumm_cases_minus_background", "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"predicted_new_cases" ,"cumm_cases_predicted"]]
-        df_as_str = df_.astype(str)
-        st.write(df_as_str)
 
         ax.set_xlim(df.index[0], lastday)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
@@ -247,25 +253,16 @@ def do_levitt(df, what_to_display, df_complete):
         st.pyplot(fig1yz)
 
 
-
     with _lock:
 
         fig1yza, ax = subplots()
         ax3 = ax.twinx()
         ax.set_title('Cummulative cases and growth COVID-19 à la Levitt')
-
-        x = ((df.index - Timestamp('2020-01-01')) # independent
-            // Timedelta('1d')).values # small day-of-year integers
-        yi = df["cumm_cases_predicted"].values # dependent
-        y2 = df["minus_background_cumm"].values # dependent
-
-        yi2 = df["log_exp_gr_factor"].values
-        ax.scatter(alldates, yi, color="#00b3b3", s=1, label="cumm_cases_predicted")
-        ax.scatter(alldates, y2, color="#00c3c3", s=1, label="minus_background_cum")
+        ax.scatter(alldates, df["new_cases_smoothed_original_cumm"].values, color="green", s=1, label="reality cumm cases")
+        ax.scatter(alldates,  df["cumm_cases_predicted"].values , color="#00b3b3", s=1, label="predicted cumm cases")
 
         ax3.scatter(alldates,  df["real_growth"].values, color="#b300b3", s=1, label="real growth")
         ax3.scatter(alldates,  df["predicted_growth"].values, color="#b3bbb3", s=1, label="predicted growth")
-
         ax.set_xlim(df.index[0], lastday)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
@@ -285,7 +282,7 @@ def add_column_levit(df, what_to_display):
     Returns:
         [type]: [description]
     """
-    print (what_to_display)
+
 
     background_new_cases = df.iloc[0][what_to_display]
     background_total_cases = df.iloc[0]["total_cases"]
@@ -341,7 +338,8 @@ def add_column_levit(df, what_to_display):
 @st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
 def getdata():
     if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\owid-covid-data_NL.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
+
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
 
@@ -474,7 +472,7 @@ def main():
 
     st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
 
-    do_levitt(df_to_use, what_to_display,df)
+    do_levitt(df_to_use, what_to_display,df, FROM)
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
