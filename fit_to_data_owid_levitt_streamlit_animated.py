@@ -530,12 +530,12 @@ def sidebar_input(df):
     countrylist =  df['location'].drop_duplicates().sort_values().tolist()
 
     global country_
-    if platform.processor() == "":
-        country_ = st.sidebar.selectbox("Which country",countrylist, country_default)
-        df = df.loc[df['location'] == country_]
-    else:
-        country_ = st.sidebar.selectbox("Which country",countrylist, 0)
-        df = df.loc[df['location'] == country_]
+    # if platform.processor() == "":
+    country_ = st.sidebar.selectbox("Which country",countrylist, country_default)
+    df = df.loc[df['location'] == country_]
+    # else:
+    #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
+    #     df = df.loc[df['location'] == country_]
 
     df = df[["date", "new_cases_smoothed"]]
     global TOTAL_DAYS_IN_GRAPH
