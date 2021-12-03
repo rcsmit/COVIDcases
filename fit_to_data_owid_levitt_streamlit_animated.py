@@ -370,8 +370,8 @@ def getdata():
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
 
     else:
-        url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
-
+        #url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+        url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
     return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
