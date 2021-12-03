@@ -262,7 +262,7 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
         ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
         
-        ax.scatter(df["date"] , df[""new_cases_smoothed_original""].values, color="orange", s=1, label="reality new cases")
+        ax.scatter(df["date"] , df["new_cases_smoothed_original"].values, color="orange", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
 
