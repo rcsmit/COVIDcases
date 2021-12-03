@@ -531,7 +531,10 @@ def sidebar_input(df):
 
     global country_
     # if platform.processor() == "":
-    country_ = st.sidebar.selectbox("Which country",countrylist, country_default)
+    try:
+        country_ = st.sidebar.selectbox("Which country",countrylist, country_default)
+    except:
+        country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     df = df.loc[df['location'] == country_]
     # else:
     #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
