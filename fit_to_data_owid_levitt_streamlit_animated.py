@@ -270,8 +270,9 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
         # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
         ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
-        ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
+
+        ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
 
 
         ax.set_xlim(df.index[0], df.index[-1])
@@ -455,6 +456,7 @@ def main():
 
     st.sidebar.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
 
+
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
@@ -464,7 +466,8 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-
+    df_as_str = df.astype(str)
+    st.write(df_as_str)
 
 def select_default_options():
     options = [["NL maart 2020", "2020-3-1", "2020-5-1", 149],
@@ -519,10 +522,11 @@ def sidebar_input(df):
     lijst = df.columns.tolist()
 
     del lijst[0:4]
-    what_to_display = st.sidebar.selectbox(
-            "What to display", lijst,
-            index=what_default,
-        )
+    # what_to_display = st.sidebar.selectbox(
+    #         "What to display", lijst,
+    #         index=what_default,
+    #     )
+    what_to_display=what_default
     countrylist =  df['location'].drop_duplicates().sort_values().tolist()
 
     global country_
