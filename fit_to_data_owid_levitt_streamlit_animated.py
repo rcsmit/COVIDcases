@@ -454,7 +454,7 @@ def main():
 
         filename = do_levitt(df_to_use, what_to_display,df, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
 
-    st.sidebar.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
+    st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
 
 
     tekst = (
@@ -466,8 +466,8 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    df_as_str = df.astype(str)
-    st.write(df_as_str)
+    df_to_use_as_str = df_to_use.astype(str)
+    st.write(df_to_use_as_str)
 
 def select_default_options():
     options = [["NL maart 2020", "2020-3-1", "2020-5-1", 149],
@@ -537,6 +537,7 @@ def sidebar_input(df):
         country_ = st.sidebar.selectbox("Which country",countrylist, 0)
         df = df.loc[df['location'] == country_]
 
+    df = df[["date", "new_cases_smoothed"]]
     global TOTAL_DAYS_IN_GRAPH
 
     extra_days_in_graph = st.sidebar.number_input('Extra days to show',None,None,30)
