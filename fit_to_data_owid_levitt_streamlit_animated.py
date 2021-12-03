@@ -170,7 +170,7 @@ def give_info(df, m, b, r_sq, i_opt):
     st.write(f"Top reached on day  {round(day)} ({topday.date()})")
     st.write(f"Optimal R SQ if I = {i_opt}")
 
-def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animation,i,  showlogyaxis):
+def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animation,i, total, showlogyaxis):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
     # G(T)=N/e=0.37N.
@@ -206,7 +206,7 @@ def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animati
 
     placeholder  = st.empty()
 
-    filename = make_graph_delta(df, make_animation,i, showlogyaxis)
+    filename = make_graph_delta(df, make_animation,i, total, showlogyaxis)
     if make_animation == False:
         give_info(df, m, b, r_sq, i_opt)
         make_graph_cumm(df)
@@ -235,13 +235,13 @@ def make_calculations(df, m, b, len_original, len_total):
     # we make the predictions
     df.loc[len_original, "new_cases_smoothed_predicted_cumm"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["new_cases_smoothed_predicted_cumm"]
 
-    for i in range(len_original+1, len_total):
+    for i in range(len_original, len_total):
         df.loc[i, "new_cases_smoothed_predicted_cumm"] = df.iloc[i-1]["new_cases_smoothed_predicted_cumm"] * df.iloc[i]["predicted_growth"]
         df.loc[i, "new_cases_smoothed_predicted"] = df.iloc[i]["new_cases_smoothed_predicted_cumm"] - df.iloc[i-1]["new_cases_smoothed_predicted_cumm"]
 
     df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
     df = df.set_index("index")
-    df_= df[["date", "new_cases_smoothed",  "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"new_cases_smoothed_predicted" ,"new_cases_smoothed_predicted_cumm", "new_cases_smoothed"]]
+    # df_= df[["date", "new_cases_smoothed",  "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"new_cases_smoothed_predicted" ,"new_cases_smoothed_predicted_cumm", "new_cases_smoothed"]]
     # df_as_str = df_.astype(str)
     # st.write(df_as_str)
 
@@ -249,13 +249,13 @@ def make_calculations(df, m, b, len_original, len_total):
     return df
 
 
-def make_graph_delta(df, animated,i, showlogyaxis):
+def make_graph_delta(df, animated,i, total, showlogyaxis):
     with _lock:
         #fig1y = plt.figure()
 
         fig1yz, ax = subplots()
         ax3 = ax.twinx()
-        ax.set_title(f'Prediction of COVID-19 à la Levitt ({i})')
+        ax.set_title(f'Prediction of COVID-19 à la Levitt ({i}/{total})')
         # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
         ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
@@ -267,13 +267,13 @@ def make_graph_delta(df, animated,i, showlogyaxis):
 
         if showlogyaxis == "10":
             ax.semilogy()
-            ax.set_ylim(0, 100_000)
+            ax.set_ylim(1, 100_000)
         elif showlogyaxis == "2":
             ax.semilogy(2)
-            ax.set_ylim(0, 100_000)
+            ax.set_ylim(1, 100_000)
         elif showlogyaxis == "logit":
             ax.set_yscale("logit")
-            ax.set_ylim(0, 100_000)
+            ax.set_ylim(1, 100_000)
         else:
             ax.set_ylim(0, 25_000)
 
@@ -482,12 +482,12 @@ def main():
                 # print (df_to_use)
                 df_to_use.fillna(value=0, inplace=True)
 
-                filename = do_levitt(df_to_use, what_to_display,df, FROM, optimim, make_animation,i, showlogyaxis)
+                filename = do_levitt(df_to_use, what_to_display,df, FROM, optimim, make_animation,i, datediff+1,showlogyaxis)
 
                 filenames.append(filename)
 
             # build gif
-            print (filenames)
+
             with imageio.get_writer('mygif.gif', mode='I') as writer:
                 for filename_ in filenames:
                     image = imageio.imread(f"{filename_}.png")
@@ -498,7 +498,8 @@ def main():
 
                     )
 
-            placeholder1.markdown(tekst, unsafe_allow_html=True)
+            #placeholder1.markdown(tekst, unsafe_allow_html=True)
+            placeholder1.image("mygif.gif",caption=f"Image",use_column_width= True)
 
 
 
