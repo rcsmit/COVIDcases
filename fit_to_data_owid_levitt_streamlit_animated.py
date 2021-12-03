@@ -460,7 +460,7 @@ def main():
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
         'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/fit_to_data_owid_levitt_streamlit_animated.py" target="_blank">github.com/rcsmit</a><br>'
         'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
-       </div>'
+       '</div>'
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
@@ -478,7 +478,7 @@ def select_default_options():
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
-    menu_choice = st.sidebar.radio("",menuchoicelist, index=4)
+    menu_choice = st.sidebar.radio("",menuchoicelist, index=5)
 
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
