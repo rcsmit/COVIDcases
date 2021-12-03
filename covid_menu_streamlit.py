@@ -56,7 +56,7 @@ def main():
             ["27. VE & CI calculations", "VE_CI_calculations"],
             ["28. VE scenario calculator", "VE_scenario_calculator"],
             ["29. VE vs inv. odds", "VE_vs_inv_odds"],
-            ["30. Fit to data Levitt", "fit_to_data_owid_levitt_streamlit"]
+            ["30. Fit to data Levitt", "fit_to_data_owid_levitt_streamlit_animated"]
 
             ]
 
