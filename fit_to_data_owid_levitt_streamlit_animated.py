@@ -224,6 +224,7 @@ def make_calculations(df, m, b, len_original, len_total):
     return df
 
 def make_graph_delta(df, animated,i, total, showlogyaxis, title):
+    print (df)
     with _lock:
         #fig1y = plt.figure()
         fig1yz, ax = subplots()
