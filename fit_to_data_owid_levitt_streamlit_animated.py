@@ -492,7 +492,7 @@ def sidebar_input(df):
     #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     #     df = df.loc[df['location'] == country_]
 
-    df = df[["date", "new_cases_smoothed"]]
+    #df = df[["date", "new_cases_smoothed"]]
     global TOTAL_DAYS_IN_GRAPH
 
     extra_days_in_graph = st.sidebar.number_input('Extra days to show',None,None,30)
