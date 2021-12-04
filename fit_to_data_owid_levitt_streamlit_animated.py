@@ -248,6 +248,7 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
             ax.set_ylim(1, 100_000)
         else:
             #ax.set_ylim(0, 25_000)
+            pass
 
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
