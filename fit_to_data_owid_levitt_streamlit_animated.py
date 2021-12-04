@@ -428,7 +428,7 @@ def select_default_options():
     ]
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
-    menu_choice = st.sidebar.radio("",menuchoicelist, index=5)
+    menu_choice = st.sidebar.radio("",menuchoicelist, index=6)
 
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
