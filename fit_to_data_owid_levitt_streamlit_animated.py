@@ -455,7 +455,7 @@ def select_default_options():
             until__ = options[n][2]
             country__ = options[n][3]
 
-    return title, start__, until__, country
+    return title, start__, until__, country_default
 
 def sidebar_input(df):
     title_, start__, until__, country_default  = select_default_options()
@@ -497,7 +497,7 @@ def sidebar_input(df):
     global country_
     # if platform.processor() == "":
     try:
-        country_ = st.sidebar.selectbox("Which country",countrylist, index = country__)
+        country_ = st.sidebar.selectbox("Which country",countrylist, index = country_default)
     except:
         country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     df = df.loc[df['location'] == country_]
