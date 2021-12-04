@@ -157,7 +157,7 @@ def give_info(df, m, b, r_sq, i_opt):
     st.write(f"Top reached on day  {round(day)} ({topday.date()})")
     st.write(f"Optimal R SQ if I = {i_opt}")
 
-def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animation,i, total, showlogyaxis, title):
+def do_levitt(df, what_to_display, df_comlete_one_country, show_from, optimim, make_animation,i, total, showlogyaxis, title):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
     # G(T)=N/e=0.37N.
@@ -187,7 +187,7 @@ def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animati
 
     # Number of months to extend
 
-    df = extrapolate(df, df_complete, show_from, extend)
+    df = extrapolate(df, df_comlete_one_country, show_from, extend)
     df = make_calculations(df,m,b, len_original, len_total)
     placeholder  = st.empty()
 
@@ -367,7 +367,7 @@ def main():
         "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\levitt2021"
     )
 
-    df_complete, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title = sidebar_input(df)
+    df_comlete_one_country, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title = sidebar_input(df)
 
     global placeholder1
     placeholder1  = st.empty()
@@ -377,11 +377,11 @@ def main():
             filenames = []
             for i in range(10, datediff+1):
                 print (f"DOING {i} of {datediff}")
-                until_loop =  df_complete.index[-1] +  i #Timedelta(i , 'd')
-                df_to_use = select_period(df_complete, FROM, UNTIL)
+                until_loop =  df_comlete_one_country.index[-1] +  i #Timedelta(i , 'd')
+                df_to_use = select_period(df_comlete_one_country, FROM, UNTIL)
                 df_to_use = df_to_use[:i]
                 df_to_use.fillna(value=0, inplace=True)
-                filename = do_levitt(df_to_use, what_to_display,df_complete, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
+                filename = do_levitt(df_to_use, what_to_display,df_comlete_one_country, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
                 filenames.append(filename)
 
             # build gif
@@ -484,9 +484,6 @@ def sidebar_input(df):
     except:
         country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     df = df.loc[df['location'] == country_]
-    print ("486")
-    print (df)
-
     #df = df.loc[df['location'] == "Netherlands"]
     
     # else:
@@ -517,8 +514,8 @@ def sidebar_input(df):
         make_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=0)
         # st.sidebar.write ("Animation disabled")
         # make_animation =
-    df_= df.copy()
-    return df_,FROM,UNTIL,what_to_display,datediff,showlogyaxis,optimim,make_animation, title
+    df_comlete_one_country= df.copy()
+    return df_comlete_one_country,FROM,UNTIL,what_to_display,datediff,showlogyaxis,optimim,make_animation, title
 
 
 if __name__ == "__main__":
