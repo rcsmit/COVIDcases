@@ -414,8 +414,8 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    df_to_use_as_str = df_to_use.astype(str)
-    st.write(df_to_use_as_str)
+    df_as_str = df.astype(str)
+    st.write(df_as_str)
 
 def select_default_options():
     options = [["NL maart 2020", "2020-3-1", "2020-5-1", 149],
