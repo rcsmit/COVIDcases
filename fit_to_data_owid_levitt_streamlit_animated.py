@@ -29,7 +29,6 @@ import webbrowser
 
 from sklearn.linear_model import LinearRegression
 
-
 global  placeholder
 
 def select_period(df, show_from, show_until):
@@ -151,7 +150,6 @@ def extrapolate(df, df_complete, show_from, extend):
 
     return df
 
-
 def give_info(df, m, b, r_sq, i_opt):
     x = ((df.index - Timestamp('2020-01-01')) # independent
         // Timedelta('1d')).values # small day-of-year integers
@@ -213,7 +211,6 @@ def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animati
         make_graph_cumm(df)
     return filename
 
-
 def make_calculations(df, m, b, len_original, len_total):
     df["predicted_growth"] = np.nan
     #df["predicted_value"] = np.nan
@@ -222,13 +219,10 @@ def make_calculations(df, m, b, len_original, len_total):
     df['trendline'] = (df['rownumber'] *m +b)
     df = df.reset_index()
 
-
-
     # we make the trendline
     for i in range(len_total):
         df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
         df.loc[i, "real_growth"] =    df.iloc[i]["new_cases_smoothed_cumm"] / df.iloc[i-1]["new_cases_smoothed_cumm"]
-
 
     # we transfer the last known total cases to the column predicted cases
     df.loc[len_original-1, "new_cases_smoothed_predicted_cumm"] =  df.iloc[len_original-1]["new_cases_smoothed_cumm"]
@@ -242,11 +236,6 @@ def make_calculations(df, m, b, len_original, len_total):
 
     df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
     df = df.set_index("index")
-    # df_= df[["date", "new_cases_smoothed",  "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"new_cases_smoothed_predicted" ,"new_cases_smoothed_predicted_cumm", "new_cases_smoothed"]]
-    # df_as_str = df_.astype(str)
-    # st.write(df_as_str)
-
-
     return df
 
 
@@ -311,8 +300,6 @@ def make_graph_cumm(df):
 
         st.pyplot(fig1yza)
 
-
-
 def add_column_levit(df, what_to_display):
     """Add column with G(t)
 
@@ -370,8 +357,8 @@ def getdata():
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
 
     else:
-        #url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
-        url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
+        url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+        #url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
     return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
@@ -409,18 +396,13 @@ def main():
             for i in range(10, datediff+1):
                 print (f"DOING {i} of {datediff}")
                 until_loop =  df.index[-1] +  i #Timedelta(i , 'd')
-
                 df_to_use = select_period(df, FROM, UNTIL)
                 df_to_use = df_to_use[:i]
-
                 df_to_use.fillna(value=0, inplace=True)
-
                 filename = do_levitt(df_to_use, what_to_display,df_complete, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
-
                 filenames.append(filename)
 
             # build gif
-
             with imageio.get_writer('mygif.gif', mode='I') as writer:
                 for filename_ in filenames:
                     image = imageio.imread(f"{filename_}.png")
@@ -439,11 +421,8 @@ def main():
     else:
         df_to_use = select_period(df, FROM, UNTIL)
         df_to_use.fillna(value=0, inplace=True)
-
         filename = do_levitt(df_to_use, what_to_display,df, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
-
     st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
-
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
@@ -458,17 +437,15 @@ def main():
     st.write(df_to_use_as_str)
 
 def select_default_options():
-    options = [["NL maart 2020", "2020-3-1", "2020-5-1", "Netherlands"],
-                ["NL okt 2020", "2020-9-1", "2020-11-22", "Netherlands"],
-                ["NL dec 2020", "2020-11-22", "2021-2-10", "Netherlands"],
-                ["NL march 2021", "2021-2-10", "2021-6-28", "Netherlands"],
-                ["NL july 2021", "2021-6-28", "2021-9-2", "Netherlands"],
-                ["NL okt 2021", "2021-10-1", "2021-12-31", "Netherlands"],
-
+    options = [["NL maart 2020", "2020-3-1", "2020-5-1", 149],
+                ["NL okt 2020", "2020-9-1", "2020-11-22", 149],
+                ["NL dec 2020", "2020-11-22", "2021-2-10", 149],
+                ["NL march 2021", "2021-2-10", "2021-6-28", 149],
+                ["NL july 2021", "2021-6-28", "2021-9-2", 149],
+                ["NL okt 2021", "2021-10-1", "2021-12-31", 149],
     ]
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
-
     menu_choice = st.sidebar.radio("",menuchoicelist, index=5)
 
     for n, l in enumerate(options):
@@ -476,7 +453,7 @@ def select_default_options():
             title = options[n][0]
             start__ = options[n][1]
             until__ = options[n][2]
-            country = options[n][3]
+            country__ = options[n][3]
 
     return title, start__, until__, country
 
@@ -519,12 +496,12 @@ def sidebar_input(df):
 
     global country_
     # if platform.processor() == "":
-    # try:
-    #     country_ = st.sidebar.selectbox("Which country",countrylist, 149)
-    # except:
-    #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
-    # df = df.loc[df['location'] == country_]
-    df = df.loc[df['location'] == "Netherlands"]
+    try:
+        country_ = st.sidebar.selectbox("Which country",countrylist, index = country__)
+    except:
+        country_ = st.sidebar.selectbox("Which country",countrylist, 0)
+    df = df.loc[df['location'] == country_]
+    #df = df.loc[df['location'] == "Netherlands"]
     
     # else:
     #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
@@ -546,7 +523,6 @@ def sidebar_input(df):
     global BASEVALUE
 
     showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10", "logit"], index=0)
-
     optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=0)
 
     if platform.processor() != "":
