@@ -516,7 +516,7 @@ def sidebar_input(df):
         make_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=0)
         # st.sidebar.write ("Animation disabled")
         # make_animation =
-    df_= df.copy(deep=False)
+    df_= df.copy()
     return df_,FROM,UNTIL,what_to_display,datediff,showlogyaxis,optimim,make_animation, title
 
 
