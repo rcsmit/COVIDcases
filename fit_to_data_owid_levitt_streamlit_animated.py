@@ -455,7 +455,7 @@ def select_default_options():
             until__ = options[n][2]
             country__ = options[n][3]
 
-    return title, start__, until__, country_default
+    return title, start__, until__, country__
 
 def sidebar_input(df):
     title_, start__, until__, country_default  = select_default_options()
