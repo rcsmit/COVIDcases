@@ -247,8 +247,8 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
             ax.set_yscale("logit")
             ax.set_ylim(1, 100_000)
         else:
-            #ax.set_ylim(0, 25_000)
-            pass
+            ax.set_ylim(0, 1_000)
+            #pass
 
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
@@ -424,6 +424,7 @@ def select_default_options():
                 ["NL march 2021", "2021-2-10", "2021-6-28", 149],
                 ["NL july 2021", "2021-6-28", "2021-9-2", 149],
                 ["NL okt 2021", "2021-10-1", "2021-12-31", 149],
+                ["NL test", "2021-10-1", "2021-10-20", 149],
     ]
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
