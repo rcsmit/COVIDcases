@@ -376,8 +376,8 @@ def main():
             filenames = []
             for i in range(10, datediff+1):
                 print (f"DOING {i} of {datediff}")
-                until_loop =  df.index[-1] +  i #Timedelta(i , 'd')
-                df_to_use = select_period(df, FROM, UNTIL)
+                until_loop =  df_complete.index[-1] +  i #Timedelta(i , 'd')
+                df_to_use = select_period(df_complete, FROM, UNTIL)
                 df_to_use = df_to_use[:i]
                 df_to_use.fillna(value=0, inplace=True)
                 filename = do_levitt(df_to_use, what_to_display,df_complete, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
@@ -400,7 +400,7 @@ def main():
             # for filename__ in set(filenames):
             #     os.remove(f"{filename__}.png")
     else:
-        df_to_use = select_period(df, FROM, UNTIL)
+        df_to_use = select_period(df_complete, FROM, UNTIL)
         df_to_use.fillna(value=0, inplace=True)
         filename = do_levitt(df_to_use, what_to_display,df, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
     st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
@@ -414,7 +414,7 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    df_as_str = df.astype(str)
+    df_as_str = df_complete.astype(str)
     st.write(df_as_str)
 
 def select_default_options():
