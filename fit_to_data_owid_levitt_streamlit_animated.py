@@ -41,9 +41,7 @@ def select_period(df, show_from, show_until):
 
     mask = (df[DATEFIELD].dt.date >= show_from) & (df[DATEFIELD].dt.date <= show_until)
     df = df.loc[mask]
-
     df = df.reset_index()
-
     return df
 
 
@@ -70,7 +68,6 @@ def find_slope_sklearn(x_,y_):
     return m,b,r_sq
 
 def find_slope_scipy(x_,y_):
-
     m, b, r_value, p_value, std_err = stats.linregress(x_, y_)
     r_sq = r_value**2
     return m,b,r_sq
@@ -100,9 +97,6 @@ def find_trendline(df, optimim):
 
 def extrapolate(df, df_complete, show_from, extend):
     """Extrapolate df to number of dates.
-
-    Args:
-        df ([type]): [description]
     """
     # Extrapolate the index first based on original index
 
@@ -145,7 +139,7 @@ def extrapolate(df, df_complete, show_from, extend):
     )
 
     df = df.set_index("date")
-    df_as_str = df.astype(str)
+    #df_as_str = df.astype(str)
     #st.write(df_as_str)
 
     return df
@@ -153,16 +147,11 @@ def extrapolate(df, df_complete, show_from, extend):
 def give_info(df, m, b, r_sq, i_opt):
     x = ((df.index - Timestamp('2020-01-01')) # independent
         // Timedelta('1d')).values # small day-of-year integers
-
     st.write(f"m = {round(m,2)} | b = {round(b,2)} | r_sq = {round(r_sq,2)}")
-
     U  =(-1/m)/np.log(10)
     st.write(f"U = {round(U,1)} days [ (-1/m)/log(10) ] ")
-
     jtdm = np.log10(np.exp(1/U)-1)
-
     st.write(f"J(t) delta_max = {round(jtdm,2)} [ log(exp(1/U)-1)] ")
-
     day = ( jtdm-b) / m
     topday = df.index[0] + Timedelta(day, 'd') # extrapolate
     st.write(f"Top reached on day  {round(day)} ({topday.date()})")
@@ -199,10 +188,7 @@ def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animati
     # Number of months to extend
 
     df = extrapolate(df, df_complete, show_from, extend)
-
-
     df = make_calculations(df,m,b, len_original, len_total)
-
     placeholder  = st.empty()
 
     filename = make_graph_delta(df, make_animation,i, total, showlogyaxis, title)
@@ -233,28 +219,22 @@ def make_calculations(df, m, b, len_original, len_total):
     for i in range(len_original, len_total):
         df.loc[i, "new_cases_smoothed_predicted_cumm"] = df.iloc[i-1]["new_cases_smoothed_predicted_cumm"] * df.iloc[i]["predicted_growth"]
         df.loc[i, "new_cases_smoothed_predicted"] = df.iloc[i]["new_cases_smoothed_predicted_cumm"] - df.iloc[i-1]["new_cases_smoothed_predicted_cumm"]
-
     df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
     df = df.set_index("index")
     return df
 
-
 def make_graph_delta(df, animated,i, total, showlogyaxis, title):
     with _lock:
         #fig1y = plt.figure()
-
         fig1yz, ax = subplots()
         ax3 = ax.twinx()
         ax.set_title(f'Prediction of COVID-19 à la Levitt - {title} - ({i}/{total})')
         # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
-        ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
-        
+        ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")  
         ax.scatter(df["date"] , df["new_cases_smoothed_original"].values, color="orange", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
-
-
         ax.set_xlim(df.index[0], df.index[-1])
 
         if showlogyaxis == "10":
@@ -267,7 +247,7 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
             ax.set_yscale("logit")
             ax.set_ylim(1, 100_000)
         else:
-            ax.set_ylim(0, 25_000)
+            #ax.set_ylim(0, 25_000)
 
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
