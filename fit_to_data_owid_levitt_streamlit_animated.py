@@ -6,6 +6,7 @@
 import numpy as np
 
 import matplotlib.dates as mdates
+
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -29,6 +30,7 @@ import webbrowser
 
 from sklearn.linear_model import LinearRegression
 
+
 global  placeholder
 
 def select_period(df, show_from, show_until):
@@ -41,7 +43,9 @@ def select_period(df, show_from, show_until):
 
     mask = (df[DATEFIELD].dt.date >= show_from) & (df[DATEFIELD].dt.date <= show_until)
     df = df.loc[mask]
+
     df = df.reset_index()
+
     return df
 
 
@@ -68,6 +72,7 @@ def find_slope_sklearn(x_,y_):
     return m,b,r_sq
 
 def find_slope_scipy(x_,y_):
+
     m, b, r_value, p_value, std_err = stats.linregress(x_, y_)
     r_sq = r_value**2
     return m,b,r_sq
@@ -97,6 +102,9 @@ def find_trendline(df, optimim):
 
 def extrapolate(df, df_complete, show_from, extend):
     """Extrapolate df to number of dates.
+
+    Args:
+        df ([type]): [description]
     """
     # Extrapolate the index first based on original index
 
@@ -139,25 +147,31 @@ def extrapolate(df, df_complete, show_from, extend):
     )
 
     df = df.set_index("date")
-    #df_as_str = df.astype(str)
+    df_as_str = df.astype(str)
     #st.write(df_as_str)
 
     return df
 
+
 def give_info(df, m, b, r_sq, i_opt):
     x = ((df.index - Timestamp('2020-01-01')) # independent
         // Timedelta('1d')).values # small day-of-year integers
+
     st.write(f"m = {round(m,2)} | b = {round(b,2)} | r_sq = {round(r_sq,2)}")
+
     U  =(-1/m)/np.log(10)
     st.write(f"U = {round(U,1)} days [ (-1/m)/log(10) ] ")
+
     jtdm = np.log10(np.exp(1/U)-1)
+
     st.write(f"J(t) delta_max = {round(jtdm,2)} [ log(exp(1/U)-1)] ")
+
     day = ( jtdm-b) / m
     topday = df.index[0] + Timedelta(day, 'd') # extrapolate
     st.write(f"Top reached on day  {round(day)} ({topday.date()})")
     st.write(f"Optimal R SQ if I = {i_opt}")
 
-def do_levitt(df, what_to_display, df_comlete_one_country, show_from, optimim, make_animation,i, total, showlogyaxis, title):
+def do_levitt(df, what_to_display, df_complete, show_from, optimim, make_animation,i, total, showlogyaxis, title):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
     # G(T)=N/e=0.37N.
@@ -187,8 +201,11 @@ def do_levitt(df, what_to_display, df_comlete_one_country, show_from, optimim, m
 
     # Number of months to extend
 
-    df = extrapolate(df, df_comlete_one_country, show_from, extend)
+    df = extrapolate(df, df_complete, show_from, extend)
+
+
     df = make_calculations(df,m,b, len_original, len_total)
+
     placeholder  = st.empty()
 
     filename = make_graph_delta(df, make_animation,i, total, showlogyaxis, title)
@@ -196,6 +213,7 @@ def do_levitt(df, what_to_display, df_comlete_one_country, show_from, optimim, m
         give_info(df, m, b, r_sq, i_opt)
         make_graph_cumm(df)
     return filename
+
 
 def make_calculations(df, m, b, len_original, len_total):
     df["predicted_growth"] = np.nan
@@ -205,10 +223,13 @@ def make_calculations(df, m, b, len_original, len_total):
     df['trendline'] = (df['rownumber'] *m +b)
     df = df.reset_index()
 
+
+
     # we make the trendline
     for i in range(len_total):
         df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
         df.loc[i, "real_growth"] =    df.iloc[i]["new_cases_smoothed_cumm"] / df.iloc[i-1]["new_cases_smoothed_cumm"]
+
 
     # we transfer the last known total cases to the column predicted cases
     df.loc[len_original-1, "new_cases_smoothed_predicted_cumm"] =  df.iloc[len_original-1]["new_cases_smoothed_cumm"]
@@ -219,23 +240,33 @@ def make_calculations(df, m, b, len_original, len_total):
     for i in range(len_original, len_total):
         df.loc[i, "new_cases_smoothed_predicted_cumm"] = df.iloc[i-1]["new_cases_smoothed_predicted_cumm"] * df.iloc[i]["predicted_growth"]
         df.loc[i, "new_cases_smoothed_predicted"] = df.iloc[i]["new_cases_smoothed_predicted_cumm"] - df.iloc[i-1]["new_cases_smoothed_predicted_cumm"]
+
     df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
     df = df.set_index("index")
+    # df_= df[["date", "new_cases_smoothed",  "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"new_cases_smoothed_predicted" ,"new_cases_smoothed_predicted_cumm", "new_cases_smoothed"]]
+    # df_as_str = df_.astype(str)
+    # st.write(df_as_str)
+
+
     return df
 
+
 def make_graph_delta(df, animated,i, total, showlogyaxis, title):
-    print (df)
     with _lock:
         #fig1y = plt.figure()
+
         fig1yz, ax = subplots()
         ax3 = ax.twinx()
         ax.set_title(f'Prediction of COVID-19 à la Levitt - {title} - ({i}/{total})')
         # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
-        ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")  
+        ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
+        
         ax.scatter(df["date"] , df["new_cases_smoothed_original"].values, color="orange", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
+
+
         ax.set_xlim(df.index[0], df.index[-1])
 
         if showlogyaxis == "10":
@@ -248,8 +279,7 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
             ax.set_yscale("logit")
             ax.set_ylim(1, 100_000)
         else:
-            ax.set_ylim(0, 1_000)
-            #pass
+            ax.set_ylim(0, 25_000)
 
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
@@ -281,6 +311,8 @@ def make_graph_cumm(df):
         ax.xaxis.set_major_formatter(ConciseDateFormatter(AutoDateLocator(), show_offset=False))
 
         st.pyplot(fig1yza)
+
+
 
 def add_column_levit(df, what_to_display):
     """Add column with G(t)
@@ -339,8 +371,8 @@ def getdata():
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
 
     else:
-        url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
-        #url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
+        #url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+        url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
     return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
@@ -367,7 +399,7 @@ def main():
         "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\levitt2021"
     )
 
-    df_comlete_one_country, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title = sidebar_input(df)
+    df_complete, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title = sidebar_input(df)
 
     global placeholder1
     placeholder1  = st.empty()
@@ -377,14 +409,19 @@ def main():
             filenames = []
             for i in range(10, datediff+1):
                 print (f"DOING {i} of {datediff}")
-                until_loop =  df_comlete_one_country.index[-1] +  i #Timedelta(i , 'd')
-                df_to_use = select_period(df_comlete_one_country, FROM, UNTIL)
+                until_loop =  df.index[-1] +  i #Timedelta(i , 'd')
+
+                df_to_use = select_period(df, FROM, UNTIL)
                 df_to_use = df_to_use[:i]
+
                 df_to_use.fillna(value=0, inplace=True)
-                filename = do_levitt(df_to_use, what_to_display,df_comlete_one_country, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
+
+                filename = do_levitt(df_to_use, what_to_display,df_complete, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
+
                 filenames.append(filename)
 
             # build gif
+
             with imageio.get_writer('mygif.gif', mode='I') as writer:
                 for filename_ in filenames:
                     image = imageio.imread(f"{filename_}.png")
@@ -401,10 +438,13 @@ def main():
             # for filename__ in set(filenames):
             #     os.remove(f"{filename__}.png")
     else:
-        df_to_use = select_period(df_complete, FROM, UNTIL)
+        df_to_use = select_period(df, FROM, UNTIL)
         df_to_use.fillna(value=0, inplace=True)
+
         filename = do_levitt(df_to_use, what_to_display,df, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title)
+
     st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
+
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
@@ -415,30 +455,31 @@ def main():
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
-    df_as_str = df_complete.astype(str)
-    st.write(df_as_str)
+    df_to_use_as_str = df_to_use.astype(str)
+    st.write(df_to_use_as_str)
 
 def select_default_options():
-    options = [["NL maart 2020", "2020-3-1", "2020-5-1", 149],
-                ["NL okt 2020", "2020-9-1", "2020-11-22", 149],
-                ["NL dec 2020", "2020-11-22", "2021-2-10", 149],
-                ["NL march 2021", "2021-2-10", "2021-6-28", 149],
-                ["NL july 2021", "2021-6-28", "2021-9-2", 149],
-                ["NL okt 2021", "2021-10-1", "2021-12-31", 149],
-                ["NL test", "2021-10-1", "2021-10-20", 149],
+    options = [["NL maart 2020", "2020-3-1", "2020-5-1", "Netherlands"],
+                ["NL okt 2020", "2020-9-1", "2020-11-22", "Netherlands"],
+                ["NL dec 2020", "2020-11-22", "2021-2-10", "Netherlands"],
+                ["NL march 2021", "2021-2-10", "2021-6-28", "Netherlands"],
+                ["NL july 2021", "2021-6-28", "2021-9-2", "Netherlands"],
+                ["NL okt 2021", "2021-10-1", "2021-12-31", "Netherlands"],
+
     ]
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
-    menu_choice = st.sidebar.radio("",menuchoicelist, index=6)
+
+    menu_choice = st.sidebar.radio("",menuchoicelist, index=5)
 
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
             title = options[n][0]
             start__ = options[n][1]
             until__ = options[n][2]
-            country__ = options[n][3]
+            country = options[n][3]
 
-    return title, start__, until__, country__
+    return title, start__, until__, country
 
 def sidebar_input(df):
     title_, start__, until__, country_default  = select_default_options()
@@ -479,18 +520,18 @@ def sidebar_input(df):
 
     global country_
     # if platform.processor() == "":
-    try:
-        country_ = st.sidebar.selectbox("Which country",countrylist, index = country_default)
-    except:
-        country_ = st.sidebar.selectbox("Which country",countrylist, 0)
-    df = df.loc[df['location'] == country_]
-    #df = df.loc[df['location'] == "Netherlands"]
+    # try:
+    #     country_ = st.sidebar.selectbox("Which country",countrylist, 149)
+    # except:
+    #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
+    # df = df.loc[df['location'] == country_]
+    df = df.loc[df['location'] == "Netherlands"]
     
     # else:
     #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     #     df = df.loc[df['location'] == country_]
 
-    #df = df[["date", "new_cases_smoothed"]]
+    df = df[["date", "new_cases_smoothed"]]
     global TOTAL_DAYS_IN_GRAPH
 
     extra_days_in_graph = st.sidebar.number_input('Extra days to show',None,None,30)
@@ -506,6 +547,7 @@ def sidebar_input(df):
     global BASEVALUE
 
     showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10", "logit"], index=0)
+
     optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=0)
 
     if platform.processor() != "":
@@ -514,8 +556,8 @@ def sidebar_input(df):
         make_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=0)
         # st.sidebar.write ("Animation disabled")
         # make_animation =
-    df_comlete_one_country= df.copy()
-    return df_comlete_one_country,FROM,UNTIL,what_to_display,datediff,showlogyaxis,optimim,make_animation, title
+
+    return df,FROM,UNTIL,what_to_display,datediff,showlogyaxis,optimim,make_animation, title
 
 
 if __name__ == "__main__":
