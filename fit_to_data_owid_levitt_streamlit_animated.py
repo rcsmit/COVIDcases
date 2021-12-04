@@ -428,7 +428,7 @@ def select_default_options():
     ]
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
-    menu_choice = st.sidebar.radio("",menuchoicelist, index=6)
+    menu_choice = st.sidebar.radio("",menuchoicelist, index=5)
 
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
@@ -483,6 +483,8 @@ def sidebar_input(df):
     except:
         country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     df = df.loc[df['location'] == country_]
+    print ("486")
+    print (df)
     #df = df.loc[df['location'] == "Netherlands"]
     
     # else:
