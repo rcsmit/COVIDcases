@@ -192,9 +192,9 @@ def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make
 
     Returns:
         [type]: [description]
-    """  
-  
-  
+    """
+
+
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
     # https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677
     # G(T)=N/e=0.37N.
@@ -238,7 +238,7 @@ def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make
     filename = make_graph_delta(df, make_animation,i, total, showlogyaxis, title)
 
     if make_animation == False or show_cumm==True:
-        
+
         give_info(df, m, b, r_sq, i_opt)
         make_graph_cumm(df)
     return filename
@@ -313,7 +313,7 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
         ax.set_ylabel("Cases (#)")
         ax3.set_ylabel("J(t)")
         ax.set_xlabel("Date")
-        
+
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}')) # comma separators
         ax.grid()
         ax.legend(loc="upper left")
@@ -553,22 +553,22 @@ def sidebar_input(df):
     what_to_display=what_default
     countrylist =  df['location'].drop_duplicates().sort_values().tolist()
 
- 
+
     country_ = st.sidebar.selectbox("Which country",countrylist, 149)
     df = df.loc[df['location'] == country_]
     df = df[["date", "location", "new_cases_smoothed"]]
-  
+
 
     extra_days_in_graph = st.sidebar.number_input('Extra days to show',None,None,30)
     total_days_in_graph = datediff + extra_days_in_graph
- 
+
     if  datediff > total_days_in_graph:
         st.warning("Make sure that the number of total days is bigger than the date difference")
         st.stop()
     if  datediff < 10:
         st.warning("Make sure that the date difference is at least 4 days")
         st.stop()
-  
+
     showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10", "logit"], index=0)
     optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=0)
 
