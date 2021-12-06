@@ -1,15 +1,6 @@
 # FIT DATA TO A CURVE
 # René Smit - MIT Licence
 
-# inspired by @dimgrr. Based on
-# https://towardsdatascience.com/basic-curve-fitting-of-scientific-data-with-python-9592244a2509?gi=9c7c4ade0880
-# https://github.com/venkatesannaveen/python-science-tutorial/blob/master/curve-fitting/curve-fitting-tutorial.ipynb
-
-
-# https://www.reddit.com/r/CoronavirusUS/comments/fqx8fn/ive_been_working_on_this_extrapolation_for_the/
-# to explore : https://github.com/fcpenha/Gompertz-Makehan-Fit/blob/master/script.py
-
-
 # Import required packages
 
 import numpy as np
@@ -270,8 +261,9 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
         # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
         ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
-        ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
 
+        ax.scatter(df["date"] , df["new_cases_smoothed_original"].values, color="orange", s=1, label="reality new cases")
+        ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
 
 
@@ -379,8 +371,8 @@ def getdata():
         url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
 
     else:
-        url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
-
+        #url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+        url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
     return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
@@ -437,13 +429,10 @@ def main():
             webbrowser.open('mygif.gif')
             tekst = (
                     "<img src='mygif.gif'></img>"
-
                     )
 
             #placeholder1.markdown(tekst, unsafe_allow_html=True)
             placeholder1.image("mygif.gif",caption=f"Image",use_column_width= True)
-
-
 
             # Remove files
             # for filename__ in set(filenames):
@@ -470,12 +459,12 @@ def main():
     st.write(df_to_use_as_str)
 
 def select_default_options():
-    options = [["NL maart 2020", "2020-3-1", "2020-5-1", 149],
-                ["NL okt 2020", "2020-9-1", "2020-11-22", 149],
-                ["NL dec 2020", "2020-11-22", "2021-2-10", 149],
-                ["NL march 2021", "2021-2-10", "2021-6-28", 149],
-                ["NL july 2021", "2021-6-28", "2021-9-2", 149],
-                ["NL okt 2021", "2021-10-1", "2021-12-31", 149],
+    options = [["NL maart 2020", "2020-3-1", "2020-5-1", "Netherlands"],
+                ["NL okt 2020", "2020-9-1", "2020-11-22", "Netherlands"],
+                ["NL dec 2020", "2020-11-22", "2021-2-10", "Netherlands"],
+                ["NL march 2021", "2021-2-10", "2021-6-28", "Netherlands"],
+                ["NL july 2021", "2021-6-28", "2021-9-2", "Netherlands"],
+                ["NL okt 2021", "2021-10-1", "2021-12-31", "Netherlands"],
 
     ]
 
@@ -493,9 +482,9 @@ def select_default_options():
     return title, start__, until__, country
 
 def sidebar_input(df):
-    title, start__, until__, country_default  = select_default_options()
+    title_, start__, until__, country_default  = select_default_options()
     what_default = 2
-
+    title = st.sidebar.text_input("Title", title_)
     global from_
     from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start__)
 
@@ -531,11 +520,13 @@ def sidebar_input(df):
 
     global country_
     # if platform.processor() == "":
-    try:
-        country_ = st.sidebar.selectbox("Which country",countrylist, country_default)
-    except:
-        country_ = st.sidebar.selectbox("Which country",countrylist, 0)
-    df = df.loc[df['location'] == country_]
+    # try:
+    #     country_ = st.sidebar.selectbox("Which country",countrylist, 149)
+    # except:
+    #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
+    # df = df.loc[df['location'] == country_]
+    df = df.loc[df['location'] == "Netherlands"]
+
     # else:
     #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     #     df = df.loc[df['location'] == country_]
