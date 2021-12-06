@@ -261,7 +261,11 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
         # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
         ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 072154baaa2542bdd5538fce1cac4b38dc709648
         ax.scatter(df["date"] , df["new_cases_smoothed_original"].values, color="orange", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
         ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
@@ -526,7 +530,11 @@ def sidebar_input(df):
     #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     # df = df.loc[df['location'] == country_]
     df = df.loc[df['location'] == "Netherlands"]
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 072154baaa2542bdd5538fce1cac4b38dc709648
     # else:
     #     country_ = st.sidebar.selectbox("Which country",countrylist, 0)
     #     df = df.loc[df['location'] == country_]
