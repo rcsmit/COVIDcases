@@ -171,8 +171,28 @@ def give_info(df, m, b, r_sq, i_opt):
     st.write(f"Top reached on day  {round(day)} ({topday.date()})")
     st.write(f"Optimal R SQ if I = {i_opt}")
 
+
 def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make_animation,i, total, showlogyaxis, title, total_days_in_graph, show_cumm):
-  
+    """[summary]
+
+
+    Args:
+        df ([type]): [description]
+        what_to_display ([type]): [description]
+        df_complete_country ([type]): [description]
+        show_from ([type]): [description]
+        optimim ([type]): [description]
+        make_animation ([type]): [description]
+        i ([type]): [description]
+        total ([type]): [description]
+        showlogyaxis ([type]): [description]
+        title ([type]): [description]
+        total_days_in_graph ([type]): [description]
+        show_cumm ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """  
   
   
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4
@@ -218,6 +238,7 @@ def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make
     filename = make_graph_delta(df, make_animation,i, total, showlogyaxis, title)
 
     if make_animation == False or show_cumm==True:
+        
         give_info(df, m, b, r_sq, i_opt)
         make_graph_cumm(df)
     return filename
@@ -442,6 +463,13 @@ def main():
 
             #placeholder1.markdown(tekst, unsafe_allow_html=True)
             placeholder1.image("mygif.gif",caption=f"Image",use_column_width= True)
+            # with open("mygif.gif", "rb") as file:
+            #     btn = st.download_button(
+            #     label="Download image",
+            #     data=file,
+            #     file_name="mygif.gif",
+            #     mime="image/gif"
+            # )
 
             # Remove files
             # for filename__ in set(filenames):
