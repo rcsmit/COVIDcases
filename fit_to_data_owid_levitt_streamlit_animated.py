@@ -100,7 +100,7 @@ def find_trendline(df, optimim):
         i_opt = None
     return m,b,r_sq, i_opt
 
-def extrapolate(df, df_complete_country, show_from, extend, total_days_in_graph):
+def extrapolate(df, df_complete_country, show_from, extend, total_days_in_graph, what_to_display):
     """Extrapolate df to number of dates.
 
     Args:
@@ -122,9 +122,9 @@ def extrapolate(df, df_complete_country, show_from, extend, total_days_in_graph)
 
     #st.write (f"LENGTE DF {len(df)}")
     # OK 150 items
-    df_complete_country["new_cases_smoothed_original"] = df_complete_country["new_cases_smoothed"]
+    df_complete_country["what_to_display_original"] = df_complete_country[what_to_display]
     df_complete_country["date_original"] = df_complete_country["date"]
-    df_complete_country = df_complete_country[["date_original", "new_cases_smoothed_original"]]
+    df_complete_country = df_complete_country[["date_original", "what_to_display_original"]]
 
     mask = (df_complete_country["date_original"].dt.date >= show_from)
     df_complete_country = df_complete_country.loc[mask]
@@ -172,7 +172,7 @@ def give_info(df, m, b, r_sq, i_opt):
     st.write(f"Optimal R SQ if I = {i_opt}")
 
 
-def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make_animation,i, total, showlogyaxis, title, total_days_in_graph, show_cumm):
+def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make_animation,i, total, showlogyaxis, title, total_days_in_graph, show_cumm, y_limit):
     """[summary]
 
 
@@ -224,7 +224,7 @@ def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make
 
     # Number of months to extend
 
-    df = extrapolate(df, df_complete_country, show_from, extend, total_days_in_graph)
+    df = extrapolate(df, df_complete_country, show_from, extend, total_days_in_graph, what_to_display)
 
 
     df = make_calculations(df,m,b, len_original, len_total)
@@ -235,20 +235,22 @@ def do_levitt(df, what_to_display, df_complete_country, show_from, optimim, make
     # df_as_str = df.astype(str)
     # st.write(df_as_str)
 
-    filename = make_graph_delta(df, make_animation,i, total, showlogyaxis, title)
+    filename = make_graph_delta(df, make_animation,i, total, showlogyaxis, title, what_to_display, y_limit)
 
     if make_animation == False or show_cumm==True:
 
         give_info(df, m, b, r_sq, i_opt)
-        make_graph_cumm(df)
+        make_graph_cumm(df,what_to_display)
     return filename
 
 
 def make_calculations(df, m, b, len_original, len_total):
+
+
     df["predicted_growth"] = np.nan
     #df["predicted_value"] = np.nan
-    df["new_cases_smoothed_predicted"] = np.nan
-    df["new_cases_smoothed_predicted_cumm"] = np.nan
+    df["what_to_display_predicted"] = np.nan
+    df["what_to_display_predicted_cumm"] = np.nan
     df['trendline'] = (df['rownumber'] *m +b)
     df = df.reset_index()
 
@@ -257,28 +259,28 @@ def make_calculations(df, m, b, len_original, len_total):
     # we make the trendline
     for i in range(len_total):
         df.loc[i, "predicted_growth"] =    np.exp(10**df.iloc[i]["trendline"] )
-        df.loc[i, "real_growth"] =    df.iloc[i]["new_cases_smoothed_cumm"] / df.iloc[i-1]["new_cases_smoothed_cumm"]
+        df.loc[i, "real_growth"] =    df.iloc[i]["what_to_display_cumm"] / df.iloc[i-1]["what_to_display_cumm"]
 
 
     # we transfer the last known total cases to the column predicted cases
-    df.loc[len_original-1, "new_cases_smoothed_predicted_cumm"] =  df.iloc[len_original-1]["new_cases_smoothed_cumm"]
+    df.loc[len_original-1, "what_to_display_predicted_cumm"] =  df.iloc[len_original-1]["what_to_display_cumm"]
 
     # we make the predictions
-    df.loc[len_original, "new_cases_smoothed_predicted_cumm"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["new_cases_smoothed_predicted_cumm"]
+    df.loc[len_original, "what_to_display_predicted_cumm"] =  df.iloc[len_original]["predicted_growth"] * df.iloc[len_original-1]["what_to_display_predicted_cumm"]
 
     for i in range(len_original, len_total):
-        df.loc[i, "new_cases_smoothed_predicted_cumm"] = df.iloc[i-1]["new_cases_smoothed_predicted_cumm"] * df.iloc[i]["predicted_growth"]
-        df.loc[i, "new_cases_smoothed_predicted"] = df.iloc[i]["new_cases_smoothed_predicted_cumm"] - df.iloc[i-1]["new_cases_smoothed_predicted_cumm"]
+        df.loc[i, "what_to_display_predicted_cumm"] = df.iloc[i-1]["what_to_display_predicted_cumm"] * df.iloc[i]["predicted_growth"]
+        df.loc[i, "what_to_display_predicted"] = df.iloc[i]["what_to_display_predicted_cumm"] - df.iloc[i-1]["what_to_display_predicted_cumm"]
 
     df["date"] = pd.to_datetime(df["index"], format="%Y-%m-%d")
     df = df.set_index("index")
-    # df_= df[["date", "new_cases_smoothed",  "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"new_cases_smoothed_predicted" ,"new_cases_smoothed_predicted_cumm", "new_cases_smoothed"]]
+    # df_= df[["date", "new_cases_smoothed",  "log_exp_gr_factor", 'trendline',"real_growth", "predicted_growth" ,"what_to_display_predicted" ,"what_to_display_predicted_cumm", "new_cases_smoothed"]]
     # df_as_str = df_.astype(str)
     # st.write(df_as_str)
     return df
 
 
-def make_graph_delta(df, animated,i, total, showlogyaxis, title):
+def make_graph_delta(df, animated,i, total, showlogyaxis, title, what_to_display, y_limit):
 
     # st.write("line 258")
     # df_as_str = df.astype(str)
@@ -292,9 +294,9 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
         # ax.scatter(alldates, df[what_to_display].values, color="#00b3b3", s=1, label=what_to_display)
         ax3.scatter(df["date"] , df["log_exp_gr_factor"].values, color="#b300b3", s=1, label="J(t) reality")
         ax3.scatter(df["date"] , df["trendline"], color="#b30000", s=1, label="J(t) predicted")
-        ax.scatter(df["date"] , df["new_cases_smoothed_original"].values, color="orange", s=1, label="reality new cases")
-        ax.scatter(df["date"] , df["new_cases_smoothed"].values, color="green", s=1, label="reality new cases")
-        ax.scatter(df["date"] , df["new_cases_smoothed_predicted"].values, color="#0000b3", s=1, label="predicted new cases")
+        ax.scatter(df["date"] , df["what_to_display_original"].values, color="orange", s=1, label=f"reality { what_to_display}")
+        ax.scatter(df["date"] , df[what_to_display].values, color="green", s=1, label=f"reality { what_to_display}")
+        ax.scatter(df["date"] , df["what_to_display_predicted"].values, color="#0000b3", s=1, label=f"predicted { what_to_display}")
 
 
         ax.set_xlim(df.index[0], df.index[-1])
@@ -309,8 +311,8 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
             ax.set_yscale("logit")
             ax.set_ylim(1, 100_000)
         else:
-            ax.set_ylim(0, 25_000)
-        ax.set_ylabel("Cases (#)")
+            ax.set_ylim(0, y_limit)
+        ax.set_ylabel(what_to_display)
         ax3.set_ylabel("J(t)")
         ax.set_xlabel("Date")
 
@@ -327,13 +329,13 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title):
         plt.close()
     return filename
 
-def make_graph_cumm(df):
+def make_graph_cumm(df, what_to_display):
     with _lock:
         fig1yza, ax = subplots()
         ax3 = ax.twinx()
         ax.set_title('Cummulative cases and growth COVID-19 à la Levitt')
-        ax.scatter(df["date"], df["new_cases_smoothed_cumm"].values, color="green", s=1, label="reality cumm cases")
-        ax.scatter(df["date"],  df["new_cases_smoothed_predicted_cumm"].values , color="#00b3b3", s=1, label="predicted cumm cases")
+        ax.scatter(df["date"], df["what_to_display_cumm"].values, color="green", s=1, label=f"reality {what_to_display}")
+        ax.scatter(df["date"],  df["what_to_display_predicted_cumm"].values , color="#00b3b3", s=1, label=f"predicted {what_to_display}")
 
         ax3.scatter(df["date"],  df["real_growth"].values, color="#b300b3", s=1, label="real growth")
         ax3.scatter(df["date"],  df["predicted_growth"].values, color="#b3bbb3", s=1, label="predicted growth")
@@ -348,10 +350,11 @@ def add_column_levit(df, what_to_display):
     """Add column with G(t)
 
     """
+    print (df)
 
-    df["new_cases_smoothed_cumm"] = df["new_cases_smoothed"] .cumsum()
-    # df["new_cases_smoothed_cumm"] = df["new_cases_smoothed_cumm"].rolling(window=3, center=False).mean()# geeft rare overgangen
-    what_to_display_x = "new_cases_smoothed_cumm"
+    df["what_to_display_cumm" ] = df[what_to_display] .cumsum()
+    # df["what_to_display_cumm"] = df["what_to_display_cumm"].rolling(window=3, center=False).mean()# geeft rare overgangen
+
 
 
     log_factor_df = pd.DataFrame(
@@ -363,8 +366,8 @@ def add_column_levit(df, what_to_display):
         if df.iloc[i][what_to_display] != None:
             date_ = pd.to_datetime(df.iloc[i]["date"], format="%Y-%m-%d")
             date_ = df.iloc[i]["date"]
-            if (df.iloc[i - d][what_to_display_x] != 0) or (df.iloc[i - d][what_to_display_x] is not None) or (df.iloc[i][what_to_display_x] != df.iloc[i - d][what_to_display_x]) :
-                log_factor_ = round(np.log10(np.log (((df.iloc[i][what_to_display_x] / df.iloc[i - d][what_to_display_x]))                  )), 2)
+            if (df.iloc[i - d]["what_to_display_cumm"] != 0) or (df.iloc[i - d]["what_to_display_cumm"] is not None) or (df.iloc[i]["what_to_display_cumm"] != df.iloc[i - d]["what_to_display_cumm"]) :
+                log_factor_ = round(np.log10(np.log (((df.iloc[i]["what_to_display_cumm"] / df.iloc[i - d]["what_to_display_cumm"]))                  )), 2)
 
             else:
                 log_factor_ = 0
@@ -372,7 +375,7 @@ def add_column_levit(df, what_to_display):
             log_factor_df = log_factor_df.append(
                 {
                     "date_log_factor": date_,
-                    "waarde": df.iloc[i][what_to_display_x],
+                    "waarde": df.iloc[i]["what_to_display_cumm"],
                     "log_exp_gr_factor_": log_factor_,
                 },
                 ignore_index=True,
@@ -429,7 +432,7 @@ def main():
         "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\levitt2021"
     )
 
-    df_complete_country, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title, total_days_in_graph = sidebar_input(df)
+    df_complete_country, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title, total_days_in_graph, y_limit = sidebar_input(df)
 
     global placeholder1
     placeholder1  = st.empty()
@@ -445,9 +448,9 @@ def main():
 
                 df_to_use_period_loop.fillna(value=0, inplace=True)
                 if i == datediff:
-                    filename = do_levitt(df_to_use_period_loop, what_to_display,df_complete_country, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title, total_days_in_graph, True)
+                    filename = do_levitt(df_to_use_period_loop, what_to_display,df_complete_country, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title, total_days_in_graph, True, y_limit)
                 else:
-                    filename = do_levitt(df_to_use_period_loop, what_to_display,df_complete_country, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title, total_days_in_graph, False)
+                    filename = do_levitt(df_to_use_period_loop, what_to_display,df_complete_country, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title, total_days_in_graph, False, y_limit)
                 filenames.append(filename)
 
             # build gif
@@ -478,7 +481,7 @@ def main():
         df_to_use_period = select_period(df, FROM, UNTIL)
         df_to_use_period.fillna(value=0, inplace=True)
 
-        filename = do_levitt(df_to_use_period, what_to_display,df, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title, total_days_in_graph, True)
+        filename = do_levitt(df_to_use_period, what_to_display,df, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title, total_days_in_graph, True,  y_limit)
 
     st.write("Trying to replicate https://docs.google.com/spreadsheets/d/1MNXQTFOLN-bMDAyUjeQ4UJR2bp05XYc8qpLsyAqdrZM/edit#gid=329426677 as described in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325180/#FD4")
 
@@ -522,7 +525,7 @@ def select_default_options():
 def sidebar_input(df):
     title_, start__, until__, country_default  = select_default_options()
     what_default = 2
-    title = st.sidebar.text_input("Title", title_)
+
     global from_
     from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start__)
 
@@ -550,14 +553,14 @@ def sidebar_input(df):
 
     del lijst[0:4]
 
-    what_to_display=what_default
+    what_to_display = st.sidebar.selectbox("What_to_display",lijst, 2)
     countrylist =  df['location'].drop_duplicates().sort_values().tolist()
 
 
     country_ = st.sidebar.selectbox("Which country",countrylist, 149)
     df = df.loc[df['location'] == country_]
-    df = df[["date", "location", "new_cases_smoothed"]]
-
+    df = df[["date", "location",what_to_display]]
+    title = st.sidebar.text_input("Title", country_)
 
     extra_days_in_graph = st.sidebar.number_input('Extra days to show',None,None,30)
     total_days_in_graph = datediff + extra_days_in_graph
@@ -571,7 +574,7 @@ def sidebar_input(df):
 
     showlogyaxis =  st.sidebar.selectbox("Y axis as log", ["No", "2", "10", "logit"], index=0)
     optimim  = st.sidebar.selectbox("Find optimal period for trendline", [True, False], index=0)
-
+    y_limit = st.sidebar.number_input('Limit for Y-axis',None,None,25_000)
     if platform.processor() != "":
         make_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=0)
     else:
@@ -579,7 +582,7 @@ def sidebar_input(df):
         # st.sidebar.write ("Animation disabled")
         # make_animation =
 
-    return df,FROM,UNTIL,what_to_display,datediff,showlogyaxis,optimim,make_animation, title,total_days_in_graph
+    return df,FROM,UNTIL,what_to_display,datediff,showlogyaxis,optimim,make_animation, title,total_days_in_graph, y_limit
 
 
 if __name__ == "__main__":
