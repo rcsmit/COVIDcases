@@ -10,8 +10,42 @@ import plotly.express as px
 
 import pandas as pd
 from sklearn.metrics import r2_score
+import datetime as dt
 
-def read(inwonersgrens):
+def main_week_data(number_of_days):
+    """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
+    """
+    # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
+    # url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
+    # #C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\input
+    url1 = "C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
+
+    #url1 = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
+    datefield="Date_of_publication"
+    df = pd.read_csv(url1, delimiter=";", low_memory=False)
+    df[datefield] = pd.to_datetime(df[datefield], format="%Y-%m-%d")
+    df = df[df["Municipality_code"] != None]
+    df["count"] = 1
+    # print ("line27")
+    # print (df)
+    # from_  = dt.datetime.strptime("2021-11-16", "%Y-%m-%d").date()
+    # until = dt.datetime.strptime("2021-12-7", "%Y-%m-%d").date()
+    # mask = (df[datefield].dt.date >= from_) & (df[datefield].dt.date <= until)
+    # df = df.loc[mask]
+
+    df = df.set_index(datefield)
+    n_days = str(number_of_days) + "D"
+    df = df.last(n_days)
+    print ("line 35")
+    print (df)
+    df = df.groupby(["Municipality_code"] ).sum().reset_index()
+    #df_week = df.groupby([  pd.Grouper(key='Date_statistics', freq='W'), "Agegroup",] ).sum().reset_index()
+    print ("line 40")
+    print (df)
+
+    return df
+
+def read(inwonersgrens,number_of_days):
     # url_yorick = "https://raw.githubusercontent.com/YorickBleijenberg/COVID_data_RIVM_Netherlands/master/vaccination/2021-09-08_vac.cities.csv"
     # df_yorick = pd.read_csv(url_yorick, delimiter=';', decimal=",", encoding="ISO-8859-1")
     # Attentie: bevat - waardes en Baarle Nassau
@@ -38,10 +72,13 @@ def read(inwonersgrens):
     df_gemeente_info = pd.read_csv(url_gemeente_info, delimiter=',')
 
 
+    # C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\not_active_on_streamlit\preprare_gemeenten_per_dag.py
     url_rene = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_reported_hospital_deceased.csv"
+    df_rene = main_week_data(number_of_days)
     df_rene = pd.read_csv(url_rene, delimiter=',', encoding="ISO-8859-1")
 
-    url_vaccinatie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_COVID-19_vaccinatiegraad_per_week_leeftijd.csv"
+    #https://data.rivm.nl/meta/srv/dut/catalog.search#/metadata/205d0bf4-b645-4e5b-84bc-f8ec482fd3f3
+    url_vaccinatie = "https://data.rivm.nl/covid-19/COVID-19_vaccinatiegraad_per_gemeente_per_week_leeftijd.csv"
     df_vaccinatie = pd.read_csv(url_vaccinatie, delimiter=';', encoding="ISO-8859-1")
     df_vaccinatie = df_vaccinatie[df_vaccinatie["Age_group"] == "18+"]
 
@@ -75,18 +112,23 @@ def read(inwonersgrens):
                  df_totaal, df_niet_west_migratie, how="outer", left_on="RegioNaam", right_on="gemeentenaam"
             )
 
-    df_totaal["Total_reported_per_inwoner_3_wks"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
-    df_totaal["Hospital_admission_per_inwoner_3_wks"] = df_totaal["Hospital_admission"] / df_totaal["inwoners_2021"]
-    df_totaal["Deceased_per_inwoner_3_wks"] = df_totaal["Deceased"] / df_totaal["inwoners_2021"]
-    df_totaal["log_e_incidentie"] = np.log(df_totaal["Total_reported_per_inwoner_3_wks"])
-    df_totaal["log_10_incidentie"] = np.log10(df_totaal["Total_reported_per_inwoner_3_wks"])
-    df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].astype(float)
+    df_totaal["Total_reported_per_inwoner_period"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
+    df_totaal["Hospital_admission_per_inwoner_period"] = df_totaal["Hospital_admission"] / df_totaal["inwoners_2021"]
+    df_totaal["Deceased_per_inwoner_period"] = df_totaal["Deceased"] / df_totaal["inwoners_2021"]
+    df_totaal["log_e_incidentie"] = np.log(df_totaal["Total_reported_per_inwoner_period"])
+    df_totaal["log_10_incidentie"] = np.log10(df_totaal["Total_reported_per_inwoner_period"])
+    #df_totaal['Vaccination_coverage_completed']
+    #print(df_totaal.info(verbose=True))
+    #df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].astype(str)
+    df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].apply(lambda x: '99' if x=='>=95'  else x)
+    df_totaal['volledige.vaccinatie'] = df_totaal['volledige.vaccinatie'].astype(float)
+
 
     df_totaal = df_totaal[df_totaal["inwoners_2021"]>= inwonersgrens]
 
     # uitschieters verwiijderen
     factor =3
-    kolommen = ["Total_reported_per_inwoner_3_wks",  "volledige.vaccinatie"]
+    kolommen = ["Total_reported_per_inwoner_period",  "volledige.vaccinatie"]
     for kolom in kolommen:
         mean = df_totaal[kolom].mean()
         stdev = df_totaal[kolom].std()
@@ -204,7 +246,7 @@ def make_corr_tabel(df, partijen, uitslag):
     for p in partijen:
 
         corr_vv = round(df[p].corr(df['volledige.vaccinatie']),2)
-        corr_inc = round(df[p].corr(df['Total_reported_per_inwoner_3_wks']),2)
+        corr_inc = round(df[p].corr(df['Total_reported_per_inwoner_period']),2)
 
         corr_tabel = corr_tabel.append(
                     {
@@ -229,14 +271,15 @@ def make_corr_tabel(df, partijen, uitslag):
 def main():
 
     how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
-    lijst = ["gem_ink_x1000", "volledige.vaccinatie", "Total_reported_per_inwoner_3_wks", "Hospital_admission_per_inwoner_3_wks","Deceased_per_inwoner_3_wks",
-            "incidentie","inwoners_2021","inwoners_per_km2", "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr",
+    lijst = ["gem_ink_x1000", "volledige.vaccinatie", "Total_reported_per_inwoner_period", "Hospital_admission_per_inwoner_period","Deceased_per_inwoner_period",
+            "Total_reported", "Hospital_admission", "Deceased", "inwoners_2021","inwoners_per_km2", "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr",
             "perc_migratieachtergrond", "log_e_incidentie", "log_10_incidentie"]
     x  = st.sidebar.selectbox("Wat op X as", lijst, index=0)
     y = st.sidebar.selectbox("Wat op Y as", lijst, index=1)
     inwonersgrens = st.sidebar.number_input("Miniumum aantal inwoners", 0, None, value = 50_000)
+    number_of_days = st.sidebar.number_input("Aantal cases van de laatste ... dagen", 1, 1000, value = 21)
 
-    df, partijen,uitslag = read(inwonersgrens)
+    df, partijen,uitslag = read(inwonersgrens, number_of_days)
 
     if (x == "stemmen_op_geselecteerde_partijen_procent" or y == "stemmen_op_geselecteerde_partijen_procent"):
         partijen_default =  [ 'PVV (Partij voor de Vrijheid)', 'Forum voor Democratie']

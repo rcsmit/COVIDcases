@@ -31,13 +31,14 @@ def main_week_data():
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
     url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
     #C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\input
+    url1 = ""C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
     datefield="Date_of_report"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     df[datefield] = pd.to_datetime(df[datefield], format="%Y-%m-%d")
     df = df[df["Municipality_code"] != None]
     print (df)
-    from_  = dt.datetime.strptime("2021-9-29", "%Y-%m-%d").date()
-    until = dt.datetime.strptime("2021-10-20", "%Y-%m-%d").date()
+    from_  = dt.datetime.strptime("2021-11-16", "%Y-%m-%d").date()
+    until = dt.datetime.strptime("2021-12-7", "%Y-%m-%d").date()
     mask = (df[datefield].dt.date >= from_) & (df[datefield].dt.date <= until)
     df = df.loc[mask]
     print (df)
