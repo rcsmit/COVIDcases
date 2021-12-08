@@ -18,9 +18,9 @@ def main_week_data(number_of_days):
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
     # url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
     # #C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\input
-    url1 = "C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
+    #url1 = "C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
 
-    #url1 = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
+    url1 = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
     datefield="Date_of_publication"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     df[datefield] = pd.to_datetime(df[datefield], format="%Y-%m-%d")
