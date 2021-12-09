@@ -78,13 +78,13 @@ def main_week_data(from_, until_):
     df[datefield] = pd.to_datetime(df[datefield], format="%Y-%m-%d")
     df = df[df["Municipality_code"] != None]
     df["count"] = 1
-    
+
     df = mask_data(df,from_,until_, datefield)
     # print ("line27")
     # print (df)
     # from_  = dt.datetime.strptime("2021-11-16", "%Y-%m-%d").date()
     # until = dt.datetime.strptime("2021-12-7", "%Y-%m-%d").date()
-   
+
 
     # df = df.set_index(datefield)
     # n_days = str(number_of_days) + "D"

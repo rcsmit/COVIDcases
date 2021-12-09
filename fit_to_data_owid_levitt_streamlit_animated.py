@@ -456,8 +456,7 @@ def main():
                 else:
                     filename = do_levitt(df_to_use_period_loop, what_to_display,df_complete_country, FROM, optimim, make_animation,i, datediff+1,showlogyaxis, title, total_days_in_graph, False, y_limit)
                 filenames.append(filename)
-
-            # build gif
+          # build gif
 
             with imageio.get_writer('mygif.gif', mode='I') as writer:
                 for filename_ in filenames:
