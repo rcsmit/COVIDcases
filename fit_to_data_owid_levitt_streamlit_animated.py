@@ -87,13 +87,17 @@ def find_trendline(df, optimim):
     #print (x_values, y_values)
     if optimim == True:
         # we search for the optimal value for how many days at the end we take to draw the trendline
-        for ix in range (5,10):
-            x = x_values[-ix:]
-            y = y_values[-ix:]
-            m_,b_,r_sq_ = find_slope_scipy(x,y)
-            if r_sq_ > r_sq_opt:
-                m,b,r_sq,i_opt = m_,b_,r_sq_, ix
-                r_sq_opt = r_sq
+        # for ix in range (5,10):
+        ix = 14 #Levitt uses last 14 days
+        x = x_values[-ix:]
+        y = y_values[-ix:]
+        m_,b_,r_sq_ = find_slope_scipy(x,y)
+        if r_sq_ > r_sq_opt:
+            m,b,r_sq,i_opt = m_,b_,r_sq_, ix
+            r_sq_opt = r_sq
+        else:
+            m,b,r_sq,i_opt = m_,b_,r_sq_, ix
+            r_sq_opt = r_sq
     else:
         x_range = np.arange(len(df))
         m,b,r_sq = find_slope_sklearn(x_values, y_values)
@@ -511,7 +515,7 @@ def select_default_options():
 
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
-    menu_choice = st.sidebar.radio("",menuchoicelist, index=6)
+    menu_choice = st.sidebar.radio("",menuchoicelist, index=5)
 
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:

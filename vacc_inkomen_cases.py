@@ -5,37 +5,90 @@ _lock = RendererAgg.lock
 import streamlit as st
 import plotly.express as px
 #import statsmodels
-
+import platform
 #from streamlit_plotly_events import plotly_events
 
 import pandas as pd
 from sklearn.metrics import r2_score
 import datetime as dt
+import datetime
 
-def main_week_data(number_of_days):
+def input_period():
+    DATE_FORMAT = "%m/%d/%Y"
+    start_ = "2021-01-01"
+    end_ = "2022-01-01"
+
+    #today = datetime.today().strftime("%Y-%m-%d")
+    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", end_)
+
+    try:
+        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
+    except:
+        st.error("Please make sure that the startdate is in format yyyy-mm-dd")
+        st.stop()
+
+    try:
+        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
+    except:
+        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+        st.stop()
+
+    if FROM >= UNTIL:
+        st.warning("Make sure that the end date is not before the start date")
+        st.stop()
+
+    if until_ == "2023-08-23":
+        st.sidebar.error("Do you really, really, wanna do this?")
+        if st.sidebar.button("Yes I'm ready to rumble"):
+            caching.clear_cache()
+            st.success("Cache is cleared, please reload to scrape new values")
+    return FROM, UNTIL
+
+def mask_data(df,from_,until_, datefield):
+    """[summary]
+
+    Args:
+        df ([type]): [description]
+        from_ ([type]): [description]
+        until_ ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    # masking data in sperate function for caching issues
+
+    mask = (df[datefield].dt.date >= from_) & (df[datefield].dt.date <= until_)
+    df = df.loc[mask]
+    return df
+
+@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+def main_week_data(from_, until_):
     """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
     """
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
     # url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
     # #C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\input
-    #url1 = "C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
-
-    url1 = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
+    if platform.processor() != "":
+        url1 = "C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
+    else:
+        url1 = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
     datefield="Date_of_publication"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     df[datefield] = pd.to_datetime(df[datefield], format="%Y-%m-%d")
     df = df[df["Municipality_code"] != None]
     df["count"] = 1
+    
+    df = mask_data(df,from_,until_, datefield)
     # print ("line27")
     # print (df)
     # from_  = dt.datetime.strptime("2021-11-16", "%Y-%m-%d").date()
     # until = dt.datetime.strptime("2021-12-7", "%Y-%m-%d").date()
-    # mask = (df[datefield].dt.date >= from_) & (df[datefield].dt.date <= until)
-    # df = df.loc[mask]
+   
 
-    df = df.set_index(datefield)
-    n_days = str(number_of_days) + "D"
-    df = df.last(n_days)
+    # df = df.set_index(datefield)
+    # n_days = str(number_of_days) + "D"
+    # df = df.last(n_days)
     print ("line 35")
     print (df)
     df = df.groupby(["Municipality_code"] ).sum().reset_index()
@@ -45,7 +98,8 @@ def main_week_data(number_of_days):
 
     return df
 
-def read(inwonersgrens,number_of_days):
+@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+def read(inwonersgrens, from_,until_):
     # url_yorick = "https://raw.githubusercontent.com/YorickBleijenberg/COVID_data_RIVM_Netherlands/master/vaccination/2021-09-08_vac.cities.csv"
     # df_yorick = pd.read_csv(url_yorick, delimiter=';', decimal=",", encoding="ISO-8859-1")
     # Attentie: bevat - waardes en Baarle Nassau
@@ -73,9 +127,11 @@ def read(inwonersgrens,number_of_days):
 
 
     # C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\not_active_on_streamlit\preprare_gemeenten_per_dag.py
-    url_rene = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_reported_hospital_deceased.csv"
-    df_rene = main_week_data(number_of_days)
-    df_rene = pd.read_csv(url_rene, delimiter=',', encoding="ISO-8859-1")
+    #url_rene = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_reported_hospital_deceased.csv"
+    df_rene = main_week_data(from_,until_)
+
+
+    #df_rene = pd.read_csv(url_rene, delimiter=',', encoding="ISO-8859-1")
 
     #https://data.rivm.nl/meta/srv/dut/catalog.search#/metadata/205d0bf4-b645-4e5b-84bc-f8ec482fd3f3
     url_vaccinatie = "https://data.rivm.nl/covid-19/COVID-19_vaccinatiegraad_per_gemeente_per_week_leeftijd.csv"
@@ -277,9 +333,9 @@ def main():
     x  = st.sidebar.selectbox("Wat op X as", lijst, index=0)
     y = st.sidebar.selectbox("Wat op Y as", lijst, index=1)
     inwonersgrens = st.sidebar.number_input("Miniumum aantal inwoners", 0, None, value = 50_000)
-    number_of_days = st.sidebar.number_input("Aantal cases van de laatste ... dagen", 1, 1000, value = 21)
-
-    df, partijen,uitslag = read(inwonersgrens, number_of_days)
+    #number_of_days = st.sidebar.number_input("Aantal cases van de laatste ... dagen", 1, 1000, value = 21)
+    from_, until_ = input_period()
+    df, partijen,uitslag = read(inwonersgrens,from_,until_)
 
     if (x == "stemmen_op_geselecteerde_partijen_procent" or y == "stemmen_op_geselecteerde_partijen_procent"):
         partijen_default =  [ 'PVV (Partij voor de Vrijheid)', 'Forum voor Democratie']
