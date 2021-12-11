@@ -1266,8 +1266,9 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
 
         n = len(color_list)
         x = n
-        if what_to_show_r != None:
-            for a in what_to_show_r:
+
+        for a in what_to_show_r:
+            if a != None:
                 x -= 1
                 lbl = a + " (right ax)"
                 df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
