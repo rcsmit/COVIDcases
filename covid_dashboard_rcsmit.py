@@ -1266,34 +1266,35 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
 
         n = len(color_list)
         x = n
-        for a in what_to_show_r:
-            x -= 1
-            lbl = a + " (right ax)"
-            df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
-            for c_ in columnlist:
-                # smoothed
-                lbl2 = a + " (right ax)"
-                fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[c_],  name=a, mode='lines',   line=dict(color='red'),yaxis="y2"))
+        if what_to_show_r != None:
+            for a in what_to_show_r:
+                x -= 1
+                lbl = a + " (right ax)"
+                df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
+                for c_ in columnlist:
+                    # smoothed
+                    lbl2 = a + " (right ax)"
+                    fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[c_],  name=a, mode='lines',   line=dict(color='red'),yaxis="y2"))
 
-            fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[a], mode='markers', name = a, showlegend=False,   yaxis="y2", marker=dict(
-            color='red',
-            size=2)))
-            fig.update_layout(
-                yaxis2=dict(
-                    title=a,
-                    titlefont=dict(
-                        color="red"
-                    ),
-                    tickfont=dict(
-                        color="red"
-                    ),
+                fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[a], mode='markers', name = a, showlegend=False,   yaxis="y2", marker=dict(
+                color='red',
+                size=2)))
+                fig.update_layout(
+                    yaxis2=dict(
+                        title=a,
+                        titlefont=dict(
+                            color="red"
+                        ),
+                        tickfont=dict(
+                            color="red"
+                        ),
 
-                    overlaying="y",
-                    side="right",
-                    position=1.0
+                        overlaying="y",
+                        side="right",
+                        position=1.0
+                    )
+
                 )
-
-            )
 
         # Create axis objects
 
@@ -1916,17 +1917,19 @@ def main():
             st.success("Cache is cleared, please reload to scrape new values")
 
 
-    mzelst = ["date","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven",
-    "Hospital_Intake_Suspected","IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative",
-    "Hospital_Currently","IC_Deaths_Cumulative","IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative",
-    "Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul","IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum",
-    "IC_Bedden_COVID","IC_Bedden_Non_COVID","Kliniek_Bedden","IC_Nieuwe_Opnames_COVID_Nederland","Kliniek_Nieuwe_Opnames_COVID_Nederland",
-    "Totaal_bezetting","IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d",
-    "Kliniek_opnames_14d","OMT_Check_IC","OMT_Check_Kliniek","positivetests","corrections.cases","net.infection","new.hospitals",
-    "corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","infections.today.nursery",
-    "infections.total.nursery","deaths.today.nursery","deaths.total.nursery","mutations.locations.nursery","total.current.locations.nursery",
-    "values.tested_total","values.infected","values.infected_percentage","pos.rate.3d.avg"]
 
+    mzelst =  ["cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected",
+        "IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative",
+        "IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul",
+        "IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","new.infection","corrections.cases","net.infection","new.hospitals",
+        "corrections.hospitals","net.hospitals","new.deaths","corrections.deaths","net.deaths","positive_7daverage","positive_14d",
+        "growth_infections","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery",
+        "mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage",
+        "pos.rate.3d.avg","pos.rate.7d.avg","IC_Bedden_COVID_Nederland","IC_Bedden_COVID_Internationaal","IC_Bedden_Non_COVID_Nederland",
+        "Kliniek_Bedden_Nederland","IC_Nieuwe_Opnames_COVID_Nederland","Kliniek_Nieuwe_Opnames_COVID_Nederland","Totaal_Bezetting",
+        "IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d",
+        "OMT_Check_IC","OMT_Check_Kliniek","Kliniek_Bedden_7d","IC_Bedden_7d","Totaal_Bedden_7d","IC_Bedden_14d","Kliniek_Bedden_14d",
+        "Totaal_Bedden_14d","OMT_Check_IC_Bezetting","OMT_Check_Kliniek_Bezetting","OMT_Check_Totaal_Bezetting"]
     lijst.extend(mzelst)
     lijst.extend(lijst_oud)
     df = select_period_oud(df, "date", FROM, UNTIL)
