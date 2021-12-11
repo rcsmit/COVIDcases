@@ -1315,8 +1315,11 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
 
                 left_sm = str(l) + "_" + how_to_smooth_
                 right_sm = str(r) + "_" + how_to_smooth_
-                make_scatterplot(df_temp, l,r, FROM, UNTIL,  True, False)
-                make_scatterplot(df_temp,left_sm, right_sm, FROM, UNTIL, True, True)
+                try:
+                    make_scatterplot(df_temp, l,r, FROM, UNTIL,  True, False)
+                    make_scatterplot(df_temp,left_sm, right_sm, FROM, UNTIL, True, True)
+                except:
+                    pass
 
 
 def set_xmargin(ax, left=0.0, right=0.3):
