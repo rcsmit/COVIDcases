@@ -927,6 +927,10 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
     else:
         what_to_show_l_ = [what_to_show_l]
     aantal = len(what_to_show_l_)
+    if how_to_smooth == None:
+        how_to_smooth_ = "unchanged_"
+    else:
+        how_to_smooth_ = how_to_smooth + "_" + str(WDW2)
     # SHOW A GRAPH IN TIME / DAY
     title_plotly = title
 
@@ -1091,10 +1095,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
             else:  # t = line
                 df_temp = df
 
-                if how_to_smooth == None:
-                    how_to_smooth_ = "unchanged_"
-                else:
-                    how_to_smooth_ = how_to_smooth + "_" + str(WDW2)
+
                 b_ = str(b) + "_" + how_to_smooth_
                 df_temp[b_].plot(
                     label=b, color=color_list[n], linewidth=1.1
