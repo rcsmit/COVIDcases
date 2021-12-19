@@ -50,19 +50,19 @@ def main():
     global numberofdays_
     numberofdays_ = NUMBEROFDAYS
 
-    Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.8)
-    Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 3.0)
-    correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
+    Rnew_1_ = st.sidebar.number_input('R-number first variant', 0.1, 10.0, 0.8)
+    Rnew_2_ = st.sidebar.number_input('R-number second variant', 0.1, 6.0, 3.0)
+    correction = st.sidebar.number_input('Correction factor', 0.0, 2.0, 1.00)
     Rnew1_= round(Rnew_1_ * correction,2)
     Rnew2_= round(Rnew_2_ * correction,2)
 
-    percentagenewversion = (st.sidebar.slider('Percentage second variant at start', 0.0, 100.0, 43.0)/100)
+    percentagenewversion = (st.sidebar.number_input('Percentage second variant at start', 0.0, 100.0, 2.5)/100)
 
     Tg = st.sidebar.slider('Generation time', 2.0, 11.0, 4.0)
     global Tg_
     Tg_=Tg
 
-    lambdaa = st.sidebar.slider('Lambda / heterogeneity', 1.0, 6.0, 1.0)
+    lambdaa = st.sidebar.number_input('Lambda / heterogeneity', 1.0, 10.0, 1.0)
     averagedayssick = (st.sidebar.slider('Average days infectious', 1, 30, 20))
     # https://www.medrxiv.org/content/10.1101/2020.09.13.20193896v1.full.pdf / page 4
     showcummulative = st.sidebar.checkbox("Show cummulative / SIR", True)
@@ -925,3 +925,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# https://nicholaslewis.org/why-herd-immunity-to-covid-19-is-reached-much-earlier-than-thought-update/
+# Nevertheless, their best fit to New York City COVID-19 data during lockdown gives an estimate of an inhomogeneity factor[16] λ of 4.5.[17] An alternative estimation method based on a cross-sectional regression across US States gives a λ estimate of 5.3.[18]
+# A middle of the range λ value of 4.9 implies a HIT of 20% if R0 = 3.0 (16.4% if R0 = 2.4; 24.6% if R0 = 4; 28.0% if R0 = 5). It also equates, if all the inhomogeneity is social-connectivity related, to a coefficient of variation (CV)[19] of 1.4 – which is the geometrical mean of the two CV values (1 and 2) that I used in my original article.
+# Estimating λ from fits to the NYC or Chicago data prior to lockdown implies much higher CV estimates, in the range 2.4 to 2.9 if all inhomogeneneity is social-connectivity related, in non-lockdown circumstances. The corresponding estimates for nine of the worst hit US States range from 1.9 to 3.4.[20]
