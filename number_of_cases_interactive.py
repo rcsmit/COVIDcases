@@ -35,10 +35,10 @@ def main():
 
     #values 01/13/2021, according to https://www.bddataplan.nl/corona/
     st.sidebar.title('Parameters')
-    numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,4600)
+    numberofpositivetests = st.sidebar.number_input('Total number of positive tests',None,None,20_000)
 
     st.markdown("<hr>", unsafe_allow_html=True)
-    a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"01/29/2021")
+    a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"12/6/2021")
 
     try:
         startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
@@ -50,8 +50,8 @@ def main():
     global numberofdays_
     numberofdays_ = NUMBEROFDAYS
 
-    Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.84)
-    Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 1.15)
+    Rnew_1_ = st.sidebar.slider('R-number first variant', 0.1, 10.0, 0.8)
+    Rnew_2_ = st.sidebar.slider('R-number second variant', 0.1, 6.0, 3.0)
     correction = st.sidebar.slider('Correction factor', 0.0, 2.0, 1.00)
     Rnew1_= round(Rnew_1_ * correction,2)
     Rnew2_= round(Rnew_2_ * correction,2)
@@ -75,7 +75,7 @@ def main():
     #showSIR = False
 
     if showcummulative or showSIR:
-        numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero', 130000))
+        numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero', 100))
 
         try:
             numberofcasesdayzero = int(numberofcasesdayz)
@@ -85,10 +85,10 @@ def main():
 
 
     if showcummulative or showSIR or showimmunization:
-        totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 5_000_000))
+        totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 1_000_0000))
         totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
 
-        testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 5.0, 2.5)
+        testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 10.0, 5.0)
         try:
             totalimmunedayzero = int(totalimmunedayzero_)
         except:
