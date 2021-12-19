@@ -85,7 +85,7 @@ def main():
 
 
     if showcummulative or showSIR or showimmunization:
-        totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 1_000_0000))
+        totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 1_000))
         totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
 
         testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 10.0, 2.50)
