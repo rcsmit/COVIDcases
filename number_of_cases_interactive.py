@@ -88,7 +88,7 @@ def main():
         totalimmunedayzero_ = (st.sidebar.text_input('Total immune persons day zero', 1_000_0000))
         totalpopulation_ = (st.sidebar.text_input('Total population', 17_500_000))
 
-        testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 10.0, 5.0)
+        testimmunefactor = st.sidebar.slider('Test/immunityfactor', 0.0, 10.0, 2.50)
         try:
             totalimmunedayzero = int(totalimmunedayzero_)
         except:
