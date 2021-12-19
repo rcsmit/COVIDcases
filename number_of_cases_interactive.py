@@ -51,7 +51,7 @@ def main():
     numberofdays_ = NUMBEROFDAYS
 
     Rnew_1_ = st.sidebar.number_input('R-number first variant', 0.1, 10.0, 0.8)
-    Rnew_2_ = st.sidebar.number_input('R-number second variant', 0.1, 6.0, 3.0)
+    Rnew_2_ = st.sidebar.number_input('R-number second variant', 0.1, 6.0, 2.50)
     correction = st.sidebar.number_input('Correction factor', 0.0, 2.0, 1.00)
     Rnew1_= round(Rnew_1_ * correction,2)
     Rnew2_= round(Rnew_2_ * correction,2)
