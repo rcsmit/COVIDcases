@@ -236,14 +236,15 @@ def main():
     nself_ = st.sidebar.number_input("aantal bewoners", 0, 100, 2)
     bezoekers_ = st.sidebar.number_input("aantal gasten", 0, 100, 6)
     st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh", 0, 1000, 90)
+    st.sidebar.write('in bouwbesluit : 90 m³/h ')
     na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek", 0, 1000, 360)
     extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh luchten tijdens bezoek", 0, 1000, 200)
-    bezoek_komt  = st.sidebar.number_input("bezoek komt", 0, 10, 2)
-    bezoek_gaat  = st.sidebar.number_input("bezoek gaat", 0, 10, 5)
+    bezoek_komt  = st.sidebar.number_input("moment dat bezoek komt (h)", 0, 10, 2)
+    bezoek_gaat  = st.sidebar.number_input("moment dat bezoek gaat  (h)", 0, 10, 5)
 
-    luchttijd  = st.sidebar.number_input("Luchttijd in scenario 2", 0.0, 10.0, 0.5)
-    eindtijd  = st.sidebar.number_input("Eindtijd in grafiek", 0, 100, 10)
-    st.sidebar.write('bouwbesluit : 90 m³/h ')
+    luchttijd  = st.sidebar.number_input("Luchttijd in scenario 2  (h)", 0.0, 10.0, 0.5)
+    eindtijd  = st.sidebar.number_input("Eindtijd in grafiek  (h)", 0, 100, 10)
+
     if bezoek_gaat < bezoek_komt:
         st.error("Bezoek kan niet eerder gaan dan komen")
         st.stop()
