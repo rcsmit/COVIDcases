@@ -233,7 +233,20 @@ def main():
     plot_co2_ventilation()
     V_ = st.sidebar.number_input ("Room volume (m3)", 0.0, 1000.0, 75.0)
     tstep_ = st.sidebar.number_input("timestep (h)", 0.0, 10.0, 0.1)
+    nself_ = st.sidebar.number_input("aantal bewoners", 0, 100, 2)
+    bezoekers_ = st.sidebar.number_input("aantal gasten", 0, 100, 6)
+    st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh", 0, 1000, 90)
+    na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh na bezoek", 0, 1000, 360)
+    extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh extra tijdens bezoek", 0, 1000, 200)
+    bezoek_komt  = st.sidebar.number_input("bezoek komt", 0, 10, 2)
+    bezoek_gaat  = st.sidebar.number_input("bezoek gaat", 0, 10, 5)
 
+    luchttijd  = st.sidebar.number_input("Luchttijd in scenario 2", 0.0, 10.0, 0.5)
+    eindtijd  = st.sidebar.number_input("Eindtijd in grafiek", 0, 100, 10)
+    st.sidebar.write('bouwbesluit : 90 m³/h ')
+    if bezoek_gaat < bezoek_komt:
+        st.error("Bezoek kan niet eerder gaan dan komen")
+        st.stop()
 
     simparams = dict(
         V=V_,  # room volume (m3)
@@ -242,32 +255,32 @@ def main():
         )
     # Note: flow rates tweaked a bit to avoid overlapping lines in plot.
     sim1 = Simulation([
-        (0, 90, 2),
-        (2, 90, 6),
-        (5, 90, 2),
-        (10, 90, 2),
+        (0, st_airflow, nself_),
+        (bezoek_komt , st_airflow, bezoekers_),
+        (bezoek_gaat, st_airflow, nself_),
+        (eindtijd, st_airflow, nself_),
         ],
-        nself=2, desc='90 m³/h (bouwbesluit)',
+        nself=nself_, desc='standaard airflow',
         **simparams
         )
 
     sim2 = Simulation([
-        (0, 91, 2),
-        (2, 89, 6),
-        (5, 360, 2),
-        (5.5, 91, 2),
-        (10, 91, 2),
-        ], nself=2, desc='Luchten na bezoek',
+        (0, st_airflow+1, nself_),
+        (bezoek_komt , st_airflow-1, bezoekers_),
+        (bezoek_gaat, na_bezoek_airflow, nself_),
+        (bezoek_gaat+luchttijd, st_airflow+1, nself_),
+        (eindtijd, st_airflow+1, nself_),
+        ], nself=nself_, desc='Luchten na bezoek',
         **simparams
         )
 
     sim3 = Simulation([
-        (0, 89, 2),
-        (2, 200, 6),
-        (5, 89, 2),
-        (10, 89, 2),
+        (0,  st_airflow-1, nself_),
+        (bezoek_komt , extra_bezoek_airflow, bezoekers_),
+        (bezoek_gaat,  st_airflow-1, nself_),
+        (eindtijd,  st_airflow-1, nself_),
         ],
-        nself=2, desc='Extra gedurende bezoek',
+        nself=nself_, desc='Extra gedurende bezoek',
         **simparams
         )
 
