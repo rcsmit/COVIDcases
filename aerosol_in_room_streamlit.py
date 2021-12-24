@@ -239,10 +239,10 @@ def main():
     st.sidebar.write('in bouwbesluit : 90 m³/h ')
     na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek", 0, 1000, 360)
     extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh luchten tijdens bezoek", 0, 1000, 200)
-    bezoek_komt  = st.sidebar.number_input("moment dat bezoek komt (h)", 0, 10, 2)
-    bezoek_gaat  = st.sidebar.number_input("moment dat bezoek gaat  (h)", 0, 10, 5)
+    bezoek_komt  = st.sidebar.number_input("moment dat bezoek komt (h)", 0, 100, 2)
+    bezoek_gaat  = st.sidebar.number_input("moment dat bezoek gaat  (h)", 0, 100, 5)
 
-    luchttijd  = st.sidebar.number_input("Luchttijd in scenario 2  (h)", 0.0, 10.0, 0.5)
+    luchttijd  = st.sidebar.number_input("Luchttijd in scenario 2  (h)", 0.0, 100.0, 0.5)
     eindtijd  = st.sidebar.number_input("Eindtijd in grafiek  (h)", 0, 100, 10)
 
     if bezoek_gaat < bezoek_komt:
