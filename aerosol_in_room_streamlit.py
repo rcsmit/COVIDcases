@@ -225,7 +225,9 @@ def plot_co2_ventilation():
 
 
 
-if __name__ == '__main__':
+
+
+def main():
     #plt.close('all')
 
     plot_co2_ventilation()
@@ -283,3 +285,6 @@ if __name__ == '__main__':
     )
 
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
+
+if __name__ == '__main__':
+    main()
