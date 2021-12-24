@@ -236,8 +236,8 @@ def main():
     nself_ = st.sidebar.number_input("aantal bewoners", 0, 100, 2)
     bezoekers_ = st.sidebar.number_input("aantal gasten", 0, 100, 6)
     st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh", 0, 1000, 90)
-    na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh na bezoek", 0, 1000, 360)
-    extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh extra tijdens bezoek", 0, 1000, 200)
+    na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek", 0, 1000, 360)
+    extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh luchten tijdens bezoek", 0, 1000, 200)
     bezoek_komt  = st.sidebar.number_input("bezoek komt", 0, 10, 2)
     bezoek_gaat  = st.sidebar.number_input("bezoek gaat", 0, 10, 5)
 
