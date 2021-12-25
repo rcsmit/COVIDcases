@@ -285,7 +285,7 @@ def main():
     nself_ = st.sidebar.number_input("aantal bewoners", 0, 100, 2)
     gasten_ = st.sidebar.number_input("aantal gasten", 0, 100, 4)
     tot_aanwezigen_ = nself_ + gasten_
-    st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh (m³/h)", 0.0, 1000.0, opp_ * 2.5, , 50.0)
+    st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh (m³/h)", 0.0, 1000.0, opp_ * 2.5, 50.0)
     st.sidebar.write(f'in bouwbesluit : {opp_} * 2.5 = {opp_* 2.5} m³/h ')
     na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek (m³/h)", 0, 1000, 360, 50)
     extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh luchten tijdens bezoek (m³/h)", 0, 1000, 200, 50)
