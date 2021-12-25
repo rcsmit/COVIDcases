@@ -1,9 +1,12 @@
-"""
-Show aerosol concentration in room with, without ventilation.
+"""Show aerosol concentration in room with, without ventilation.
+
 https://rijksoverheid.bouwbesluit.com/Inhoud/docs/wet/bb2012/hfd3/afd3-6
 https://rijksoverheid.bouwbesluit.com/Inhoud/docs/wet/bb2012/hfd3/afd3-6?tableid=docs/wet/bb2012[26]/hfd3/afd3-6/par3-6-1
+
 https://www.onlinebouwbesluit.nl/?v=11 (1992)
+
 1 dm³/s = 3.6 m³/h
+
 Ventilatie-eisen Nederlands Bouwbesluit 2012
 (Woonkamer: norm verblijfsruimte)
 ======================================================
@@ -14,6 +17,7 @@ Onderwijs        m³/h/p    30.6         12.4
 Woonkamer 36 m²  m³/h      90           -
    (4 personen)  m³/h/p    22.5         -
 ======================================================
+
 Bouwbesluit 1992
 (geen onderscheid verblijfsgebied/verblijfsruimte)
 ====================================
@@ -23,6 +27,8 @@ Kantoor          m³/h/m²   4.0
 Woonkamer 36 m²  m³/h      116
    (4 personen)  m³/h/p    29
 ====================================
+
+
 Created on Tue Dec 14 20:55:29 2021
 """
 import numpy as np
@@ -33,7 +39,9 @@ _lock = RendererAgg.lock
 
 class Simulation:
     """Time data of concentnrations etc.
+
     Initialization params:
+
     - seq: list of (t, Vrate, n)
       (time, volume rate /h, number of persons)
     - nself: number of persons who don't count.
@@ -41,17 +49,21 @@ class Simulation:
     - V: room volume
     - tstep: timestep in h.
     - method: 'cn' or 'eu' (for testing only)
+
     Attributes:
+
     - tms: time array
     - vrs: volume-rate array (m3/s)
     - ns: number-of-persons array
     - concs: concentrations array (1/m3)
-    - concs_v2s: concentrations array from visitors exposing self
-    - concs_s2v: concentrations from self exposing visitors
+    - concs_s: concentrations array from self
+    - concs_v: concentrations from visitors
     - exps: cumulative-exposures array (s/m3)
     - exps_v2s: exposures visitor->self
     - exps_s2v: exposures self->visitors
+
     Methods:
+
     - plot()
     """
 
@@ -63,77 +75,99 @@ class Simulation:
         tms = np.arange(tstart, tend+tstep/2, tstep)
         vrs = np.zeros_like(tms)
         ns = np.zeros_like(tms)
-
         for t, vr, n in seq:
             ia = int(t/tstep + 0.5)
             vrs[ia:] = vr
             ns[ia:] = n
 
+        ns_self = np.full(ns.shape, nself)
+        ns_self = np.where(ns < nself, ns, ns_self)
+        ns_vis = ns - ns_self
+
+        # simulate
+        self.concs = self._simulate(tms, vrs, ns, V, method=method)
+        self.concs_v = self._simulate(tms, vrs, ns_vis, V, method=method)
+        self.concs_s = self._simulate(tms, vrs, ns_self, V, method=method)
+
+        self.tms = tms
+        self.vrs = vrs
+        self.ns = ns
+
+        # cumulative is a bit more tricky. Visitors exposure only counts when
+        # they're present.
+        self.exps = np.cumsum(self.concs) * tstep
+        self.exps_v2s = np.cumsum(self.concs_v) * tstep
+
+        concs_s2v = np.where(ns_vis > 0, self.concs_s, 0)
+        self.exps_s2v = np.cumsum(concs_s2v) * tstep
+        self.desc = desc
+
+    @staticmethod
+    def _simulate(tms, vrs, ns, V, method='cn'):
+        """Simulation without accounting for us/them distribution.
+
+        Return: concentrations array.
+        """
+
         # simulate
         concs = np.zeros_like(tms)
-        concs_v2s = concs.copy()
-        concs_s2v = concs.copy()
         assert method in ('eu', 'cn')
 
-        def nextcon(cs, i, nsrc):
-            if method == 'eu':
-                # Euler method - not accurate, for testing only
-                cs[i+1] = cs[i] * (1 - kdt) + nsrc*tstep
-            else:
-                # Crank-Nicholson implicit method - more accurate
-                # even at large time steps
-                cs[i+1] = (cs[i] * (1 - kdt/2) + nsrc*tstep) / (1 + kdt/2)
-
+        kdt = np.nan  # depletion per timestep.
+        tstep = np.nan
         kdt_max = -1
         for i in range(len(vrs) - 1):
             # Differential equation:
             # dc/dt = -k c + n
             # with k = vr/V
+            tstep = tms[i+1] - tms[i]
             kdt = vrs[i]/V * tstep
             kdt_max = max(kdt, kdt_max)
             n = ns[i]
-            n_other = max(0, n - nself)
-            n_self_now = n - n_other
-            n_s2o = n_self_now if n_other > 0 else 0
-            nextcon(concs, i, n)
-            nextcon(concs_v2s, i, n_other)
-            if n_s2o > 0:
-                nextcon(concs_s2v, i, n_s2o)
+            if method == 'eu':
+                # Euler method - not accurate, for testing only
+                concs[i+1] = concs[i] * (1 - kdt) + n*tstep/V
             else:
-                concs_s2v[i+1] = 0
+                # Crank-Nicholson implicit method - more accurate
+                # even at large time steps
+                concs[i+1] = (concs[i] * (1 - kdt/2) + n*tstep/V) / (1 + kdt/2)
+
 
         if kdt_max > 0.5:
-            print(f'Warning: k*dt={kdt_max:.2g} should be << 1 ({desc})')
+            print(f'Warning: k*dt={kdt_max:.2g} should be << 1')
 
-        self.tms = tms
-        self.vrs = vrs
-        self.ns = ns
-        self.concs = concs
-        self.concs_v2s = concs_v2s
-        self.concs_s2v = concs_s2v
+        return concs
 
-        self.exps = np.cumsum(concs) * tstep
-        self.exps_v2s = np.cumsum(concs_v2s) * tstep
-        self.exps_s2v = np.cumsum(concs_s2v) * tstep
-        self.desc = desc
 
 
     def plot(self, *args):
-        """Plot data. Optionally also plot others as specified."""
+        """Plot data. Optionally also plot others as specified.
+
+        Set split_concs=False to only show total concentrations and not
+        separately for 'bewoners' and visitors.
+        """
+
+        # TODO: deze inputs in de main() zetten
+        split_concs =  st.sidebar.selectbox("Plot seperate lines for inhabitants and visitors", [True, False], index=1)
+        danger_line = st.sidebar.number_input("Horizonal line CO2 concentratioen", 0, 10000,900)
 
         datasets = [self] + list(args)
         with _lock:
-
             fig, axs = plt.subplots(4, 1, tight_layout=True, sharex=True,
-                                    figsize=(6, 8))
+                                    figsize=(7, 9))
             axs[0].set_title('\n\nAantal personen')
             axs[1].set_title('Ventilatiesnelheid (m³/h)')
-            axs[2].set_title(
-                'Aerosolconcentratie (m$^{-3}$)\n'
-                'bezoek → bewoners (—), bewoners → bezoek (- -)')
-            axs[3].set_title(
-                'Aerosoldosis (h m$^{-3}$)\n'
-                'bezoek → bewoners (—), bewoners → bezoek (- -)')
+
+            if split_concs:
+                axs[2].set_title(
+                    'Aerosolconcentratie (m$^{-3}$)\n'
+                    'Van bezoek (—), van bewoners (- -), totaal (⋯)')
+                axs[3].set_title(
+                    'Aerosoldosis (h m$^{-3}$)\n'
+                    'bezoek → bewoners (—), bewoners → bezoek (- -)')
+            else:
+                axs[2].set_title('Aerosolconcentratie (m$^{-3}$)')
+                axs[3].set_title('Aerosoldosis (h m$^{-3}$)')
             axs[3].set_xlabel('Tijd (h)')
 
             from matplotlib.ticker import MaxNLocator
@@ -154,14 +188,29 @@ class Simulation:
                 ax.plot(ds.tms, ds.vrs, color=col, label=ds.desc, **xargs)
 
                 ax = axs[2]
-                ax.plot(ds.tms, ds.concs_v2s, color=col, ls='-', **xargs)
-                ax.plot(ds.tms, ds.concs_s2v, color=col, ls=dstyle, **xargs)
+                if split_concs:
+                    ax.plot(ds.tms, ds.concs_s, color=col, ls='-', **xargs)
+                    ax.plot(ds.tms, ds.concs_v, color=col, ls=dstyle, **xargs)
+                    ax.plot(ds.tms, ds.concs, color=col, ls=':', **xargs)
+                else:
+                    ax.plot(ds.tms, ds.concs, color=col, ls='-', **xargs)
+
+                # get equivalent CO2 ppm values
+                c2ppm = lambda c: 420 + c*1.67e4
+                ppm2c = lambda p: (p-420)/1.67e4
+
+                ax2 = ax.secondary_yaxis("right", functions=(c2ppm, ppm2c))
+                ax2.set_ylabel('CO$_2$ conc (ppm)')
+                ax.axhline(y=( (danger_line-420)/1.67e4), color="red", alpha=0.6, linestyle="--")
+
 
                 ax = axs[3]
                 # ax.plot(ds.tms, ds.exps, color=col, **xargs)
-                ax.plot(ds.tms, ds.exps_v2s, color=col, ls='-', **xargs)
-                ax.plot(ds.tms, ds.exps_s2v, color=col, ls=dstyle, **xargs)
-
+                if split_concs:
+                    ax.plot(ds.tms, ds.exps_v2s, color=col, ls='-', **xargs)
+                    ax.plot(ds.tms, ds.exps_s2v, color=col, ls=dstyle, **xargs)
+                else:
+                    ax.plot(ds.tms, ds.exps, color=col, ls='-', **xargs)
 
             for ax in axs:
                 ax.tick_params(axis='y', which='minor')
@@ -169,16 +218,15 @@ class Simulation:
                 ax.grid()
                 # ax.legend()
 
-            axs[1].legend()
+            axs[1].legend(loc='upper left', bbox_to_anchor=(1, 1))
             for ax in axs:
                 ymax = ax.get_ylim()[1]
                 ax.set_ylim(-ymax/50, ymax*1.1)
-            plt.gcf().suptitle('Voorbeeld ventilatie en aerosolen woonkamer // @hk_nien')
             st.pyplot(fig)
+
 
 def plot_co2_ventilation():
     with _lock:
-
         fig, ax = plt.subplots(figsize=(6, 4), tight_layout=True)
         vrs = np.linspace(3, 100, 100)
         emission_one = 0.4/24  # m3/h CO2 per person
@@ -225,16 +273,20 @@ def plot_co2_ventilation():
 
 
 
-
-
 def main():
     #plt.close('all')
 
     plot_co2_ventilation()
-    V_ = st.sidebar.number_input ("Room volume (m3)", 0.0, 1000.0, 75.0)
-    tstep_ = st.sidebar.number_input("timestep (h)", 0.0, 10.0, 0.1)
+
+    opp_ = st.sidebar.number_input ("Oppervlakte ruimte (m3)", 0.1, 1000.0, 28.0)
+    hoogte_ = st.sidebar.number_input ("Hoogte ruimte (m3)", 0.1, 1000.0, 2.5)
+
+    V_ = opp_ * hoogte_
+    st.sidebar.write (f"Room volume = {V_} m3")
+    tstep_ = 0.1 # st.sidebar.number_input("timestep (h)", 0.0, 10.0, 0.1)
     nself_ = st.sidebar.number_input("aantal bewoners", 0, 100, 2)
-    bezoekers_ = st.sidebar.number_input("aantal gasten", 0, 100, 6)
+    gasten_ = st.sidebar.number_input("aantal gasten", 0, 100, 4)
+    tot_aanwezigen_ = nself_ + gasten_
     st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh", 0, 1000, 90)
     st.sidebar.write('in bouwbesluit : 90 m³/h ')
     na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek", 0, 1000, 360)
@@ -257,7 +309,7 @@ def main():
     # Note: flow rates tweaked a bit to avoid overlapping lines in plot.
     sim1 = Simulation([
         (0, st_airflow, nself_),
-        (bezoek_komt , st_airflow, bezoekers_),
+        (bezoek_komt , st_airflow, tot_aanwezigen_),
         (bezoek_gaat, st_airflow, nself_),
         (eindtijd, st_airflow, nself_),
         ],
@@ -267,7 +319,7 @@ def main():
 
     sim2 = Simulation([
         (0, st_airflow+1, nself_),
-        (bezoek_komt , st_airflow-1, bezoekers_),
+        (bezoek_komt , st_airflow-1, tot_aanwezigen_),
         (bezoek_gaat, na_bezoek_airflow, nself_),
         (bezoek_gaat+luchttijd, st_airflow+1, nself_),
         (eindtijd, st_airflow+1, nself_),
@@ -277,7 +329,7 @@ def main():
 
     sim3 = Simulation([
         (0,  st_airflow-1, nself_),
-        (bezoek_komt , extra_bezoek_airflow, bezoekers_),
+        (bezoek_komt , extra_bezoek_airflow, tot_aanwezigen_),
         (bezoek_gaat,  st_airflow-1, nself_),
         (eindtijd,  st_airflow-1, nself_),
         ],
