@@ -149,7 +149,7 @@ class Simulation:
 
         # TODO: deze inputs in de main() zetten
         split_concs =  st.sidebar.selectbox("Plot seperate lines for inhabitants and visitors", [True, False], index=1)
-        danger_line = st.sidebar.number_input("Horizonal line CO2 concentratioen", 0, 10000,900)
+        danger_line = st.sidebar.number_input("Horizonal line safe CO2 concentration", 0, 10000,900)
 
 
         datasets = [self] + list(args)
@@ -279,31 +279,31 @@ def main():
     st.title("Show aerosol concentration in room with, without ventilation.")
     plot_co2_ventilation()
 
-    opp_ = st.sidebar.number_input ("Oppervlakte ruimte (m3)", 0.1, 1000.0, 28.0)
-    hoogte_ = st.sidebar.number_input ("Hoogte ruimte (m3)", 0.1, 1000.0, 2.5)
+    opp_ = st.sidebar.number_input ("Oppervlakte ruimte (m2)", 0.1, 1000.0, 28.0)
 
-    V_ = opp_ * hoogte_
-    st.sidebar.write (f"Room volume = {V_} m3")
     tstep_ = 0.1 # st.sidebar.number_input("timestep (h)", 0.0, 10.0, 0.1)
     nself_ = st.sidebar.number_input("aantal bewoners", 0, 100, 2)
     gasten_ = st.sidebar.number_input("aantal gasten", 0, 100, 4)
     tot_aanwezigen_ = nself_ + gasten_
-    st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh", 0.0, 1000.0, opp_ * 2.5)
+    st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh (m³/h)", 0.0, 1000.0, opp_ * 2.5, , 50.0)
     st.sidebar.write(f'in bouwbesluit : {opp_} * 2.5 = {opp_* 2.5} m³/h ')
-    na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek", 0, 1000, 360)
-    extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh luchten tijdens bezoek", 0, 1000, 200)
+    na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek (m³/h)", 0, 1000, 360, 50)
+    extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh luchten tijdens bezoek (m³/h)", 0, 1000, 200, 50)
     bezoek_komt  = st.sidebar.number_input("moment dat bezoek komt (h)", 0, 100, 2)
     bezoek_gaat  = st.sidebar.number_input("moment dat bezoek gaat  (h)", 0, 100, 5)
 
     luchttijd  = st.sidebar.number_input("Luchttijd in scenario 2  (h)", 0.0, 100.0, 0.5)
     eindtijd  = st.sidebar.number_input("Eindtijd in grafiek  (h)", 0, 100, 10)
+    hoogte_ = st.sidebar.number_input ("Hoogte ruimte (m)", 0.1, 1000.0, 2.5)
+    v_ = opp_ * hoogte_
+    st.sidebar.write (f"Room volume = {v_} m3")
 
     if bezoek_gaat < bezoek_komt:
         st.error("Bezoek kan niet eerder gaan dan komen")
         st.stop()
 
     simparams = dict(
-        V=V_,  # room volume (m3)
+        V=v_,  # room volume (m3)
         tstep=tstep_,
         method='cn',
         )
