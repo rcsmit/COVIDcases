@@ -151,6 +151,7 @@ class Simulation:
         split_concs =  st.sidebar.selectbox("Plot seperate lines for inhabitants and visitors", [True, False], index=1)
         danger_line = st.sidebar.number_input("Horizonal line CO2 concentratioen", 0, 10000,900)
 
+
         datasets = [self] + list(args)
         with _lock:
             fig, axs = plt.subplots(4, 1, tight_layout=True, sharex=True,
@@ -275,7 +276,7 @@ def plot_co2_ventilation():
 
 def main():
     #plt.close('all')
-
+    st.title("Show aerosol concentration in room with, without ventilation.")
     plot_co2_ventilation()
 
     opp_ = st.sidebar.number_input ("Oppervlakte ruimte (m3)", 0.1, 1000.0, 28.0)
@@ -287,8 +288,8 @@ def main():
     nself_ = st.sidebar.number_input("aantal bewoners", 0, 100, 2)
     gasten_ = st.sidebar.number_input("aantal gasten", 0, 100, 4)
     tot_aanwezigen_ = nself_ + gasten_
-    st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh", 0, 1000, 90)
-    st.sidebar.write('in bouwbesluit : 90 m³/h ')
+    st_airflow  = st.sidebar.number_input("standaard ventilatiesnelh", 0, 1000, opp_ * 2.5)
+    st.sidebar.write(f'in bouwbesluit : {opp_} * 2.5 = {opp_* 2.5} m³/h ')
     na_bezoek_airflow  = st.sidebar.number_input(" ventilatiesnelh luchten na bezoek", 0, 1000, 360)
     extra_bezoek_airflow  = st.sidebar.number_input("ventilatiesnelh luchten tijdens bezoek", 0, 1000, 200)
     bezoek_komt  = st.sidebar.number_input("moment dat bezoek komt (h)", 0, 100, 2)
