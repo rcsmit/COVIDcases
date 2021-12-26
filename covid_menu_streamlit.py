@@ -57,7 +57,8 @@ def main():
             ["28. VE scenario calculator", "VE_scenario_calculator"],
             ["29. VE vs inv. odds", "VE_vs_inv_odds"],
             ["30. Fit to data Levitt", "fit_to_data_owid_levitt_streamlit_animated"],
-            ["31. Aerosol concentration in room by @hk_nien", "aerosol_in_room_streamlit"]
+            ["31. Aerosol concentration in room by @hk_nien", "aerosol_in_room_streamlit"],
+             ["32. Compare two variants", "compare_two_variants"]
 
             ]
 
