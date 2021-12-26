@@ -185,7 +185,14 @@ def main():
 
 
     st.title('Compare two variants with different R0 and Tg (not combined!)')
-    st.write("Just as thinking excercise")
+    st.write()
+    disclaimerimm = ('<div class=\"infobox\">Just as thinking excercise. <BR>The flattening  is very indicational an is based on the principe<br>'
+            'R<sub>t</sub> = R<sub>start</sub> x (Suspectible / Population)<sup>λ</sup>.<br> '
+                'A lot of factors are not taken into account.<br>'
+            'The number of test is multiplied by ' +str(testimmunefactor)+ ' to get an estimation of the number of cases and immune persons</div>'
+            )
+
+    st.markdown(disclaimerimm, unsafe_allow_html=True)
 
     make_plot (x,positivetests1, positivetests2,'positivetests per day', '', label1, label2, showlogyaxis)
     make_plot (x,cummulative1,cummulative2, "Cummulative cases", 'Cumm.', label1, label2, showlogyaxis)
