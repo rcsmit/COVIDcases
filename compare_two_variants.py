@@ -80,7 +80,7 @@ def main():
         st.error("Please make sure that the date is in format mm/dd/yyyy")
         st.stop()
 
-    NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 20, 720, 60)
+    NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 20, 1440, 365)
     global numberofdays_
     numberofdays_ = NUMBEROFDAYS
     global Tg_A,Tg_B
@@ -88,10 +88,10 @@ def main():
     Rnew_1_ = st.sidebar.number_input('R-number  variant A', 0.1, 10.0, 1.3)
 
     Tg_A = st.sidebar.slider('Generation time variant A', 2.0, 11.0, 4.0)
-    Rnew_2_ = st.sidebar.number_input('R-number variant B', 0.1, 10.0, 5.0)
+    Rnew_2_ = st.sidebar.number_input('R-number variant B', 0.1, 10.0, 1.6)
 
 
-    Tg_B = st.sidebar.slider('Generation time variant B', 2.0, 11.0, 2.0)
+    Tg_B = st.sidebar.slider('Generation time variant B', 2.0, 11.0, 3.0)
     correction = 1 # st.sidebar.number_input('Correction factor', 0.0, 2.0, 1.00)
     Rnew1_= round(Rnew_1_ * correction,2)
     Rnew2_= round(Rnew_2_ * correction,2)
@@ -100,7 +100,7 @@ def main():
 
 
     showimmunization = True # st.sidebar.checkbox("Immunization", True)
-    totalpopulation = (st.sidebar.number_input('Total population',0,1000000000, 17_500_000))
+    totalpopulation = int(st.sidebar.number_input('Total population',0,1_000_000_000, 17_500_000))
     total_immune_day_zero_A = (st.sidebar.number_input('Total immune persons day zero var. A', 0, totalpopulation, 1_000))
     total_immune_day_zero_B = (st.sidebar.number_input('Total immune persons day zero var. B', 0,  totalpopulation, 1_000))
 
