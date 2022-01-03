@@ -242,15 +242,16 @@ def drop_columns(df, what_to_drop):
     return df
 
 
-def select_period(df, show_from, show_until):
+def select_period(df, date): #show_from, show_until):
     """ _ _ _ """
-    if show_from is None:
-        show_from = "2020-1-1"
+    # if show_from is None:
+    #     show_from = "2020-1-1"
 
-    if show_until is None:
-        show_until = "2030-1-1"
+    # if show_until is None:
+    #     show_until = "2030-1-1"
 
-    mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
+    #mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
+    mask = (df["date"].dt.date == date) # & (df["date"].dt.date <= show_until)
     df = df.loc[mask]
 
     df = df.reset_index()
@@ -267,7 +268,7 @@ def save_df(df, name):
     print("--- Saving " + name_ + " ---")
 
 
-def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100):
+def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100,  log_x, log_y):
     """Find slope of regression line - DOESNT WORK
 
     Args:
@@ -278,6 +279,9 @@ def find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100):
     Returns:
         [type]: [description]
     """
+
+
+
     x = np.array(df_temp[what_to_show_l]).reshape((-1, 1))
     y = np.array(df_temp[what_to_show_r])
     #obtain m (slope) and b(intercept) of linear regression line
@@ -316,7 +320,7 @@ def create_trendline(l,m,b):
     df_trendline = pd.DataFrame(t, columns = ['x', 'y'])
     return df_trendline
 
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, hover_name, log_x, log_y):
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, hover_name, log_x, log_y, date):
     """Makes a scatterplot with trendline and statistics
 
     Args:
@@ -327,6 +331,19 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
         categoryfield ([type]): [description]
     """
     df_temp =df_temp[[what_to_show_l, what_to_show_r, categoryfield, hover_name]]
+    if log_x == True:
+        new_column_x = "log10_" + what_to_show_l
+        df_temp[new_column_x] = np.log(df_temp[what_to_show_l])
+        what_to_show_l_calc = new_column_x
+    else:
+        what_to_show_l_calc = what_to_show_l
+
+    if log_y == True:
+        new_column_y = "log10_" + what_to_show_r
+        df_temp[new_column_y] = np.log(df_temp[what_to_show_r])
+        what_to_show_r_calc = new_column_y
+    else:
+        what_to_show_r_calc = what_to_show_r
 
     df_temp= df_temp.dropna()
     print (df_temp)
@@ -335,7 +352,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
         st.stop()
     with _lock:
         fig1xy,ax = plt.subplots()
-        m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, False)
+        m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l_calc, what_to_show_r_calc, False, log_x, log_y)
 
 
         fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name,  trendline="ols",  trendline_options=dict(log_x=log_x,log_y=log_y ),  trendline_scope="overall", log_x=log_x, log_y = log_y)
@@ -347,10 +364,10 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
         # #add linear regression line to scatterplot
 
         # fig3 = go.Figure(data=fig1xy.data + fig2.data)
-        correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
-        correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+        correlation_sp = round(df_temp[what_to_show_l_calc].corr(df_temp[what_to_show_r_calc], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+        correlation_p = round(df_temp[what_to_show_l_calc].corr(df_temp[what_to_show_r_calc], method='pearson'), 3)
 
-        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+        title_scatter = (f"{what_to_show_l} -  {what_to_show_r} ({date})<br>Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")  #Rankcorrelation spearman = {correlation_sp} -
 
         fig1xy.update_layout(
             title=dict(
@@ -458,63 +475,71 @@ def main():
 
     df_getdata, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
+
     st.title("Scatterplots OWID")
     # st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
 
-
+    st.write ("Replicating")
+    st.write ("R-code: https://rstudio.cloud/project/2771953")
 
     DATE_FORMAT = "%m/%d/%Y"
-    start_ = "2020-01-01"
-    today = datetime.today().strftime("%Y-%m-%d")
-    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+    start_ = "2021-12-25"
+    #today = datetime.today().strftime("%Y-%m-%d")
+    #today = "2021-12-27"
+    from_ = st.sidebar.text_input("date (yyyy-mm-dd)", start_)
 
     try:
-        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
+        date = dt.datetime.strptime(from_, "%Y-%m-%d").date()
     except:
         st.error("Please make sure that the startdate is in format yyyy-mm-dd")
         st.stop()
 
-    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+    # until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
 
-    try:
-        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
-    except:
-        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
-        st.stop()
+    # try:
+    #     UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
+    # except:
+    #     st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+    #     st.stop()
 
-    if FROM >= UNTIL:
-        st.warning("Make sure that the end date is not before the start date")
-        st.stop()
+    # if FROM > UNTIL:
+    #     st.warning("Make sure that the end date is not before the start date")
+    #     st.stop()
 
-    if until_ == "2023-08-23":
+    if from_ == "2023-08-23":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
             caching.clear_cache()
             st.success("Cache is cleared, please reload to scrape new values")
 
-    df = select_period(df, FROM, UNTIL)
+    #df = select_period(df, FROM, UNTIL)
+    df = select_period(df, date)
+
     df = df.drop_duplicates()
-    dashboard(df)
+
+    df = df[df["population"] > 1000000]
+
+    dashboard(df, date)
 
 
 
-def dashboard(df):
+def dashboard(df, date):
     lijst = df.columns.tolist()
     del lijst[0:5]
 
     what_to_show_l = st.sidebar.selectbox(
         # "What to show left-axis (multiple possible)", lijst, ["reproduction_rate"]
-        "What to show X-axis", lijst, index=0
+        "What to show X-axis", lijst, index=49
     )
     what_to_show_r = st.sidebar.selectbox(
         # "What to show right-axis (multiple possible)", lijst, ["driving_waze", "transit_stations"]
-        "What to show Y-axis", lijst, index=3
+        "What to show Y-axis", lijst, index=38
     )
 
     log_x = st.sidebar.selectbox(
 
-        "X-ax as log", [True, False], index=1)
+        "X-ax as log", [True, False], index=0)
     log_y = st.sidebar.selectbox(
 
         "Y-ax as log", [True, False], index=1)
@@ -523,7 +548,7 @@ def dashboard(df):
     #     df[new_column] = np.log(df[what_to_show_l])
     #     what_to_show_l = new_column
 
-    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y)
+    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y, date)
 
 
     show_footer()
