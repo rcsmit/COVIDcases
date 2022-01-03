@@ -316,7 +316,7 @@ def create_trendline(l,m,b):
     df_trendline = pd.DataFrame(t, columns = ['x', 'y'])
     return df_trendline
 
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, hover_name):
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, hover_name, log_x, log_y):
     """Makes a scatterplot with trendline and statistics
 
     Args:
@@ -335,21 +335,21 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
         m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, False)
 
 
-        fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name)
-        l = df_temp[what_to_show_l].max()
-        df_trendline = create_trendline(l,m,b)
+        fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name,  trendline="ols",  trendline_options=dict(log_x=log_x,log_y=log_y ),  trendline_scope="overall", log_x=log_x, log_y = log_y)
+        # l = df_temp[what_to_show_l].max()
+        # df_trendline = create_trendline(l,m,b)
 
-        fig2 = px.line(df_trendline, x="x", y="y")
-        fig2.update_traces(line=dict(color = 'rgba(50,50,50,0.8)'))
-        #add linear regression line to scatterplot
+        # fig2 = px.line(df_trendline, x="x", y="y")
+        # fig2.update_traces(line=dict(color = 'rgba(50,50,50,0.8)'))
+        # #add linear regression line to scatterplot
 
-        fig3 = go.Figure(data=fig1xy.data + fig2.data)
+        # fig3 = go.Figure(data=fig1xy.data + fig2.data)
         correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
         correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
 
         title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
-        fig3.update_layout(
+        fig1xy.update_layout(
             title=dict(
                 text=title_scatter,
                 x=0.5,
@@ -379,7 +379,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
             ha="right",
         )
 
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig1xy, use_container_width=True)
 
 def set_xmargin(ax, left=0.0, right=0.3):
     ax.set_xmargin(0)
@@ -502,14 +502,25 @@ def dashboard(df):
 
     what_to_show_l = st.sidebar.selectbox(
         # "What to show left-axis (multiple possible)", lijst, ["reproduction_rate"]
-        "What to show left-axis (multiple possible)", lijst, index=0
+        "What to show X-axis", lijst, index=0
     )
     what_to_show_r = st.sidebar.selectbox(
         # "What to show right-axis (multiple possible)", lijst, ["driving_waze", "transit_stations"]
-        "What to show right-axis (multiple possible)", lijst, index=3
+        "What to show Y-axis", lijst, index=3
     )
 
-    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location")
+    log_x = st.sidebar.selectbox(
+
+        "X-ax as log", [True, False], index=1)
+    log_y = st.sidebar.selectbox(
+
+        "Y-ax as log", [True, False], index=1)
+    # if log_x == True:
+    #     new_column = "log_" + what_to_show_l
+    #     df[new_column] = np.log(df[what_to_show_l])
+    #     what_to_show_l = new_column
+
+    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y)
 
 
     show_footer()
