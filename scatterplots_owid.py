@@ -330,6 +330,9 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
 
     df_temp= df_temp.dropna()
     print (df_temp)
+    if len(df_temp) = 0:
+        st.error("No data")
+        st.stop()
     with _lock:
         fig1xy,ax = plt.subplots()
         m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, False)
