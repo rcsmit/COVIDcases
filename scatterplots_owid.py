@@ -478,9 +478,10 @@ def main():
 
     st.title("Scatterplots OWID")
     # st.header("")
-    st.subheader("Under construction - Please send feedback to @rcsmit")
 
-    st.write ("Replicating")
+
+    st.write ("Standard values are replicating: Palash Basak, Global Perspective of COVID-19 Vaccine Nationalism,")
+    st.write("https://www.medrxiv.org/content/10.1101/2021.12.31.21268580v1.full.pdf")
     st.write ("R-code: https://rstudio.cloud/project/2771953")
 
     DATE_FORMAT = "%m/%d/%Y"
