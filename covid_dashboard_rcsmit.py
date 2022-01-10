@@ -2021,7 +2021,7 @@ def main():
         if what_to_show_day_l == None:
             st.warning("Choose something")
             st.stop()
-        move_right = st.sidebar.slider("Move curves at right axis (days)", -14, 14, 0)
+        move_right = st.sidebar.slider("Move curves at right axis (days)", -31, 31, 0)
     else:
         move_right = 0
 
@@ -2243,7 +2243,7 @@ def main():
     # st.markdown(f'<a href="data:file/csv;base64,{coded_data}" download="data.csv">Download Data<a>', unsafe_allow_html = True)
     if len(what_to_show_day_l) == 1 and len(what_to_show_day_r) == 1:  # add lagtime
         #if st.sidebar.button("Find lagtime"):
-        find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,14)
+        find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,31)
     # correlation_matrix(df,werkdagen, weekend_)
 
     @st.cache
