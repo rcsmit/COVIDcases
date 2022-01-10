@@ -1682,7 +1682,7 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
         y_sma.append(c_sma)
 
 
-    title = f"Correlation between : {a} - {b} with moved days"
+    title = f"Correlation between : {a} - {b} with moved days\n({FROM} - {UNTIL})"
 
     with _lock:
         fig1x = plt.figure()
