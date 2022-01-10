@@ -1671,6 +1671,7 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
         c = round(df[m].corr(df[nx]), 3)
         if c > max:
             max = c
+            n_max = n
 
         x.append(n)
         y.append(c)
@@ -1679,6 +1680,7 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
         c_sma = round(df[m_sma].corr(df[nx_sma]), 3)
         if c_sma > max_sma:
             max_sma = c_sma
+            n_max_sma = n
         y_sma.append(c_sma)
 
 
@@ -1697,6 +1699,8 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
         plt.title(title, fontsize=10)
         st.pyplot(fig1x)
     # plt.show()
+    st.write (f"Values: {n_max} - correlation = {max}")
+    st.write (f"Smoothed: {n_max_sma} - correlation = {max_sma}")
 
     # graph_daily(df, [a], [b], "SMA", "line", showday)
     # graph_daily(df, [a], [max_column], "SMA", "line", showday)
