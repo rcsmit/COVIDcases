@@ -1212,7 +1212,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
             for h, l in zip(*ax.get_legend_handles_labels()):
                 handles.append(h)
                 labels.append(l)
-        # plt.legend(handles,labels)
+        # rotateegend(handles,labels)
         # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
         plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=1)
         ax.text(1,1.1,"Created by Rene Smit — @rcsmit",transform=ax.transAxes,
@@ -1699,8 +1699,8 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
         plt.title(title, fontsize=10)
         st.pyplot(fig1x)
     # plt.show()
-    st.write (f"Values: {n_max} - correlation = {max}")
-    st.write (f"Smoothed: {n_max_sma} - correlation = {max_sma}")
+    st.write (f"Values: heightest correlateion at  {n_max} days - correlation = {max}")
+    st.write (f"Smoothed: heightest correlateion at {n_max_sma} days - correlation = {max_sma}")
 
     # graph_daily(df, [a], [b], "SMA", "line", showday)
     # graph_daily(df, [a], [max_column], "SMA", "line", showday)
@@ -2247,7 +2247,7 @@ def main():
     # st.markdown(f'<a href="data:file/csv;base64,{coded_data}" download="data.csv">Download Data<a>', unsafe_allow_html = True)
     if len(what_to_show_day_l) == 1 and len(what_to_show_day_r) == 1:  # add lagtime
         #if st.sidebar.button("Find lagtime"):
-        find_lag_time(df, what_to_show_day_l, what_to_show_day_r, 0,31)
+        find_lag_time(df, what_to_show_day_l, what_to_show_day_r, -31,31)
     # correlation_matrix(df,werkdagen, weekend_)
 
     @st.cache
