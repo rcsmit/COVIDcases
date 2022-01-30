@@ -60,7 +60,7 @@ def main():
             ["31. Aerosol concentration in room by @hk_nien", "aerosol_in_room_streamlit"],
             ["32. Compare two variants", "compare_two_variants"],
             ["33. Scatterplot OWID", "scatterplots_owid"],
-            ["33. Playing with R0", "playing_with_R0"]
+            ["34. Playing with R0", "playing_with_R0"]
 
             ]
 
