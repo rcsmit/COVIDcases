@@ -59,7 +59,8 @@ def main():
             ["30. Fit to data Levitt", "fit_to_data_owid_levitt_streamlit_animated"],
             ["31. Aerosol concentration in room by @hk_nien", "aerosol_in_room_streamlit"],
             ["32. Compare two variants", "compare_two_variants"],
-            ["33. Scatterplot OWID", "scatterplots_owid"]
+            ["33. Scatterplot OWID", "scatterplots_owid"],
+            ["33. Playing with R0", "playing_with_R0"]
 
             ]
 
@@ -109,6 +110,6 @@ def main():
                 st.warning(traceback.format_exc())
                 st.stop()
 
-if __name__ == "__main__":
+
     main()
     show_info()
