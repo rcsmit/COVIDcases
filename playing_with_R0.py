@@ -27,61 +27,56 @@ from scipy.integrate import odeint
 
 
 
-def make_plot_math(x, title, datareeksen, showlogyaxis):
-    def configgraph(titlex, showlogyaxis):
-        interval_ = int(numberofdays_ / 20)
-        plt.xlabel('date')
-        plt.xlim(x[0], x[-1])
-        # todaylabel = "Today ("+ b + ")"
-        #plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
-        # Add a grid
-        plt.grid(alpha=.4,linestyle='--')
 
-        #Add a Legend
-        fontP = FontProperties()
-        fontP.set_size('xx-small')
-        plt.legend(  loc='best', prop=fontP)
-        plt.title(titlex , fontsize=10)
-        #plt.ylim(bottom = 0)
-        if showlogyaxis == "10":
-            ax.semilogy()
-        if showlogyaxis == "2":
-            ax.semilogy(2)
-        if showlogyaxis == "logit":
-            ax.set_yscale("logit")
-        # lay-out of the x axis
-        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
-        plt.gcf().autofmt_xdate()
-        plt.gca().set_title(titlex , fontsize=10)
-
-    # POS TESTS /day ################################
-    with _lock:
-        fig1, ax = plt.subplots()
-
-        for a in datareeksen:
-            plt.plot(x, a[0], label=f" {a[1]}", color = a[2] , linestyle='--')
-
-        plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-        # Add X and y Label and limits
-        configgraph(title,  showlogyaxis)
-        plt.ylabel(title)
-        st.pyplot(fig1)
 
 def main_mathematisch(numberofpositivetests, NUMBEROFDAYS, datediff, Tg_A, R0, Rnew1_, Rnew2_, showimmunization, totalpopulation, total_immune_day_zero_A, testimmunefator, showlogyaxis, x):
+    def make_plot_math(x, title, datareeksen, showlogyaxis):
+        def configgraph_math(titlex, showlogyaxis):
+            interval_ = int(numberofdays_ / 20)
+            plt.xlabel('date')
+            plt.xlim(x[0], x[-1])
+            # todaylabel = "Today ("+ b + ")"
+            #plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
+            # Add a grid
+            plt.grid(alpha=.4,linestyle='--')
 
+            #Add a Legend
+            fontP = FontProperties()
+            fontP.set_size('xx-small')
+            plt.legend(  loc='best', prop=fontP)
+            plt.title(titlex , fontsize=10)
+            #plt.ylim(bottom = 0)
+            if showlogyaxis == "10":
+                ax.semilogy()
+            if showlogyaxis == "2":
+                ax.semilogy(2)
+            if showlogyaxis == "logit":
+                ax.set_yscale("logit")
+            # lay-out of the x axis
+            plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+            plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
+            plt.gcf().autofmt_xdate()
+            plt.gca().set_title(titlex , fontsize=10)
 
+        # POS TESTS /day ################################
+        with _lock:
+            fig1, ax = plt.subplots()
 
+            for a in datareeksen:
+                plt.plot(x, a[0], label=f" {a[1]}", color = a[2] , linestyle='--')
+
+            plt.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
+            # Add X and y Label and limits
+            configgraph_math(title,  showlogyaxis)
+            plt.ylabel(title)
+            st.pyplot(fig1)
 
     def calculate_cases(R, numberofpositivetests, total_immune_day_zero_A, Tg_A, NUMBEROFDAYS, showimmunization, totalpopulation, testimmunefator, ):
-
-
         positivetests1 = [numberofpositivetests]
         cummulative1 = [0]
         totalimmune_A=[total_immune_day_zero_A]
         r_A_in_de_tijd = [R]
-        immeratio_A,immeratio_B = [],[]
-        label1= f'Variant A | R0 = {R} / Tg = {Tg_A}'
+        immeratio_A= []
         # START CALCULATING --------------------------------------------------------------------
         lambdaa = 1.0
 
@@ -112,43 +107,81 @@ def main_mathematisch(numberofpositivetests, NUMBEROFDAYS, datediff, Tg_A, R0, R
         return positivetests1
 
 
-    def th2r(rz):
-        return int( Tg_ * math.log(0.5) / math.log(rz))
-
-    def r2th(th):
-        # HK is using  r = 2**(Tg_/th)
-        return int(10**((Tg_*mat.log(2))/th))
-
-    def getsecondax():
-        # get second y axis
-        # Door Han-Kwang Nienhuys - MIT License
-        # https://github.com/han-kwang/covid19/blob/master/nlcovidstats.py
-        ax2 = ax.twinx()
-        T2s = np.array([-2, -4,-7, -10, -11,-14, -21, -60, 9999, 60, 21, 14, 11,10, 7, 4, 2])
-        y2ticks = 2**(Tg_/T2s)
-        y2labels = [f'{t2 if t2 != 9999 else "∞"}' for t2 in T2s]
-        ax2.set_yticks(y2ticks)
-        ax2.set_yticklabels(y2labels)
-        ax2.set_ylim(*ax.get_ylim())
-        ax2.set_ylabel('Halverings-/verdubbelingstijd (dagen)')
-
-
-
-    ################################################
     positivetests0 = calculate_cases(R0, numberofpositivetests, total_immune_day_zero_A, Tg_A, NUMBEROFDAYS, showimmunization, totalpopulation, testimmunefator)
     positivetests1 = calculate_cases(Rnew1_, numberofpositivetests, total_immune_day_zero_A, Tg_A, NUMBEROFDAYS, showimmunization, totalpopulation, testimmunefator)
     positivetests2 = calculate_cases(Rnew2_, numberofpositivetests, total_immune_day_zero_A, Tg_A, NUMBEROFDAYS, showimmunization, totalpopulation, testimmunefator)
 
     datareeksen = [[positivetests0, R0, "red"],[positivetests1, Rnew1_, "green"],[positivetests2, Rnew2_, "blue"]]
 
-    make_plot_math(x, "aantal cases mathematische groei", datareeksen, showlogyaxis)
+    make_plot_math(x, "aantal cases volgens groeimodel", datareeksen, showlogyaxis)
+    st.write("De afname gebeurt doordat het R(t) getal daalt door de tijd heen. R(t) = S/N*R(start)")
 
 
 def main_SIR(numberofpositivetests, NUMBEROFDAYS, datediff, b, R0_, factor1, factor2, totalpopulation, total_immune_day_zero_A,  x, incubationtime, infectioustime):
+
+    def graph_SIR(datareeksen,titlex,x,b,datediff):
+        def configgraph_sir(titlex,x,b,datediff):
+            interval_ = int(numberofdays_ / 20)
+            plt.xlabel('date')
+            plt.xlim(x[0], x[-1])
+            todaylabel = "Today ("+ b + ")"
+            plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
+            # Add a grid
+            plt.grid(alpha=.4,linestyle='--')
+
+            #Add a Legend
+            fontP = FontProperties()
+            fontP.set_size('xx-small')
+            plt.legend(  loc='best', prop=fontP)
+            plt.title(titlex , fontsize=10)
+
+            # lay-out of the x axis
+            plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+            plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
+            plt.gcf().autofmt_xdate()
+            plt.gca().set_title(titlex , fontsize=10)
+        # New cases
+        fig2c = plt.figure(facecolor='w')
+        ax = fig2c.add_subplot(111,  axisbelow=True)
+        for a in datareeksen:
+            ax.plot(x, a[0], a[2], alpha=0.5,  label=f'Re {a[1]}')
+        ax.set_xlabel('Time (days)')
+        ax.set_ylabel('Number')
+        ax.yaxis.set_tick_params(length=0)
+        ax.xaxis.set_tick_params(length=0)
+        titlex = 'Aantal geinfecteerden volgens het SIR model'
+        configgraph_sir(titlex,x,b,datediff)
+
+        st.pyplot(fig2c)
+
+    def integrate(R0, N, I0,  S0, beta, gamma, t):
+        #beta = R0_*gamma/(S0/N)
+        # The SIR model differential equations.
+        # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
+        def deriv(y, t, N, beta, gamma):
+            S,  I, R = y
+
+            dSdt = 0 if S<=0 else (-beta * S * I / N)
+            #dEdt = beta * S * I / N  - alfa * E
+            dIdt = beta * S * I / N  - gamma * I
+            #dCdt = alfa * E
+
+            dRdt = (gamma * I)
+
+
+            return dSdt,  dIdt, dRdt
+
+        # Initial conditions vector
+        y0 = S0,  I0, R0
+        # Integrate the SIR equations over the time grid, t.
+        ret = odeint(deriv, y0, t, args=(N, beta, gamma))
+        S, I, R  = ret.T
+        return I
+
+
+
     suspectible =[]
     suspectible.append(totalpopulation - total_immune_day_zero_A)
-    #recovered.append(totalimmunedayzero )
-
 
     # START CALCULATING --------------------------------------------------------------------
 
@@ -204,67 +237,6 @@ def main_SIR(numberofpositivetests, NUMBEROFDAYS, datediff, b, R0_, factor1, fac
     datareeksen = [[I0_, f" = {R0_}", "red"],[I1_, f"*  {factor1}", "green"],[I2_, f"*  {factor2}", "blue"]]
     graph_SIR(datareeksen,"SIR model",x,b,datediff)
 
-
-def graph_SIR(datareeksen,titlex,x,b,datediff):
-    def configgraph(titlex,x,b,datediff):
-        interval_ = int(numberofdays_ / 20)
-        plt.xlabel('date')
-        plt.xlim(x[0], x[-1])
-        todaylabel = "Today ("+ b + ")"
-        plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
-        # Add a grid
-        plt.grid(alpha=.4,linestyle='--')
-
-        #Add a Legend
-        fontP = FontProperties()
-        fontP.set_size('xx-small')
-        plt.legend(  loc='best', prop=fontP)
-        plt.title(titlex , fontsize=10)
-
-        # lay-out of the x axis
-        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
-        plt.gcf().autofmt_xdate()
-        plt.gca().set_title(titlex , fontsize=10)
-    # New cases
-    fig2c = plt.figure(facecolor='w')
-    ax = fig2c.add_subplot(111,  axisbelow=True)
-    for a in datareeksen:
-        ax.plot(x, a[0], a[2], alpha=0.5,  label=f'Re {a[1]}')
-    ax.set_xlabel('Time (days)')
-    ax.set_ylabel('Number')
-    ax.yaxis.set_tick_params(length=0)
-    ax.xaxis.set_tick_params(length=0)
-    titlex = 'Infected'
-    configgraph(titlex,x,b,datediff)
-    plt.show()
-    st.pyplot(fig2c)
-
-def integrate(R0, N, I0,  S0, beta, gamma, t):
-    #beta = R0_*gamma/(S0/N)
-    # The SIR model differential equations.
-    # https://scipython.com/book/chapter-8-scipy/additional-examples/the-sir-epidemic-model/
-    def deriv(y, t, N, beta, gamma):
-        S,  I, R = y
-
-        dSdt = 0 if S<=0 else (-beta * S * I / N)
-        #dEdt = beta * S * I / N  - alfa * E
-        dIdt = beta * S * I / N  - gamma * I
-        #dCdt = alfa * E
-
-        dRdt = (gamma * I)
-
-
-        return dSdt,  dIdt, dRdt
-
-    # Initial conditions vector
-    y0 = S0,  I0, R0
-    # Integrate the SIR equations over the time grid, t.
-    ret = odeint(deriv, y0, t, args=(N, beta, gamma))
-    S, I, R  = ret.T
-    return I
-
-
 def interface():
     DATE_FORMAT = "%m/%d/%Y"
     b = datetime.today().strftime('%m/%d/%Y')
@@ -287,8 +259,6 @@ def interface():
     showimmunization = True # st.sidebar.checkbox("Immunization", True)
     totalpopulation = int(st.sidebar.number_input('Total population',0,1_000_000_000, 17_500_000))
     total_immune_day_zero_A = (st.sidebar.number_input('Total immune persons day zero var. A', 0, totalpopulation, 1_000))
-
-
 
     R0_number = st.sidebar.number_input('R0-number', 0.1, 10.0, 1.3)
     factor1 = st.sidebar.number_input('factor 1', 0.1, 10.0, 0.95)
