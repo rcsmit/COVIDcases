@@ -117,7 +117,7 @@ def main_mathematisch(numberofpositivetests, NUMBEROFDAYS, datediff, Tg_A, R0, R
     st.write("De afname gebeurt doordat het R(t) getal daalt door de tijd heen. R(t) = S/N*R(start)")
 
 
-def main_SIR(numberofpositivetests, NUMBEROFDAYS, datediff, b, R0_, factor1, factor2, totalpopulation, total_immune_day_zero_A,  x, incubationtime, infectioustime):
+def main_SIR(numberofpositivetests, NUMBEROFDAYS, datediff, b, Rnaught, factor1, factor2, totalpopulation, total_immune_day_zero_A,  x, incubationtime, infectioustime):
 
     def graph_SIR(datareeksen,titlex,x,b,datediff):
         def configgraph_sir(titlex,x,b,datediff):
@@ -211,10 +211,10 @@ def main_SIR(numberofpositivetests, NUMBEROFDAYS, datediff, b, R0_, factor1, fac
 
     # Gamma is 1/serial interval
     # https://wwwnc.cdc.gov/eid/article/26/6/20-0357_article
-    beta = 1./incubationtime
+    #beta = 1./incubationtime
     gamma = 1./infectioustime
 
-    #beta = Rstart*gamma
+    beta = Rnaught*gamma
 
     #beta, gamma = 0.2, 1./20
 
@@ -234,7 +234,7 @@ def main_SIR(numberofpositivetests, NUMBEROFDAYS, datediff, b, R0_, factor1, fac
     I1_ = integrate(R0, N, I0, S0, beta*factor1, gamma, t, )
     I2_ = integrate(R0, N, I0, S0, beta*factor2, gamma, t, )
 
-    datareeksen = [[I0_, f" = {R0_}", "red"],[I1_, f"*  {factor1}", "green"],[I2_, f"*  {factor2}", "blue"]]
+    datareeksen = [[I0_, f" = {Rnaught}", "red"],[I1_, f"*  {factor1}", "green"],[I2_, f"*  {factor2}", "blue"]]
     graph_SIR(datareeksen,"SIR model",x,b,datediff)
 
 def interface():
@@ -268,7 +268,7 @@ def interface():
     Rnew1_= round(R0_number * factor1,2)
     Rnew2_= round(R0_number * factor2,2)
 
-    incubationtime = (st.sidebar.slider('Infection time (1/beta)', 1, 30, 2))
+    incubationtime = 2 # NOT USED ANYMORE(st.sidebar.slider('Infection time (1/beta)', 1, 30, 2))
     infectioustime = (st.sidebar.slider('Recovery time (1/gamma)', 1, 30, 20))
 
     testimmunefator = 1 # st.sidebar.slider('cases/realityfactor', 0.0, 10.0, 2.50)
