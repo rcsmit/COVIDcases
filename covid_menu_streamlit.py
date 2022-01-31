@@ -109,5 +109,5 @@ def main():
                 st.stop()
 
 
-    main()
-    show_info()
+main()
+show_info()

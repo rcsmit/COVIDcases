@@ -271,7 +271,7 @@ def interface():
     st.sidebar.title('Parameters')
 
     st.markdown("<hr>", unsafe_allow_html=True)
-    a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"12/6/2021")
+    a = st.sidebar.text_input('startdate (mm/dd/yyyy)',b)
 
     try:
         startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
