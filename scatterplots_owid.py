@@ -349,7 +349,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
     print (df_temp)
     if len(df_temp) == 0:
         st.error("No data")
-        st.stop()
+        return
     with _lock:
         fig1xy,ax = plt.subplots()
         m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l_calc, what_to_show_r_calc, False, log_x, log_y)
@@ -432,6 +432,10 @@ def init():
 
 
 def show_footer():
+    st.write ("Original Standard values were replicating: Palash Basak, Global Perspective of COVID-19 Vaccine Nationalism,")
+    st.write("https://www.medrxiv.org/content/10.1101/2021.12.31.21268580v1.full.pdf")
+    st.write ("R-code: https://rstudio.cloud/project/2771953")
+
     toelichting = (
       ""
     )
@@ -441,8 +445,7 @@ def show_footer():
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
         'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/edit/main/covid_dashboard_rcsmit.py" target="_blank">github.com/rcsmit</a><br>'
         'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
-        'Restrictions by <a href="https://twitter.com/hk_nien" target="_blank">Han-Kwang Nienhuys</a> (MIT-license).</div>'
-    )
+      )
 
     st.markdown(toelichting, unsafe_allow_html=True)
     st.sidebar.markdown(tekst, unsafe_allow_html=True)
@@ -479,11 +482,26 @@ def main():
     st.title("Scatterplots OWID")
     # st.header("")
 
+    date, lijst, what_to_show_l, what_to_show_r, log_x, log_y = interface(df)
+    df = select_period(df, date)
 
-    st.write ("Standard values are replicating: Palash Basak, Global Perspective of COVID-19 Vaccine Nationalism,")
-    st.write("https://www.medrxiv.org/content/10.1101/2021.12.31.21268580v1.full.pdf")
-    st.write ("R-code: https://rstudio.cloud/project/2771953")
+    df = df.drop_duplicates()
 
+    df = df[df["population"] > 1000000]
+
+    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y, date)
+    continent_list = df['continent'].unique()
+    for continent in continent_list:
+        df_continent = df[df["continent"] == continent]
+        if len(df_continent) != 0:
+            st.subheader(continent)
+            make_scatterplot(df_continent, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y, date)
+
+    show_footer()
+
+
+
+def interface(df):
     DATE_FORMAT = "%m/%d/%Y"
     start_ = "2021-12-25"
     #today = datetime.today().strftime("%Y-%m-%d")
@@ -515,32 +533,23 @@ def main():
             st.success("Cache is cleared, please reload to scrape new values")
 
     #df = select_period(df, FROM, UNTIL)
-    df = select_period(df, date)
 
-    df = df.drop_duplicates()
-
-    df = df[df["population"] > 1000000]
-
-    dashboard(df, date)
-
-
-
-def dashboard(df, date):
     lijst = df.columns.tolist()
     del lijst[0:5]
 
+    for i,x in enumerate(lijst):
+        print (f"{i} - {x}")
+
     what_to_show_l = st.sidebar.selectbox(
-        # "What to show left-axis (multiple possible)", lijst, ["reproduction_rate"]
-        "What to show X-axis", lijst, index=49
+        "What to show X-axis", lijst, index=37
     )
     what_to_show_r = st.sidebar.selectbox(
-        # "What to show right-axis (multiple possible)", lijst, ["driving_waze", "transit_stations"]
-        "What to show Y-axis", lijst, index=38
+        "What to show Y-axis", lijst, index=10
     )
 
     log_x = st.sidebar.selectbox(
 
-        "X-ax as log", [True, False], index=0)
+        "X-ax as log", [True, False], index=1)
     log_y = st.sidebar.selectbox(
 
         "Y-ax as log", [True, False], index=1)
@@ -549,10 +558,7 @@ def dashboard(df, date):
     #     df[new_column] = np.log(df[what_to_show_l])
     #     what_to_show_l = new_column
 
-    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y, date)
-
-
-    show_footer()
+    return date, lijst, what_to_show_l, what_to_show_r, log_x, log_y
 
 if __name__ == "__main__":
     main()
