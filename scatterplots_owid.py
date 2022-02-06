@@ -242,16 +242,16 @@ def drop_columns(df, what_to_drop):
     return df
 
 
-def select_period(df, date): #show_from, show_until):
+def select_period(df, show_from, show_until):
     """ _ _ _ """
-    # if show_from is None:
-    #     show_from = "2020-1-1"
+    if show_from is None:
+        show_from = "2020-1-1"
 
-    # if show_until is None:
-    #     show_until = "2030-1-1"
+    if show_until is None:
+        show_until = "2030-1-1"
 
-    #mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
-    mask = (df["date"].dt.date == date) # & (df["date"].dt.date <= show_until)
+    mask = (df["date"].dt.date >= show_from) & (df["date"].dt.date <= show_until)
+    #mask = (df["date"].dt.date == date) # & (df["date"].dt.date <= show_until)
     df = df.loc[mask]
 
     df = df.reset_index()
@@ -320,7 +320,8 @@ def create_trendline(l,m,b):
     df_trendline = pd.DataFrame(t, columns = ['x', 'y'])
     return df_trendline
 
-def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, hover_name, log_x, log_y, date):
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, hover_name, log_x, log_y, FROM, UNTIL):
+
     """Makes a scatterplot with trendline and statistics
 
     Args:
@@ -330,6 +331,11 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
         show_cat ([type]): [description]
         categoryfield ([type]): [description]
     """
+
+    if FROM==UNTIL:
+        date = FROM
+    else:
+        date = f"{FROM} - {UNTIL}"
     df_temp =df_temp[[what_to_show_l, what_to_show_r, categoryfield, hover_name]]
     if log_x == True:
         new_column_x = "log10_" + what_to_show_l
@@ -346,7 +352,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
         what_to_show_r_calc = what_to_show_r
 
     df_temp= df_temp.dropna()
-    print (df_temp)
+    #print (df_temp)
     if len(df_temp) == 0:
         st.error("No data")
         return
@@ -364,10 +370,10 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
         # #add linear regression line to scatterplot
 
         # fig3 = go.Figure(data=fig1xy.data + fig2.data)
-        correlation_sp = round(df_temp[what_to_show_l_calc].corr(df_temp[what_to_show_r_calc], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+        # correlation_sp = round(df_temp[what_to_show_l_calc].corr(df_temp[what_to_show_r_calc], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
         correlation_p = round(df_temp[what_to_show_l_calc].corr(df_temp[what_to_show_r_calc], method='pearson'), 3)
 
-        title_scatter = (f"{what_to_show_l} -  {what_to_show_r} ({date})<br>Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")  #Rankcorrelation spearman = {correlation_sp} -
+        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>({date})<br>Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")  #Rankcorrelation spearman = {correlation_sp} -
 
         fig1xy.update_layout(
             title=dict(
@@ -482,49 +488,119 @@ def main():
     st.title("Scatterplots OWID")
     # st.header("")
 
-    date, lijst, what_to_show_l, what_to_show_r, log_x, log_y = interface(df)
-    df = select_period(df, date)
+    FROM, UNTIL, lijst, what_to_show_l, what_to_show_r, log_x, log_y, method_x, method_y = interface(df)
+    df = select_period(df, FROM, UNTIL)
+    #df = select_period(df, date)
 
     df = df.drop_duplicates()
 
     df = df[df["population"] > 1000000]
 
-    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y, date)
+    if FROM == UNTIL:
+
+        show_scatterplots(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y, FROM, UNTIL)
+    else:
+        df_period_left,column_name_l = calculate_df_period(df, what_to_show_l, method_x, True)
+        df_period_right,column_name_r = calculate_df_period(df, what_to_show_r, method_y, False)
+        df_merged = df_period_left.merge(df_period_right, on="location", how ="inner")
+
+        st.write(df_merged)
+        show_scatterplots(df_merged, column_name_l, column_name_r,  "continent",  "location", log_x, log_y, FROM, UNTIL)
+    show_footer()
+def show_scatterplots(df, what_to_show_l, what_to_show_r,  continent,  location, log_x, log_y, FROM, UNTIL):
+    """First show a scatterplot for all the continents, and then for each continent seperately
+
+    Args:
+        df ([type]): [description]
+        what_to_show_l ([type]): [description]
+        what_to_show_r ([type]): [description]
+        continent ([type]): [description]
+        location ([type]): [description]
+        log_x ([type]): [description]
+        log_y ([type]): [description]
+        date_to_show ([type]): [description]
+    """
+
+    make_scatterplot(df, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y,FROM, UNTIL)
     continent_list = df['continent'].unique()
     for continent in continent_list:
         df_continent = df[df["continent"] == continent]
         if len(df_continent) != 0:
             st.subheader(continent)
-            make_scatterplot(df_continent, what_to_show_l, what_to_show_r,  "continent",  "location", log_x, log_y, date)
+            make_scatterplot(df_continent, what_to_show_l, what_to_show_r,  "continent", "location", log_x, log_y,FROM, UNTIL)
 
-    show_footer()
+def calculate_df_period(df, what_to_show, method, add_contintent):
+
+    location_list = df['location'].unique()
+    table = []
+
+    for location in location_list:
+        df_location = df[df["location"] == location].copy(deep=True)
+        if len(df_location) != 0:
+            if method=="perc_delta_min_max":
+
+                min = df_location[what_to_show].min()
+                max = df_location[what_to_show].max()
+                value = ((max - min) / min)*100
+            elif method=="perc_delta_first_last":
+
+                min = df_location[what_to_show].iloc[0]
+                max = df_location[what_to_show].iloc[-1]
+                value = ((max - min) / min)*100
+
+            elif method == "mean":
+                value =df_location[what_to_show].mean()
+            elif method == "last":
+                value =df_location[what_to_show].iloc[-1]
+            elif method == "first":
+                value =df_location[what_to_show].iloc[0]
+            elif method == "lowest":
+                value =df_location[what_to_show].min()
+            elif method == "highest":
+                value =df_location[what_to_show].max()
+
+
+            postfix = method
+
+            if add_contintent:
+                continent = df_location["continent"].iloc[0]
+                            #st.write(to_add)
+                to_add = [location,continent, value]
+            else:
+                to_add = [location,value]
+            table.append(to_add)
+    column_name = f"{what_to_show}_{postfix}"
+    if add_contintent:
+        df = pd.DataFrame(table, columns = ['location','continent',column_name])
+    else:
+        df = pd.DataFrame(table, columns = ['location',column_name])
+    return df, column_name
+
 
 
 
 def interface(df):
     DATE_FORMAT = "%m/%d/%Y"
-    start_ = "2021-12-25"
+    start_ = "2022-1-31"
     #today = datetime.today().strftime("%Y-%m-%d")
-    #today = "2021-12-27"
+    today = "2022-1-31"
     from_ = st.sidebar.text_input("date (yyyy-mm-dd)", start_)
-
     try:
-        date = dt.datetime.strptime(from_, "%Y-%m-%d").date()
+        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
     except:
         st.error("Please make sure that the startdate is in format yyyy-mm-dd")
         st.stop()
 
-    # until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+    try:
+        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
+    except:
+        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+        st.stop()
 
-    # try:
-    #     UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
-    # except:
-    #     st.error("Please make sure that the enddate is in format yyyy-mm-dd")
-    #     st.stop()
-
-    # if FROM > UNTIL:
-    #     st.warning("Make sure that the end date is not before the start date")
-    #     st.stop()
+    if FROM > UNTIL:
+        st.warning("Make sure that the end date is not before the start date")
+        st.stop()
 
     if from_ == "2023-08-23":
         st.sidebar.error("Do you really, really, wanna do this?")
@@ -532,7 +608,7 @@ def interface(df):
             caching.clear_cache()
             st.success("Cache is cleared, please reload to scrape new values")
 
-    #df = select_period(df, FROM, UNTIL)
+
 
     lijst = df.columns.tolist()
     del lijst[0:5]
@@ -541,24 +617,23 @@ def interface(df):
         print (f"{i} - {x}")
 
     what_to_show_l = st.sidebar.selectbox(
-        "What to show X-axis", lijst, index=37
+        "What to show X-axis", lijst, index=37 #37 (pple fully vacc per hundred)
     )
     what_to_show_r = st.sidebar.selectbox(
-        "What to show Y-axis", lijst, index=10
+        "What to show Y-axis", lijst, index=8 #10 (new_deaths_smoothed_per_million)
     )
 
     log_x = st.sidebar.selectbox(
-
         "X-ax as log", [True, False], index=1)
     log_y = st.sidebar.selectbox(
-
         "Y-ax as log", [True, False], index=1)
-    # if log_x == True:
-    #     new_column = "log_" + what_to_show_l
-    #     df[new_column] = np.log(df[what_to_show_l])
-    #     what_to_show_l = new_column
 
-    return date, lijst, what_to_show_l, what_to_show_r, log_x, log_y
+    if  FROM != UNTIL:
+        method_x =  st.sidebar.selectbox( "Method X-ax", ["mean", "perc_delta_min_max","perc_delta_first_last", "first", "last", "lowest", "highest" ], index=0)
+        method_y =  st.sidebar.selectbox( "Method Y-ax", ["mean", "perc_delta_min_max","perc_delta_first_last","first", "last", "lowest", "highest"], index=0)
+    else:
+        method_x,method_y = None, None
+    return FROM, UNTIL, lijst, what_to_show_l, what_to_show_r, log_x, log_y, method_x, method_y
 
 if __name__ == "__main__":
     main()
