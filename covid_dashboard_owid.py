@@ -84,7 +84,7 @@ def get_data():
                  data = [
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\input\\owid-covid-data.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\input_local\\owid-covid-data.csv",
                     "name": "owid",
                     "delimiter": ",",
                     "key": "date",
@@ -98,7 +98,7 @@ def get_data():
 
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\waze_mobility.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input_local\\waze_mobility.csv",
                     "name": "waze",
                     "delimiter": ",",
                     "key": "date",
@@ -110,7 +110,7 @@ def get_data():
                     "where_criterium": "country"
                 },
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\google_mob_world.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input_local\\google_mob_world.csv",
                     "name": "googlemobility",
                     "delimiter": ",",
                     "key": "date",
@@ -285,7 +285,7 @@ def week_to_week(df, column_):
     column_ = column_ if type(column_) == list else [column_]
     newcolumns = []
     newcolumns2 = []
-
+    df = df.reset_index()
     for c in column_:
         newname = str(c) + "_weekdiff"
         newname2 = str(c) + "_weekdiff_index"
@@ -293,13 +293,17 @@ def week_to_week(df, column_):
         newcolumns2.append(newname2)
         df[newname] = np.nan
         df[newname2] = np.nan
-        for n in range(7, len(df)):
+        for n in range(11, len(df)):
             vorige_week = df.iloc[n - 7][c]
             nu = df.iloc[n][c]
+            index = df.iloc[n]["index"]
+
+           # st.write(f"{c} - {n}-{vorige_week} - {nu}")
             waarde = round((((nu - vorige_week) / vorige_week) * 100), 2)
             waarde2 = round((((nu) / vorige_week) * 100), 2)
-            df.at[n, newname] = waarde
-            df.at[n, newname2] = waarde2
+            #st.write(f"{c} - {n} - {index} -{vorige_week} - {nu} - diff {waarde} -  diff index{waarde2}")
+            df.iloc[n, df.columns.get_loc(newname) ] = waarde
+            df.iloc[n, df.columns.get_loc(newname2)] = waarde2
     return df, newcolumns, newcolumns2
 
 def rh2q(rh, t, p ):
@@ -1592,7 +1596,7 @@ def dashboard(df___):
 
     # st.write(df.dtypes)
 
-    w2w = ["new_cases_smoothed", "new_deaths_smoothed"
+    w2w = ["new_cases", "new_deaths"
 
     ]
 
@@ -1603,15 +1607,16 @@ def dashboard(df___):
     WDW2 = 7
     #st.write(get_duplicate_cols(df))
     df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen, WDW2, centersmooth)
-    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0)
 
+    df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0)
+    st.write(df)
     lijst.extend(newcolumns_w2w) # percentage
     lijst.extend(newcolumns2_w2w) # index
 
-    df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen, WDW2, centersmooth)
-    df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
+    # df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen, WDW2, centersmooth)
+    # df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1)
 
-    lijst.extend(newcolumns_w2w2) # percentage
+    # lijst.extend(newcolumns_w2w2) # percentage
 
 
     # for n in newcolumns:
