@@ -863,6 +863,13 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
                 )
                 ax3.set_ylabel("_")
 
+            showlogyaxis =  st.sidebar.selectbox("Y axis left log", ["No", "2", "10", "logit"], index=0)
+            if showlogyaxis == "10":
+                ax.semilogy()
+            if showlogyaxis == "2":
+                ax.semilogy(2)
+            if showlogyaxis == "logit":
+                ax.set_yscale("logit")
 
             if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
                 correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
