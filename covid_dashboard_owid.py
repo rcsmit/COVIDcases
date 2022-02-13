@@ -1592,7 +1592,7 @@ def dashboard(df___):
 
     # st.write(df.dtypes)
 
-    w2w = [new_cases_smoothed, new_deaths_smoothed
+    w2w = ["new_cases_smoothed", "new_deaths_smoothed"
 
     ]
 
