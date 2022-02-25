@@ -27,19 +27,23 @@ def calculate(test, prevalentie, number_of_tested_people,  output):
     sensitivity = test[1]
     specificity = test[2]
 
-    total_healthy = (1 - prevalentie) * number_of_tested_people
-    total_sick = prevalentie * number_of_tested_people
+    total_healthy = (100 - prevalentie) * number_of_tested_people/100
+    total_sick = (prevalentie/100) * number_of_tested_people
 
     true_negative = round((total_healthy * specificity),0)
     false_negative = round((total_sick * (1 - sensitivity)),0)
 
     true_positive = round((total_sick * sensitivity),0)
     false_positive= round((total_healthy * (1 - specificity)),0)
-
+    # print (true_positive)
+    # print (f"{specificity=}")
+    # print (f"{total_healthy=}")
+    # print (f"{false_positive=}")
 
     true_positive_bayes = round (100* (sensitivity * prevalentie) / ((sensitivity * prevalentie) + ((1-specificity)* (1-prevalentie)  )),2)
 
     fdr = round(100*false_positive/(false_positive+ true_positive),4)
+    #print (fdr)
     acc = round(100*((true_positive+true_negative)/number_of_tested_people),4)
     for_ = round(100*false_negative/(false_negative + true_negative),4)
     try:
@@ -181,28 +185,147 @@ def calculate(test, prevalentie, number_of_tested_people,  output):
     return fdr,for_, pos, fpr
 
 def main():
-    # [ name, sensitivity (% true positive), specificity (% true negative) ]
+    prevalentie, number_of_tested_people, name, specificity, sensitivity = interface()
+    testen = [name, sensitivity, specificity]
+    #b = contagious
+    #prevalentie = b / population
+    fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, True)
 
-    #testen_ = [["Dimgrr", 1.0, 0.7], ["ROCHE SELFTEST", 0.8, 0.97],["BIOSYNEX SELFTEST", 0.972, 1.000],
-    #  ["PCR TEST", 0.95, 0.998], ["PCR TEST WHO", 0.95, 0.97]]
-    #testen_ =  [["PCR TEST", 0.95, 0.998]]
-    testen_ = [["ROCHE SELFTEST", 0.8, 0.97]] #, ["PCR TEST", 0.95, 0.998]]
-    #testen_ = [["538 TEST", 0.8, 0.999], ["PCR TEST", 0.95, 0.998]]
-    #testen_ = [["538 TEST", 0.8, 0.7], ["PCR TEST", 0.95, 0.96]]
-    #testen_ = [["Reumatest", 0.7, 0.8]]
-    #testen_ = [["Wikipedia", 0.67, 0.91]] #https://en.wikipedia.org/wiki/Sensitivity_and_specificity#Worked_example
+    population = 17_500_000 # The Netherlands
+    #population = 9_000_000   # Israel
+    #population = 100_000
+    #population = 25_000_000 # AUSTRALIA
+    # (un)comment next one line to have a loop of "contagious people"
+
+    graph =  st.sidebar.selectbox("Show Graph", [True, False], index=0)
+    if graph:
+        lijst_l = ["false_discovery_rate", "chance_to_be_tested_positive" ]
+        lijst_r = ["false_omission_rate", "false_positive_rate", "false_discovery_rate"]
+        what_to_show_l  = st.sidebar.multiselect(
+                "What to show  (multiple possible)", lijst_l, ["false_discovery_rate" ]
+            )
+        what_to_show_r  = st.sidebar.multiselect(
+                "What to show  (multiple possible)", lijst_r, ["false_omission_rate"]
+            )
+
+        chance_to_be_tested_positive = []
+        false_positive_rate = []
+        besm,prev = [],[]
+        false_discovery_rate = []
+        false_negative_rate = []
+        titel = (f"{testen[0]} - sensitivity {sensitivity} - specificity {specificity}")
+
+        for prevalentie in range (1,100,1):
+            #prevalentie = b / population
+            fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people,  False)
+            prev.append(prevalentie)
+            besm.append(prevalentie*population/100)
+            false_discovery_rate.append(fdr)
+            false_positive_rate.append(fpr)
+            false_negative_rate.append(for_)
+            chance_to_be_tested_positive.append(pos)
 
 
-    #contagious  = (st.sidebar.number_input('Contagious',None,None, 174_835))
-    #st.sidebar.write("C
-    #population = (st.sidebar.number_input('Total population', None,None, 17_483_471))
-    prevalentie = st.sidebar.number_input('prevalence testpopulation in %',0.0,100.0, 1.0, format="%.4f")/100
+        with _lock:
+            fig1y = plt.figure()
+            ax = fig1y.add_subplot(111)
+
+
+            ax3 = ax.twinx()
+            plt.title(titel)
+
+            ax.set_xlabel(f'prevalentie testpopulation(%)')
+            if "false_discovery_rate" in what_to_show_l:
+                # print (prev)
+                # print (false_discovery_rate)
+                # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
+                ax.plot(prev,false_discovery_rate,  'blue')
+                ax.set_ylabel('blue: false discovery rate (%)')
+            if "chance_to_be_tested_positive" in what_to_show_l:
+            # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
+                ax.plot(prev,chance_to_be_tested_positive,'g',  )
+
+                ax.set_ylabel('green: chance to be tested positive (%)')
+            if "false_omission_rate" in what_to_show_r:
+
+                ax3.plot(prev,false_negative_rate,'purple' )
+                ax3.set_ylabel('purple: False omission rate (%)')
+            if "false_positive_rate" in what_to_show_r:
+
+                ax3.plot(prev,false_positive_rate,'g',  )
+                ax3.set_ylabel('green: False positive rate (%)')
+
+
+
+            if "false_discovery_rate" in what_to_show_r:
+                ax3.plot(prev,false_discovery_rate,  'r',)
+                ax3.set_ylabel('red: false discovery rate (%)')
+
+            # plt.show()
+            st.pyplot(fig1y)
+
+
+        # with _lock:
+        #     fig1z = plt.figure()
+        #     ax = fig1z.add_subplot(111)
+
+
+        #     ax3 = ax.twinx()
+        #     plt.title(titel)
+
+        #     ax.set_xlabel(f'aantal besmettelijken (population = {population})')
+        #     ax.set_xlim(0, int(population*0.02))
+        #     # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
+        #     ax.plot(besm,false_discovery_rate,  'b')
+        #     ax.set_ylabel('blue: false discovery rate (%)')
+
+
+        #     ax3.plot(besm,false_negative_rate,'purple')
+        #     ax3.set_ylabel('purple: False omission rate (%)')
+
+        #     # ax3.plot(besm,false_positive_rate,'g',  )
+        #     # ax3.set_ylabel('green: False positive rate (%)')
+
+
+
+        #     # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
+        #     #ax.plot(besm,chance_to_be_tested_positive,'g',  )
+        #     #ax3.plot(besm,false_discovery_rate,  'r',)
+        #     #ax.set_ylabel('green: chance to be tested positive (%)')
+        #     #ax3.set_ylabel('red: false discovery rate (%)')
+
+        #     # plt.show()
+        #     st.pyplot(fig1z)
+
+    st.header ("Read this too")
+    toelichting = ("Attention: prevalention is an output what normally can't be used as an input. Besides take note of the difference of the prevalence in the population in general and the testpopulation. There is also a difference between the different rates of the test itself and the testprocess as whole.<br><br>"
+
+                  "<blockquote class='twitter-tweet' data-conversation='none'><p lang='en' dir='ltr'>88% false positive rate has some implications in Australia, where:<br>17 m tests<br>29886 positives<br>910 deaths.<br>12 % of 29886 = 3587.<br>-&gt; CFR = 25%<br>Reductio ad absurdum.<br>Suspect specificity is significantly higher than 99.8%</p>&mdash; Clayton Clent (@ClaytonClent) <a href='https://twitter.com/ClaytonClent/status/1390448827362996224?ref_src=twsrc%5Etfw'>May 6, 2021</a></blockquote> <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script><br>"
+                    "<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a><br>"
+
+                  "<a href= 'https://larremorelab.github.io/covid19testgroup' target='_blank'>Various calculations around tests</a><br>"
+
+                   "<a href= 'https://twitter.com/mus_nico/status/1397349689243144192' target='_blank'>Diverse tweets van Nico de Mus</a><br>"
+
+                  )
+    st.markdown(toelichting, unsafe_allow_html=True)
+
+    tekst = (
+        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
+        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
+        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/calculate_false_positive_rate_covid_test_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>')
+
+    st.markdown(tekst, unsafe_allow_html=True)
+
+def interface():
+    prevalentie = st.sidebar.number_input('prevalence testpopulation in %',0.0,100.0, 1.0, format="%.4f")
     number_of_tested_people =  (st.sidebar.number_input('Number of tested people',None,None, 100_000))
     st.sidebar.write("Attention: too small numbers give erorrs (Division by zero)")
 
     scenario = st.sidebar.radio(
         "Select a test",
-        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST","Antigen rapid Roche", "Antigen MP Biomedicals")
+        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "Sneltest Deepblue", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST","Antigen rapid Roche", "Antigen MP Biomedicals")
                 )
 
     if scenario == "BIOSYNEX SELFTEST":
@@ -213,6 +336,12 @@ def main():
         naam = "PCR Nico"
         se = 0.98
         sp = 0.99996 # https://twitter.com/mus_nico/status/1395724466043461633
+
+    elif scenario == "Sneltest Deepblue":
+        naam = "Sneltest Deepblue"
+        se =  0.964
+        sp =  0.998
+
     elif scenario == "PCR RIVM best":
         naam = "PCR RIVM best"
         se = 0.98
@@ -253,120 +382,7 @@ def main():
     name = (st.sidebar.text_input('Name', naam))
     specificity = (st.sidebar.number_input('Specificity',None,None, sp, format="%.4f"))
     sensitivity = (st.sidebar.number_input('Sensitivity',None,None, se, format="%.4f"))
-    testen = [name, sensitivity, specificity]
-    #b = contagious
-    #prevalentie = b / population
-    fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people, True)
-
-    titel = (f"{testen[0]} - sensitivity {sensitivity} - specificity {specificity}")
-    besm = []
-    false_discovery_rate = []
-    false_negative_rate = []
-    #population = 17_500_000 # The Netherlands
-    #population = 9_000_000   # Israel
-    #population = 100_000
-    #population = 25_000_000 # AUSTRALIA
-    # (un)comment next one line to have a loop of "contagious people"
-    graph = False
-    if graph:
-        chance_to_be_tested_positive = []
-        false_positive_rate = []
-
-        for prevalentie in range (0,100,10):
-            #prevalentie = b / population
-            fdr, for_, pos, fpr = calculate(testen, prevalentie, number_of_tested_people,  False)
-            besm.append(prevalentie)
-            false_discovery_rate.append(fdr)
-            false_positive_rate.append(fpr)
-            false_negative_rate.append(for_)
-            chance_to_be_tested_positive.append(pos)
-
-
-            with _lock:
-                fig1y = plt.figure()
-                ax = fig1y.add_subplot(111)
-
-
-                ax3 = ax.twinx()
-                plt.title(titel)
-
-                ax.set_xlabel(f'prevalentie testpopulation(%)')
-
-                # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-                ax.plot(prevalentie,false_discovery_rate,  'prevalentie testpopulation')
-                ax.set_ylabel('blue: false discovery rate (%)')
-
-
-                ax3.plot(besm,false_negative_rate,'purple' )
-                ax3.set_ylabel('purple: False omission rate (%)')
-
-                # ax3.plot(besm,false_positive_rate,'g',  marker='o',)
-                # ax3.set_ylabel('green: False positive rate (%)')
-
-
-
-                # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
-                #ax.plot(besm,chance_to_be_tested_positive,'g',  marker='o',)
-                #ax3.plot(besm,false_discovery_rate,  'r',marker='o',)
-                #ax.set_ylabel('green: chance to be tested positive (%)')
-                #ax3.set_ylabel('red: false discovery rate (%)')
-
-                # plt.show()
-                st.pyplot(fig1y)
-
-
-            with _lock:
-                fig1z = plt.figure()
-                ax = fig1z.add_subplot(111)
-
-
-                ax3 = ax.twinx()
-                plt.title(titel)
-
-                ax.set_xlabel(f'aantal besmettelijken (population = {population})')
-                ax.set_xlim(0, int(population*0.02))
-                # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-                ax.plot(besm,false_discovery_rate,  'b')
-                ax.set_ylabel('blue: false discovery rate (%)')
-
-
-                ax3.plot(besm,false_negative_rate,'purple')
-                ax3.set_ylabel('purple: False omission rate (%)')
-
-                # ax3.plot(besm,false_positive_rate,'g',  marker='o',)
-                # ax3.set_ylabel('green: False positive rate (%)')
-
-
-
-                # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
-                #ax.plot(besm,chance_to_be_tested_positive,'g',  marker='o',)
-                #ax3.plot(besm,false_discovery_rate,  'r',marker='o',)
-                #ax.set_ylabel('green: chance to be tested positive (%)')
-                #ax3.set_ylabel('red: false discovery rate (%)')
-
-                # plt.show()
-                st.pyplot(fig1z)
-
-    st.header ("Read this too")
-    toelichting = ("Attention: prevalention is an output what normally can't be used as an input. Besides take note of the difference of the prevalence in the population in general and the testpopulation. There is also a difference between the different rates of the test itself and the testprocess as whole.<br><br>"
-
-                  "<blockquote class='twitter-tweet' data-conversation='none'><p lang='en' dir='ltr'>88% false positive rate has some implications in Australia, where:<br>17 m tests<br>29886 positives<br>910 deaths.<br>12 % of 29886 = 3587.<br>-&gt; CFR = 25%<br>Reductio ad absurdum.<br>Suspect specificity is significantly higher than 99.8%</p>&mdash; Clayton Clent (@ClaytonClent) <a href='https://twitter.com/ClaytonClent/status/1390448827362996224?ref_src=twsrc%5Etfw'>May 6, 2021</a></blockquote> <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script><br>"
-                    "<a href= 'https://virologydownunder.com/the-false-positive-pcr-problem-is-not-a-problem/' target='_blank'>The “false-positive PCR” problem is not a problem</a><br>"
-
-                  "<a href= 'https://larremorelab.github.io/covid19testgroup' target='_blank'>Various calculations around tests</a><br>"
-
-                   "<a href= 'https://twitter.com/mus_nico/status/1397349689243144192' target='_blank'>Diverse tweets van Nico de Mus</a><br>"
-
-                  )
-    st.markdown(toelichting, unsafe_allow_html=True)
-
-    tekst = (
-        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
-        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
-        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/blob/main/calculate_false_positive_rate_covid_test_streamlit.py" target="_blank">github.com/rcsmit</a><br>'
-        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>')
-
-    st.markdown(tekst, unsafe_allow_html=True)
+    return prevalentie,number_of_tested_people,name,specificity,sensitivity
 
 
 if __name__ == "__main__":
