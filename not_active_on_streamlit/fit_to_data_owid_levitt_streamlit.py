@@ -338,7 +338,7 @@ def add_column_levit(df, what_to_display):
 @st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
 def getdata():
     if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
 
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
@@ -366,7 +366,7 @@ def main():
 
 
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\output\\"
     )
 
     start__ = "2021-10-1"

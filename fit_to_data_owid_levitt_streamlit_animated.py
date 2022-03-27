@@ -405,8 +405,8 @@ def add_column_levit(df, what_to_display):
 @st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
 def getdata():
     if platform.processor() != "":
-        #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
-        url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input_local\\owid-covid-data_20211202.csv"
+        #url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input_local\\owid-covid-data_20211202.csv"
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
         #url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
@@ -433,7 +433,7 @@ def main():
 
 
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\levitt2021"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\output\\levitt2021"
     )
 
     df_complete_country, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title, total_days_in_graph, y_limit = sidebar_input(df)

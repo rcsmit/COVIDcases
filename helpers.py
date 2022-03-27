@@ -250,7 +250,7 @@ def select_period_oud(df, field):
 def save_df(df, name):
     """  save dataframe on harddisk """
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
 
     name_ = OUTPUT_DIR + name + ".csv"

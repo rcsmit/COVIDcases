@@ -27,7 +27,7 @@ import prepare_casuslandelijk
 def save_df(df, name):
     """  _ _ _ """
     OUTPUT_DIR = (
-          "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+          "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
     name_ = OUTPUT_DIR + name + ".csv"
     compression_opts = dict(method=None, archive_name=name_)
@@ -175,7 +175,7 @@ def prepare_data():
     show_from = "2020-1-1"
     show_until = "2030-1-1"
 
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
+    url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     # url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     datumveld = "Date_of_statistics_week_start"

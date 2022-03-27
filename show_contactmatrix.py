@@ -41,7 +41,7 @@ def main():
     #test 13:40  14:49
     df= pd.read_csv(
             "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/contactmatrix.tsv",
-            # "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\contactmatrix.tsv",
+            # "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\contactmatrix.tsv",
             comment="#",
             delimiter="\t",
             low_memory=False,

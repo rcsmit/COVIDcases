@@ -104,7 +104,7 @@ def get_data():
                  data = [
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\input_local\\owid-covid-data.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input_local\\owid-covid-data.csv",
                     "name": "owid",
                     "delimiter": ",",
                     "key": "date",
@@ -426,10 +426,10 @@ def init():
     global OUTPUT_DIR
 
     INPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\"
     )
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
 
     # GLOBAL SETTINGS

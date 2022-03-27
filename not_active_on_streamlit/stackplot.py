@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 def save_df(df, name):
     """  _ _ _ """
     OUTPUT_DIR = (
-          "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+          "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
     name_ = OUTPUT_DIR + name + ".csv"
     compression_opts = dict(method=None, archive_name=name_)
@@ -130,7 +130,7 @@ def make_graph(df, columns_df,columnlist_names, columnlist_ages, datumveld, tite
     plt.show()
 
 def show(c1,titel,datumveld):
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\final_result2.csv"
+    url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\final_result2.csv"
     df = pd.read_csv(url1, delimiter=",", low_memory=False)
 
     show_from = "2020-3-1"

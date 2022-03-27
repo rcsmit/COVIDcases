@@ -84,7 +84,7 @@ def get_data():
                  data = [
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\input_local\\owid-covid-data.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input_local\\owid-covid-data.csv",
                     "name": "owid",
                     "delimiter": ",",
                     "key": "date",
@@ -98,7 +98,7 @@ def get_data():
 
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input_local\\waze_mobility.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input_local\\waze_mobility.csv",
                     "name": "waze",
                     "delimiter": ",",
                     "key": "date",
@@ -110,7 +110,7 @@ def get_data():
                     "where_criterium": "country"
                 },
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input_local\\google_mob_world.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input_local\\google_mob_world.csv",
                     "name": "googlemobility",
                     "delimiter": ",",
                     "key": "date",
@@ -268,14 +268,14 @@ def get_data():
 def prepare_google_mob_worlddata():
     """ Bringing back a file of 549 MB to 9 MB. Works only locally"""
     # original location  https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
-    url = "C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\input\\Global_Mobility_Report.csv"
+    url = "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input\\Global_Mobility_Report.csv"
 
     df = pd.read_csv(url, delimiter=",", low_memory=False)
     print (df)
     #df = df.loc[df['sub_region_1'] == None]
     df = df[df.sub_region_1.isnull()]
     print (df)
-    name_ = "C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\input\\google_mob_world.csv"
+    name_ = "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input\\google_mob_world.csv"
     compression_opts = dict(method=None, archive_name=name_)
     df.to_csv(name_, index=False, compression=compression_opts)
     print("--- Saving " + name_ + " ---")
@@ -1357,10 +1357,10 @@ def init():
     global OUTPUT_DIR
 
     INPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\"
     )
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
 
     # GLOBAL SETTINGS
@@ -1458,7 +1458,7 @@ def google_or_waze(df___):
     st.write (df_output)
     st.write(f"Google wins {google_wins} - Waze wins {waze_wins}")
 
-    #url ="C:\\Users\\rcxsm\\Documents\phyton_scripts\\covid19_seir_models\\COVIDcases\\motorvehicles.csv"
+    #url ="C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\COVIDcases\\motorvehicles.csv"
     url ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/motorvehicles.csv"
     # https://ourworldindata.org/grapher/road-vehicles-per-1000-inhabitants-vs-gdp-per-capita?yScale=log
     df_motorveh = pd.read_csv(url, delimiter=";", low_memory=False)

@@ -240,7 +240,7 @@ def get_data():
             # 'dateformat' : '%Y-%m-%d',
             # 'groupby'    : 'date',
             # 'fileformat' : 'json_x'}
-            # {'url'       : 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\download_NICE.json',
+            # {'url'       : 'C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\download_NICE.json',
             # 'name'       : 'IC_opnames_hospital_intake_rivm',
             # 'delimiter'  : ',',
             # 'key'        : 'date',
@@ -1716,10 +1716,10 @@ def init():
     global OUTPUT_DIR
 
     INPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\"
     )
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
 
     # GLOBAL SETTINGS

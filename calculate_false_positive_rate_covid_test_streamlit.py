@@ -325,7 +325,7 @@ def interface():
 
     scenario = st.sidebar.radio(
         "Select a test",
-        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "Sneltest Deepblue", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST","Antigen rapid Roche", "Antigen MP Biomedicals")
+        ("PCR", "PCR RIVM best","PCR RIVM worst", "Sneltest Roche", "Sneltest OMT", "Sneltest Deepblue", "Sneltest Seven Eleven", "PCR WHO", "PCR Nico", "BIOSYNEX SELFTEST","Antigen rapid Roche", "Antigen MP Biomedicals")
                 )
 
     if scenario == "BIOSYNEX SELFTEST":
@@ -337,11 +337,14 @@ def interface():
         se = 0.98
         sp = 0.99996 # https://twitter.com/mus_nico/status/1395724466043461633
 
-    elif scenario == "Sneltest Deepblue":
+    elif scenario == "Sneltest Deepblue Lazada":
         naam = "Sneltest Deepblue"
         se =  0.964
         sp =  0.998
-
+     elif scenario == "Sneltest Seven Eleven":
+        naam =  "Sneltest Seven Eleven"
+        se =  0.9318
+        sp =  0.9932
     elif scenario == "PCR RIVM best":
         naam = "PCR RIVM best"
         se = 0.98

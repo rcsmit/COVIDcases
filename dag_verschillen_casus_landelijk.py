@@ -107,7 +107,7 @@ def week_to_week(df, column_):
 @st.cache(ttl=60 * 60 * 24)
 def get_data():
     if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     else:
         url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
 

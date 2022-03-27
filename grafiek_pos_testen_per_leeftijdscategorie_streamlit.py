@@ -30,7 +30,7 @@ import perprovincieperleeftijd
 
 def save_df(df,name):
     """  _ _ _ """
-    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\'
+    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\'
 
     name_ =  OUTPUT_DIR + name+'.csv'
     compression_opts = dict(method=None,
@@ -43,7 +43,7 @@ def save_df(df,name):
 @st.cache(ttl=60 * 60 * 24)
 def read_df( kids_split_up):
     # Local file
-    # url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
+    # url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
     # File before regroping the agecategories. Contains ; as delimiter and %d-%m-%Y as dateformat
     # url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/pos_test_leeftijdscat_wekelijks.csv"
 
@@ -92,7 +92,7 @@ def real_action( ages_to_show_in_graph, what_to_show_l,what_to_show_r, kids_spli
 
 def generate_aantallen_gemeente_per_dag_grouped_per_day():
     # Local file
-    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
+    #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
     url = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
     df_new   = pd.read_csv(url, delimiter=";", low_memory=False)
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
@@ -100,7 +100,7 @@ def generate_aantallen_gemeente_per_dag_grouped_per_day():
     return df_new
 
 def read_cases_day():
-    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
+    #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
     url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
     df_new   = pd.read_csv(url, sep=",", delimiter=",", low_memory=False)
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')

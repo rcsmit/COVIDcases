@@ -37,7 +37,7 @@ def read():
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     url_data = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/israel_zijlstra/israel_zijlstra_mastersheet.csv"
     url_populatie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/israel_zijlstra/populatie_grootte.csv"
-    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\in\\schoonmaaktijden.csv",
+    #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\in\\schoonmaaktijden.csv",
     df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
     df_populatie = pd.read_csv(url_populatie, delimiter=',')
     df = pd.merge(df_data, df_populatie, how="outer", on="Age_group" )

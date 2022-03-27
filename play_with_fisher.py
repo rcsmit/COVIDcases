@@ -1,3 +1,4 @@
+# Berekening vaccin efficientie
 from re import A
 import matplotlib.pyplot as plt
 import numpy as np

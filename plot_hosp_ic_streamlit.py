@@ -35,7 +35,7 @@ def save_df(df, name):
     """
 
     OUTPUT_DIR = (
-          "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+          "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
     name_ = OUTPUT_DIR + name + ".csv"
     compression_opts = dict(method=None, archive_name=name_)
@@ -333,7 +333,7 @@ def prepare_data(only_prepare_data,delete_last_row):
     Returns:
         dataframes: dataframes with the pivot tables
     """
-    #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
+    #url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     df_getdata = load_data()
     df = df_getdata.copy(deep=False)  # prevent an error [Return value of `prepare_data()` was mutated between runs.]
 

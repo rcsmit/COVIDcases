@@ -25,7 +25,7 @@ from datetime import datetime
 _lock = RendererAgg.lock
 def save_df(df,name):
     """  _ _ _ """
-    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\'
+    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\'
 
     name_ =  OUTPUT_DIR + name+'.csv'
     compression_opts = dict(method=None,
@@ -37,7 +37,7 @@ def save_df(df,name):
 
 def read_df():
     # Local file
-    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
+    #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
     # File before regroping the agecategories. Contains ; as delimiter and %d-%m-%Y as dateformat
     url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/pos_test_leeftijdscat_wekelijks.csv"
 

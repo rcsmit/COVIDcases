@@ -40,7 +40,7 @@ def fit_the_values(country_, y_values):
 #################################################################
 def getdata():
     if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\owid-covid-data.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\owid-covid-data.csv"
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
     return pd.read_csv(url1, delimiter=",", low_memory=False)

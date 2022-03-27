@@ -22,7 +22,7 @@ def prepare_cases_landelijk():
     Returns:
         df: df met aantal overleden per leeftijdsgroep
     """
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+    url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
     df.rename(
@@ -55,8 +55,8 @@ def haal_data_op():
     Returns:
         df : dataframe met populatiedata van landen (geen regios) in 2021
     """
-    df = pd.read_csv("C:\\Users\\rcxsm\\Documents\\phyton_scripts\\in\\WPP2019_PopulationByAgeSex_Medium.csv")
-    df_countries = pd.read_csv("C:\\Users\\rcxsm\\Documents\\phyton_scripts\\in\\countrynames.csv")
+    df = pd.read_csv("C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\in\\WPP2019_PopulationByAgeSex_Medium.csv")
+    df_countries = pd.read_csv("C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\in\\countrynames.csv")
     df = df[df["Time"] == 2021]
     df["AgeGrp2"] = None
 

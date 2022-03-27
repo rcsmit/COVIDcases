@@ -103,7 +103,7 @@ def make_age_graph(df, d, columns_original,  titel):
 def load_data():
     with st.spinner(f"Downloading...(it will take some time!)"):
         if platform.processor() != "":
-            url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+            url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
         else:
             url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
 

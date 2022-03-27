@@ -21,7 +21,7 @@ def get_contact_matrix(moment,contact_type):
     """
     df= pd.read_csv(
             "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/contactmatrix.tsv",
-            # "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\contactmatrix.tsv",
+            # "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\contactmatrix.tsv",
             comment="#",
             delimiter="\t",
             low_memory=False,

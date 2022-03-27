@@ -26,10 +26,10 @@ from datetime import datetime
 def save_df(df, name):
     """  save dataframe on harddisk """
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
     OUTPUT_DIR = (
-      "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\")
+      "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\")
     name_ = OUTPUT_DIR + name + ".csv"
     compression_opts = dict(method=None, archive_name=name_)
     df.to_csv(name_, index=False, compression=compression_opts)
@@ -48,7 +48,7 @@ def drop_columns(df, what_to_drop):
 
 def main_x():
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+    url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
     df.rename(
@@ -168,7 +168,7 @@ def main_week_data():
     """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
     """
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+    url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     todrop = [
         "Date_statistics_type",

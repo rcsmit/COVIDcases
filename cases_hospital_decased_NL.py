@@ -30,10 +30,10 @@ import plotly.graph_objects as go
 def save_df(df, name):
     """  save dataframe on harddisk """
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
     )
     OUTPUT_DIR = (
-      "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\")
+      "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\")
     name_ = OUTPUT_DIR + name + ".csv"
     compression_opts = dict(method=None, archive_name=name_)
     df.to_csv(name_, index=False, compression=compression_opts)
@@ -54,9 +54,9 @@ def drop_columns(df, what_to_drop):
 #@st.cache(ttl=60 * 60 * 24)
 def read():
     url="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
-    #url="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
+    #url="C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv"
 
-    #url_pop="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\pop_size_age_NL.csv"
+    #url_pop="C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\pop_size_age_NL.csv"
     url_pop = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/pop_size_age_NL.csv"
     df= pd.read_csv(url, delimiter=',', error_bad_lines=False)
     df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
@@ -85,7 +85,7 @@ def prepare_data():
     """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
     """
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-    url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+    url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     todrop = [
         "Date_statistics_type",

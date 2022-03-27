@@ -20,7 +20,7 @@ import numpy as np
 
 def save_df(df,name):
     """  _ _ _ """
-    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\'
+    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\'
 
     name_ =  OUTPUT_DIR + name+'.csv'
     compression_opts = dict(method=None,
@@ -32,7 +32,7 @@ def save_df(df,name):
 
 def main():
 
-    #url = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
+    #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
     url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/pos_test_leeftijdscat_wekelijks.csv"
     to_show_in_graph = [ "18-24", "25-29", "30-39", "40-49", "50-59", "60-69", "70+"]
 

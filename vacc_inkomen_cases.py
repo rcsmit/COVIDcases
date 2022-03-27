@@ -67,8 +67,8 @@ def main_week_data(from_, until_):
     """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
     """
     # online version : https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv
-    # url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
-    # #C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\input
+    # url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag.csv"
+    # #C:\Users\rcxsm\Documents\pyhton_scripts\covid19_seir_models\COVIDcases\input
     if platform.processor() != "":
         url1 = "C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
     else:
@@ -104,7 +104,7 @@ def read(inwonersgrens, from_,until_):
     # df_yorick = pd.read_csv(url_yorick, delimiter=';', decimal=",", encoding="ISO-8859-1")
     # Attentie: bevat - waardes en Baarle Nassau
 
-    #url_yorick = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\vaccinatie_incidentie.csv"
+    #url_yorick = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\vaccinatie_incidentie.csv"
     # url_yorick = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/vaccinatie_incidentie.csv"
 
     # Baarle Nassau is verwijderd (incidentie x*10E-15). Daarnaast worden er 3 gemeentes niet weergegeven ivm herindeingen)
@@ -112,13 +112,13 @@ def read(inwonersgrens, from_,until_):
     # np.log geeft -inf, waardoor correlatie niet kan worden berekend
 
     # https://www.cbs.nl/nl-nl/maatwerk/2021/05/inkomen-per-gemeente-en-wijk-2018
-    # url_inkomen = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\inkomen_per_gemeente.csv"
+    # url_inkomen = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\inkomen_per_gemeente.csv"
     url_inkomen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/inkomen_per_gemeente.csv"
     df_inkomen =pd.read_csv(url_inkomen, delimiter=';')
 
 
     # BRON: https://www.verkiezingsuitslagen.nl/data/gemeenten/10910
-    #url_verkiezingen="C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\verkiezingen2021.csv"
+    #url_verkiezingen="C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\verkiezingen2021.csv"
     url_verkiezingen = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_verkiezingen2021.csv"
     df_verkiezingen = pd.read_csv(url_verkiezingen, delimiter=',')
 
@@ -126,7 +126,7 @@ def read(inwonersgrens, from_,until_):
     df_gemeente_info = pd.read_csv(url_gemeente_info, delimiter=',')
 
 
-    # C:\Users\rcxsm\Documents\phyton_scripts\covid19_seir_models\COVIDcases\not_active_on_streamlit\preprare_gemeenten_per_dag.py
+    # C:\Users\rcxsm\Documents\pyhton_scripts\covid19_seir_models\COVIDcases\not_active_on_streamlit\preprare_gemeenten_per_dag.py
     #url_rene = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_reported_hospital_deceased.csv"
     df_rene = main_week_data(from_,until_)
 
@@ -189,7 +189,7 @@ def read(inwonersgrens, from_,until_):
         mean = df_totaal[kolom].mean()
         stdev = df_totaal[kolom].std()
         df_totaal = df_totaal[(df_totaal[kolom] > mean -(factor*stdev)) & (df_totaal[kolom] < mean +(factor*stdev)) ]
-    #url_uitslag =  "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\input\\uitslag_per_partij2021.csv"
+    #url_uitslag =  "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\uitslag_per_partij2021.csv"
     url_uitslag = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/landelijk_uitslag_per_partij2021.csv"
     uitslag =pd.read_csv(url_uitslag, delimiter=',')
 

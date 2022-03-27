@@ -551,7 +551,7 @@ def last_manipulations(df, what_to_drop, drop_last):
 
 def save_df(df,name):
     """  _ _ _ """
-    name_ = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\" + name+'.csv'
+    name_ = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\" + name+'.csv'
     compression_opts = dict(method=None,
                             archive_name=name_)
     df.to_csv(name_, index=False,

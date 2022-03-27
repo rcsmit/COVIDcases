@@ -584,7 +584,7 @@ def main():
     global placeholder0, placeholder, placeholder1
     global DATEFIELD
     DATEFIELD = "Date"
-    #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\output\\EINDTABEL.csv"
+    #url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\EINDTABEL.csv"
     url1 = "https://api.covid19india.org/csv/latest/states.csv"
 
     #url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
@@ -599,7 +599,7 @@ def main():
 
 
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\output\\"
     )
     # scenario = st.sidebar.radio(
     # "Select a datarange",
