@@ -341,7 +341,7 @@ def interface():
         naam = "Sneltest Deepblue"
         se =  0.964
         sp =  0.998
-     elif scenario == "Sneltest Seven Eleven":
+    elif scenario == "Sneltest Seven Eleven":
         naam =  "Sneltest Seven Eleven"
         se =  0.9318
         sp =  0.9932
