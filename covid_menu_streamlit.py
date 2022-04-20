@@ -60,7 +60,8 @@ def main():
             ["31. Aerosol concentration in room by @hk_nien", "aerosol_in_room_streamlit"],
             ["32. Compare two variants", "compare_two_variants"],
             ["33. Scatterplot OWID", "scatterplots_owid"],
-            ["34. Playing with R0", "playing_with_R0"]]
+            ["34. Playing with R0", "playing_with_R0"],
+            ["35 Calculate Se & Se Rapidtest" , "calculate_se_sp_rapidtest_streamlit"]]
 
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
