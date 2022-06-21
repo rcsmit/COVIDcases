@@ -1,10 +1,13 @@
+# Is er een verband tussen vaccinatiegraad en oversterfte
+
+# geinspireerd door
 # https://www.linkedin.com/feed/update/urn:li:activity:6896954127893508096/?commentUrn=urn%3Ali%3Acomment%3A(activity%3A6896954127893508096%2C6944757704380809216)&dashCommentUrn=urn%3Ali%3Afsd_comment%3A(6944757704380809216%2Curn%3Ali%3Aactivity%3A6896954127893508096)&dashReplyUrn=urn%3Ali%3Afsd_comment%3A(6944773760147193856%2Curn%3Ali%3Aactivity%3A6896954127893508096)&replyUrn=urn%3Ali%3Acomment%3A(activity%3A6896954127893508096%2C6944773760147193856)
 
 # - van de site van CBS pak je overlijdens per gemeente 2015-2019, 
 # bepaal sterftetrend per gemeente, 
 # trek door naar 2021,
-#  en schaal het totaal op tot totale verwachte sterfte levert verwachte sterfte per gemeente.
-#  Dit kun je, rekening houdend met seizoenspatroon per leeftijdsgroep en bevolkingsopbouw per gemeente 
+# en schaal het totaal op tot totale verwachte sterfte levert verwachte sterfte per gemeente.
+# Dit kun je, rekening houdend met seizoenspatroon per leeftijdsgroep en bevolkingsopbouw per gemeente 
 #       verdelen over de weken.
 # - van de site van CBS pak je de sterfte per week per gemeente 2021.
 # - het verschil met het vorige is de oversterfte per week per gemeente.
