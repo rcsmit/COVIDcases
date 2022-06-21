@@ -35,7 +35,10 @@ from sklearn.metrics import r2_score
 
 
 from sklearn.linear_model import LinearRegression
-
+def gemeente_info():
+    url_gemeente_info = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/gemeente_inwoners_oppervlakte.csv"
+    df_gemeente_info = pd.read_csv(url_gemeente_info, delimiter=',')
+    return df_gemeente_info
 def oversterfte_2021():
     if platform.processor() != "":
         url_overlijdens_gemeente_jaar = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_gemeentes_jaar.csv"
@@ -44,19 +47,35 @@ def oversterfte_2021():
         
     df = pd.read_csv(url_overlijdens_gemeente_jaar, delimiter=";", low_memory=False)
     #pd.to_numeric(df)
-    print (df.dtypes)
+    
+    df["2020prediction"]=None
     df["2021prediction"]=None
-    print (df)
+    
     no_columns =  len(df.columns)
     # https://stackoverflow.com/questions/65523812/estimate-a-linear-trend-in-every-row-across-multiple-columns-in-order-to-project
     X = np.array([[1],[2],[3],[4],[5]]) # dummy x values for each of the columns you are going to use as input data
+    
+   
     for i in range(len(df)):
         try:
             print (f"{i} -  {df.iloc[i,0]} ")
-            Y = df.iloc[i,-6:-1].values.reshape(-1, 1) # work on row i
-        
+
+            # predict 2020
+            Y = df.iloc[i,-9:-4].values.reshape(-1, 1) # work on row i
+            
             linear_regressor = LinearRegression()  # create object for the class
             linear_regressor.fit(X, Y)  # perform linear regression
+
+            prediction = linear_regressor.predict(np.array([[6]]))
+            prediction_=prediction[0]
+        
+            df.iloc[i,no_columns-2] = prediction_[0]
+
+            #predict 2021
+            Y2 = df.iloc[i,-8:-3].values.reshape(-1, 1) # work on row i
+        
+            linear_regressor = LinearRegression()  # create object for the class
+            linear_regressor.fit(X, Y2)  # perform linear regression
 
             prediction = linear_regressor.predict(np.array([[6]]))
             prediction_=prediction[0]
@@ -64,14 +83,17 @@ def oversterfte_2021():
             df.iloc[i,no_columns-1] = prediction_[0]
         except:
             df.iloc[i,no_columns-1] = 9999999  # using None doeesn't work
-
+ 
     df = df.drop(df[df["2021prediction"]==9999999].index)
     df = df.drop(df[df["Regio's"]=="Urk"].index)
     df = df.drop(df[df["Regio's"]=="Staphorst"].index)
     
     #df["2021prediction"] = df["2021prediction"].to_numeric(errors='coerce')
-    df["oversterfte_proc"] =  df["2021*"] /df["2021prediction"] *100
-    print (df)
+    df["oversterfte_abs2020"] =  df["2020"] -df["2020prediction"] 
+    df["oversterfte_abs2021"] =  df["2021*"]  - df["2021prediction"] 
+    df["oversterfte_proc2020"] =  (df["2020"]-df["2020prediction"]) /df["2020prediction"] *100
+    df["oversterfte_proc2021"] =  (df["2021*"] - df["2021prediction"] ) /df["2021prediction"] *100
+    
 
     return df
 
@@ -98,8 +120,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
     with _lock:
         fig1xy,ax = plt.subplots()
         try:
-            x_ = np.array(df_temp[what_to_show_l])
-            y_ = np.array(df_temp[what_to_show_r])
+            x_ = np.array(df_temp[what_to_show_l].astype('float64') )
+            y_ = np.array(df_temp[what_to_show_r].astype('float64') )
             #obtain m (slope) and b(intercept) of linear regression line
             idx = np.isfinite(x_) & np.isfinite(y_)
             m, b = np.polyfit(x_[idx], y_[idx], 1)
@@ -125,15 +147,15 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
 
             elif how == "plotly":
             
-                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, hover_name="Regio's", trendline="ols",)
+                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r,size='inwoners_2021', hover_name="Regio's", trendline="ols",)
 
 
         #add linear regression line to scatterplot
 
 
-        # correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
-        # correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
-
+        correlation_sp = round(df_temp[what_to_show_l].astype('float64') .corr(df_temp[what_to_show_r].astype('float64') , method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+        correlation_p = round(df_temp[what_to_show_l].astype('float64').corr(df_temp[what_to_show_r].astype('float64') , method='pearson'), 3)
+       
         if how == "pyplot":
             title_scatter = None # (f"{what_to_show_l} -  {what_to_show_r}\nCorrelation spearman = {correlation_sp} - Correlation pearson = {correlation_p}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
@@ -142,7 +164,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
             plt.xlabel(what_to_show_l)
             plt.ylabel(what_to_show_r)
         elif how == "plotly":
-            title_scatter = None # (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
 
             fig1xy.update_layout(
                 title=dict(
@@ -182,18 +204,41 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
             st.plotly_chart(fig1xy, use_container_width=True)
 
 def main():
+    st.header("Oversterfte vs. Vaccinatiegraad per gemeente ")
+   
+    inwonersgrens = st.sidebar.number_input("Miniumum aantal inwoners", 0, None, value = 100_000)
+    how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
+   
+    df_totaal = read_data(inwonersgrens)
+    
+
+    x = "Vaccination_coverage_completed"
+    y1 = "oversterfte_proc2020"
+    y2 = "oversterfte_proc2021"
+    
+    make_scatterplot(df_totaal,  x, y1 , how, None)
+    make_scatterplot(df_totaal,  x, y2 , how, None)
+    
+def read_data(inwonersgrens):
     df_vaccinatie = vaccinatiegraad()
     df_oversterfte = oversterfte_2021()
+    df_gemeente_info = gemeente_info()
 
     df_totaal= pd.merge(
-                df_vaccinatie, df_oversterfte, how="outer", left_on="Region_name", right_on="Regio's",
+                df_vaccinatie, df_oversterfte, how="inner", left_on="Region_name", right_on="Regio's",
             )
-    print (df_totaal.dtypes)
-    x = "Vaccination_coverage_completed"
-    y = "oversterfte_proc"
-    how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
-    
-    make_scatterplot(df_totaal,  x, y , how, None)
-    
+
+    df_totaal= pd.merge(
+                 df_totaal, df_gemeente_info, how="inner", left_on="Region_name", right_on="gemeentenaam"
+            )
+    df_totaal = df_totaal[df_totaal["inwoners_2021"]>= inwonersgrens]
+    a= df_totaal["inwoners_2021"].sum()
+    b =  df_gemeente_info["inwoners_2021"].sum()
+    st.sidebar.write(f"Totaal inwoners inbegrepen {a} =  {round(a/b*100,2)}%")
+    st.sidebar.write("Er is een grens voor inwoneraaantal. Er worden gemeentes weggelaten wegens ontbrekende gegevens, herindlelingen of naamswijzigingen. Er wordt gewerkt met de laatst bekende volledige vaccinatiegraad per gemeente.")
+
+    st.write (df_totaal)
+    return df_totaal
 if __name__ == "__main__":
+    print ("============================================================================")
     main()
