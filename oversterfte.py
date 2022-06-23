@@ -35,11 +35,11 @@ def plot(series_names):
 
             #df = df.sort_values(by=['weeknr'])
             if year == 2020 or year ==2021:
-                width = 2
+                width = 3
                 opacity = 1
             else:
-                width = 1
-                opacity = .5
+                width = .7
+                opacity = .3
 
             fig_ = go.Scatter(x=df['weeknr'],
                         y=df[series_name],
