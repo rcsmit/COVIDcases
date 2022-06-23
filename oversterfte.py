@@ -31,9 +31,9 @@ def plot(series_names):
         year_list = df_data['jaar'].unique().tolist()
         data = []
         for idx, year in enumerate(year_list):
-            df = df_data[df_data['jaar'] == year][['weeknr', series_name]].reset_index()
+            df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
-            df = df.sort_values(by=['weeknr'])
+            #df = df.sort_values(by=['weeknr'])
             if year == 2020 or year ==2021:
                 width = 2
                 opacity = 1
