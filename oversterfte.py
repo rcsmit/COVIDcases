@@ -25,8 +25,6 @@ def get_data_for_series(seriename):
 
 def plot(series_names, how):
 
-   
-
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
         df_data = get_data_for_series(series_name)
