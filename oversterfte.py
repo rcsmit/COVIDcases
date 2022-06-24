@@ -196,7 +196,7 @@ def plot(series_names, how):
             fig.add_vrect(x0="2020_13", x1="2020_18", 
               annotation_text="Eerste golf", annotation_position="top left",
               fillcolor="pink", opacity=0.25, line_width=0)
-            fig.add_vrect(x0="2020_39", x1="2021_3", 
+            fig.add_vrect(x0="2020_39", x1="2021_03", 
               annotation_text="Tweede golf", annotation_position="top left",
               fillcolor="pink", opacity=0.25, line_width=0)
             fig.add_vrect(x0="2021_33", x1="2021_52", 
