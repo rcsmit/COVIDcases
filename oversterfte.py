@@ -176,7 +176,8 @@ def plot(series_names, how):
                 fillcolor='rgba(68, 68, 68, 0.2)'
              )
             
-            data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
+            #data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
+            data = [ high95,low05,avg, sterfte] #, value_in_year_2021 ]
             title = f"Overleden {series_name}"
             layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
                             title=title,)
