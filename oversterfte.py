@@ -27,15 +27,18 @@ import numpy as np
 
 def get_data_for_series(seriename):
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
-    #try:
+ 
     df_ = pd.read_csv(
         file,
         delimiter=";",
         
         low_memory=False,
     )
-    df = df_[["jaar","weeknr","aantal_dgn",seriename]].copy(deep=True)
-    
+    print (df_)
+    if seriename == "totaal_m_v_0_999":
+        df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
+    else:
+        df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
     df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
@@ -46,11 +49,11 @@ def get_data_for_series(seriename):
 
     for y in range (2015,2020):
         df_year = df[(df["jaar"] == y)]
-        som = df_year[seriename].sum()
-      
+        som = df_year["totaal_m_v_0_999"].sum()
+        # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
         factor_2020 = 153402 / som
         factor_2021 = 154887 / som
-        factor_2022 = 154887 / som
+        factor_2022 = 155494 / som
        
         for i in range(len(df)):
             
@@ -63,9 +66,7 @@ def get_data_for_series(seriename):
                 df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
                 df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
                 df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
-    # except:
-    #     print("Error reading data")
-    #     st.stop()
+
     
   
     return df
@@ -288,9 +289,9 @@ def make_df_quantile(series_name, df_data, year):
     return df_quantile
         
 def main():
-    #serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
+    serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
     
-    serienames = ["totaal_m_v_0_999"]
+    #serienames = ["totaal_m_v_0_999"]
     how = st.sidebar.selectbox("How", ["quantiles", "Lines"], index = 0)
     plot(serienames, how)
 
