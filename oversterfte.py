@@ -205,8 +205,6 @@ def plot(series_names, how):
               annotation_text="Hitte golf", annotation_position="top left",
               fillcolor="orange", opacity=0.25, line_width=0)
 
-
-
             st.plotly_chart(fig, use_container_width=True)
 
         else:
