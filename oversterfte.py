@@ -101,7 +101,7 @@ def plot(series_names, how):
             df_quantile = df_quantile.sort_values(by=['jaar','week_'])
             fig = go.Figure()
             low05 = go.Scatter(
-                name='low05',
+                name='low',
                 x=df_quantile["week_"],
                 y=df_quantile['low05'] ,
                 mode='lines',
@@ -167,7 +167,7 @@ def plot(series_names, how):
                 fillcolor='rgba(68, 68, 68, 0.3)'
             )
             high95 = go.Scatter(
-                name='high95',
+                name='high',
                 x=df_quantile["week_"],
                 y=df_quantile['high95'],
                 mode='lines',
