@@ -26,7 +26,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 def get_data_for_series(seriename):
-    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
+    #file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_meer_leeftijdscat.csv"
     df_ = pd.read_csv(
         file,
@@ -43,7 +43,7 @@ def get_data_for_series(seriename):
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr","m_v_0_999", seriename]].copy(deep=True)
     #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
-    df = df[ (df["jaar"] > 2014)]
+    df = df[ (df["jaar"] > 2014)& (df["weeknr"] != 53)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
  
