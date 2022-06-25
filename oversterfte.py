@@ -311,7 +311,7 @@ def main():
 
     #serienames = ["totaal_m_v_0_999"]
     how = st.sidebar.selectbox("How", ["quantiles", "Lines"], index = 0)
-    yaxis_to_zero = = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
+    yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     plot(serienames, how, yaxis_to_zero)
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
     st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
