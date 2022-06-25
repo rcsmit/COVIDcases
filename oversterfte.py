@@ -299,7 +299,7 @@ def make_df_quantile(series_name, df_data, year):
 
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
     if year==2020:
-        df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, 52)
+        df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, 53)
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
 
         
