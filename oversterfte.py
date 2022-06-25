@@ -261,10 +261,10 @@ def make_df_quantile(series_name, df_data, year):
         q75 = np.percentile(data, 75)
         q95 = np.percentile(data, 95)
                
-        avg = data.mean()
-        sd = data.std()
-        low05 = avg - (2*sd)
-        high95 = avg +(2*sd)
+        avg = round(data.mean(),0)
+        sd = round(data.std(),0)
+        low05 = round(avg - (2*sd),0)
+        high95 = round(avg +(2*sd),0)
        
 
 
@@ -294,7 +294,8 @@ def main():
     #serienames = ["totaal_m_v_0_999"]
     how = st.sidebar.selectbox("How", ["quantiles", "Lines"], index = 0)
     plot(serienames, how)
-
+    st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
+    st.write("De onder- en bovengrens is berend aan de hand van hetngemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
