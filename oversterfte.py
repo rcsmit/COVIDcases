@@ -315,8 +315,9 @@ def main():
     plot(serienames, how, yaxis_to_zero)
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
     st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
-    st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
+    # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
+    st.write("Code: https://github.com/rcsmit/COVIDcases/blob/main/oversterfte.py")
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
