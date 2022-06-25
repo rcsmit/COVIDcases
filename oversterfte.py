@@ -36,10 +36,14 @@ def get_data_for_series(seriename):
     )
     print (df_)
     if seriename == "totaal_m_v_0_999":
-        df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
+       # df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
+        df = df_[["jaar","weeknr", seriename]].copy(deep=True)
+
     else:
-        df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
-    df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
+       # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
+        df = df_[["jaar","weeknr","totaal_m_v_0_999", seriename]].copy(deep=True)
+    #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
+    df = df[ (df["jaar"] > 2014)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
  
