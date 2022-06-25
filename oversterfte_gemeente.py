@@ -61,7 +61,7 @@ def oversterfte_2021():
    
     for i in range(len(df)):
         try:
-            print (f"{i} -  {df.iloc[i,0]} ")
+            #print (f"{i} -  {df.iloc[i,0]} ")
 
             # predict 2020
             Y = df.iloc[i,-9:-4].values.reshape(-1, 1) # work on row i
@@ -70,6 +70,7 @@ def oversterfte_2021():
             linear_regressor.fit(X, Y)  # perform linear regression
 
             prediction = linear_regressor.predict(np.array([[6]]))
+            
             prediction_=prediction[0]
         
             df.iloc[i,no_columns-2] = prediction_[0]
@@ -84,20 +85,28 @@ def oversterfte_2021():
             prediction_=prediction[0]
         
             df.iloc[i,no_columns-1] = prediction_[0]
+
+            laatste_5_jaar = df.iloc[i,-9:-4]
+            
+            # mean = laatste_5_jaar.mean()
+            # std = laatste_5_jaar.std()
+            # upper = mean + (2*std)
         except:
             df.iloc[i,no_columns-1] = 9999999  # using None doeesn't work
  
     df = df.drop(df[df["2021prediction"]==9999999].index)
     df = df.drop(df[df["Regio's"]=="Urk"].index)
     df = df.drop(df[df["Regio's"]=="Staphorst"].index)
-    
+ 
     #df["2021prediction"] = df["2021prediction"].to_numeric(errors='coerce')
     df["oversterfte_abs2020"] =  df["2020"] -df["2020prediction"] 
     df["oversterfte_abs2021"] =  df["2021*"]  - df["2021prediction"] 
     df["oversterfte_proc2020"] =  (df["2020"]-df["2020prediction"]) /df["2020prediction"] *100
     df["oversterfte_proc2021"] =  (df["2021*"] - df["2021prediction"] ) /df["2021prediction"] *100
-    
+    # df["oversterfte_methode2_2020"] = ( df["2020"] - ( df[["2015", "2016", "2017", "2018", "2019"]].mean()+2* df[["2015", "2016", "2017", "2018", "2019"]].std()))/df[["2015", "2016", "2017", "2018", "2019"]].mean()
+    # df["test"]= df[["2015", "2016", "2017", "2018", "2019"]].mean()
 
+    print (df)
     return df
 
 def vaccinatiegraad():

@@ -27,7 +27,7 @@ import numpy as np
 
 def get_data_for_series(seriename):
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
- 
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_meer_leeftijdscat.csv"
     df_ = pd.read_csv(
         file,
         delimiter=";",
@@ -288,8 +288,9 @@ def make_df_quantile(series_name, df_data, year):
     return df_quantile
         
 def main():
-    serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
-    
+    #serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
+    serienames = ["m_v_0_999","m_v_0_49","m_v_50-64","m_v_65_79","m_v_80_89","m_v_90-999","m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
+
     #serienames = ["totaal_m_v_0_999"]
     how = st.sidebar.selectbox("How", ["quantiles", "Lines"], index = 0)
     plot(serienames, how)
