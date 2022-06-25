@@ -75,7 +75,7 @@ def get_data_for_series(seriename):
     return df
 
 
-def plot(series_names, how):
+def plot(series_names, how, yaxis_to_zero):
 
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
@@ -209,7 +209,8 @@ def plot(series_names, how):
             fig.add_vrect(x0="2020_33", x1="2020_34", 
               annotation_text="Hitte golf", annotation_position="top left",
               fillcolor="orange", opacity=0.25, line_width=0)
-
+            if yaxis_to_zero:
+                fig.update_yaxes(rangemode="tozero")
             st.plotly_chart(fig, use_container_width=True)
 
         else:
@@ -310,7 +311,8 @@ def main():
 
     #serienames = ["totaal_m_v_0_999"]
     how = st.sidebar.selectbox("How", ["quantiles", "Lines"], index = 0)
-    plot(serienames, how)
+    yaxis_to_zero = = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
+    plot(serienames, how, yaxis_to_zero)
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
     st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
     st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
