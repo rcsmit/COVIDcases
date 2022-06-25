@@ -300,6 +300,8 @@ def main():
     plot(serienames, how)
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
     st.write("De onder- en bovengrens is berend aan de hand van hetngemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
+    st.write("Week 53 van 2020 is weggelaten.")
+    st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
