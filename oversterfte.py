@@ -43,7 +43,7 @@ def get_data_for_series(seriename):
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr","m_v_0_999", seriename]].copy(deep=True)
     #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
-    df = df[ (df["jaar"] > 2014)& (df["weeknr"] != 53)]
+    df = df[ (df["jaar"] > 2014)]  #& (df["weeknr"] != 53)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
  
@@ -245,36 +245,31 @@ def plot(series_names, how):
             fig = go.Figure(data=data, layout=layout)
             st.plotly_chart(fig, use_container_width=True)
 
-def make_df_quantile(series_name, df_data, year):
-    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)].copy(deep=True)
-    df_quantile =None
-           
-    week_list = df_to_use['weeknr'].unique().tolist()
-            # week_list = week_list.sort()
-          
-            
-            #for w in week_list:  #puts week 1 at the end
-    for w in range(1,53):
-        df_to_use_ = df_to_use[(df_to_use["weeknr"] == w)].copy(deep=True)
-        column_to_use = series_name +  "_factor_" + str(year)
-        data = df_to_use_[column_to_use ] #.tolist()
+def make_row_df_quantile(series_name, year, df_to_use, w_):
+    if w_ == 53:
+        w = 52
+    else:
+        w = w_
+    df_to_use_ = df_to_use[(df_to_use["weeknr"] == w)].copy(deep=True)
+    column_to_use = series_name +  "_factor_" + str(year)
+    data = df_to_use_[column_to_use ] #.tolist()
                
-        q05 = np.percentile(data, 5)
-        q25 = np.percentile(data, 25)
-        q50 = np.percentile(data, 50)
-        q75 = np.percentile(data, 75)
-        q95 = np.percentile(data, 95)
+    q05 = np.percentile(data, 5)
+    q25 = np.percentile(data, 25)
+    q50 = np.percentile(data, 50)
+    q75 = np.percentile(data, 75)
+    q95 = np.percentile(data, 95)
                
-        avg = round(data.mean(),0)
-        sd = round(data.std(),0)
-        low05 = round(avg - (2*sd),0)
-        high95 = round(avg +(2*sd),0)
+    avg = round(data.mean(),0)
+    sd = round(data.std(),0)
+    low05 = round(avg - (2*sd),0)
+    high95 = round(avg +(2*sd),0)
        
 
 
-        df_quantile_ =  pd.DataFrame(
+    df_quantile_ =  pd.DataFrame(
                    [ {
-                        "week_": w,
+                        "week_": w_,
                         "jaar":year,
                         "q05": q05,
                         "q25": q25,
@@ -286,8 +281,26 @@ def make_df_quantile(series_name, df_data, year):
                         "high95":high95
                         }]
                 )
+            
+    return df_quantile_
+
+def make_df_quantile(series_name, df_data, year):
+    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)].copy(deep=True)
+    df_quantile =None
+           
+    week_list = df_to_use['weeknr'].unique().tolist()
+            # week_list = week_list.sort()
+          
+            
+            #for w in week_list:  #puts week 1 at the end
+    for w in range(1,53):
+        df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w)
 
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
+    if year==2020:
+        df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, 52)
+        df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
+
         
     return df_quantile
         
@@ -299,8 +312,8 @@ def main():
     how = st.sidebar.selectbox("How", ["quantiles", "Lines"], index = 0)
     plot(serienames, how)
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
-    st.write("De onder- en bovengrens is berend aan de hand van hetngemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
-    st.write("Week 53 van 2020 is weggelaten.")
+    st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
+    st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
 if __name__ == "__main__":
     import datetime
