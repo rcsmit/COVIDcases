@@ -35,13 +35,13 @@ def get_data_for_series(seriename):
         low_memory=False,
     )
     print (df_)
-    if seriename == "totaal_m_v_0_999":
+    if seriename == "m_v_0_999":
        # df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr", seriename]].copy(deep=True)
 
     else:
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
-        df = df_[["jaar","weeknr","totaal_m_v_0_999", seriename]].copy(deep=True)
+        df = df_[["jaar","weeknr","m_v_0_999", seriename]].copy(deep=True)
     #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
     df = df[ (df["jaar"] > 2014)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
@@ -52,7 +52,7 @@ def get_data_for_series(seriename):
 
     for y in range (2015,2020):
         df_year = df[(df["jaar"] == y)]
-        som = df_year["totaal_m_v_0_999"].sum()
+        som = df_year["m_v_0_999"].sum()
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
         factor_2020 = 153402 / som
         factor_2021 = 154887 / som
