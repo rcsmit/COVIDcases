@@ -8,7 +8,37 @@ def init():
     tst =  st.sidebar.number_input("Number of tests", 0,None, 27000 )  
     pos =  st.sidebar.number_input("Number of tests", 0,None, 242 )
     match_range =  st.sidebar.number_input("Match range", 0.0,100.0, 99.99)
-    return reg, rid, tst, pos, match_range
+
+   
+    st.write("Sensitivity")
+    col1,col2,col3 = st.columns(3)
+    with col1:
+        se_min =st.number_input("min",0,100,30,  key="d")
+    with col2:
+        se_max =st.number_input("max",0,100,100, key="e")
+    with col3:
+        se_step =st.number_input("step",0.0,100.0,.5,  key="f")
+
+    st.write("Specificity")
+    col1,col2,col3 = st.columns(3)
+    with col1:
+        sp_min =st.number_input("min",0,100,70, key="a")
+    with col2:
+        sp_max =st.number_input("max",0,100,100, key="b")
+    with col3:
+        sp_step =st.number_input("step",0.0,100.0,.5, key="c")
+
+  
+
+    st.write("Prevalence")
+    col1,col2,col3 = st.columns(3)
+    with col1:
+        prev_min =st.number_input("min",0.0,100.0,.5, key="g")
+    with col2:
+        prev_max =st.number_input("max",0.0,100.0,24.5, key="h")
+    with col3:
+        prev_step =st.number_input("step",0.0,100.0,.5, key="i")
+    return reg, rid, tst, pos, match_range, se_min,se_max,se_step, sp_min, sp_max, sp_step, prev_min, prev_max, prev_step
 
 
 
@@ -54,19 +84,30 @@ def calculate(df, reg, rid, tests, positives, match_range, sens_, spec_, prev_):
 
 def main():
     df = None
-    reg, rid, tests, positives, match_range = init()
+    reg, rid, tests, positives, match_range, se_min,se_max,se_step, sp_min, sp_max, sp_step, prev_min, prev_max, prev_step = init()
     # ranges are multiplied by 10 because range can't handle floatas
-    for sens_ in np.arange (30,100,.5):
-        for spec_ in np.arange (70, 100,.5):
+    for sens_ in np.arange (se_min,se_max,se_step):
+        for spec_ in np.arange (sp_min, sp_max, sp_step):
             # Don't know why this is in the SQL statement
             # if sensitivity+specificity>1:
             #         prevalence = ((positives / tests + specificity - 1) / (sensitivity + specificity - 1) )
   
-            for prev_ in np.arange (.5,24.5,.5):
+            for prev_ in np.arange ( prev_min, prev_max, prev_step):
                 df = calculate(df, reg, rid, tests, positives, match_range, sens_, spec_, prev_)
 
     # show the result
+    st.header("Bayes Lines Tool (BLT)")
     st.write ("Reproduction of SQL code of https://bayeslines.org/ in Python")
-    st.write(df)
+
+    if df != None:
+        st.write("These Confusion Matrices were found")
+        st.write(df)
+    else:
+        st.warning("No results for this data. Hint: Change ranges")
+    st.write("Paper: https://zenodo.org/record/4600597#.YroY0nbP3rc")
+    st.write("Aukema, Wouter, Kämmerer, Ulrike, Borger, Pieter, Goddek, Simon, Malhotra, Bobby Rajesh, McKernan, Kevin, & Klement, Rainer Johannes. (2021). Bayes Lines Tool (BLT) - A SQL-script for analyzing diagnostic test results with an application to SARS-CoV-2-testing. https://doi.org/10.5281/zenodo.4459271")
+    
+    st.write("Source python script: https://github.com/rcsmit/COVIDcases/blob/main/bayes_lines_tools.py")
+    
 
 main()
