@@ -63,7 +63,8 @@ def main():
             ["34. Playing with R0", "playing_with_R0"],
             ["35. Calculate Se & Se Rapidtest" , "calculate_se_sp_rapidtest_streamlit"],
             ["36. Oversterfte gemeente" , "oversterfte_gemeente"],
-            ["37. Oversterfte" , "oversterfte"]]
+            ["37. Oversterfte" , "oversterfte"],
+            ["38. Bayes Lines tools" , "bayes_lines_tools"]]
 
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
