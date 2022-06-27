@@ -92,6 +92,6 @@ def main():
     st.write("Aukema, Wouter, Kämmerer, Ulrike, Borger, Pieter, Goddek, Simon, Malhotra, Bobby Rajesh, McKernan, Kevin, & Klement, Rainer Johannes. (2021). Bayes Lines Tool (BLT) - A SQL-script for analyzing diagnostic test results with an application to SARS-CoV-2-testing. https://doi.org/10.5281/zenodo.4459271")
     
     st.write("Source python script: https://github.com/rcsmit/COVIDcases/blob/main/bayes_lines_tools.py")
-    
+    st.write("Reaction on this paper: https://www.pepijnvanerp.nl/2021/01/bayes-lines-tool-flawed/") 
 
 main()
