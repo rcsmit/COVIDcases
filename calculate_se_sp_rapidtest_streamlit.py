@@ -85,13 +85,20 @@ def calculate_se_sp():
     # https%3A%2F%2Fncss-wpengine.netdna-ssl.com%2Fwp-content%2Fthemes%2Fncss%2Fpdf%2FProcedures%2FPASS%2FConfidence_Intervals_for_One-Sample_Sensitivity_and_Specificity.pdf
     sp = tn/(fp+tn)*100
     acc = (tp + tn) /(tp+fn+fp+tn)*100
-    st.write(f" Sensitivity = {tp}/({tp}+{fn})*100% = {round(se,2)} (95% CI (Simple Asymptotic): {c1se*100} - {c2se*100}) / (95% CI(exact (Clopper-Pearson)): {c1*100} - {c2*100})")
+    st.write(f" Sensitivity = {tp}/({tp}+{fn})*100% = {round(se,2)}")
+    st.write(f"95% CI")
+    st.write(f"Simple Asymptotic: [{round(c1se*100,4)} - {round(c2se*100,4)}]")
+    st.write(f"exact (Clopper-Pearson) = beta): [{round(c1*100,4)} - {round(c2*100,4)}]")
     calculate_confint(tp,(tp+fn), alpha=0.05)
-    st.write(f" Specificity = {tn}/({fp}+{tn})*100% = {round(sp,2)} (95% CI: {c1sp*100} - {c2sp*100}) / (95% CI(exact (Clopper-Pearson)): {c1y*100} - {c2y*100}) ")
+    st.write("")
+    st.write(f" Specificity = {tn}/({fp}+{tn})*100% = {round(sp,2)}")
+    st.write(f"95% CI")
+    st.write(f"Simple Asymptotic: [{round(c1sp*100,4)} - {round(c2sp*100,4)}]")
+    st.write(f"Exact (Clopper-Pearson) = beta): [{round(c1y*100,4)} - {round(c2y*100,4)}] ")
     calculate_confint(tn,(fp+tn), alpha=0.05)
-    
+    st.write("")
     st.write(f" Accuracy  =  ({tp} + {tn})/ ({tp}+{fn}+{fp}+{tn})*100% = {round(acc,2)}")
-
+    calculate_confint((tn+tp),(fp+tn+tp+fn), alpha=0.05)
         # https://www2.ccrb.cuhk.edu.hk/stat/confidence%20interval/Diagnostic%20Statistic.htm
         # The Specificity is 0.91 and the 95% C.I. is (0.89746, 0.92254).
 
@@ -138,10 +145,19 @@ def calculate_confint(x, n, alpha=0.05):
     # jeffreys : Jeffreys Bayesian Interval
 
     # binom_test : Numerical inversion of binom_test
+
+
+    # VEEL ONDERZOEKEN LATEN BETA ZIEN
+    # Flowflex gebruikt agresti-coull
+    #thaise test onbekend
+
     methods = ["normal", "agresti_coull" , "beta", "wilson", "jeffreys", "binom_test"]
     for m in methods:
-        a,b = proportion_confint(count=x, nobs=n, method=m)
-        print (f"{m} - [{a},{b}]")
+        try:
+            a,b = proportion_confint(count=x, nobs=n, method=m)
+            st.write (f"{m} - [{round(a*100,4)},{round(b*100,4)}]")
+        except:
+            st.write(f"Problem with {m}")
 
 
 def binomial_ci(x, n, alpha=0.05):
