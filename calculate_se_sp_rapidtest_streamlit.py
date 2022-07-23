@@ -6,6 +6,7 @@ from tabulate import tabulate
 # import matplotlib.pyplot as plt
 import streamlit as st
 import math
+from statsmodels.stats.proportion import proportion_confint
 
 def calculate_se_sp():
     col1, col2,col3,col4 = st.columns(4)
@@ -85,7 +86,10 @@ def calculate_se_sp():
     sp = tn/(fp+tn)*100
     acc = (tp + tn) /(tp+fn+fp+tn)*100
     st.write(f" Sensitivity = {tp}/({tp}+{fn})*100% = {round(se,2)} (95% CI (Simple Asymptotic): {c1se*100} - {c2se*100}) / (95% CI(exact (Clopper-Pearson)): {c1*100} - {c2*100})")
+    calculate_confint(tp,(tp+fn), alpha=0.05)
     st.write(f" Specificity = {tn}/({fp}+{tn})*100% = {round(sp,2)} (95% CI: {c1sp*100} - {c2sp*100}) / (95% CI(exact (Clopper-Pearson)): {c1y*100} - {c2y*100}) ")
+    calculate_confint(tn,(fp+tn), alpha=0.05)
+    
     st.write(f" Accuracy  =  ({tp} + {tn})/ ({tp}+{fn}+{fp}+{tn})*100% = {round(acc,2)}")
 
         # https://www2.ccrb.cuhk.edu.hk/stat/confidence%20interval/Diagnostic%20Statistic.htm
@@ -119,7 +123,28 @@ def simple_asymptotic(x,n):
 
     return c1, c2
   
+def calculate_confint((x, n, alpha=0.05):
+    # normal : asymptotic normal approximation
+
+    # agresti_coull : Agresti-Coull interval
+
+    # beta : Clopper-Pearson interval based on Beta distribution
+
+    # wilson : Wilson Score interval
+
+    # jeffreys : Jeffreys Bayesian Interval
+
+    # binom_test : Numerical inversion of binom_test
+    methods = ["normal", "agresti_coull" , "beta", "wilson", " jeffreys", "binom_test"]
+    for m in methods:
+        a,b = proportion_confint(count=x, nobs=n, method=m)
+        print (f"{m} - [{a},{b}]")
+
+
 def binomial_ci(x, n, alpha=0.05):
+    # sens  c1,c2 = binomial_ci(tp,(tp+fn), alpha=0.05) #exact (Clopper-Pearson)
+    # spec c1y,c2y = binomial_ci(tn,(fp+tn), alpha=0.05) # exact (Clopper-Pearson)
+ 
     # The following gives exact (Clopper-Pearson) interval for binomial distribution in a simple way.
     # https://stackoverflow.com/questions/13059011/is-there-any-python-function-library-for-calculate-binomial-confidence-intervals
     # x is number of successes, n is number of trials
@@ -132,10 +157,14 @@ def binomial_ci(x, n, alpha=0.05):
         c2=1
     else:
         c2 = round(stats.beta.interval(1-alpha, x+1,n-x)[1],3)
+
+    
     return c1, c2
 
 
-
+# https://www.frontiersin.org/articles/10.3389/fpubh.2013.00039/full
+# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4958484/
+# https://andrewpwheeler.com/2020/11/30/confidence-intervals-around-proportions/
 
 
 def calculate(se, sp, prevalentie, number_of_tested_people,  output):
