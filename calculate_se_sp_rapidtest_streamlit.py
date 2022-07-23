@@ -138,7 +138,7 @@ def calculate_confint(x, n, alpha=0.05):
     # jeffreys : Jeffreys Bayesian Interval
 
     # binom_test : Numerical inversion of binom_test
-    methods = ["normal", "agresti_coull" , "beta", "wilson", " jeffreys", "binom_test"]
+    methods = ["normal", "agresti_coull" , "beta", "wilson", "jeffreys", "binom_test"]
     for m in methods:
         a,b = proportion_confint(count=x, nobs=n, method=m)
         print (f"{m} - [{a},{b}]")
