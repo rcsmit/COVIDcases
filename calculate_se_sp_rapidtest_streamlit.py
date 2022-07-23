@@ -123,7 +123,10 @@ def simple_asymptotic(x,n):
 
     return c1, c2
   
-def calculate_confint((x, n, alpha=0.05):
+def calculate_confint(x, n, alpha=0.05):
+    # https://www.statology.org/binomial-confidence-interval-python/
+    # https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+
     # normal : asymptotic normal approximation
 
     # agresti_coull : Agresti-Coull interval
