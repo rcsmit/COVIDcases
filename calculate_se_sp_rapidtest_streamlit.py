@@ -87,14 +87,14 @@ def calculate_se_sp():
     acc = (tp + tn) /(tp+fn+fp+tn)*100
     st.write(f" Sensitivity = {tp}/({tp}+{fn})*100% = {round(se,2)}")
     st.write(f"95% CI")
-    st.write(f"Simple Asymptotic: [{round(c1se*100,4)} - {round(c2se*100,4)}]")
-    st.write(f"exact (Clopper-Pearson) = beta): [{round(c1*100,4)} - {round(c2*100,4)}]")
+    st.write(f"Simple Asymptotic: [{round(c1se*100,1)} - {round(c2se*100,1)}]")
+    st.write(f"exact (Clopper-Pearson) = beta): [{round(c1*100,1)} - {round(c2*100,1)}]")
     calculate_confint(tp,(tp+fn), alpha=0.05)
     st.write("")
     st.write(f" Specificity = {tn}/({fp}+{tn})*100% = {round(sp,2)}")
     st.write(f"95% CI")
-    st.write(f"Simple Asymptotic: [{round(c1sp*100,4)} - {round(c2sp*100,4)}]")
-    st.write(f"Exact (Clopper-Pearson) = beta): [{round(c1y*100,4)} - {round(c2y*100,4)}] ")
+    st.write(f"Simple Asymptotic: [{round(c1sp*100,1)} - {round(c2sp*100,1)}]")
+    st.write(f"Exact (Clopper-Pearson) = beta): [{round(c1y*100,1)} - {round(c2y*100,1)}] ")
     calculate_confint(tn,(fp+tn), alpha=0.05)
     st.write("")
     st.write(f" Accuracy  =  ({tp} + {tn})/ ({tp}+{fn}+{fp}+{tn})*100% = {round(acc,2)}")
@@ -155,7 +155,7 @@ def calculate_confint(x, n, alpha=0.05):
     for m in methods:
         try:
             a,b = proportion_confint(count=x, nobs=n, method=m)
-            st.write (f"{m} - [{round(a*100,4)},{round(b*100,4)}]")
+            st.write (f"{m} - [{round(a*100,1)},{round(b*100,1)}]")
         except:
             st.write(f"Problem with {m}")
 
@@ -171,11 +171,11 @@ def binomial_ci(x, n, alpha=0.05):
     if x==0:
         c1 = 0
     else:
-        c1 = round(stats.beta.interval(1-alpha, x,n-x+1)[0],3)
+        c1 = round(stats.beta.interval(1-alpha, x,n-x+1)[0],1)
     if x==n:
         c2=1
     else:
-        c2 = round(stats.beta.interval(1-alpha, x+1,n-x)[1],3)
+        c2 = round(stats.beta.interval(1-alpha, x+1,n-x)[1],1)
 
     
     return c1, c2
