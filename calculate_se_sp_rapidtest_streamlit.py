@@ -76,16 +76,16 @@ def calculate_se_sp():
 
     c1se,c2se = simple_asymptotic(tp,(tp+fn))
     c1sp,c2sp = simple_asymptotic(tn,(fp+tn))
-    c1,c2 = binomial_ci(tp,(tp+fn), alpha=0.05)
-    c1y,c2y = binomial_ci(tn,(fp+tn), alpha=0.05)
+    c1,c2 = binomial_ci(tp,(tp+fn), alpha=0.05) #exact (Clopper-Pearson)
+    c1y,c2y = binomial_ci(tn,(fp+tn), alpha=0.05) # exact (Clopper-Pearson)
     # https://www2.ccrb.cuhk.edu.hk/stat/confidence%20interval/Diagnostic%20Statistic.htm
     # https://www.medcalc.org/calc/diagnostic_test.php
 
     # https%3A%2F%2Fncss-wpengine.netdna-ssl.com%2Fwp-content%2Fthemes%2Fncss%2Fpdf%2FProcedures%2FPASS%2FConfidence_Intervals_for_One-Sample_Sensitivity_and_Specificity.pdf
     sp = tn/(fp+tn)*100
     acc = (tp + tn) /(tp+fn+fp+tn)*100
-    st.write(f" Sensitivity = {tp}/({tp}+{fn})*100% = {round(se,2)} (95% CI (Simple Asymptotic): {c1se} - {c2se}) / (95% CI(exact (Clopper-Pearson)): {c1} - {c2})")
-    st.write(f" Specificity = {tn}/({fp}+{tn})*100% = {round(sp,2)} (95% CI: {c1sp} - {c2sp}) / (95% CI(exact (Clopper-Pearson)): {c1y} - {c2y}) ")
+    st.write(f" Sensitivity = {tp}/({tp}+{fn})*100% = {round(se,2)} (95% CI (Simple Asymptotic): {c1se*100} - {c2se*100}) / (95% CI(exact (Clopper-Pearson)): {c1*100} - {c2*100})")
+    st.write(f" Specificity = {tn}/({fp}+{tn})*100% = {round(sp,2)} (95% CI: {c1sp*100} - {c2sp*100}) / (95% CI(exact (Clopper-Pearson)): {c1y*100} - {c2y*100}) ")
     st.write(f" Accuracy  =  ({tp} + {tn})/ ({tp}+{fn}+{fp}+{tn})*100% = {round(acc,2)}")
 
         # https://www2.ccrb.cuhk.edu.hk/stat/confidence%20interval/Diagnostic%20Statistic.htm
@@ -109,7 +109,8 @@ def calculate_se_sp():
 
 def simple_asymptotic(x,n):
     # Simple Asymptotic
-    # The simple asymptotic formula is based on the normal approximation to the binomial distribution. The approximation is close only for very large sample sizes.
+    # The simple asymptotic formula is based on the normal approximation to the binomial distribution. 
+    # The approximation is close only for very large sample sizes.
  
     p = x/n
     SE = math.sqrt((p*(1-p))/n )   #https://www2.ccrb.cuhk.edu.hk/stat/confidence%20interval/Diagnostic%20Statistic.htm#Formula

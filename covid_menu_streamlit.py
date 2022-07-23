@@ -61,7 +61,7 @@ def main():
             ["32. Compare two variants", "compare_two_variants"],
             ["33. Scatterplot OWID", "scatterplots_owid"],
             ["34. Playing with R0", "playing_with_R0"],
-            ["35. Calculate Se & Se Rapidtest" , "calculate_se_sp_rapidtest_streamlit"],
+            ["35. Calculate Se & Sp Rapidtest" , "calculate_se_sp_rapidtest_streamlit"],
             ["36. Oversterfte gemeente" , "oversterfte_gemeente"],
             ["37. Oversterfte" , "oversterfte"],
             ["38. Bayes Lines tools" , "bayes_lines_tools"]]
