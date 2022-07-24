@@ -36,7 +36,7 @@ def calculate_confint(x, n, alpha=0.05):
     # Flowflex gebruikt agresti-coull
     #thaise test onbekend
 
-    methods = ["normal", "agresti_coull" , "beta", "wilson", "jeffreys", "binom_test"]
+    methods = ["normal", "agresti_coull" , "beta", "wilson", "jeffreys"] # , "binom_test"]
     for m in methods:
         try:
             a,b = proportion_confint(count=x, nobs=n, method=m)
