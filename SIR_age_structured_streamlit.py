@@ -20,7 +20,7 @@ def get_contact_matrix(moment,contact_type):
         contact_type (string) : ["all", "community", "household"]
     """
     df= pd.read_csv(
-            "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/contactmatrix.tsv",
+            "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/contactmatrix.tsv",
             # "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\contactmatrix.tsv",
             comment="#",
             delimiter="\t",
