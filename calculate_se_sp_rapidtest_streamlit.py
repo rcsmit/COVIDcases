@@ -137,6 +137,8 @@ def calculate(se, sp, prevalentie, number_of_tested_people,  output):
     """calculates the values. Made as a function to be able to make graphs
     with various prevalences
 
+    https://www.ntvg.nl/artikelen/het-gebruik-van-de-coronazelftest-perspectief
+
     Args:
         test (list): list with the name, sensitivity and specificity of the test
         prevalentie (float): prevalentie of the virus
