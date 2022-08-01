@@ -75,32 +75,94 @@ def get_data_for_series(seriename):
     return df
 
 
+def plot_graph_oversterfte(how, df, df_corona, series_name):
+  
+    df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
+    df_oversterfte["over_onder_sterfte"] =  0
+    df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
+    df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
+    for i in range( len (df_oversterfte)):
+        if df_oversterfte.loc[i,series_name ] >  df_oversterfte.loc[i,"high95"] :
+            df_oversterfte.loc[i,"over_onder_sterfte" ] =  df_oversterfte.loc[i,series_name ] -  df_oversterfte.loc[i,"high95"] 
+        elif df_oversterfte.loc[i,series_name ] <  df_oversterfte.loc[i,"low05"]:
+            df_oversterfte.loc[i,"over_onder_sterfte" ] =     df_oversterfte.loc[i,series_name ] - df_oversterfte.loc[i,"low05"]
+
+    fig_ = go.Scatter(x=df_oversterfte['week_'],
+                            y=df_oversterfte[how],
+                            line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
+                            mode='lines',
+                            name=how,
+                           )
+    sterfte = go.Scatter(
+                name="Sterfte",
+                x=df_oversterfte["weeknr"],
+                y=df_oversterfte[series_name],
+                mode='lines',
+                line=dict(width=1,color='rgba(255, 0, 0, 0.8)'),
+                )
+  
+    if how == "year_minus_avg":    
+        grens = "avg"
+        avg = go.Scatter(
+                name=grens,
+                x=df_oversterfte["weeknr"],
+                y=df_oversterfte[grens],
+                mode='lines',
+                line=dict(width=1,color='rgba(0, 0,255, 0.8)'),
+                )
+        data = [fig_, avg, sterfte ]
+
+    else:
+        grens = "95%_interval"
+       
+        low = go.Scatter(
+                name='low',
+                x=df_oversterfte["week_"],
+                y=df_oversterfte["low05"],
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)"),
+                fillcolor='rgba(68, 68, 68, 0.3)',
+                fill='tonexty')
+        high = go.Scatter(
+                name='high',
+                x=df_oversterfte["week_"],
+                y=df_oversterfte["high95"],
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)")
+                )
+       
+        data = [high, low, fig_, sterfte ]
+
+
+    
+                    
+   
+    
+            
+    title = how
+    layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
+                            title=title,)
+             
+    fig = go.Figure(data=data, layout=layout)
+    fig.add_hline(y=0)
+    st.plotly_chart(fig, use_container_width=True)
+
 def plot(series_names, how, yaxis_to_zero):
 
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
         df_data = get_data_for_series(series_name).copy(deep=True)
-        
+        df_corona, df_quantile = make_df_qantile(series_name, df_data)
+        st.subheader(series_name)
         if how =="quantiles":
-            df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
-            df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
-            df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
-            df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22],axis = 0)
-            df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
-            print (df_corona)
-
-
             
-            df_quantile_2020 = make_df_quantile(series_name, df_data, 2020)
-            df_quantile_2021 = make_df_quantile(series_name, df_data, 2021)
-            df_quantile_2022 = make_df_quantile(series_name, df_data, 2022)
-            df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022],axis = 0)
             columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
             for what_to_sma in columnlist:
                 df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=True).mean()
 
-            df_quantile["week_"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
-                
+                 
             print (df_quantile)
             df_quantile = df_quantile.sort_values(by=['jaar','week_'])
             fig = go.Figure()
@@ -213,6 +275,11 @@ def plot(series_names, how, yaxis_to_zero):
                 fig.update_yaxes(rangemode="tozero")
             st.plotly_chart(fig, use_container_width=True)
 
+
+        elif (how == "year_minus_avg") or (how == "over_onder_sterfte"):
+            plot_graph_oversterfte(how, df_quantile, df_corona, series_name)
+
+
         else:
             #fig = plt.figure()
             
@@ -246,6 +313,21 @@ def plot(series_names, how, yaxis_to_zero):
             fig = go.Figure(data=data, layout=layout)
             st.plotly_chart(fig, use_container_width=True)
 
+def make_df_qantile(series_name, df_data):
+    df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
+    df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
+    df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
+    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22],axis = 0)
+    df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
+  
+    df_quantile_2020 = make_df_quantile(series_name, df_data, 2020)
+    df_quantile_2021 = make_df_quantile(series_name, df_data, 2021)
+    df_quantile_2022 = make_df_quantile(series_name, df_data, 2022)
+    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022],axis = 0)
+    df_quantile["week_"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
+        
+    return df_corona,df_quantile
+
 def make_row_df_quantile(series_name, year, df_to_use, w_):
     if w_ == 53:
         w = 52
@@ -266,6 +348,7 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
     low05 = round(avg - (2*sd),0)
     high95 = round(avg +(2*sd),0)
        
+   
 
 
     df_quantile_ =  pd.DataFrame(
@@ -279,7 +362,8 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
                         "q75": q75,
                         "q95": q95,
                         "low05":low05,
-                        "high95":high95
+                        "high95":high95,
+                       
                         }]
                 )
             
@@ -310,7 +394,7 @@ def main():
     serienames = ["m_v_0_999","m_v_0_49","m_v_50-64","m_v_65_79","m_v_80_89","m_v_90-999","m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
 
     #serienames = ["totaal_m_v_0_999"]
-    how = st.sidebar.selectbox("How", ["quantiles", "Lines"], index = 0)
+    how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "year_minus_avg"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     plot(serienames, how, yaxis_to_zero)
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")

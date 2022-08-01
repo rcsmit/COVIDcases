@@ -4,7 +4,7 @@ import streamlit as st
 
 def init():
     st.sidebar.subheader("Datapoints")
-    rid =  st.sidebar.text_input("Report Indentifier","Lansingerland GGD")
+    rid =  st.sidebar.text_input("Report Indentifier","Lansingerland GGD", key="aa")
     tst =  st.sidebar.number_input("Number of tests", 0,None, 27000 )  
     pos =  st.sidebar.number_input("Positives reported", 0,None, 242 )
     match_range =  st.sidebar.number_input("Match range", 0.0,100.0, 99.99)
