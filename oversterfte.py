@@ -88,7 +88,7 @@ def get_data_for_series(seriename):
 
 def plot_graph_oversterfte(how, df, df_corona, series_name):
     df_boosters = get_boosters()
-
+    booster_cat = ["m_v_0_999","m_v_0_49","m_v_50-64","m_v_65_79","m_v_80_89","m_v_90-999"]
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
     df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr")
@@ -102,6 +102,7 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
         elif df_oversterfte.loc[i,series_name ] <  df_oversterfte.loc[i,"low05"]:
             df_oversterfte.loc[i,"over_onder_sterfte" ] =     df_oversterfte.loc[i,series_name ] - df_oversterfte.loc[i,"low05"]
 
+    
     fig_ = go.Scatter(x=df_oversterfte['week_'],
                             y=df_oversterfte[how],
                             line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
@@ -152,16 +153,30 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
 
 
     
-                    
+    if series_name in booster_cat:
+        b= "booster_"+series_name
+        booster =  go.Scatter(
+                name='boosters',
+                x=df_oversterfte["week_"],
+                y=df_oversterfte[b],
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, , 255, 0.5)")
+                )                    
    
-    
+       
             
     title = how
     layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
                             title=title,)
              
+             
     fig = go.Figure(data=data, layout=layout)
+    fig.add_trace(booster,
+            secondary_y=True,
+        )
     fig.add_hline(y=0)
+    fig.update_yaxes(title_text="Boosters", secondary_y=True)
     st.plotly_chart(fig, use_container_width=True)
 
 def plot(series_names, how, yaxis_to_zero):
