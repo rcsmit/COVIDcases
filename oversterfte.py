@@ -163,7 +163,6 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
     df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr")
     df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr")
 
-    st.write(df_oversterfte)
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
@@ -182,16 +181,18 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                            ))
     
   
-    if how == "year_minus_avg":    
-        grens = "avg"
-        fig.add_trace(go.Scatter(
-                name=grens,
-                x=df_oversterfte["weeknr"],
-                y=df_oversterfte[grens],
-                mode='lines',
-                line=dict(width=1,color='rgba(0, 0,255, 0.8)'),
-                ))
-        #data = [fig_, avg, sterfte ]
+    if how == "year_minus_avg": 
+        show_avg = False
+        if show_avg:   
+            grens = "avg"
+            fig.add_trace(go.Scatter(
+                    name=grens,
+                    x=df_oversterfte["weeknr"],
+                    y=df_oversterfte[grens],
+                    mode='lines',
+                    line=dict(width=1,color='rgba(0, 0,255, 0.8)'),
+                    ))
+            #data = [fig_, avg, sterfte ]
 
     else:
         grens = "95%_interval"
@@ -215,15 +216,16 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                 ))
        
         #data = [high, low, fig_, sterfte ]
+    show_sterfte = False
+    if show_sterfte:
 
-
-    fig.add_trace( go.Scatter(
-                name="Sterfte",
-                x=df_oversterfte["weeknr"],
-                y=df_oversterfte[series_name],
-                mode='lines',
-                line=dict(width=1,color='rgba(255, 0, 0, 0.8)'),
-                )) 
+        fig.add_trace( go.Scatter(
+                    name="Sterfte",
+                    x=df_oversterfte["weeknr"],
+                    y=df_oversterfte[series_name],
+                    mode='lines',
+                    line=dict(width=1,color='rgba(255, 0, 0, 0.8)'),
+                    )) 
     rightax = "herhaalprik"
     if rightax == "boosters":
         if series_name in booster_cat:
@@ -246,8 +248,8 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                     y=df_oversterfte[b],
                     mode='lines',
                     
-                    line=dict(width=0.5,
-                            color="rgba(255, 0, 255, 0.5)")
+                    line=dict(width=0.8,
+                            color="rgba(255, 0, 255, 0.8)")
                     )  ,secondary_y=True)                  
    
     #data.append(booster)  
@@ -266,8 +268,8 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
     fig.update_yaxes(rangemode='tozero')
     # fig.update_yaxes(title_text="Boosters", secondary_y=True)
     st.plotly_chart(fig, use_container_width=True)
-    plot_boosters(df_boosters, series_name)
-    plot_herhaalprik(df_herhaalprik, series_name)
+    # plot_boosters(df_boosters, series_name)
+    # plot_herhaalprik(df_herhaalprik, series_name)
 
 def plot(series_names, how, yaxis_to_zero):
 
