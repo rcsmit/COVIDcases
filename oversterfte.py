@@ -103,8 +103,7 @@ def plot_herhaalprik(df_herhaalprik, series_name):
              
         fig.update_yaxes(title_text=title)
         st.plotly_chart(fig, use_container_width=True)
-
-def get_data_for_series(seriename):
+def get_sterfte():
     #file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_meer_leeftijdscat.csv"
     df_ = pd.read_csv(
@@ -113,7 +112,10 @@ def get_data_for_series(seriename):
         
         low_memory=False,
     )
-    print (df_)
+ 
+    return df_
+def get_data_for_series(df_, seriename):
+  
     if seriename == "m_v_0_999":
        # df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr", seriename]].copy(deep=True)
@@ -154,13 +156,13 @@ def get_data_for_series(seriename):
     return df
 
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name):
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name, rightax):
 
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
 
-    df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
-    df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr")
-    df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr")
+    df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr", how = "outer")
+    df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr", how = "outer")
+    df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr", how = "outer")
 
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
@@ -227,7 +229,8 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                     mode='lines',
                     line=dict(width=1,color='rgba(204, 63, 61, 1)'),
                     )) 
-    rightax = "herhaalprik"
+    # rightax = "boosters" # "herhaalprik"
+    
     if rightax == "boosters":
         if series_name in booster_cat:
             b= "boosters_"+series_name
@@ -272,12 +275,13 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
     # plot_boosters(df_boosters, series_name)
     # plot_herhaalprik(df_herhaalprik, series_name)
 
-def plot(series_names, how, yaxis_to_zero):
+def plot(series_names, how, yaxis_to_zero, rightax):
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
+    df_ = get_sterfte()
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
-        df_data = get_data_for_series(series_name).copy(deep=True)
+        df_data = get_data_for_series(df_, series_name).copy(deep=True)
         df_corona, df_quantile = make_df_qantile(series_name, df_data)
         st.subheader(series_name)
         if how =="quantiles":
@@ -401,7 +405,7 @@ def plot(series_names, how, yaxis_to_zero):
 
 
         elif (how == "year_minus_avg") or (how == "over_onder_sterfte"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name)
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax)
            
 
         else:
@@ -520,7 +524,11 @@ def main():
     #serienames = ["totaal_m_v_0_999"]
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "year_minus_avg"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
-    plot(serienames, how, yaxis_to_zero)
+    if how == "year_minus_avg":
+        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
+    else:
+        rightax = None
+    plot(serienames, how, yaxis_to_zero, rightax)
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
     st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
