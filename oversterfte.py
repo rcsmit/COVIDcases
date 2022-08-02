@@ -154,9 +154,8 @@ def get_data_for_series(seriename):
     return df
 
 
-def plot_graph_oversterfte(how, df, df_corona, series_name):
-    df_boosters = get_boosters()
-    df_herhaalprik = get_herhaalprik()
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name):
+
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
@@ -274,7 +273,8 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
     # plot_herhaalprik(df_herhaalprik, series_name)
 
 def plot(series_names, how, yaxis_to_zero):
-
+    df_boosters = get_boosters()
+    df_herhaalprik = get_herhaalprik()
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
         df_data = get_data_for_series(series_name).copy(deep=True)
@@ -401,8 +401,8 @@ def plot(series_names, how, yaxis_to_zero):
 
 
         elif (how == "year_minus_avg") or (how == "over_onder_sterfte"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, series_name)
-
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name)
+           
 
         else:
             #fig = plt.figure()
