@@ -166,6 +166,7 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
+
     for i in range( len (df_oversterfte)):
         if df_oversterfte.loc[i,series_name ] >  df_oversterfte.loc[i,"high95"] :
             df_oversterfte.loc[i,"over_onder_sterfte" ] =  df_oversterfte.loc[i,series_name ] -  df_oversterfte.loc[i,"high95"] 
@@ -175,7 +176,8 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace( go.Scatter(x=df_oversterfte['week_'],
                             y=df_oversterfte[how],
-                            line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
+                            #line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
+                            line=dict(width=2,color='rgba(205, 61,62, 1)'),
                             mode='lines',
                             name=how,
                            ))
@@ -190,7 +192,7 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                     x=df_oversterfte["weeknr"],
                     y=df_oversterfte[grens],
                     mode='lines',
-                    line=dict(width=1,color='rgba(0, 0,255, 0.8)'),
+                    line=dict(width=1,color='rgba(205, 61,62, 1)'),
                     ))
             #data = [fig_, avg, sterfte ]
 
@@ -224,7 +226,7 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                     x=df_oversterfte["weeknr"],
                     y=df_oversterfte[series_name],
                     mode='lines',
-                    line=dict(width=1,color='rgba(255, 0, 0, 0.8)'),
+                    line=dict(width=1,color='rgba(204, 63, 61, 1)'),
                     )) 
     rightax = "herhaalprik"
     if rightax == "boosters":
@@ -248,8 +250,8 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                     y=df_oversterfte[b],
                     mode='lines',
                     
-                    line=dict(width=0.8,
-                            color="rgba(255, 0, 255, 0.8)")
+                    line=dict(width=2,
+                            color="rgba(94, 172, 219, 1)")
                     )  ,secondary_y=True)                  
    
     #data.append(booster)  
