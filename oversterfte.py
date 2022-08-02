@@ -25,6 +25,17 @@ import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
 
+def get_boosters():
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/boosters_per_week_per_leeftijdscat.csv"
+    df_ = pd.read_csv(
+        file,
+        delimiter=";",
+        
+        low_memory=False,
+    )
+    df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
+    return df_
+
 def get_data_for_series(seriename):
     #file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_meer_leeftijdscat.csv"
@@ -76,8 +87,12 @@ def get_data_for_series(seriename):
 
 
 def plot_graph_oversterfte(how, df, df_corona, series_name):
-  
+    df_boosters = get_boosters()
+
+
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
+    df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr")
+    st.write(df_oversterfte)
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
