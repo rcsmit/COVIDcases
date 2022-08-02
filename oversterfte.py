@@ -24,6 +24,7 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
+from plotly.subplots import make_subplots
 
 def get_boosters():
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/boosters_per_week_per_leeftijdscat.csv"
@@ -35,6 +36,70 @@ def get_boosters():
     )
     df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
     return df_
+def get_herhaalprik():
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herhaalprik_per_week_per_leeftijdscat.csv"
+    df_ = pd.read_csv(
+        file,
+        delimiter=";",
+        
+        low_memory=False,
+    )
+    df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
+    return df_
+
+def plot_boosters(df_boosters, series_name):
+   
+    
+    booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
+
+    if series_name in booster_cat:
+       
+        fig = make_subplots()
+        b= "boosters_"+series_name
+        fig.add_trace(  go.Scatter(
+                name='boosters',
+                x=df_boosters["weeknr"],
+                y=df_boosters[b],
+                mode='lines',
+                
+                line=dict(width=0.5,
+                        color="rgba(255, 0, 255, 0.5)")
+                )  )                  
+   
+                
+        title = f"Boosters for {series_name}"
+        layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
+                                title=title,)
+             
+        fig.update_yaxes(title_text=title)
+        st.plotly_chart(fig, use_container_width=True)
+
+def plot_herhaalprik(df_herhaalprik, series_name):
+   
+    
+    booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
+
+    if series_name in booster_cat:
+       
+        fig = make_subplots()
+        b= "herhaalprik_"+series_name
+        fig.add_trace(  go.Scatter(
+                name='herhaalprik',
+                x=df_herhaalprik["weeknr"],
+                y=df_herhaalprik[b],
+                mode='lines',
+                
+                line=dict(width=0.5,
+                        color="rgba(255, 0, 255, 0.5)")
+                )  )                  
+   
+                
+        title = f"herhaalprik for {series_name}"
+        layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
+                                title=title,)
+             
+        fig.update_yaxes(title_text=title)
+        st.plotly_chart(fig, use_container_width=True)
 
 def get_data_for_series(seriename):
     #file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
@@ -88,6 +153,7 @@ def get_data_for_series(seriename):
 
 def plot_graph_oversterfte(how, df, df_corona, series_name):
     df_boosters = get_boosters()
+    df_herhaalprik = get_herhaalprik()
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
@@ -101,7 +167,7 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
             df_oversterfte.loc[i,"over_onder_sterfte" ] =  df_oversterfte.loc[i,series_name ] -  df_oversterfte.loc[i,"high95"] 
         elif df_oversterfte.loc[i,series_name ] <  df_oversterfte.loc[i,"low05"]:
             df_oversterfte.loc[i,"over_onder_sterfte" ] =     df_oversterfte.loc[i,series_name ] - df_oversterfte.loc[i,"low05"]
-    from plotly.subplots import make_subplots
+    
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace( go.Scatter(x=df_oversterfte['week_'],
                             y=df_oversterfte[how],
@@ -153,17 +219,31 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                 mode='lines',
                 line=dict(width=1,color='rgba(255, 0, 0, 0.8)'),
                 )) 
-    if series_name in booster_cat:
-        b= "boosters_"+series_name
-        fig.add_trace(  go.Scatter(
-                name='boosters',
-                x=df_oversterfte["week_"],
-                y=df_oversterfte[b],
-                mode='lines',
-                
-                line=dict(width=0.5,
-                        color="rgba(255, 0, 255, 0.5)")
-                )  ,secondary_y=True)                  
+    rightax = "herhaalprik"
+    if rightax == "boosters":
+        if series_name in booster_cat:
+            b= "boosters_"+series_name
+            fig.add_trace(  go.Scatter(
+                    name='boosters',
+                    x=df_oversterfte["week_"],
+                    y=df_oversterfte[b],
+                    mode='lines',
+                    
+                    line=dict(width=0.5,
+                            color="rgba(255, 0, 255, 0.5)")
+                    )  ,secondary_y=True)       
+    elif rightax == "herhaalprik" :          
+        if series_name in herhaalprik_cat:
+            b= "herhaalprik_"+series_name
+            fig.add_trace(  go.Scatter(
+                    name='herhaalprik',
+                    x=df_oversterfte["week_"],
+                    y=df_oversterfte[b],
+                    mode='lines',
+                    
+                    line=dict(width=0.5,
+                            color="rgba(255, 0, 255, 0.5)")
+                    )  ,secondary_y=True)                  
    
     #data.append(booster)  
             
@@ -181,6 +261,8 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
     fig.update_yaxes(rangemode='tozero')
     # fig.update_yaxes(title_text="Boosters", secondary_y=True)
     st.plotly_chart(fig, use_container_width=True)
+    plot_boosters(df_boosters, series_name)
+    plot_herhaalprik(df_herhaalprik, series_name)
 
 def plot(series_names, how, yaxis_to_zero):
 
