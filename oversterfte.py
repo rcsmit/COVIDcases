@@ -88,7 +88,7 @@ def get_data_for_series(seriename):
 
 def plot_graph_oversterfte(how, df, df_corona, series_name):
     df_boosters = get_boosters()
-    booster_cat = ["m_v_0_999","m_v_0_49","m_v_50-64","m_v_65_79","m_v_80_89","m_v_90-999"]
+    booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
     df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr")
@@ -154,7 +154,7 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
 
     
     if series_name in booster_cat:
-        b= "booster_"+series_name
+        b= "boosters_"+series_name
         booster =  go.Scatter(
                 name='boosters',
                 x=df_oversterfte["week_"],
