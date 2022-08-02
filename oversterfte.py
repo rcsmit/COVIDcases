@@ -101,37 +101,31 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
             df_oversterfte.loc[i,"over_onder_sterfte" ] =  df_oversterfte.loc[i,series_name ] -  df_oversterfte.loc[i,"high95"] 
         elif df_oversterfte.loc[i,series_name ] <  df_oversterfte.loc[i,"low05"]:
             df_oversterfte.loc[i,"over_onder_sterfte" ] =     df_oversterfte.loc[i,series_name ] - df_oversterfte.loc[i,"low05"]
-
-    
-    fig_ = go.Scatter(x=df_oversterfte['week_'],
+    from plotly.subplots import make_subplots
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace( go.Scatter(x=df_oversterfte['week_'],
                             y=df_oversterfte[how],
                             line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
                             mode='lines',
                             name=how,
-                           )
-    sterfte = go.Scatter(
-                name="Sterfte",
-                x=df_oversterfte["weeknr"],
-                y=df_oversterfte[series_name],
-                mode='lines',
-                line=dict(width=1,color='rgba(255, 0, 0, 0.8)'),
-                )
+                           ))
+    
   
     if how == "year_minus_avg":    
         grens = "avg"
-        avg = go.Scatter(
+        fig.add_trace(go.Scatter(
                 name=grens,
                 x=df_oversterfte["weeknr"],
                 y=df_oversterfte[grens],
                 mode='lines',
                 line=dict(width=1,color='rgba(0, 0,255, 0.8)'),
-                )
-        data = [fig_, avg, sterfte ]
+                ))
+        #data = [fig_, avg, sterfte ]
 
     else:
         grens = "95%_interval"
        
-        low = go.Scatter(
+        fig.add_trace( go.Scatter(
                 name='low',
                 x=df_oversterfte["week_"],
                 y=df_oversterfte["low05"],
@@ -139,44 +133,53 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                 line=dict(width=0.5,
                         color="rgba(255, 188, 0, 0.5)"),
                 fillcolor='rgba(68, 68, 68, 0.3)',
-                fill='tonexty')
-        high = go.Scatter(
+               ))
+        fig.add_trace(go.Scatter(
                 name='high',
                 x=df_oversterfte["week_"],
                 y=df_oversterfte["high95"],
                 mode='lines',
                 line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)")
-                )
+                        color="rgba(255, 188, 0, 0.5)"), fill='tonexty'
+                ))
        
-        data = [high, low, fig_, sterfte ]
+        #data = [high, low, fig_, sterfte ]
 
 
-    
+    fig.add_trace( go.Scatter(
+                name="Sterfte",
+                x=df_oversterfte["weeknr"],
+                y=df_oversterfte[series_name],
+                mode='lines',
+                line=dict(width=1,color='rgba(255, 0, 0, 0.8)'),
+                )) 
     if series_name in booster_cat:
         b= "boosters_"+series_name
-        booster =  go.Scatter(
+        fig.add_trace(  go.Scatter(
                 name='boosters',
                 x=df_oversterfte["week_"],
                 y=df_oversterfte[b],
                 mode='lines',
+                
                 line=dict(width=0.5,
-                        color="rgba(255, , 255, 0.5)")
-                )                    
+                        color="rgba(255, 0, 255, 0.5)")
+                )  ,secondary_y=True)                  
    
-       
+    #data.append(booster)  
             
     title = how
     layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
                             title=title,)
              
-             
-    fig = go.Figure(data=data, layout=layout)
-    fig.add_trace(booster,
-            secondary_y=True,
-        )
+    # fig = go.Figure(data=data, layout=layout) 
+    
+    # fig.add_trace(booster,
+    #         secondary_y=True,
+    #     )
     fig.add_hline(y=0)
-    fig.update_yaxes(title_text="Boosters", secondary_y=True)
+
+    fig.update_yaxes(rangemode='tozero')
+    # fig.update_yaxes(title_text="Boosters", secondary_y=True)
     st.plotly_chart(fig, use_container_width=True)
 
 def plot(series_names, how, yaxis_to_zero):
@@ -421,7 +424,7 @@ def make_df_quantile(series_name, df_data, year):
         
 def main():
     #serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
-    serienames = ["m_v_0_999","m_v_0_49","m_v_50-64","m_v_65_79","m_v_80_89","m_v_90-999","m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
+    serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999","m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
 
     #serienames = ["totaal_m_v_0_999"]
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "year_minus_avg"], index = 0)
