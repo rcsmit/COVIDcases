@@ -35,6 +35,7 @@ def get_boosters():
         low_memory=False,
     )
     df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
+    df_ = df_.drop('jaar', axis=1)
     return df_
 def get_herhaalprik():
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herhaalprik_per_week_per_leeftijdscat.csv"
@@ -45,6 +46,8 @@ def get_herhaalprik():
         low_memory=False,
     )
     df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
+    df_ = df_.drop('jaar', axis=1)
+
     return df_
 
 def plot_boosters(df_boosters, series_name):
@@ -62,8 +65,8 @@ def plot_boosters(df_boosters, series_name):
                 y=df_boosters[b],
                 mode='lines',
                 
-                line=dict(width=0.5,
-                        color="rgba(255, 0, 255, 0.5)")
+                line=dict(width=2,
+                        color="rgba(255, 0, 255, 1)")
                 )  )                  
    
                 
@@ -89,8 +92,8 @@ def plot_herhaalprik(df_herhaalprik, series_name):
                 y=df_herhaalprik[b],
                 mode='lines',
                 
-                line=dict(width=0.5,
-                        color="rgba(255, 0, 255, 0.5)")
+                line=dict(width=2,
+                        color="rgba(255, 0, 255, 1)")
                 )  )                  
    
                 
@@ -158,6 +161,8 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr")
     df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr")
+    df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr")
+
     st.write(df_oversterfte)
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
@@ -233,7 +238,7 @@ def plot_graph_oversterfte(how, df, df_corona, series_name):
                             color="rgba(255, 0, 255, 0.5)")
                     )  ,secondary_y=True)       
     elif rightax == "herhaalprik" :          
-        if series_name in herhaalprik_cat:
+        if series_name in booster_cat:
             b= "herhaalprik_"+series_name
             fig.add_trace(  go.Scatter(
                     name='herhaalprik',
