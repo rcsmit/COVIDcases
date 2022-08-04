@@ -595,7 +595,7 @@ def make_df_quantile(series_name, df_data, year):
 
 def footer():
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
-    st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
+    st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2017 t/m 2019")
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
     st.write("Code: https://github.com/rcsmit/COVIDcases/blob/main/oversterfte.py")
@@ -612,7 +612,7 @@ def interface():
     return how,yaxis_to_zero,rightax,mergetype
 
 def main():
-    serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"] #,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
+    serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999" ,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
 
     how, yaxis_to_zero, rightax, mergetype = interface()
     plot(serienames, how, yaxis_to_zero, rightax, mergetype)
