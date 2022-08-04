@@ -215,6 +215,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
     df_oversterfte["p_score"] = ( df_oversterfte[series_name]- df_oversterfte["avg"]) /   df_oversterfte["avg"]
+    df_oversterfte["p_score"] = df_oversterfte["p_score"].rolling(window=6, center=True).mean()
 
     for i in range( len (df_oversterfte)):
         if df_oversterfte.loc[i,series_name ] >  df_oversterfte.loc[i,"high95"] :
@@ -599,6 +600,7 @@ def footer():
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
     st.write("Code: https://github.com/rcsmit/COVIDcases/blob/main/oversterfte.py")
+    st.write("P score = (verschil - gemiddelde) / gemiddelde, gesmooth over 6 weken")
 
 def interface():
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "year_minus_avg", "p_score"], index = 0)
