@@ -12,3 +12,4 @@ gsheetsdb
 plotly
 statsmodels
 patsy
+cbsodata

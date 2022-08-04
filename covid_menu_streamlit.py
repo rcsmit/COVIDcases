@@ -64,8 +64,9 @@ def main():
             ["35. Calculate Se & Sp Rapidtest" , "calculate_se_sp_rapidtest_streamlit"],
             ["36. Oversterfte gemeente" , "oversterfte_gemeente"],
             ["37. Oversterfte" , "oversterfte"],
-            ["38. Bayes Lines tools" , "bayes_lines_tools"]]
-
+            ["38. Bayes Lines tools" , "bayes_lines_tools"],
+            ["37. Oversterfte (dynamisch)" , "oversterfte_cbsodata"]]
+            
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 
