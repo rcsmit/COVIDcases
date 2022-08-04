@@ -18,16 +18,43 @@
 # waargenomen, valt in dit interval. Er wordt van oversterfte gesproken wanneer de sterfte
 # boven de bovengrens van dit interval ligt.
 
-
-
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
+import platform
+
+def get_sterfte():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
+
+    if platform.processor() != "":
+        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_meer_leeftijdscat.csv"
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_meer_leeftijdscat.csv"
+    df_ = pd.read_csv(
+        file,
+        delimiter=";",
+        
+        low_memory=False,
+    )
+ 
+    return df_
 
 def get_boosters():
-    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/boosters_per_week_per_leeftijdscat.csv"
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """   
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\boosters_per_week_per_leeftijdscat.csv"
+    else: 
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/boosters_per_week_per_leeftijdscat.csv"
     df_ = pd.read_csv(
         file,
         delimiter=";",
@@ -38,7 +65,15 @@ def get_boosters():
     df_ = df_.drop('jaar', axis=1)
     return df_
 def get_herhaalprik():
-    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herhaalprik_per_week_per_leeftijdscat.csv"
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """    
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\herhaalprik_per_week_per_leeftijdscat.csv"
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herhaalprik_per_week_per_leeftijdscat.csv"
     df_ = pd.read_csv(
         file,
         delimiter=";",
@@ -51,7 +86,12 @@ def get_herhaalprik():
     return df_
 
 def plot_boosters(df_boosters, series_name):
-   
+    """_summary_
+
+    Args:
+        df_boosters (_type_): _description_
+        series_name (_type_): _description_
+    """   
     
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
 
@@ -78,7 +118,12 @@ def plot_boosters(df_boosters, series_name):
         st.plotly_chart(fig, use_container_width=True)
 
 def plot_herhaalprik(df_herhaalprik, series_name):
-   
+    """_summary_
+
+    Args:
+        df_herhaalprik (_type_): _description_
+        series_name (_type_): _description_
+    """   
     
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
 
@@ -103,17 +148,7 @@ def plot_herhaalprik(df_herhaalprik, series_name):
              
         fig.update_yaxes(title_text=title)
         st.plotly_chart(fig, use_container_width=True)
-def get_sterfte():
-    #file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
-    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_meer_leeftijdscat.csv"
-    df_ = pd.read_csv(
-        file,
-        delimiter=";",
-        
-        low_memory=False,
-    )
- 
-    return df_
+
 def get_data_for_series(df_, seriename):
   
     if seriename == "m_v_0_999":
@@ -150,23 +185,36 @@ def get_data_for_series(df_, seriename):
                 df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
                 df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
                 df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
-
-    
-  
     return df
 
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype):
+    """_summary_
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name, rightax):
-
+    Args:
+        how (_type_): _description_
+        df (_type_): _description_
+        df_corona (_type_): _description_
+        df_boosters (_type_): _description_
+        df_herhaalprik (_type_): _description_
+        series_name (_type_): _description_
+        rightax (_type_): _description_
+        mergetype (_type_): _description_
+    """
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr", how = "outer")
-    df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr", how = "outer")
-    df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr", how = "outer")
+    if rightax == "boosters":
+        df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr", how = mergetype)
+    if rightax == "herhaalprik":
+        df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr", how = mergetype)
+    what_to_sma_ = ["low05", "high95"]
+    for what_to_sma in what_to_sma_:
+        df_oversterfte[what_to_sma] = df_oversterfte[what_to_sma].rolling(window=6, center=True).mean()
 
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
+    df_oversterfte["p_score"] = ( df_oversterfte[series_name]- df_oversterfte["avg"]) /   df_oversterfte["avg"]
 
     for i in range( len (df_oversterfte)):
         if df_oversterfte.loc[i,series_name ] >  df_oversterfte.loc[i,"high95"] :
@@ -183,8 +231,10 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                             name=how,
                            ))
     
-  
-    if how == "year_minus_avg": 
+    if how == "p_score":
+       # the p-score is already plotted
+       pass
+    elif how == "year_minus_avg": 
         show_avg = False
         if show_avg:   
             grens = "avg"
@@ -195,11 +245,9 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                     mode='lines',
                     line=dict(width=1,color='rgba(205, 61,62, 1)'),
                     ))
-            #data = [fig_, avg, sterfte ]
-
     else:
         grens = "95%_interval"
-       
+        
         fig.add_trace( go.Scatter(
                 name='low',
                 x=df_oversterfte["week_"],
@@ -207,7 +255,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                 mode='lines',
                 line=dict(width=0.5,
                         color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)',
+                fillcolor='rgba(68, 68, 68, 0.2)',
                ))
         fig.add_trace(go.Scatter(
                 name='high',
@@ -217,11 +265,10 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                 line=dict(width=0.5,
                         color="rgba(255, 188, 0, 0.5)"), fill='tonexty'
                 ))
+        
        
         #data = [high, low, fig_, sterfte ]
-    show_sterfte = False
-    if show_sterfte:
-
+        
         fig.add_trace( go.Scatter(
                     name="Sterfte",
                     x=df_oversterfte["weeknr"],
@@ -242,7 +289,9 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                     
                     line=dict(width=0.5,
                             color="rgba(255, 0, 255, 0.5)")
-                    )  ,secondary_y=True)       
+                    )  ,secondary_y=True) 
+            corr = df_oversterfte[b].corr(df_oversterfte[how]) 
+            st.write(f"Correlation = {round(corr,3)}")     
     elif rightax == "herhaalprik" :          
         if series_name in booster_cat:
             b= "herhaalprik_"+series_name
@@ -254,7 +303,10 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                     
                     line=dict(width=2,
                             color="rgba(94, 172, 219, 1)")
-                    )  ,secondary_y=True)                  
+                    )  ,secondary_y=True) 
+          
+            corr = df_oversterfte[b].corr(df_oversterfte[how]) 
+            st.write(f"Correlation = {round(corr,3)}")  
    
     #data.append(booster)  
             
@@ -262,20 +314,22 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
     layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
                             title=title,)
              
-    # fig = go.Figure(data=data, layout=layout) 
-    
-    # fig.add_trace(booster,
-    #         secondary_y=True,
-    #     )
     fig.add_hline(y=0)
 
     fig.update_yaxes(rangemode='tozero')
-    # fig.update_yaxes(title_text="Boosters", secondary_y=True)
-    st.plotly_chart(fig, use_container_width=True)
-    # plot_boosters(df_boosters, series_name)
-    # plot_herhaalprik(df_herhaalprik, series_name)
 
-def plot(series_names, how, yaxis_to_zero, rightax):
+    st.plotly_chart(fig, use_container_width=True)
+   
+def plot(series_names, how, yaxis_to_zero, rightax, mergetype):
+    """_summary_
+
+    Args:
+        series_names (_type_): _description_
+        how (_type_): _description_
+        yaxis_to_zero (_type_): _description_
+        rightax (_type_): _description_
+        mergetype (_type_): _description_
+    """    
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
     df_ = get_sterfte()
@@ -302,7 +356,6 @@ def plot(series_names, how, yaxis_to_zero, rightax):
                 line=dict(width=0.5,
                         color="rgba(255, 188, 0, 0.5)"),
                 fillcolor='rgba(68, 68, 68, 0.1)', fill='tonexty')
-
 
             q05 = go.Scatter(
                 name='q05',
@@ -349,7 +402,6 @@ def plot(series_names, how, yaxis_to_zero, rightax):
                         color="rgba(255, 188, 0, 0.5)"),
                 fillcolor='rgba(68, 68, 68, 0.3)',
                 fill='tonexty')
-
 
             q95 = go.Scatter(
                 name='q95',
@@ -403,9 +455,8 @@ def plot(series_names, how, yaxis_to_zero, rightax):
                 fig.update_yaxes(rangemode="tozero")
             st.plotly_chart(fig, use_container_width=True)
 
-
-        elif (how == "year_minus_avg") or (how == "over_onder_sterfte"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax)
+        elif (how == "year_minus_avg") or (how == "over_onder_sterfte") or (how == "p_score"):
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype)
            
 
         else:
@@ -442,6 +493,15 @@ def plot(series_names, how, yaxis_to_zero, rightax):
             st.plotly_chart(fig, use_container_width=True)
 
 def make_df_qantile(series_name, df_data):
+    """_summary_
+
+    Args:
+        series_name (_type_): _description_
+        df_data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
     df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
     df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
     df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
@@ -457,6 +517,17 @@ def make_df_qantile(series_name, df_data):
     return df_corona,df_quantile
 
 def make_row_df_quantile(series_name, year, df_to_use, w_):
+    """Calculate the percentiles of a certain week
+
+    Args:
+        series_name (_type_): _description_
+        year (_type_): _description_
+        df_to_use (_type_): _description_
+        w_ (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
     if w_ == 53:
         w = 52
     else:
@@ -475,10 +546,7 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
     sd = round(data.std(),0)
     low05 = round(avg - (2*sd),0)
     high95 = round(avg +(2*sd),0)
-       
-   
-
-
+    
     df_quantile_ =  pd.DataFrame(
                    [ {
                         "week_": w_,
@@ -498,6 +566,12 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
     return df_quantile_
 
 def make_df_quantile(series_name, df_data, year):
+
+    """ Calculate the quantiles
+
+    Returns:
+        _type_: _description_
+    """    
     df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)].copy(deep=True)
     df_quantile =None
            
@@ -508,32 +582,42 @@ def make_df_quantile(series_name, df_data, year):
             #for w in week_list:  #puts week 1 at the end
     for w in range(1,53):
         df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w)
-
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
     if year==2020:
+        #2020 has a week 53
         df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, 53)
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
 
         
     return df_quantile
         
-def main():
-    #serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
-    serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999","m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
 
-    #serienames = ["totaal_m_v_0_999"]
-    how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "year_minus_avg"], index = 0)
-    yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
-    if how == "year_minus_avg":
-        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
-    else:
-        rightax = None
-    plot(serienames, how, yaxis_to_zero, rightax)
+
+def footer():
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
     st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
     st.write("Code: https://github.com/rcsmit/COVIDcases/blob/main/oversterfte.py")
+
+def interface():
+    how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "year_minus_avg", "p_score"], index = 0)
+    yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
+    if (how == "year_minus_avg") or (how == "p_score"):
+        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
+        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 1, key = "aa")
+    else:
+        rightax = None
+        mergetype = None
+    return how,yaxis_to_zero,rightax,mergetype
+
+def main():
+    serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"] #,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
+
+    how, yaxis_to_zero, rightax, mergetype = interface()
+    plot(serienames, how, yaxis_to_zero, rightax, mergetype)
+    footer()
+
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
