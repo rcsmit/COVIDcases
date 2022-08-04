@@ -288,8 +288,8 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                     y=df_oversterfte[b],
                     mode='lines',
                     
-                    line=dict(width=0.5,
-                            color="rgba(255, 0, 255, 0.5)")
+                    line=dict(width=2,
+                            color="rgba(94, 172, 219, 1)")
                     )  ,secondary_y=True) 
             corr = df_oversterfte[b].corr(df_oversterfte[how]) 
             st.write(f"Correlation = {round(corr,3)}")     
