@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
 import platform
+from streamlit import caching
 
 
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
@@ -17,6 +18,7 @@ import platform
 # toc = pd.DataFrame(cbsodata.get_table_list())
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
+@st.cache(ttl=60 * 60 * 24)
 def get_data():
     if platform.processor() != "":
         file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overledenen_cbs.csv"
@@ -112,7 +114,7 @@ def get_herhaalprik():
   
     df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
     df_ = df_.drop('jaar', axis=1)
-
+    
     return df_
 
 
@@ -168,7 +170,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
         rightax (_type_): _description_
         mergetype (_type_): _description_
     """
-    booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
+    booster_cat = ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999"]
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr", how = "outer")
     if rightax == "boosters":
@@ -263,6 +265,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
             st.write(f"Correlation = {round(corr,3)}")     
     elif rightax == "herhaalprik" :          
         if series_name in booster_cat:
+            
             b= "herhaalprik_"+series_name
             fig.add_trace(  go.Scatter(
                     name='herhaalprik',
@@ -274,7 +277,8 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                             color="rgba(94, 172, 219, 1)")
                     )  ,secondary_y=True) 
           
-            corr = df_oversterfte[b].corr(df_oversterfte[how]) 
+            corr = df_oversterfte[b].corr(df_oversterfte[how])
+            
             st.write(f"Correlation = {round(corr,3)}")  
    
     #data.append(booster)  
@@ -577,7 +581,7 @@ def make_df_quantile(series_name, df_data, year):
 
 def footer():
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")
-    st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2017 t/m 2019")
+    st.write("Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019")
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
     st.write("Code: https://github.com/rcsmit/COVIDcases/blob/main/oversterfte.py")
