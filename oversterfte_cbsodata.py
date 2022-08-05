@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
 import platform
-from streamlit import caching
+# from streamlit import caching
 
 
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
@@ -18,7 +18,7 @@ from streamlit import caching
 # toc = pd.DataFrame(cbsodata.get_table_list())
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
-@st.cache(ttl=60 * 60 * 24)
+# @st.cache(ttl=60 * 60 * 24)
 def get_data():
     if platform.processor() != "":
         file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overledenen_cbs.csv"
@@ -592,7 +592,7 @@ def interface():
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     if (how == "year_minus_avg") or (how == "p_score"):
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
-        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 1, key = "aa")
+        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "aa")
     else:
         rightax = None
         mergetype = None
