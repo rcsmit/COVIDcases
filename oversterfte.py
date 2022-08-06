@@ -24,6 +24,7 @@ import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
 import platform
+import plotly.express as px
 
 def get_sterfte():
     """_summary_
@@ -187,7 +188,7 @@ def get_data_for_series(df_, seriename):
                 df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
     return df
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype):
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter):
     """_summary_
 
     Args:
@@ -222,7 +223,10 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
             df_oversterfte.loc[i,"over_onder_sterfte" ] =  df_oversterfte.loc[i,series_name ] -  df_oversterfte.loc[i,"high95"] 
         elif df_oversterfte.loc[i,series_name ] <  df_oversterfte.loc[i,"low05"]:
             df_oversterfte.loc[i,"over_onder_sterfte" ] =     df_oversterfte.loc[i,series_name ] - df_oversterfte.loc[i,"low05"]
-    
+    # name_ = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\oversterfte"+series_name+".csv"
+    # compression_opts = dict(method=None, archive_name=name_)
+    # df_oversterfte.to_csv(name_, index=False, compression=compression_opts)
+    # print("--- Saving " + name_ + " ---")
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace( go.Scatter(x=df_oversterfte['week_'],
                             y=df_oversterfte[how],
@@ -308,20 +312,25 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
           
             corr = df_oversterfte[b].corr(df_oversterfte[how]) 
             st.write(f"Correlation = {round(corr,3)}")  
-   
+
     #data.append(booster)  
-            
-    title = how
-    layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
-                            title=title,)
+    
+    #layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
+    #                        title=title,)
              
     fig.add_hline(y=0)
 
     fig.update_yaxes(rangemode='tozero')
 
     st.plotly_chart(fig, use_container_width=True)
+    if series_name in booster_cat and show_scatter == True and rightax !=None:
+                
+        title = f"{how} vs {b} - corr = {round(corr,3)}"
+        fig1xy = px.scatter(df_oversterfte, x=b, y=how, trendline="ols", title = title)
+        st.plotly_chart(fig1xy, use_container_width=True)
+
    
-def plot(series_names, how, yaxis_to_zero, rightax, mergetype):
+def plot(series_names, how, yaxis_to_zero, rightax, mergetype, show_scatter):
     """_summary_
 
     Args:
@@ -457,7 +466,7 @@ def plot(series_names, how, yaxis_to_zero, rightax, mergetype):
             st.plotly_chart(fig, use_container_width=True)
 
         elif (how == "year_minus_avg") or (how == "over_onder_sterfte") or (how == "p_score"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype)
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter)
            
 
         else:
@@ -607,17 +616,18 @@ def interface():
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     if (how == "year_minus_avg") or (how == "p_score"):
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
-        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 1, key = "aa")
+        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "aa")
+        show_scatter = st.sidebar.selectbox("Show_scatter", [False, True], index = 0)
     else:
-        rightax = None
-        mergetype = None
-    return how,yaxis_to_zero,rightax,mergetype
+        rightax, mergetype, show_scatter = None, None, None
+        
+    return how,yaxis_to_zero,rightax,mergetype, show_scatter
 
 def main():
     serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999" ,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
 
-    how, yaxis_to_zero, rightax, mergetype = interface()
-    plot(serienames, how, yaxis_to_zero, rightax, mergetype)
+    how, yaxis_to_zero, rightax, mergetype, show_scatter = interface()
+    plot(serienames, how, yaxis_to_zero, rightax, mergetype, show_scatter)
     footer()
 
 if __name__ == "__main__":
