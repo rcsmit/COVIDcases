@@ -1,23 +1,19 @@
+# Bayes’ theorem applied to hospital/ICU admissions
+# Reproduction of https://medium.com/mlearning-ai/pr-non-vax-icu-pr-icu-non-vax-f7af477896ad
+
+# P(vax|leeftijdsgroep) is "translated" to  'p_vax_x_leeftijdsgr'
+ 
 import streamlit as st
-
-
-ziekenhuis = [[ 2105, 68, 144],
-              [ 2105, 120, 808],
-		      [ 1543, 79, 2156]]
-
-icopnames = [[ 431,11,11],
-            [ 674,29,169],
-		    [ 265,9,178]]
-
-leeftijdsgr = ["12-49", "50-59", ">=70"]
-aantal_inw =[8406602, 4691222,2424970]
-aantal_vax = [6118208, 4144429, 2222492]
-aantal_inw_groter_dan_12 = 15522794
-aantal_inw_tot = 17475414
 
 
 
 def calculate(event, event_txt, follow_txt):
+    leeftijdsgr = ["12-49", "50-59", ">=70"]
+    aantal_inw =[8406602, 4691222,2424970]
+    aantal_vax = [6118208, 4144429, 2222492]
+    aantal_inw_groter_dan_12 = 15522794
+    aantal_inw_tot = 17475414
+
     totaal_aantal_event = 0
     for k in range(0,3):
         for l in range(0,3):
@@ -74,21 +70,39 @@ def calculate(event, event_txt, follow_txt):
         st.write(f"Pr({event_txt} | nVAX,{leeftijdsgr_txt}) = {p_event_x_non_vax_leeftijdsgr}")
         
 
-
-
         ratio_event_x__leeftijdsgr = p_event_x_non_vax_leeftijdsgr / p_event_x_vax_leeftijdsgr
 
 
         st.write (f"Marginal ratio = {ratio_event_x__leeftijdsgr}")
-st.header("Reproduction of chances")
-st.write("Reproduction of https://medium.com/mlearning-ai/pr-non-vax-icu-pr-icu-non-vax-f7af477896ad")
-col1,col2 = st.columns(2)
-with col1:
-    st.subheader("Met de goede methode:")
-    calculate(ziekenhuis, "HOSP", False)
-    calculate(icopnames, "IC", False)
 
-with col2:
-    st.subheader("Met de oude methode:")
-    calculate(ziekenhuis, "HOSP", True)
-    calculate(icopnames, "IC", True)
+def  main():
+        
+    # numbers 11/7/21 - 14/11/21
+    ziekenhuis = [[ 2105, 68, 144],
+                [ 2105, 120, 808],
+                [ 1543, 79, 2156]]
+
+    icopnames = [[ 431,11,11],
+                [ 674,29,169],
+                [ 265,9,178]]
+
+ 
+
+    st.header("Bayes’ theorem applied to hospital/ICU admissions ")
+    st.write("Reproduction of https://medium.com/mlearning-ai/pr-non-vax-icu-pr-icu-non-vax-f7af477896ad")
+    col1,col2 = st.columns(2)
+    with col1:
+        st.subheader("Met de goede methode:")
+        calculate(ziekenhuis, "HOSP", False)
+        calculate(icopnames, "IC", False)
+
+    with col2:
+        st.subheader("Met de oude methode:")
+        calculate(ziekenhuis, "HOSP", True)
+        calculate(icopnames, "IC", True)
+
+    st.write("Source: https://github.com/rcsmit/COVIDcases/blob/main/bayes_prob_ic_hosp.py")
+
+if __name__ == "__main__":
+    main()
+    
