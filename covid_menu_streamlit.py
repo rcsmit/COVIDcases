@@ -65,7 +65,8 @@ def main():
             ["36. Oversterfte gemeente" , "oversterfte_gemeente"],
             ["37. Oversterfte" , "oversterfte"],
             ["38. Bayes Lines tools" , "bayes_lines_tools"],
-            ["37. Oversterfte (dynamisch)" , "oversterfte_cbsodata"]]
+            ["37. Oversterfte (dynamisch)" , "oversterfte_cbsodata"],
+            ["38. Bayes berekeningen IC ziekenh" , "bayes_prob_ic_hosp"]]
             
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
