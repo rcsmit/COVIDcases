@@ -71,8 +71,8 @@ def main():
                     )  ,secondary_y=True) 
 
     st.plotly_chart(fig, use_container_width=True)
-
-
+    st.write("based on https://twitter.com/MathStuart/status/1558485615930445826")
+    st.write("pythonized by https://twitter.com/koehlepe/status/1558593601013252096")
 
 if __name__ == "__main__":
     main()
