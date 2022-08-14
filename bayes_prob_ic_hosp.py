@@ -5,8 +5,6 @@
  
 import streamlit as st
 
-
-
 def calculate(event, event_txt, follow_txt):
     leeftijdsgr = ["12-49", "50-59", ">=70"]
     aantal_inw =[8406602, 4691222,2424970]
@@ -54,6 +52,8 @@ def calculate(event, event_txt, follow_txt):
         st.write(f"Marginal ratio {ratio_of_probabilities_non_vax_vs_vax}")
         st.write(" ------ ")
         p_event_x_leeftijdsgr = p_leeftijdsgr_x_event * p_event / p_leeftijdsgr
+        st.write(f"Pr({event_txt}|{leeftijdsgr_txt}) = Pr{leeftijdsgr_txt}|{event_txt}) * Pr({event_txt}) / Pr({leeftijdsgr_txt})")
+        st.write(f"{p_event_x_leeftijdsgr} = {p_leeftijdsgr_x_event} * {p_event} / {p_leeftijdsgr}")
         st.write(f"Pr({event_txt} | {leeftijdsgr_txt}) = {p_event_x_leeftijdsgr}")
         
         p_event_x_vax_leeftijdsgr = p_vax_x_event_leeftijdsgr * p_event_x_leeftijdsgr        / p_vax_x_leeftijdsgr
@@ -61,7 +61,7 @@ def calculate(event, event_txt, follow_txt):
         st.write(f"Pr({event_txt} | VAX, {leeftijdsgr_txt}) = Pr(VAX | {event_txt}, {leeftijdsgr_txt}) * Pr({event_txt}|{leeftijdsgr_txt})  / Pr(VAX | {leeftijdsgr_txt})")
         
         st.write(f"{p_event_x_vax_leeftijdsgr} = {p_vax_x_event_leeftijdsgr} * {p_event_x_leeftijdsgr}        / {p_vax_x_leeftijdsgr}")
-        
+        st.write(f"Pr({event_txt} | VAX, {leeftijdsgr_txt}) = {p_event_x_vax_leeftijdsgr}")
         st.write(" ------ ")
         p_event_x_non_vax_leeftijdsgr = p_non_vax_x_event_leeftijdsgr * p_event_x_leeftijdsgr         / p_non_vax_x_leeftijdsgr
         st.write(f"Pr({event_txt} | nVAX, {leeftijdsgr_txt}) = Pr(nVAX | {event_txt}, {leeftijdsgr_txt}) * Pr({event_txt}|{leeftijdsgr_txt})  / Pr(nVAX | {leeftijdsgr_txt})")
@@ -72,7 +72,7 @@ def calculate(event, event_txt, follow_txt):
 
         ratio_event_x__leeftijdsgr = p_event_x_non_vax_leeftijdsgr / p_event_x_vax_leeftijdsgr
 
-
+        st.write(" ===== ")
         st.write (f"Marginal ratio = {ratio_event_x__leeftijdsgr}")
 
 def  main():
