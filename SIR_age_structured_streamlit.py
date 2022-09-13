@@ -9,7 +9,7 @@ _lock = RendererAgg.lock
 import pandas as pd
 
 import streamlit as st
-from streamlit import caching
+#from streamlit import caching
 
 @st.cache()
 def get_contact_matrix(moment,contact_type):

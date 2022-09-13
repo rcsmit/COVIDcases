@@ -12,7 +12,7 @@ from scipy.signal import savgol_filter
 import pandas as pd
 import datetime as dt
 from datetime import datetime
-from streamlit import caching
+#from streamlit import caching
 import plotly.express as px
 from  matplotlib import pyplot
 import seaborn

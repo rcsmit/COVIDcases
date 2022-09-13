@@ -8,7 +8,7 @@ import platform
 import datetime
 import datetime as dt
 import streamlit as st
-from streamlit import caching
+#from streamlit import caching
 from helpers import *  # cell_background, select_period, save_df, drop_columns
 from datetime import datetime
 

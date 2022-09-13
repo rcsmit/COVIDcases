@@ -39,7 +39,7 @@ from matplotlib.backends.backend_agg import RendererAgg
 
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
-from streamlit import caching
+#from streamlit import caching
 
 from PIL import Image
 import glob

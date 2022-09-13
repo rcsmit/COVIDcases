@@ -24,7 +24,7 @@ import streamlit as st
 import urllib
 import urllib.request
 from pathlib import Path
-from streamlit import caching
+#from streamlit import caching
 from inspect import currentframe, getframeinfo
 from helpers import *
 import platform

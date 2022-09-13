@@ -36,7 +36,6 @@ from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
 
-from streamlit import caching
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 

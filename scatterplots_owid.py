@@ -27,7 +27,7 @@ import streamlit as st
 import urllib
 import urllib.request
 from pathlib import Path
-from streamlit import caching
+#from streamlit import caching
 from inspect import currentframe, getframeinfo
 import plotly.express as px
 import plotly.graph_objects as go

@@ -8,7 +8,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator
 _lock = RendererAgg.lock
 import streamlit as st
-from streamlit import caching
+#from streamlit import caching
 
 from helpers import *
 

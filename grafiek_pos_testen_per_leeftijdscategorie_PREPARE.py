@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 #from labellines import *  #https://stackoverflow.com/questions/16992038/inline-labels-in-matplotlib
 import streamlit as st
-from streamlit import caching
+#from streamlit import caching
 from matplotlib.backends.backend_agg import RendererAgg
 from datetime import datetime
 _lock = RendererAgg.lock

@@ -327,6 +327,7 @@ def main():
     st.write  ("attack rate classical SIR model : " + str(int(C[days-1])) + " mensen / "+ str(round(100*((C[days-1])        /N),2))+ " %")
     st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
     st.write ("Attack rate = final size of the epidemic (FSE) ")
+    st.write("Read also: 7 Reasons Not to Use ODEs for Epidemic Modeling https://gerritgr.medium.com/7-reasons-not-to-use-odes-for-epidemic-modeling-bf451037a97f")
     repr=[]
 
     #####################################################

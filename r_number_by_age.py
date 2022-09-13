@@ -31,7 +31,7 @@ import platform
 from matplotlib.backends.backend_agg import RendererAgg
 import streamlit as st
 _lock = RendererAgg.lock
-from streamlit import caching
+#from streamlit import caching
 from helpers import *
 
 

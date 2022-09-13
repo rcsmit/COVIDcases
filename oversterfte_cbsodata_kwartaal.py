@@ -14,6 +14,7 @@ import platform
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
 
+# per kwartaal /82899NED
 # Downloaden van tabeloverzicht
 # toc = pd.DataFrame(cbsodata.get_table_list())
 
@@ -191,6 +192,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
+    
     df_oversterfte["p_score"] = ( df_oversterfte[series_name]- df_oversterfte["avg"]) /   df_oversterfte["avg"]
     df_oversterfte["p_score"] = df_oversterfte["p_score"].rolling(window=6, center=True).mean()
 

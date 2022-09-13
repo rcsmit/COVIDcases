@@ -8,7 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
-from streamlit import caching
+#from streamlit import caching
 from sklearn.metrics import r2_score
 
 

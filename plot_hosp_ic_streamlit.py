@@ -24,7 +24,7 @@ import matplotlib as mpl
 from matplotlib.backends.backend_agg import RendererAgg
 import streamlit as st
 _lock = RendererAgg.lock
-from streamlit import caching
+#from streamlit import caching
 
 def save_df(df, name):
     """[sla df op]
