@@ -169,7 +169,7 @@ def read(inwonersgrens, from_,until_):
             )
 
     df_totaal["Total_reported_per_inwoner_period"] = df_totaal["Total_reported"] / df_totaal["inwoners_2021"]
-    df_totaal["Hospital_admission_per_inwoner_period"] = df_totaal["Hospital_admission"] / df_totaal["inwoners_2021"]
+    #df_totaal["Hospital_admission_per_inwoner_period"] = df_totaal["Hospital_admission"] / df_totaal["inwoners_2021"]
     df_totaal["Deceased_per_inwoner_period"] = df_totaal["Deceased"] / df_totaal["inwoners_2021"]
     df_totaal["log_e_incidentie"] = np.log(df_totaal["Total_reported_per_inwoner_period"])
     df_totaal["log_10_incidentie"] = np.log10(df_totaal["Total_reported_per_inwoner_period"])
@@ -327,8 +327,8 @@ def make_corr_tabel(df, partijen, uitslag):
 def main():
 
     how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
-    lijst = ["gem_ink_x1000", "volledige.vaccinatie", "Total_reported_per_inwoner_period", "Hospital_admission_per_inwoner_period","Deceased_per_inwoner_period",
-            "Total_reported", "Hospital_admission", "Deceased", "inwoners_2021","inwoners_per_km2", "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr",
+    lijst = ["gem_ink_x1000", "volledige.vaccinatie", "Total_reported_per_inwoner_period","Deceased_per_inwoner_period",
+            "Total_reported", "Deceased", "inwoners_2021","inwoners_per_km2", "stemmen_op_geselecteerde_partijen_procent","perc_niet_west_migratie_achtergr",
             "perc_migratieachtergrond", "log_e_incidentie", "log_10_incidentie"]
     x  = st.sidebar.selectbox("Wat op X as", lijst, index=0)
     y = st.sidebar.selectbox("Wat op Y as", lijst, index=1)
