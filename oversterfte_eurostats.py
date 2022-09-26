@@ -46,7 +46,7 @@ def get_sterfte():
         
         low_memory=False,
     )
- 
+    
     return df_
 
 def get_boosters():
@@ -346,8 +346,11 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter):
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
     df__ = get_sterfte()
+    df__ = df__[df__['age'] !="UNK"]
     serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999" ,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
-    series_names = df__["age_sex"].unique()
+    #series_names = df__["age_sex"].unique().sort()
+    series_names  = df__['age_sex'].drop_duplicates().sort_values()
+    
 
     #df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str) 
     print (df__)
