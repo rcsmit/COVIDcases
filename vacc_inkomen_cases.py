@@ -176,7 +176,7 @@ def read(inwonersgrens, from_,until_):
     #df_totaal['Vaccination_coverage_completed']
     #print(df_totaal.info(verbose=True))
     #df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].astype(str)
-    df_totaal['volledige.vaccinatie'] = df_totaal['Vaccination_coverage_completed'].apply(lambda x: '99' if x=='>=95'  else x)
+    df_totaal['volledige.vaccinatie'] = df_totaal['Coverage_primary_completed'].apply(lambda x: '99' if x=='>=95'  else x)
     df_totaal['volledige.vaccinatie'] = df_totaal['volledige.vaccinatie'].astype(float)
 
 
