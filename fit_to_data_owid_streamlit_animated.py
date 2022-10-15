@@ -37,7 +37,6 @@ from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
 from matplotlib.backends.backend_agg import RendererAgg
 
-from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 #from streamlit import caching
 
@@ -480,7 +479,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
 
 def fit_the_values_really(x_values,  y_values, which_method, title, daterange,i, max_y_values):
     x_values_extra = np.linspace(
-        start=0, stop=TOTAL_DAYS_IN_GRAPH - 1, num=TOTAL_DAYS_IN_GRAPH
+        start=0, stop=int(TOTAL_DAYS_IN_GRAPH - 1), num=int(TOTAL_DAYS_IN_GRAPH)
     )
     x_values = x_values[:i]
     y_values = y_values[:i]
@@ -729,7 +728,8 @@ def loglognormal(df, what_to_display):
 @st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
 def getdata():
     if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\owid-covid-data.csv"
+        #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data.csv"
+        url1=  "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data.csv"
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
 
@@ -756,12 +756,12 @@ def main():
 
 
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\python_scripts\\output\\"
     )
 
-    start__ = "2021-10-1"
-    until__ = "2022-1-31"
-    what_default = 1
+    start__ = "2022-9-10"
+    until__ = "2022-12-31"
+    what_default = 15
     days_to_show = 150
     what_method_default = 1
 
@@ -803,7 +803,7 @@ def main():
     #st.write (statelist)
     # statelist = ["Goa", "Delhi", "India"]
     global country_
-    country_ = st.sidebar.selectbox("Which country",countrylist, 149)
+    country_ = st.sidebar.selectbox("Which country",countrylist, 150)
 
     total_days = st.sidebar.number_input('Total days to show',None,None,days_to_show)
 
@@ -824,7 +824,7 @@ def main():
 
     df_to_use = select_period(df, FROM, UNTIL)
     df_to_use.fillna(value=0, inplace=True)
-
+    df_to_use = df_to_use[df_to_use[what_to_display] != 0]
     values_to_fit = df_to_use[what_to_display].tolist()
     base_value__ = values_to_fit[0]
     BASEVALUE = st.sidebar.number_input('Base value',None,None,base_value__)

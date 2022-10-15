@@ -38,15 +38,22 @@ def get_sterfte():
     if platform.processor() != "":
         #file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_meer_leeftijdscat.csv"
         file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats.csv"
+        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
+        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
     else:
         file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats.csv"
+        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
+        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
     df_ = pd.read_csv(
         file,
-        delimiter=";",
+        delimiter=",",
         
         low_memory=False,
     )
-    
+    print (df_.dtypes)
+    df_["age_sex"] = df_["age"] + "_" +df_["sex"]
+    df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
+    df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
     return df_
 
 def get_boosters():
@@ -153,7 +160,7 @@ def plot_herhaalprik(df_herhaalprik, series_name):
         fig.update_yaxes(title_text=title)
         st.plotly_chart(fig, use_container_width=True)
 
-def get_data_for_series(df_, seriename):
+def get_data_for_series(df_, seriename, vanaf_jaar):
   
     if seriename == "TOTAL_T":
        # df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
@@ -163,7 +170,7 @@ def get_data_for_series(df_, seriename):
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr","TOTAL_T", seriename]].copy(deep=True)
     #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
-    df = df[ (df["jaar"] > 2014)]  #& (df["weeknr"] != 53)]
+    df = df[ (df["jaar"] >= vanaf_jaar)]  #& (df["weeknr"] != 53)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
  
@@ -213,6 +220,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
         df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr", how = mergetype)
     what_to_sma_ = ["low05", "high95"]
     for what_to_sma in what_to_sma_:
+        # sma = 6 is also in de procedure of CBS
         df_oversterfte[what_to_sma] = df_oversterfte[what_to_sma].rolling(window=6, center=True).mean()
 
     df_oversterfte["over_onder_sterfte"] =  0
@@ -333,7 +341,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
         st.plotly_chart(fig1xy, use_container_width=True)
 
    
-def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter):
+def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center):
     """_summary_
 
     Args:
@@ -352,20 +360,21 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter):
     series_names  = df__['age_sex'].drop_duplicates().sort_values()
     
 
-    #df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str) 
+    df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2) 
     print (df__)
     df_ = df__.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values='OBS_VALUE').reset_index()
+    #df_ = df__.pivot(index="jaar_week", columns='age_sex', values='OBS_VALUE').reset_index()
     print(df_)
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
-        df_data = get_data_for_series(df_, series_name).copy(deep=True)
+        df_data = get_data_for_series(df_, series_name, vanaf_jaar).copy(deep=True)
         df_corona, df_quantile = make_df_qantile(series_name, df_data)
         st.subheader(series_name)
         if how =="quantiles":
             
             columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
             for what_to_sma in columnlist:
-                df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=True).mean()
+                df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=sma_center).mean()
 
                  
             print (df_quantile)
@@ -406,15 +415,22 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter):
                 mode='lines',
                 line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
                 )
-
+            col_sma = series_name +"_sma"
+            df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
             sterfte = go.Scatter(
                 name="Sterfte",
                 x=df_corona["weeknr"],
-                y=df_corona[series_name],
+                y=df_corona[series_name],)
+                #mode='lines',
+                #line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
+                
+            sterfte_sma = go.Scatter(
+                name="Sterfte sma",
+                x=df_corona["weeknr"],
+                y=df_corona[col_sma],
                 mode='lines',
                 line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
                 )
-    
 
             q75 = go.Scatter(
                 name='q75',
@@ -446,7 +462,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter):
              )
             
             #data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
-            data = [ high95,low05,avg, sterfte] #, value_in_year_2021 ]
+            data = [ high95,low05,avg, sterfte, sterfte_sma] #, value_in_year_2021 ]
             title = f"Overleden {series_name}"
             layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
                             title=title,)
@@ -632,16 +648,22 @@ def interface():
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
         mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "aa")
         show_scatter = st.sidebar.selectbox("Show_scatter", [False, True], index = 0)
+        
     else:
         rightax, mergetype, show_scatter = None, None, None
-        
-    return how,yaxis_to_zero,rightax,mergetype, show_scatter
+    vanaf_jaar = st.sidebar.number_input ("Beginjaar voor CI-interv. (incl.)", 2000, 2022,2015)
+    if how == "quantiles":
+        sma= st.sidebar.number_input ("Smooth moving average", 0, 100,1)
+        sma_center = st.sidebar.selectbox("SMA center", [True, False], index = 0, key = "bb")
+    else:
+        sma, sma_center = None, None
+    return how,yaxis_to_zero,rightax,mergetype, show_scatter, vanaf_jaar,sma, sma_center
 
 def main():
     st.header("(Over)sterfte per week per geslacht per 5 jaars groep")
     st.write("Data wordt (nog) niet automatisch geupdate")
-    how, yaxis_to_zero, rightax, mergetype, show_scatter = interface()
-    plot(how, yaxis_to_zero, rightax, mergetype, show_scatter)
+    how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center = interface()
+    plot(how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center)
     footer()
 
 if __name__ == "__main__":
