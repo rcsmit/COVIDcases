@@ -44,12 +44,12 @@ def get_sterfte():
         file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats.csv"
         # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
         # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
-    df_ = pd.read_csv(
+        df_ = pd.read_csv(
         file,
         delimiter=",",
         
         low_memory=False,
-    )
+        )
     print (df_.dtypes)
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
