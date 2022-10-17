@@ -50,7 +50,7 @@ def get_sterfte():
         
         low_memory=False,
         )
-    print (df_.dtypes)
+    #print (df_.dtypes)
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
@@ -361,36 +361,27 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
         rightax (_type_): _description_
         mergetype (_type_): _description_
     """    
-    df_boosters = get_boosters()
-    df_herhaalprik = get_herhaalprik()
-    df__ = get_sterfte()
-    df__ = df__[df__['age'] !="UNK"]
-    #serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999" ,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
-    #series_names = df__["age_sex"].unique().sort()
-    series_names  = df__['age_sex'].drop_duplicates().sort_values()
-    #series_to_show = st.sidebar.multiselect("Series to show", series_names, series_names)  
-    series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
-    df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
+    df_boosters, df_herhaalprik, df_ = get_data()
+   
+    #series_names  = df_['age_sex'].drop_duplicates().sort_values()
 
-    
-     
-    print (df__)
-    df_ = df__.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values='OBS_VALUE').reset_index()
-    #df_ = df__.pivot(index="jaar_week", columns='age_sex', values='OBS_VALUE').reset_index()
-    print(df_)
+    series_names = df_.columns.tolist()
+    series_names = series_names[3:]
+    print (series_names)
+    series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
+ 
     for col, series_name in enumerate(series_to_show):
-        print (f"---{series_name}----")
-        df_data = get_data_for_series(df_, series_name, vanaf_jaar).copy(deep=True)
-        df_corona, df_quantile = make_df_qantile(series_name, df_data)
-        st.subheader(series_name)
+        
+        
         if how =="quantiles":
+            df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
             
             columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
             for what_to_sma in columnlist:
                 df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=sma_center).mean()
 
                  
-            print (df_quantile)
+            #print (df_quantile)
             df_quantile = df_quantile.sort_values(by=['jaar','week_'])
             fig = go.Figure()
             low05 = go.Scatter(
@@ -511,10 +502,16 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             st.plotly_chart(fig, use_container_width=True)
 
         elif (how == "year_minus_avg") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter)
+            
+            if series_name[:4] == "m_v_":
+                df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
+                
+                plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter)
            
 
         else:
+            df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
+            
             #fig = plt.figure()
             
             year_list = df_data['jaar'].unique().tolist()
@@ -523,7 +520,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
                 #df = df.sort_values(by=['weeknr'])
-                if year == 2020 or year ==2021:
+                if year == 2020 or year ==2021 or  or year ==2022:
                     width = 3
                     opacity = 1
                 else:
@@ -546,6 +543,32 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
     
             fig = go.Figure(data=data, layout=layout)
             st.plotly_chart(fig, use_container_width=True)
+
+def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
+    print (f"---{series_name}----")
+    st.subheader(series_name)
+    df_data = get_data_for_series(df_, series_name, vanaf_jaar).copy(deep=True)
+    df_corona, df_quantile = make_df_qantile(series_name, df_data)
+    return df_data,df_corona,df_quantile
+            
+@st.cache 
+def get_data():
+    df_boosters = get_boosters()
+    df_herhaalprik = get_herhaalprik()
+    df__ = get_sterfte()
+    df__ = df__[df__['age'] !="UNK"]
+    df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
+    df_ = df__.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values='OBS_VALUE').reset_index()
+    #df_ = df__.pivot(index="jaar_week", columns='age_sex', values='OBS_VALUE').reset_index()
+    
+    df_["m_v_0_49"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
+
+    df_["m_v_50_64"] = df_["Y50-54_T"]+ df_["Y55-59_T"] + df_["Y60-64_T"]
+    df_["m_v_65_79"] =+ df_["Y65-69_T"]+ df_["Y70-74_T"] + df_["Y75-79_T"]
+    df_["m_v_80_89"] = df_["Y80-84_T"] + df_["Y85-89_T"]
+    df_["m_v_90_999"] = df_["Y_GE90_T"]
+    df_["m_v_0_999"] = df_["m_v_0_49"] + df_["m_v_50_64"] + df_["m_v_65_79"] + df_["m_v_80_89"] + df_["m_v_90_999"]
+    return df_boosters,df_herhaalprik,df_
 
 def make_df_qantile(series_name, df_data):
     """_summary_
@@ -679,7 +702,7 @@ def interface():
 
 def main():
     st.header("(Over)sterfte per week per geslacht per 5 jaars groep")
-    st.write("Data wordt (nog) niet automatisch geupdate")
+   
     how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center = interface()
     plot(how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center)
     footer(vanaf_jaar)
