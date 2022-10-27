@@ -718,7 +718,7 @@ def init():
         "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\"
     )
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
+        r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\output"
     )
 
     # GLOBAL SETTINGS
@@ -763,7 +763,8 @@ def get_data():
             #     "fileformat": "json",
             # },
             {
-                "url": "https://lcps.nu/wp-content/uploads/covid-19.csv",
+                "url": "https://lcps.nu/wp-content/uploads/covid-19-datafeed.csv",
+                
                 "name": "LCPS",
                 "delimiter": ",",
                 "key": "Datum",
@@ -946,7 +947,7 @@ def get_data():
 
         UPDATETIME = datetime.now()
         #df = splitupweekweekend(df_temp)
-
+        print (df.dtypes)
         return df, df_ungrouped, UPDATETIME
 
 def main():
@@ -965,18 +966,18 @@ def main():
     df.fillna(value=0, inplace=True)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
     df["Deceased_cumm"] = df["Deceased"].cumsum()
-    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID_Nederland"].cumsum()
     #df["total_reported_k_value"] = 1- df["Total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
     #st.alert("Please ignore the error message, it has to do with some caching issues")
     DATE_FORMAT = "%m/%d/%Y"
     global start__
     global OUTPUT_DIR
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\output\\"
+        r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\output"
     )
     scenario = st.sidebar.radio(
     "Select a datarange",
-    ("Total_reported_march_2020","Total_reported_cumm_march_2020", "IC_Bedden_march_april_2021", "IC_opnames_march_2021", "Hosp_adm_march_2021")
+    ("Total_reported_march_2020","Total_reported_cumm_march_2020", "IC_Bedden_march_april_2021", "IC_opnames_march_2021", "Hosp_adm_sep_2022")
     )
     if scenario =='Total_reported_march_2020':
         start__ = "2020-02-27"
@@ -1006,9 +1007,9 @@ def main():
         days_to_show = 120
         what_method_default = 1
 
-    elif scenario =='Hosp_adm_march_2021':
-        start__ = "2021-03-1"
-        until__ = "2021-03-31"
+    elif scenario =='Hosp_adm_sep_2022':
+        start__ = "2022-09-1"
+        until__ = "2022-10-31"
         what_default = 7
         days_to_show = 60
         what_method_default = 1
@@ -1049,19 +1050,17 @@ def main():
     lijst = [
         "Total_reported",
         "Total_reported_cumm",
-        "IC_Bedden_COVID",
-        "IC_Bedden_Non_COVID",
-        "Kliniek_Bedden",
-        "IC_Nieuwe_Opnames_COVID",
+        "IC_Bedden_COVID_Nederland",
+        "IC_Bedden_Non_COVID)Nederland",
+        "Kliniek_Bedden_Nederland",
+        "IC_Nieuwe_Opnames_COVID_Nederland",
         "IC_Nieuwe_Opnames_LCPS_cumm",
-        "Hospital_admission_x",
-        "Hospital_admission_y",
+        "Hospital_admission",
+        "Kliniek_Nieuwe_Opnames_COVID_Nederland",
 
         "Deceased",
-        "Deceased_cumm",
-        "Tested_with_result",
-        "Tested_positive",
-        "Percentage_positive"]
+        "Deceased_cumm"]
+
     # for l in lijst:
     #     l_ = l + "_cumm"
     #     df[l_] = df[l].cumsum()
