@@ -424,9 +424,9 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             sterfte = go.Scatter(
                 name="Sterfte",
                 x=df_corona["weeknr"],
-                y=df_corona[series_name],)
-                #mode='lines',
-                #line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
+                y=df_corona[series_name],
+                mode='lines',
+                line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),)
 
             if sma >1:
                 col_sma = series_name +"_sma"
@@ -437,8 +437,8 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                     name="Sterfte sma",
                     x=df_corona["weeknr"],
                     y=df_corona[col_sma],
-                    mode='lines',
-                    line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
+                    # mode='lines',
+                    # line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
                     )
 
             q75 = go.Scatter(
