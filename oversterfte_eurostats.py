@@ -496,6 +496,15 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             # — derde oversterftegolf: week 33 tot en met week 52 van 2021 (half augustus 2021–eind
             # december 2021).
             # De hittegolf in 2020 betreft week 33 en week 34 (half augustus 2020).
+            fig.add_vrect(x="2021_01", 
+              annotation_text="2021", annotation_position="top left",
+              fillcolor="black", opacity=1, line_width=0.5)
+            fig.add_vrect(x="2022_01", 
+              annotation_text="2022", annotation_position="top left",
+              fillcolor="black", opacity=1, line_width=0.5)
+
+
+
 
             fig.add_vrect(x0="2020_13", x1="2020_18", 
               annotation_text="Eerste golf", annotation_position="top left",
