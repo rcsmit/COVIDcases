@@ -420,22 +420,26 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 mode='lines',
                 line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
                 )
-            col_sma = series_name +"_sma"
-            df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
+
             sterfte = go.Scatter(
                 name="Sterfte",
                 x=df_corona["weeknr"],
                 y=df_corona[series_name],)
                 #mode='lines',
                 #line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
+
+            if sma >1:
+                col_sma = series_name +"_sma"
+                df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
+            
                 
-            sterfte_sma = go.Scatter(
-                name="Sterfte sma",
-                x=df_corona["weeknr"],
-                y=df_corona[col_sma],
-                mode='lines',
-                line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
-                )
+                sterfte_sma = go.Scatter(
+                    name="Sterfte sma",
+                    x=df_corona["weeknr"],
+                    y=df_corona[col_sma],
+                    mode='lines',
+                    line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
+                    )
 
             q75 = go.Scatter(
                 name='q75',
@@ -467,7 +471,10 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
              )
             
             #data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
-            data = [ high95,low05,avg, sterfte, sterfte_sma] #, value_in_year_2021 ]
+            if sma>1:
+                data = [ high95,low05,avg, sterfte, sterfte_sma] #, value_in_year_2021 ]
+            else:
+                data = [ high95,low05,avg, sterfte] #, value_in_year_2021 ]
             title = f"Overleden {series_name}"
             layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
                             title=title,)
