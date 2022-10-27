@@ -434,7 +434,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                     x=df_corona["weeknr"],
                     y=df_corona[series_name],
                     mode='lines',
-                    line=dict(width=1,color='rgba(255, 0, 0, 0.6)'),)
+                    line=dict(width=1,color='rgba(255, 0, 255, 0.6)'),)
 
                 col_sma = series_name +"_sma"
                 df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
@@ -445,7 +445,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                     x=df_corona["weeknr"],
                     y=df_corona[col_sma],
                     mode='lines',
-                    line=dict(width=2,color='rgba(255, 0, 255, 0.8)'),
+                    line=dict(width=2,color='rgba(255, 0, 0, 1)'),
                     )
 
             q75 = go.Scatter(
