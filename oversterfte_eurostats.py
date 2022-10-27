@@ -521,7 +521,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
                 #df = df.sort_values(by=['weeknr'])
-                if year == 2020 or year ==2021 or  or year ==2022:
+                if year == 2020 or year ==2021   or year ==2022:
                     width = 3
                     opacity = 1
                 else:
