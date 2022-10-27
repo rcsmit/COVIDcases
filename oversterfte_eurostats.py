@@ -367,7 +367,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
 
     series_names_ = df_.columns.tolist()
     series_names_ = series_names_[3:]
-    series_names = st.sidebar.multiselect("Which ages to show", series_names, ["TOTAL_T"])
+    series_names = st.sidebar.multiselect("Which ages to show", series_names_, ["TOTAL_T"])
     print (series_names)
     series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
  
