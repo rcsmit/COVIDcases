@@ -250,7 +250,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                             mode='lines',
                             name=how,
                            ))
-    
+    st.write("253 is run")
     if how == "p_score":
        # the p-score is already plotted
        pass
