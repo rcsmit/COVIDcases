@@ -65,7 +65,7 @@ def main():
             ["36. Oversterfte gemeente" , "oversterfte_gemeente"],
             ["37. Oversterfte" , "oversterfte"],
             ["38. Bayes Lines tools" , "bayes_lines_tools"],
-            ["39. Oversterfte (dynamisch)" , "oversterfte_cbsodata"],
+            ["39. Oversterfte (CBS Odata)" , "oversterfte_cbsodata"],
             ["40. Bayes berekeningen IC ziekenh" , "bayes_prob_ic_hosp"],
             ["41. Disabled by Long covid" , "disabled_by_longcovid"],
             ["42. Oversterfte 5yrs groeps Eurostat week" , "oversterfte_eurostats"],

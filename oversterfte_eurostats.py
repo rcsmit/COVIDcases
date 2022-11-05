@@ -250,7 +250,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
                             mode='lines',
                             name=how,
                            ))
-    st.write("253 is run")
+   
     if how == "p_score":
        # the p-score is already plotted
        pass
@@ -522,8 +522,9 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             st.plotly_chart(fig, use_container_width=True)
 
         elif (how == "year_minus_avg") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
-            
-            if series_name[:4] == "m_v_":
+            print (series_name[-1:]) 
+            #if series_name[:4] == "m_v_":
+            if (series_name[-1:] == "T" or series_name[:4] == "m_v_"):
                 df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
                 
                 plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter)
