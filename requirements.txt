@@ -12,4 +12,5 @@ gsheetsdb
 plotly
 statsmodels
 patsy
+scikit-learn
 cbsodata

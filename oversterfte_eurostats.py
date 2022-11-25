@@ -18,6 +18,8 @@
 # waargenomen, valt in dit interval. Er wordt van oversterfte gesproken wanneer de sterfte
 # boven de bovengrens van dit interval ligt.
 
+# TO DO: https://towardsdatascience.com/using-eurostat-statistical-data-on-europe-with-python-2d77c9b7b02b
+
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
@@ -26,7 +28,7 @@ from plotly.subplots import make_subplots
 import platform
 import plotly.express as px
 
-def get_sterfte():
+def get_sterfte(country):
     """_summary_
 
     Returns:
@@ -37,11 +39,11 @@ def get_sterfte():
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
     if platform.processor() != "":
         #file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_meer_leeftijdscat.csv"
-        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats.csv"
+        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
         # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
         # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
     else:
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats.csv"
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
         # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
         # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
     df_ = pd.read_csv(
@@ -51,9 +53,16 @@ def get_sterfte():
         low_memory=False,
         )
     #print (df_.dtypes)
+    #st.write(df_)
+    #st.write(df_["geo"].unique())
+    df_=df_[df_["geo"] == country]
+    
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
+    #st.write(df_["age_sex"].unique())
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
+    
+
     return df_
 
 def get_boosters():
@@ -228,6 +237,9 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
     
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
+    df_oversterfte["year_minus_avg_only_pos"] =  df_oversterfte["year_minus_avg"] 
+    df_oversterfte.year_minus_avg_only_pos=df_oversterfte.year_minus_avg_only_pos.mask(df_oversterfte.year_minus_avg_only_pos.lt(0),0)
+    df_oversterfte["year_minus_avg_cumm"] = df_oversterfte["year_minus_avg_only_pos"].cumsum()
     df_oversterfte["p_score"] = ( df_oversterfte[series_name]- df_oversterfte["avg"]) /   df_oversterfte["avg"]
     df_oversterfte["p_score"] = df_oversterfte["p_score"].rolling(window=6, center=True).mean()
 
@@ -258,6 +270,17 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
         show_avg = False
         if show_avg:   
             grens = "avg"
+            fig.add_trace(go.Scatter(
+                    name=grens,
+                    x=df_oversterfte["weeknr"],
+                    y=df_oversterfte[grens],
+                    mode='lines',
+                    line=dict(width=1,color='rgba(205, 61,62, 1)'),
+                    ))
+    elif how == "year_minus_avg_cumm": 
+        show_avg = False
+        if show_avg:   
+            grens = "year_minus_avg_cumm"
             fig.add_trace(go.Scatter(
                     name=grens,
                     x=df_oversterfte["weeknr"],
@@ -351,17 +374,17 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
         st.plotly_chart(fig1xy, use_container_width=True)
 
    
-def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center):
+def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center, country):
     """_summary_
 
     Args:
         series_names (_type_): _description_
-        how (_type_): _description_
+        how (_type_): ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte","year_minus_avg","year_minus_avg_cumm", "p_score"]
         yaxis_to_zero (_type_): _description_
         rightax (_type_): _description_
         mergetype (_type_): _description_
     """    
-    df_boosters, df_herhaalprik, df_ = get_data()
+    df_boosters, df_herhaalprik, df_ = get_data(country)
    
     #series_names  = df_['age_sex'].drop_duplicates().sort_values()
 
@@ -521,7 +544,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 fig.update_yaxes(rangemode="tozero")
             st.plotly_chart(fig, use_container_width=True)
 
-        elif (how == "year_minus_avg") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
+        elif (how == "year_minus_avg") or (how == "year_minus_avg_cumm")  or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
             print (series_name[-1:]) 
             #if series_name[:4] == "m_v_":
             if (series_name[-1:] == "T" or series_name[:4] == "m_v_"):
@@ -530,7 +553,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter)
            
 
-        else:
+        elif (how == "lines"):
             df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
             
             #fig = plt.figure()
@@ -564,6 +587,9 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
     
             fig = go.Figure(data=data, layout=layout)
             st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.error("ERROR in [how]")
+            st.stop()
 
 def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
     print (f"---{series_name}----")
@@ -573,10 +599,10 @@ def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
     return df_data,df_corona,df_quantile
             
 @st.cache 
-def get_data():
+def get_data(country):
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
-    df__ = get_sterfte()
+    df__ = get_sterfte(country)
     df__ = df__[df__['age'] !="UNK"]
     df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
     df_ = df__.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values='OBS_VALUE').reset_index()
@@ -704,9 +730,9 @@ def footer(vanaf_jaar):
     st.write("*. https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493")
 
 def interface():
-    how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte","year_minus_avg", "p_score"], index = 0)
+    how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte","year_minus_avg","year_minus_avg_cumm", "p_score"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
-    if (how == "year_minus_avg") or (how == "p_score"):
+    if (how == "year_minus_avg") or (how=="year_minus_avg_cumm") or (how == "p_score"):
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
         mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
         show_scatter = st.sidebar.selectbox("Show_scatter", [False, True], index = 0)
@@ -719,13 +745,14 @@ def interface():
         sma_center = st.sidebar.selectbox("SMA center", [True, False], index = 0, key = "bb")
     else:
         sma, sma_center = None, None
-    return how,yaxis_to_zero,rightax,mergetype, show_scatter, vanaf_jaar,sma, sma_center
+    country = "NL" #  st.sidebar.selectbox("country",["NL", "BE", "DE", "DK", "FR", "ES", "IT", "UK"], index=0)
+    return how,yaxis_to_zero,rightax,mergetype, show_scatter, vanaf_jaar,sma, sma_center, country
 
 def main():
     st.header("(Over)sterfte per week per geslacht per 5 jaars groep")
    
-    how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center = interface()
-    plot(how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center)
+    how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center, country = interface()
+    plot(how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center, country)
     footer(vanaf_jaar)
 
 if __name__ == "__main__":
