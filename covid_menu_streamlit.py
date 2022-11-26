@@ -70,7 +70,7 @@ def main():
             ["41. Disabled by Long covid" , "disabled_by_longcovid"],
             ["42. Oversterfte 5yrs groeps Eurostat week" , "oversterfte_eurostats"],
             ["43. Oversterfte 5yrs groeps Eurostat maand" , "oversterfte_eurostats_maand"],
-            ["44. Rioolwaarde vs ziekenhuis" , "rioolwaarde_vs_ziekenhuis"]]
+            ["44. Rioolwaarde vs ziekenhuis" , "rioolwater_vs_ziekenhuis"]]
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 
@@ -103,19 +103,19 @@ def main():
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
             m = options[n][1].replace(" ","_") # I was too lazy to change it in the list
-            #try:
-            module = dynamic_import(m)
-            # except Exception as e:
-            #     st.error(f"Module '{m}' not found or error in the script\n")
-            #     st.warning(f"{e}")
-            #     st.stop()
-            #try:
-            module.main()
-            # except Exception as e:
-            #     st.error(f"Function 'main()' in module '{m}' not found or error in the script")
-            #     st.warning(f"{e}")
-            #     st.warning(traceback.format_exc())
-            #     st.stop()
+            try:
+                module = dynamic_import(m)
+            except Exception as e:
+                st.error(f"Module '{m}' not found or error in the script\n")
+                st.warning(f"{e}")
+                st.stop()
+            try:
+                module.main()
+            except Exception as e:
+                st.error(f"Function 'main()' in module '{m}' not found or error in the script")
+                st.warning(f"{e}")
+                st.warning(traceback.format_exc())
+                st.stop()
 
 
 main()
