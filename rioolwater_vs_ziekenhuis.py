@@ -62,8 +62,8 @@ def move_column(df, column_, days):
 
 #url_inwoners = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\inwoners_rzwi.csv"
 url_inwoners = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/inwoners_rzwi.csv"
-#url_rioolwaterdata= "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.csv"
-url_rioolwaterdata = r"C:\Users\rcxsm\Downloads\COVID-19_rioolwaterdata.csv"
+url_rioolwaterdata= "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.csv"
+#url_rioolwaterdata = r"C:\Users\rcxsm\Downloads\COVID-19_rioolwaterdata.csv"
 
 #url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/lcps_by_day.csv"
 url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/all_data.csv"
