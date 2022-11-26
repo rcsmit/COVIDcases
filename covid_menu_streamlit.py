@@ -69,7 +69,8 @@ def main():
             ["40. Bayes berekeningen IC ziekenh" , "bayes_prob_ic_hosp"],
             ["41. Disabled by Long covid" , "disabled_by_longcovid"],
             ["42. Oversterfte 5yrs groeps Eurostat week" , "oversterfte_eurostats"],
-            ["42. Oversterfte 5yrs groeps Eurostat maand" , "oversterfte_eurostats_maand"]]
+            ["43. Oversterfte 5yrs groeps Eurostat maand" , "oversterfte_eurostats_maand"],
+            ["44. Rioolwaarde vs ziekenhuis" , "rioolwaarde_vs_ziekenhuis"]]
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 

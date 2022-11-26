@@ -1,0 +1,1491 @@
+﻿rwzi_code;rwzi_naam;startdatum;einddatum;inwoners;regio_type;regio_code;regio_naam;aandeel;toelichting
+1008;Stadskanaal;01/01/2022;;31846;GM;GM0037;Stadskanaal   ;100.00;voorlopig
+1008;Stadskanaal;01/01/2022;;31846;VR;VR01;Groningen ;100.00;voorlopig
+1010;Ter Apel;01/01/2022;;13723;GM;GM1950;Westerwolde   ;100.00;voorlopig
+1010;Ter Apel;01/01/2022;;13723;VR;VR01;Groningen ;100.00;voorlopig
+1011;Uithuizermeeden;01/01/2022;;11036;GM;GM1966;Het Hogeland  ;100.00;voorlopig
+1011;Uithuizermeeden;01/01/2022;;11036;VR;VR01;Groningen ;100.00;voorlopig
+1024;Ulrum;01/01/2022;;5142;GM;GM1966;Het Hogeland  ;100.00;voorlopig
+1024;Ulrum;01/01/2022;;5142;VR;VR01;Groningen ;100.00;voorlopig
+1025;Zuidhorn;01/01/2022;;16105;GM;GM1699;Noordenveld   ;0.10;voorlopig
+1025;Zuidhorn;01/01/2022;;16105;GM;GM1969;Westerkwartier;99.90;voorlopig
+1025;Zuidhorn;01/01/2022;;16105;VR;VR01;Groningen ;99.90;voorlopig
+1025;Zuidhorn;01/01/2022;;16105;VR;VR03;Drenthe   ;0.10;voorlopig
+1026;Hoogezand;01/01/2022;;30978;GM;GM1952;Midden-Groningen  ;100.00;voorlopig
+1026;Hoogezand;01/01/2022;;30978;VR;VR01;Groningen ;100.00;voorlopig
+1027;Oude Pekela;01/01/2022;;12272;GM;GM0765;Pekela;99.30;voorlopig
+1027;Oude Pekela;01/01/2022;;12272;GM;GM1950;Westerwolde   ;0.60;voorlopig
+1027;Oude Pekela;01/01/2022;;12272;VR;VR01;Groningen ;100.00;voorlopig
+1028;Onderdendam;01/01/2022;;13751;GM;GM1966;Het Hogeland  ;81.50;voorlopig
+1028;Onderdendam;01/01/2022;;13751;GM;GM1979;Eemsdelta ;18.50;voorlopig
+1028;Onderdendam;01/01/2022;;13751;VR;VR01;Groningen ;100.00;voorlopig
+1029;Leek;01/01/2022;;22711;GM;GM0086;Opsterland;0.70;voorlopig
+1029;Leek;01/01/2022;;22711;GM;GM1699;Noordenveld   ;3.70;voorlopig
+1029;Leek;01/01/2022;;22711;GM;GM1969;Westerkwartier;95.50;voorlopig
+1029;Leek;01/01/2022;;22711;VR;VR01;Groningen ;95.50;voorlopig
+1029;Leek;01/01/2022;;22711;VR;VR02;Fryslân   ;0.70;voorlopig
+1029;Leek;01/01/2022;;22711;VR;VR03;Drenthe   ;3.70;voorlopig
+1030;Winsum;01/01/2022;;15730;GM;GM1966;Het Hogeland  ;99.90;voorlopig
+1030;Winsum;01/01/2022;;15730;VR;VR01;Groningen ;100.00;voorlopig
+1031;Gaarkeuken;01/01/2022;;15080;GM;GM1969;Westerkwartier;100.00;voorlopig
+1031;Gaarkeuken;01/01/2022;;15080;VR;VR01;Groningen ;100.00;voorlopig
+1032;Marum;01/01/2022;;7914;GM;GM1969;Westerkwartier;100.00;voorlopig
+1032;Marum;01/01/2022;;7914;VR;VR01;Groningen ;100.00;voorlopig
+1033;Garmerwolde;01/01/2022;;241658;GM;GM0014;Groningen ;96.35;voorlopig
+1033;Garmerwolde;01/01/2022;;241658;GM;GM1730;Tynaarlo  ;1.22;voorlopig
+1033;Garmerwolde;01/01/2022;;241658;GM;GM1952;Midden-Groningen  ;0.17;voorlopig
+1033;Garmerwolde;01/01/2022;;241658;GM;GM1979;Eemsdelta ;2.27;voorlopig
+1033;Garmerwolde;01/01/2022;;241658;VR;VR01;Groningen ;98.78;voorlopig
+1033;Garmerwolde;01/01/2022;;241658;VR;VR03;Drenthe   ;1.22;voorlopig
+1034;Feerwerd;01/01/2022;;3524;GM;GM1969;Westerkwartier;100.00;voorlopig
+1034;Feerwerd;01/01/2022;;3524;VR;VR01;Groningen ;100.00;voorlopig
+1038;Scheve Klap;01/01/2022;;4821;GM;GM1895;Oldambt   ;26.00;voorlopig
+1038;Scheve Klap;01/01/2022;;4821;GM;GM1979;Eemsdelta ;74.00;voorlopig
+1038;Scheve Klap;01/01/2022;;4821;VR;VR01;Groningen ;100.00;voorlopig
+1039;Scheemda;01/01/2022;;37253;GM;GM1895;Oldambt   ;100.00;voorlopig
+1039;Scheemda;01/01/2022;;37253;VR;VR01;Groningen ;100.00;voorlopig
+1040;Vriescheloo;01/01/2022;;6372;GM;GM1950;Westerwolde   ;100.00;voorlopig
+1040;Vriescheloo;01/01/2022;;6372;VR;VR01;Groningen ;100.00;voorlopig
+1041;Wehe Den Hoorn;01/01/2022;;4917;GM;GM1966;Het Hogeland  ;100.00;voorlopig
+1041;Wehe Den Hoorn;01/01/2022;;4917;VR;VR01;Groningen ;100.00;voorlopig
+1044;Delfzijl;01/01/2022;;33800;GM;GM1979;Eemsdelta ;100.00;voorlopig
+1044;Delfzijl;01/01/2022;;33800;VR;VR01;Groningen ;100.00;voorlopig
+1045;Veendam;01/01/2022;;39240;GM;GM0047;Veendam   ;70.00;voorlopig
+1045;Veendam;01/01/2022;;39240;GM;GM1952;Midden-Groningen  ;30.00;voorlopig
+1045;Veendam;01/01/2022;;39240;VR;VR01;Groningen ;100.00;voorlopig
+1046;Bellingwolde;01/01/2022;;6393;GM;GM1950;Westerwolde   ;100.00;voorlopig
+1046;Bellingwolde;01/01/2022;;6393;VR;VR01;Groningen ;100.00;voorlopig
+2002;Oosterwolde;01/01/2022;;23520;GM;GM0074;Heerenveen;0.10;voorlopig
+2002;Oosterwolde;01/01/2022;;23520;GM;GM0085;Ooststellingwerf  ;98.90;voorlopig
+2002;Oosterwolde;01/01/2022;;23520;GM;GM0086;Opsterland;0.90;voorlopig
+2002;Oosterwolde;01/01/2022;;23520;VR;VR02;Fryslân   ;100.00;voorlopig
+2011;Leeuwarden;01/01/2022;;103020;GM;GM0080;Leeuwarden;99.87;voorlopig
+2011;Leeuwarden;01/01/2022;;103020;GM;GM0737;Tytsjerksteradiel ;0.12;voorlopig
+2011;Leeuwarden;01/01/2022;;103020;VR;VR02;Fryslân   ;100.00;voorlopig
+2012;Drachten;01/01/2022;;67141;GM;GM0059;Achtkarspelen ;1.85;voorlopig
+2012;Drachten;01/01/2022;;67141;GM;GM0086;Opsterland;14.90;voorlopig
+2012;Drachten;01/01/2022;;67141;GM;GM0090;Smallingerland;83.08;voorlopig
+2012;Drachten;01/01/2022;;67141;GM;GM0737;Tytsjerksteradiel ;0.18;voorlopig
+2012;Drachten;01/01/2022;;67141;VR;VR02;Fryslân   ;100.00;voorlopig
+2013;Burgum;01/01/2022;;30841;GM;GM0059;Achtkarspelen ;0.20;voorlopig
+2013;Burgum;01/01/2022;;30841;GM;GM0090;Smallingerland;0.10;voorlopig
+2013;Burgum;01/01/2022;;30841;GM;GM0737;Tytsjerksteradiel ;98.80;voorlopig
+2013;Burgum;01/01/2022;;30841;GM;GM1891;Dantumadiel   ;0.80;voorlopig
+2013;Burgum;01/01/2022;;30841;VR;VR02;Fryslân   ;100.00;voorlopig
+2015;Gorredijk;01/01/2022;;22725;GM;GM0074;Heerenveen;15.00;voorlopig
+2015;Gorredijk;01/01/2022;;22725;GM;GM0085;Ooststellingwerf  ;0.20;voorlopig
+2015;Gorredijk;01/01/2022;;22725;GM;GM0086;Opsterland;84.60;voorlopig
+2015;Gorredijk;01/01/2022;;22725;GM;GM0090;Smallingerland;0.10;voorlopig
+2015;Gorredijk;01/01/2022;;22725;VR;VR02;Fryslân   ;100.00;voorlopig
+2016;Wolvega;01/01/2022;;28574;GM;GM0085;Ooststellingwerf  ;8.20;voorlopig
+2016;Wolvega;01/01/2022;;28574;GM;GM0098;Weststellingwerf  ;91.40;voorlopig
+2016;Wolvega;01/01/2022;;28574;GM;GM1940;De Fryske Marren  ;0.40;voorlopig
+2016;Wolvega;01/01/2022;;28574;VR;VR02;Fryslân   ;100.00;voorlopig
+2017;Sint Annaparochie;01/01/2022;;10762;GM;GM0080;Leeuwarden;0.80;voorlopig
+2017;Sint Annaparochie;01/01/2022;;10762;GM;GM1949;Waadhoeke ;99.10;voorlopig
+2017;Sint Annaparochie;01/01/2022;;10762;VR;VR02;Fryslân   ;100.00;voorlopig
+2018;Sneek;01/01/2022;;41703;GM;GM1900;Súdwest-Fryslân   ;100.00;voorlopig
+2018;Sneek;01/01/2022;;41703;VR;VR02;Fryslân   ;100.00;voorlopig
+2019;Kootstertille;01/01/2022;;25792;GM;GM0059;Achtkarspelen ;95.90;voorlopig
+2019;Kootstertille;01/01/2022;;25792;GM;GM0737;Tytsjerksteradiel ;3.80;voorlopig
+2019;Kootstertille;01/01/2022;;25792;GM;GM1970;Noardeast-Fryslân ;0.30;voorlopig
+2019;Kootstertille;01/01/2022;;25792;VR;VR02;Fryslân   ;100.00;voorlopig
+2020;Ameland;01/01/2022;;3756;GM;GM0060;Ameland   ;100.00;voorlopig
+2020;Ameland;01/01/2022;;3756;VR;VR02;Fryslân   ;100.00;voorlopig
+2021;Damwoude;01/01/2022;;25214;GM;GM0059;Achtkarspelen ;7.10;voorlopig
+2021;Damwoude;01/01/2022;;25214;GM;GM0737;Tytsjerksteradiel ;1.20;voorlopig
+2021;Damwoude;01/01/2022;;25214;GM;GM1891;Dantumadiel   ;73.50;voorlopig
+2021;Damwoude;01/01/2022;;25214;GM;GM1970;Noardeast-Fryslân ;18.20;voorlopig
+2021;Damwoude;01/01/2022;;25214;VR;VR02;Fryslân   ;100.00;voorlopig
+2022;Joure;01/01/2022;;19706;GM;GM1940;De Fryske Marren  ;100.00;voorlopig
+2022;Joure;01/01/2022;;19706;VR;VR02;Fryslân   ;100.00;voorlopig
+2023;Bolsward;01/01/2022;;27801;GM;GM1900;Súdwest-Fryslân   ;99.90;voorlopig
+2023;Bolsward;01/01/2022;;27801;GM;GM1949;Waadhoeke ;0.10;voorlopig
+2023;Bolsward;01/01/2022;;27801;VR;VR02;Fryslân   ;100.00;voorlopig
+2024;Sloten;01/01/2022;;12199;GM;GM1900;Súdwest-Fryslân   ;21.90;voorlopig
+2024;Sloten;01/01/2022;;12199;GM;GM1940;De Fryske Marren  ;78.10;voorlopig
+2024;Sloten;01/01/2022;;12199;VR;VR02;Fryslân   ;100.00;voorlopig
+2025;Akkrum;01/01/2022;;7279;GM;GM0074;Heerenveen;79.30;voorlopig
+2025;Akkrum;01/01/2022;;7279;GM;GM0080;Leeuwarden;0.30;voorlopig
+2025;Akkrum;01/01/2022;;7279;GM;GM0090;Smallingerland;0.20;voorlopig
+2025;Akkrum;01/01/2022;;7279;GM;GM1940;De Fryske Marren  ;20.20;voorlopig
+2025;Akkrum;01/01/2022;;7279;VR;VR02;Fryslân   ;100.00;voorlopig
+2026;Terschelling;01/01/2022;;4959;GM;GM0093;Terschelling  ;100.00;voorlopig
+2026;Terschelling;01/01/2022;;4959;VR;VR02;Fryslân   ;100.00;voorlopig
+2027;Lemmer;01/01/2022;;13736;GM;GM1940;De Fryske Marren  ;100.00;voorlopig
+2027;Lemmer;01/01/2022;;13736;VR;VR02;Fryslân   ;100.00;voorlopig
+2028;Dokkum;01/01/2022;;30470;GM;GM1891;Dantumadiel   ;0.30;voorlopig
+2028;Dokkum;01/01/2022;;30470;GM;GM1970;Noardeast-Fryslân ;99.70;voorlopig
+2028;Dokkum;01/01/2022;;30470;VR;VR02;Fryslân   ;100.00;voorlopig
+2029;Birdaard;01/01/2022;;21024;GM;GM0080;Leeuwarden;48.20;voorlopig
+2029;Birdaard;01/01/2022;;21024;GM;GM0737;Tytsjerksteradiel ;1.30;voorlopig
+2029;Birdaard;01/01/2022;;21024;GM;GM1891;Dantumadiel   ;0.30;voorlopig
+2029;Birdaard;01/01/2022;;21024;GM;GM1949;Waadhoeke ;0.10;voorlopig
+2029;Birdaard;01/01/2022;;21024;GM;GM1970;Noardeast-Fryslân ;50.10;voorlopig
+2029;Birdaard;01/01/2022;;21024;VR;VR02;Fryslân   ;100.00;voorlopig
+2030;Workum;01/01/2022;;5480;GM;GM1900;Súdwest-Fryslân   ;100.00;voorlopig
+2030;Workum;01/01/2022;;5480;VR;VR02;Fryslân   ;100.00;voorlopig
+2031;Heerenveen;01/01/2022;;47931;GM;GM0074;Heerenveen;87.30;voorlopig
+2031;Heerenveen;01/01/2022;;47931;GM;GM0086;Opsterland;0.20;voorlopig
+2031;Heerenveen;01/01/2022;;47931;GM;GM0098;Weststellingwerf  ;0.30;voorlopig
+2031;Heerenveen;01/01/2022;;47931;GM;GM1940;De Fryske Marren  ;12.30;voorlopig
+2031;Heerenveen;01/01/2022;;47931;VR;VR02;Fryslân   ;100.00;voorlopig
+2032;Harlingen;01/01/2022;;24692;GM;GM0072;Harlingen ;64.40;voorlopig
+2032;Harlingen;01/01/2022;;24692;GM;GM1900;Súdwest-Fryslân   ;16.50;voorlopig
+2032;Harlingen;01/01/2022;;24692;GM;GM1949;Waadhoeke ;19.10;voorlopig
+2032;Harlingen;01/01/2022;;24692;VR;VR02;Fryslân   ;100.00;voorlopig
+2036;Grouw;01/01/2022;;14488;GM;GM0074;Heerenveen;0.60;voorlopig
+2036;Grouw;01/01/2022;;14488;GM;GM0080;Leeuwarden;77.80;voorlopig
+2036;Grouw;01/01/2022;;14488;GM;GM0090;Smallingerland;0.40;voorlopig
+2036;Grouw;01/01/2022;;14488;GM;GM1900;Súdwest-Fryslân   ;21.20;voorlopig
+2036;Grouw;01/01/2022;;14488;VR;VR02;Fryslân   ;100.00;voorlopig
+2037;Warns;01/01/2022;;6698;GM;GM1900;Súdwest-Fryslân   ;82.50;voorlopig
+2037;Warns;01/01/2022;;6698;GM;GM1940;De Fryske Marren  ;17.50;voorlopig
+2037;Warns;01/01/2022;;6698;VR;VR02;Fryslân   ;100.00;voorlopig
+2038;Franeker;01/01/2022;;31970;GM;GM0080;Leeuwarden;3.30;voorlopig
+2038;Franeker;01/01/2022;;31970;GM;GM1949;Waadhoeke ;96.60;voorlopig
+2038;Franeker;01/01/2022;;31970;VR;VR02;Fryslân   ;100.00;voorlopig
+2040;Vlieland;01/01/2022;;1195;GM;GM0096;Vlieland  ;100.00;voorlopig
+2040;Vlieland;01/01/2022;;1195;VR;VR02;Fryslân   ;100.00;voorlopig
+2041;Schiermonnikoog;01/01/2022;;944;GM;GM0088;Schiermonnikoog   ;100.00;voorlopig
+2041;Schiermonnikoog;01/01/2022;;944;VR;VR02;Fryslân   ;100.00;voorlopig
+3001;Beilen;01/01/2022;;22775;GM;GM0109;Coevorden ;0.10;voorlopig
+3001;Beilen;01/01/2022;;22775;GM;GM1680;Aa en Hunze   ;0.20;voorlopig
+3001;Beilen;01/01/2022;;22775;GM;GM1731;Midden-Drenthe;99.70;voorlopig
+3001;Beilen;01/01/2022;;22775;VR;VR03;Drenthe   ;100.00;voorlopig
+3010;Assen;01/01/2022;;75418;GM;GM0106;Assen ;90.97;voorlopig
+3010;Assen;01/01/2022;;75418;GM;GM1680;Aa en Hunze   ;8.80;voorlopig
+3010;Assen;01/01/2022;;75418;GM;GM1730;Tynaarlo  ;0.14;voorlopig
+3010;Assen;01/01/2022;;75418;GM;GM1731;Midden-Drenthe;0.09;voorlopig
+3010;Assen;01/01/2022;;75418;VR;VR03;Drenthe   ;100.00;voorlopig
+3014;Meppel;01/01/2022;;53324;GM;GM0119;Meppel;64.67;voorlopig
+3014;Meppel;01/01/2022;;53324;GM;GM0180;Staphorst ;27.37;voorlopig
+3014;Meppel;01/01/2022;;53324;GM;GM1690;De Wolden ;7.52;voorlopig
+3014;Meppel;01/01/2022;;53324;GM;GM1701;Westerveld;0.29;voorlopig
+3014;Meppel;01/01/2022;;53324;GM;GM1708;Steenwijkerland   ;0.16;voorlopig
+3014;Meppel;01/01/2022;;53324;VR;VR03;Drenthe   ;72.47;voorlopig
+3014;Meppel;01/01/2022;;53324;VR;VR04;IJsselland;27.53;voorlopig
+3022;Emmen;01/01/2022;;108081;GM;GM0109;Coevorden ;0.24;voorlopig
+3022;Emmen;01/01/2022;;108081;GM;GM0114;Emmen ;99.76;voorlopig
+3022;Emmen;01/01/2022;;108081;VR;VR03;Drenthe   ;100.00;voorlopig
+3023;Tweede Exloermond;01/01/2022;;7967;GM;GM1681;Borger-Odoorn ;99.90;voorlopig
+3023;Tweede Exloermond;01/01/2022;;7967;VR;VR03;Drenthe   ;99.90;voorlopig
+3027;Smilde;01/01/2022;;9663;GM;GM0106;Assen ;0.40;voorlopig
+3027;Smilde;01/01/2022;;9663;GM;GM1731;Midden-Drenthe;99.60;voorlopig
+3027;Smilde;01/01/2022;;9663;VR;VR03;Drenthe   ;100.00;voorlopig
+3028;Sleen;01/01/2022;;19915;GM;GM0109;Coevorden ;69.70;voorlopig
+3028;Sleen;01/01/2022;;19915;GM;GM0118;Hoogeveen ;7.10;voorlopig
+3028;Sleen;01/01/2022;;19915;GM;GM1681;Borger-Odoorn ;23.30;voorlopig
+3028;Sleen;01/01/2022;;19915;VR;VR03;Drenthe   ;100.00;voorlopig
+3030;Eelde;01/01/2022;;52058;GM;GM0014;Groningen ;2.76;voorlopig
+3030;Eelde;01/01/2022;;52058;GM;GM0106;Assen ;0.63;voorlopig
+3030;Eelde;01/01/2022;;52058;GM;GM1699;Noordenveld   ;58.34;voorlopig
+3030;Eelde;01/01/2022;;52058;GM;GM1730;Tynaarlo  ;38.27;voorlopig
+3030;Eelde;01/01/2022;;52058;VR;VR01;Groningen ;2.76;voorlopig
+3030;Eelde;01/01/2022;;52058;VR;VR03;Drenthe   ;97.24;voorlopig
+3031;Gieten;01/01/2022;;31424;GM;GM1680;Aa en Hunze   ;58.20;voorlopig
+3031;Gieten;01/01/2022;;31424;GM;GM1681;Borger-Odoorn ;41.70;voorlopig
+3031;Gieten;01/01/2022;;31424;GM;GM1730;Tynaarlo  ;0.10;voorlopig
+3031;Gieten;01/01/2022;;31424;VR;VR03;Drenthe   ;100.00;voorlopig
+3032;Dieverbrug;01/01/2022;;19684;GM;GM0119;Meppel;0.20;voorlopig
+3032;Dieverbrug;01/01/2022;;19684;GM;GM1701;Westerveld;99.80;voorlopig
+3032;Dieverbrug;01/01/2022;;19684;VR;VR03;Drenthe   ;100.00;voorlopig
+3033;Echten;01/01/2022;;77996;GM;GM0109;Coevorden ;0.21;voorlopig
+3033;Echten;01/01/2022;;77996;GM;GM0118;Hoogeveen ;69.80;voorlopig
+3033;Echten;01/01/2022;;77996;GM;GM0119;Meppel;0.24;voorlopig
+3033;Echten;01/01/2022;;77996;GM;GM0180;Staphorst ;1.79;voorlopig
+3033;Echten;01/01/2022;;77996;GM;GM1690;De Wolden ;26.25;voorlopig
+3033;Echten;01/01/2022;;77996;GM;GM1701;Westerveld;0.07;voorlopig
+3033;Echten;01/01/2022;;77996;GM;GM1731;Midden-Drenthe;1.64;voorlopig
+3033;Echten;01/01/2022;;77996;VR;VR03;Drenthe   ;98.20;voorlopig
+3033;Echten;01/01/2022;;77996;VR;VR04;IJsselland;1.80;voorlopig
+3034;Coevorden;01/01/2022;;27638;GM;GM0109;Coevorden ;76.70;voorlopig
+3034;Coevorden;01/01/2022;;27638;GM;GM0160;Hardenberg;23.30;voorlopig
+3034;Coevorden;01/01/2022;;27638;VR;VR03;Drenthe   ;76.70;voorlopig
+3034;Coevorden;01/01/2022;;27638;VR;VR04;IJsselland;23.30;voorlopig
+4005;Genemuiden;01/01/2022;;23705;GM;GM0166;Kampen;0.30;voorlopig
+4005;Genemuiden;01/01/2022;;23705;GM;GM0193;Zwolle;0.20;voorlopig
+4005;Genemuiden;01/01/2022;;23705;GM;GM1708;Steenwijkerland   ;2.50;voorlopig
+4005;Genemuiden;01/01/2022;;23705;GM;GM1896;Zwartewaterland   ;97.10;voorlopig
+4005;Genemuiden;01/01/2022;;23705;VR;VR04;IJsselland;100.00;voorlopig
+4006;Olst;01/01/2022;;18493;GM;GM0150;Deventer  ;0.20;voorlopig
+4006;Olst;01/01/2022;;18493;GM;GM0177;Raalte;4.30;voorlopig
+4006;Olst;01/01/2022;;18493;GM;GM0285;Voorst;0.20;voorlopig
+4006;Olst;01/01/2022;;18493;GM;GM1773;Olst-Wijhe;95.30;voorlopig
+4006;Olst;01/01/2022;;18493;VR;VR04;IJsselland;99.80;voorlopig
+4006;Olst;01/01/2022;;18493;VR;VR06;Noord- en Oost-Gelderland ;0.20;voorlopig
+4016;Ommen;01/01/2022;;13695;GM;GM0175;Ommen ;99.90;voorlopig
+4016;Ommen;01/01/2022;;13695;VR;VR04;IJsselland;100.00;voorlopig
+4017;Vollenhove;01/01/2022;;6832;GM;GM1708;Steenwijkerland   ;100.00;voorlopig
+4017;Vollenhove;01/01/2022;;6832;VR;VR04;IJsselland;100.00;voorlopig
+4018;Heino;01/01/2022;;8837;GM;GM0148;Dalfsen   ;1.30;voorlopig
+4018;Heino;01/01/2022;;8837;GM;GM0177;Raalte;94.70;voorlopig
+4018;Heino;01/01/2022;;8837;GM;GM1773;Olst-Wijhe;4.10;voorlopig
+4018;Heino;01/01/2022;;8837;VR;VR04;IJsselland;100.00;voorlopig
+4019;Deventer;01/01/2022;;92600;GM;GM0150;Deventer  ;99.90;voorlopig
+4019;Deventer;01/01/2022;;92600;GM;GM1773;Olst-Wijhe;0.10;voorlopig
+4019;Deventer;01/01/2022;;92600;VR;VR04;IJsselland;100.00;voorlopig
+4020;Steenwijk;01/01/2022;;37260;GM;GM0119;Meppel;0.10;voorlopig
+4020;Steenwijk;01/01/2022;;37260;GM;GM1708;Steenwijkerland   ;99.80;voorlopig
+4020;Steenwijk;01/01/2022;;37260;VR;VR03;Drenthe   ;0.10;voorlopig
+4020;Steenwijk;01/01/2022;;37260;VR;VR04;IJsselland;99.80;voorlopig
+4021;Raalte;01/01/2022;;36656;GM;GM0148;Dalfsen   ;13.20;voorlopig
+4021;Raalte;01/01/2022;;36656;GM;GM0163;Hellendoorn   ;5.10;voorlopig
+4021;Raalte;01/01/2022;;36656;GM;GM0175;Ommen ;1.70;voorlopig
+4021;Raalte;01/01/2022;;36656;GM;GM0177;Raalte;79.00;voorlopig
+4021;Raalte;01/01/2022;;36656;GM;GM1742;Rijssen-Holten;0.20;voorlopig
+4021;Raalte;01/01/2022;;36656;GM;GM1773;Olst-Wijhe;0.90;voorlopig
+4021;Raalte;01/01/2022;;36656;VR;VR04;IJsselland;94.80;voorlopig
+4021;Raalte;01/01/2022;;36656;VR;VR05;Twente;5.20;voorlopig
+4022;Holten;01/01/2022;;22067;GM;GM0150;Deventer  ;29.80;voorlopig
+4022;Holten;01/01/2022;;22067;GM;GM1735;Hof van Twente;27.30;voorlopig
+4022;Holten;01/01/2022;;22067;GM;GM1742;Rijssen-Holten;42.80;voorlopig
+4022;Holten;01/01/2022;;22067;VR;VR04;IJsselland;29.80;voorlopig
+4022;Holten;01/01/2022;;22067;VR;VR05;Twente;70.10;voorlopig
+4023;Kampen;01/01/2022;;52478;GM;GM0166;Kampen;98.78;voorlopig
+4023;Kampen;01/01/2022;;52478;GM;GM0303;Dronten   ;1.22;voorlopig
+4023;Kampen;01/01/2022;;52478;VR;VR04;IJsselland;98.78;voorlopig
+4023;Kampen;01/01/2022;;52478;VR;VR25;Flevoland ;1.22;voorlopig
+4024;Hardenberg;01/01/2022;;33408;GM;GM0160;Hardenberg;94.50;voorlopig
+4024;Hardenberg;01/01/2022;;33408;GM;GM0175;Ommen ;5.30;voorlopig
+4024;Hardenberg;01/01/2022;;33408;GM;GM1700;Twenterand;0.20;voorlopig
+4024;Hardenberg;01/01/2022;;33408;VR;VR04;IJsselland;99.80;voorlopig
+4024;Hardenberg;01/01/2022;;33408;VR;VR05;Twente;0.20;voorlopig
+4025;Dalfsen;01/01/2022;;27281;GM;GM0148;Dalfsen   ;88.80;voorlopig
+4025;Dalfsen;01/01/2022;;27281;GM;GM0175;Ommen ;4.30;voorlopig
+4025;Dalfsen;01/01/2022;;27281;GM;GM0180;Staphorst ;4.30;voorlopig
+4025;Dalfsen;01/01/2022;;27281;GM;GM0193;Zwolle;2.50;voorlopig
+4025;Dalfsen;01/01/2022;;27281;VR;VR04;IJsselland;100.00;voorlopig
+4026;Zwolle;01/01/2022;;123740;GM;GM0166;Kampen;1.98;voorlopig
+4026;Zwolle;01/01/2022;;123740;GM;GM0193;Zwolle;98.02;voorlopig
+4026;Zwolle;01/01/2022;;123740;VR;VR04;IJsselland;100.00;voorlopig
+4027;Tollebeek;01/01/2022;;69507;GM;GM0171;Noordoostpolder   ;69.12;voorlopig
+4027;Tollebeek;01/01/2022;;69507;GM;GM0184;Urk   ;30.85;voorlopig
+4027;Tollebeek;01/01/2022;;69507;GM;GM1708;Steenwijkerland   ;0.04;voorlopig
+4027;Tollebeek;01/01/2022;;69507;VR;VR04;IJsselland;0.04;voorlopig
+4027;Tollebeek;01/01/2022;;69507;VR;VR25;Flevoland ;99.96;voorlopig
+4028;Dedemsvaart;01/01/2022;;23883;GM;GM0160;Hardenberg;99.50;voorlopig
+4028;Dedemsvaart;01/01/2022;;23883;GM;GM0175;Ommen ;0.40;voorlopig
+4028;Dedemsvaart;01/01/2022;;23883;GM;GM1690;De Wolden ;0.10;voorlopig
+4028;Dedemsvaart;01/01/2022;;23883;VR;VR03;Drenthe   ;0.10;voorlopig
+4028;Dedemsvaart;01/01/2022;;23883;VR;VR04;IJsselland;99.90;voorlopig
+4030;Hessenpoort;01/01/2022;;8633;GM;GM0193;Zwolle;100.00;voorlopig
+4030;Hessenpoort;01/01/2022;;8633;VR;VR04;IJsselland;100.00;voorlopig
+5001;Haaksbergen;01/01/2022;;28740;GM;GM0158;Haaksbergen   ;84.40;voorlopig
+5001;Haaksbergen;01/01/2022;;28740;GM;GM1735;Hof van Twente;15.50;voorlopig
+5001;Haaksbergen;01/01/2022;;28740;GM;GM1859;Berkelland;0.10;voorlopig
+5001;Haaksbergen;01/01/2022;;28740;VR;VR05;Twente;99.90;voorlopig
+5001;Haaksbergen;01/01/2022;;28740;VR;VR06;Noord- en Oost-Gelderland ;0.10;voorlopig
+5002;Enschede;01/01/2022;;148642;GM;GM0153;Enschede  ;100.00;voorlopig
+5002;Enschede;01/01/2022;;148642;VR;VR05;Twente;100.00;voorlopig
+5003;Glanerbrug;01/01/2022;;12161;GM;GM0153;Enschede  ;98.40;voorlopig
+5003;Glanerbrug;01/01/2022;;12161;GM;GM0168;Losser;1.60;voorlopig
+5003;Glanerbrug;01/01/2022;;12161;VR;VR05;Twente;100.00;voorlopig
+5004;Vriezenveen;01/01/2022;;13837;GM;GM0183;Tubbergen ;0.40;voorlopig
+5004;Vriezenveen;01/01/2022;;13837;GM;GM1700;Twenterand;99.60;voorlopig
+5004;Vriezenveen;01/01/2022;;13837;VR;VR05;Twente;100.00;voorlopig
+5005;Tubbergen;01/01/2022;;13682;GM;GM0183;Tubbergen ;98.80;voorlopig
+5005;Tubbergen;01/01/2022;;13682;GM;GM1700;Twenterand;1.00;voorlopig
+5005;Tubbergen;01/01/2022;;13682;GM;GM1774;Dinkelland;0.20;voorlopig
+5005;Tubbergen;01/01/2022;;13682;VR;VR05;Twente;100.00;voorlopig
+5011;Denekamp;01/01/2022;;11101;GM;GM0168;Losser;8.20;voorlopig
+5011;Denekamp;01/01/2022;;11101;GM;GM1774;Dinkelland;91.80;voorlopig
+5011;Denekamp;01/01/2022;;11101;VR;VR05;Twente;100.00;voorlopig
+5012;Oldenzaal;01/01/2022;;44141;GM;GM0168;Losser;8.90;voorlopig
+5012;Oldenzaal;01/01/2022;;44141;GM;GM0173;Oldenzaal ;71.90;voorlopig
+5012;Oldenzaal;01/01/2022;;44141;GM;GM0183;Tubbergen ;4.50;voorlopig
+5012;Oldenzaal;01/01/2022;;44141;GM;GM1774;Dinkelland;14.60;voorlopig
+5012;Oldenzaal;01/01/2022;;44141;VR;VR05;Twente;100.00;voorlopig
+5014;Vroomshoop;01/01/2022;;17185;GM;GM0160;Hardenberg;0.10;voorlopig
+5014;Vroomshoop;01/01/2022;;17185;GM;GM0163;Hellendoorn   ;17.10;voorlopig
+5014;Vroomshoop;01/01/2022;;17185;GM;GM0175;Ommen ;0.10;voorlopig
+5014;Vroomshoop;01/01/2022;;17185;GM;GM0189;Wierden   ;0.10;voorlopig
+5014;Vroomshoop;01/01/2022;;17185;GM;GM1700;Twenterand;82.70;voorlopig
+5014;Vroomshoop;01/01/2022;;17185;VR;VR04;IJsselland;0.20;voorlopig
+5014;Vroomshoop;01/01/2022;;17185;VR;VR05;Twente;99.80;voorlopig
+5015;Losser;01/01/2022;;18039;GM;GM0168;Losser;100.00;voorlopig
+5015;Losser;01/01/2022;;18039;VR;VR05;Twente;100.00;voorlopig
+5016;Goor;01/01/2022;;16301;GM;GM1735;Hof van Twente;99.80;voorlopig
+5016;Goor;01/01/2022;;16301;GM;GM1859;Berkelland;0.20;voorlopig
+5016;Goor;01/01/2022;;16301;VR;VR05;Twente;99.80;voorlopig
+5016;Goor;01/01/2022;;16301;VR;VR06;Noord- en Oost-Gelderland ;0.20;voorlopig
+5017;Hengelo;01/01/2022;;116027;GM;GM0147;Borne ;20.69;voorlopig
+5017;Hengelo;01/01/2022;;116027;GM;GM0153;Enschede  ;0.01;voorlopig
+5017;Hengelo;01/01/2022;;116027;GM;GM0164;Hengelo   ;70.22;voorlopig
+5017;Hengelo;01/01/2022;;116027;GM;GM1735;Hof van Twente;6.69;voorlopig
+5017;Hengelo;01/01/2022;;116027;GM;GM1774;Dinkelland;2.38;voorlopig
+5017;Hengelo;01/01/2022;;116027;VR;VR05;Twente;100.00;voorlopig
+5018;Ootmarsum;01/01/2022;;7237;GM;GM0183;Tubbergen ;1.00;voorlopig
+5018;Ootmarsum;01/01/2022;;7237;GM;GM1774;Dinkelland;99.00;voorlopig
+5018;Ootmarsum;01/01/2022;;7237;VR;VR05;Twente;100.00;voorlopig
+5019;Almelo-Vissedijk;01/01/2022;;34508;GM;GM0141;Almelo;83.40;voorlopig
+5019;Almelo-Vissedijk;01/01/2022;;34508;GM;GM0183;Tubbergen ;16.60;voorlopig
+5019;Almelo-Vissedijk;01/01/2022;;34508;VR;VR05;Twente;100.00;voorlopig
+5020;Almelo-Sumpel;01/01/2022;;62321;GM;GM0141;Almelo;71.18;voorlopig
+5020;Almelo-Sumpel;01/01/2022;;62321;GM;GM0163;Hellendoorn   ;0.16;voorlopig
+5020;Almelo-Sumpel;01/01/2022;;62321;GM;GM0189;Wierden   ;27.85;voorlopig
+5020;Almelo-Sumpel;01/01/2022;;62321;GM;GM1735;Hof van Twente;0.81;voorlopig
+5020;Almelo-Sumpel;01/01/2022;;62321;VR;VR05;Twente;100.00;voorlopig
+5022;Rijssen;01/01/2022;;35979;GM;GM0189;Wierden   ;20.20;voorlopig
+5022;Rijssen;01/01/2022;;35979;GM;GM1742;Rijssen-Holten;79.80;voorlopig
+5022;Rijssen;01/01/2022;;35979;VR;VR05;Twente;100.00;voorlopig
+5023;Nijverdal;01/01/2022;;32193;GM;GM0163;Hellendoorn   ;96.50;voorlopig
+5023;Nijverdal;01/01/2022;;32193;GM;GM0175;Ommen ;3.40;voorlopig
+5023;Nijverdal;01/01/2022;;32193;GM;GM0177;Raalte;0.10;voorlopig
+5023;Nijverdal;01/01/2022;;32193;VR;VR04;IJsselland;3.50;voorlopig
+5023;Nijverdal;01/01/2022;;32193;VR;VR05;Twente;96.50;voorlopig
+5025;Den Ham;01/01/2022;;5503;GM;GM1700;Twenterand;99.90;voorlopig
+5025;Den Ham;01/01/2022;;5503;VR;VR05;Twente;99.90;voorlopig
+6003;Dronten;01/01/2022;;42271;GM;GM0050;Zeewolde  ;0.10;voorlopig
+6003;Dronten;01/01/2022;;42271;GM;GM0303;Dronten   ;99.90;voorlopig
+6003;Dronten;01/01/2022;;42271;VR;VR25;Flevoland ;100.00;voorlopig
+6004;Lelystad;01/01/2022;;81203;GM;GM0995;Lelystad  ;100.00;voorlopig
+6004;Lelystad;01/01/2022;;81203;VR;VR25;Flevoland ;100.00;voorlopig
+6005;Almere;01/01/2022;;217792;GM;GM0034;Almere;100.00;voorlopig
+6005;Almere;01/01/2022;;217792;VR;VR25;Flevoland ;100.00;voorlopig
+6006;Zeewolde;01/01/2022;;23293;GM;GM0050;Zeewolde  ;100.00;voorlopig
+6006;Zeewolde;01/01/2022;;23293;VR;VR25;Flevoland ;100.00;voorlopig
+7002;Aalten;01/01/2022;;18803;GM;GM0197;Aalten;99.70;voorlopig
+7002;Aalten;01/01/2022;;18803;GM;GM0294;Winterswijk   ;0.10;voorlopig
+7002;Aalten;01/01/2022;;18803;GM;GM1586;Oost Gelre;0.20;voorlopig
+7002;Aalten;01/01/2022;;18803;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7006;Wehl;01/01/2022;;6026;GM;GM0222;Doetinchem;98.40;voorlopig
+7006;Wehl;01/01/2022;;6026;GM;GM1876;Bronckhorst   ;1.60;voorlopig
+7006;Wehl;01/01/2022;;6026;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7014;Ruurlo;01/01/2022;;8589;GM;GM0262;Lochem;3.20;voorlopig
+7014;Ruurlo;01/01/2022;;8589;GM;GM1859;Berkelland;88.10;voorlopig
+7014;Ruurlo;01/01/2022;;8589;GM;GM1876;Bronckhorst   ;8.60;voorlopig
+7014;Ruurlo;01/01/2022;;8589;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7015;Lichtenvoorde;01/01/2022;;18398;GM;GM1586;Oost Gelre;100.00;voorlopig
+7015;Lichtenvoorde;01/01/2022;;18398;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7016;Winterswijk;01/01/2022;;38935;GM;GM0294;Winterswijk   ;74.90;voorlopig
+7016;Winterswijk;01/01/2022;;38935;GM;GM1586;Oost Gelre;25.10;voorlopig
+7016;Winterswijk;01/01/2022;;38935;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7017;Varsseveld;01/01/2022;;13597;GM;GM0222;Doetinchem;0.70;voorlopig
+7017;Varsseveld;01/01/2022;;13597;GM;GM1509;Oude IJsselstreek ;68.10;voorlopig
+7017;Varsseveld;01/01/2022;;13597;GM;GM1586;Oost Gelre;9.10;voorlopig
+7017;Varsseveld;01/01/2022;;13597;GM;GM1859;Berkelland;1.40;voorlopig
+7017;Varsseveld;01/01/2022;;13597;GM;GM1876;Bronckhorst   ;20.60;voorlopig
+7017;Varsseveld;01/01/2022;;13597;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7018;Dinxperlo;01/01/2022;;9075;GM;GM0197;Aalten;92.00;voorlopig
+7018;Dinxperlo;01/01/2022;;9075;GM;GM1509;Oude IJsselstreek ;8.00;voorlopig
+7018;Dinxperlo;01/01/2022;;9075;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7019;Zutphen;01/01/2022;;78093;GM;GM0150;Deventer  ;0.05;voorlopig
+7019;Zutphen;01/01/2022;;78093;GM;GM0262;Lochem;40.87;voorlopig
+7019;Zutphen;01/01/2022;;78093;GM;GM0301;Zutphen   ;58.74;voorlopig
+7019;Zutphen;01/01/2022;;78093;GM;GM1876;Bronckhorst   ;0.34;voorlopig
+7019;Zutphen;01/01/2022;;78093;VR;VR04;IJsselland;0.05;voorlopig
+7019;Zutphen;01/01/2022;;78093;VR;VR06;Noord- en Oost-Gelderland ;99.95;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0202;Arnhem;41.56;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0226;Duiven;12.13;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0228;Ede   ;0.02;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0274;Renkum;0.05;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0275;Rheden;8.84;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0277;Rozendaal ;0.85;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0293;Westervoort   ;7.27;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM0299;Zevenaar  ;21.05;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;GM;GM1955;Montferland   ;8.24;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;VR;VR06;Noord- en Oost-Gelderland ;8.24;voorlopig
+7020;Nieuwgraaf;01/01/2022;;205644;VR;VR07;Gelderland-Midden ;91.76;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM0213;Brummen   ;0.02;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM0221;Doesburg  ;15.80;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM0222;Doetinchem;0.29;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM0262;Lochem;0.03;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM0275;Rheden;36.15;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM0299;Zevenaar  ;1.93;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM0301;Zutphen   ;0.02;voorlopig
+7021;Olburgen;01/01/2022;;69837;GM;GM1876;Bronckhorst   ;45.77;voorlopig
+7021;Olburgen;01/01/2022;;69837;VR;VR06;Noord- en Oost-Gelderland ;46.11;voorlopig
+7021;Olburgen;01/01/2022;;69837;VR;VR07;Gelderland-Midden ;53.89;voorlopig
+7022;Etten;01/01/2022;;101332;GM;GM0222;Doetinchem;51.63;voorlopig
+7022;Etten;01/01/2022;;101332;GM;GM1509;Oude IJsselstreek ;29.00;voorlopig
+7022;Etten;01/01/2022;;101332;GM;GM1876;Bronckhorst   ;0.20;voorlopig
+7022;Etten;01/01/2022;;101332;GM;GM1955;Montferland   ;19.17;voorlopig
+7022;Etten;01/01/2022;;101332;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+7023;Haarlo;01/01/2022;;38066;GM;GM0262;Lochem;4.90;voorlopig
+7023;Haarlo;01/01/2022;;38066;GM;GM1586;Oost Gelre;0.40;voorlopig
+7023;Haarlo;01/01/2022;;38066;GM;GM1859;Berkelland;94.60;voorlopig
+7023;Haarlo;01/01/2022;;38066;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+8005;Nijkerk;01/01/2022;;46910;GM;GM0203;Barneveld ;5.80;voorlopig
+8005;Nijkerk;01/01/2022;;46910;GM;GM0267;Nijkerk   ;93.40;voorlopig
+8005;Nijkerk;01/01/2022;;46910;GM;GM0273;Putten;0.50;voorlopig
+8005;Nijkerk;01/01/2022;;46910;GM;GM0307;Amersfoort;0.40;voorlopig
+8005;Nijkerk;01/01/2022;;46910;VR;VR06;Noord- en Oost-Gelderland ;0.50;voorlopig
+8005;Nijkerk;01/01/2022;;46910;VR;VR07;Gelderland-Midden ;99.10;voorlopig
+8005;Nijkerk;01/01/2022;;46910;VR;VR09;Utrecht   ;0.40;voorlopig
+8009;Elburg;01/01/2022;;54992;GM;GM0200;Apeldoorn ;5.45;voorlopig
+8009;Elburg;01/01/2022;;54992;GM;GM0230;Elburg;43.13;voorlopig
+8009;Elburg;01/01/2022;;54992;GM;GM0243;Harderwijk;0.06;voorlopig
+8009;Elburg;01/01/2022;;54992;GM;GM0269;Oldebroek ;0.06;voorlopig
+8009;Elburg;01/01/2022;;54992;GM;GM0302;Nunspeet  ;51.30;voorlopig
+8009;Elburg;01/01/2022;;54992;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+8011;Harderwijk;01/01/2022;;105685;GM;GM0200;Apeldoorn ;0.35;voorlopig
+8011;Harderwijk;01/01/2022;;105685;GM;GM0203;Barneveld ;4.61;voorlopig
+8011;Harderwijk;01/01/2022;;105685;GM;GM0233;Ermelo;25.79;voorlopig
+8011;Harderwijk;01/01/2022;;105685;GM;GM0243;Harderwijk;46.19;voorlopig
+8011;Harderwijk;01/01/2022;;105685;GM;GM0273;Putten;23.05;voorlopig
+8011;Harderwijk;01/01/2022;;105685;VR;VR06;Noord- en Oost-Gelderland ;95.39;voorlopig
+8011;Harderwijk;01/01/2022;;105685;VR;VR07;Gelderland-Midden ;4.61;voorlopig
+8016;Heerde;01/01/2022;;18878;GM;GM0246;Heerde;99.60;voorlopig
+8016;Heerde;01/01/2022;;18878;GM;GM1773;Olst-Wijhe;0.40;voorlopig
+8016;Heerde;01/01/2022;;18878;VR;VR04;IJsselland;0.40;voorlopig
+8016;Heerde;01/01/2022;;18878;VR;VR06;Noord- en Oost-Gelderland ;99.60;voorlopig
+8017;Epe;01/01/2022;;17379;GM;GM0232;Epe   ;98.70;voorlopig
+8017;Epe;01/01/2022;;17379;GM;GM0246;Heerde;0.90;voorlopig
+8017;Epe;01/01/2022;;17379;GM;GM0285;Voorst;0.40;voorlopig
+8017;Epe;01/01/2022;;17379;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+8019;Bennekom;01/01/2022;;16164;GM;GM0228;Ede   ;96.40;voorlopig
+8019;Bennekom;01/01/2022;;16164;GM;GM0289;Wageningen;3.60;voorlopig
+8019;Bennekom;01/01/2022;;16164;VR;VR07;Gelderland-Midden ;100.00;voorlopig
+8021;Ede;01/01/2022;;157774;GM;GM0203;Barneveld ;33.60;voorlopig
+8021;Ede;01/01/2022;;157774;GM;GM0228;Ede   ;66.08;voorlopig
+8021;Ede;01/01/2022;;157774;GM;GM0267;Nijkerk   ;0.30;voorlopig
+8021;Ede;01/01/2022;;157774;GM;GM0327;Leusden   ;0.01;voorlopig
+8021;Ede;01/01/2022;;157774;VR;VR07;Gelderland-Midden ;99.98;voorlopig
+8021;Ede;01/01/2022;;157774;VR;VR09;Utrecht   ;0.01;voorlopig
+8022;Apeldoorn;01/01/2022;;176782;GM;GM0200;Apeldoorn ;90.88;voorlopig
+8022;Apeldoorn;01/01/2022;;176782;GM;GM0213;Brummen   ;0.01;voorlopig
+8022;Apeldoorn;01/01/2022;;176782;GM;GM0228;Ede   ;0.03;voorlopig
+8022;Apeldoorn;01/01/2022;;176782;GM;GM0232;Epe   ;9.08;voorlopig
+8022;Apeldoorn;01/01/2022;;176782;VR;VR06;Noord- en Oost-Gelderland ;99.97;voorlopig
+8022;Apeldoorn;01/01/2022;;176782;VR;VR07;Gelderland-Midden ;0.03;voorlopig
+8023;Brummen;01/01/2022;;22743;GM;GM0213;Brummen   ;89.20;voorlopig
+8023;Brummen;01/01/2022;;22743;GM;GM0301;Zutphen   ;10.80;voorlopig
+8023;Brummen;01/01/2022;;22743;VR;VR06;Noord- en Oost-Gelderland ;100.00;voorlopig
+8024;Renkum;01/01/2022;;70703;GM;GM0202;Arnhem;0.14;voorlopig
+8024;Renkum;01/01/2022;;70703;GM;GM0274;Renkum;44.21;voorlopig
+8024;Renkum;01/01/2022;;70703;GM;GM0289;Wageningen;55.66;voorlopig
+8024;Renkum;01/01/2022;;70703;VR;VR07;Gelderland-Midden ;100.00;voorlopig
+8025;Terwolde;01/01/2022;;29368;GM;GM0150;Deventer  ;7.80;voorlopig
+8025;Terwolde;01/01/2022;;29368;GM;GM0200;Apeldoorn ;5.40;voorlopig
+8025;Terwolde;01/01/2022;;29368;GM;GM0213;Brummen   ;2.00;voorlopig
+8025;Terwolde;01/01/2022;;29368;GM;GM0232;Epe   ;0.20;voorlopig
+8025;Terwolde;01/01/2022;;29368;GM;GM0285;Voorst;84.70;voorlopig
+8025;Terwolde;01/01/2022;;29368;VR;VR04;IJsselland;7.80;voorlopig
+8025;Terwolde;01/01/2022;;29368;VR;VR06;Noord- en Oost-Gelderland ;92.20;voorlopig
+8026;Hattem;01/01/2022;;36694;GM;GM0166;Kampen;1.20;voorlopig
+8026;Hattem;01/01/2022;;36694;GM;GM0230;Elburg;0.10;voorlopig
+8026;Hattem;01/01/2022;;36694;GM;GM0244;Hattem;33.50;voorlopig
+8026;Hattem;01/01/2022;;36694;GM;GM0246;Heerde;0.10;voorlopig
+8026;Hattem;01/01/2022;;36694;GM;GM0269;Oldebroek ;65.10;voorlopig
+8026;Hattem;01/01/2022;;36694;VR;VR04;IJsselland;1.20;voorlopig
+8026;Hattem;01/01/2022;;36694;VR;VR06;Noord- en Oost-Gelderland ;98.80;voorlopig
+9010;Groesbeek;01/01/2022;;16599;GM;GM1945;Berg en Dal   ;100.00;voorlopig
+9010;Groesbeek;01/01/2022;;16599;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9012;Geldermalsen;01/01/2022;;25665;GM;GM0214;Buren ;13.10;voorlopig
+9012;Geldermalsen;01/01/2022;;25665;GM;GM1960;West Betuwe   ;86.90;voorlopig
+9012;Geldermalsen;01/01/2022;;25665;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9013;Asperen;01/01/2022;;5521;GM;GM1960;West Betuwe   ;100.00;voorlopig
+9013;Asperen;01/01/2022;;5521;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9016;Arnhem;01/01/2022;;155255;GM;GM0202;Arnhem;50.46;voorlopig
+9016;Arnhem;01/01/2022;;155255;GM;GM0268;Nijmegen  ;14.36;voorlopig
+9016;Arnhem;01/01/2022;;155255;GM;GM1705;Lingewaard;12.95;voorlopig
+9016;Arnhem;01/01/2022;;155255;GM;GM1734;Overbetuwe;22.23;voorlopig
+9016;Arnhem;01/01/2022;;155255;VR;VR07;Gelderland-Midden ;85.64;voorlopig
+9016;Arnhem;01/01/2022;;155255;VR;VR08;Gelderland-Zuid   ;14.36;voorlopig
+9017;Bergharen;01/01/2022;;5057;GM;GM0209;Beuningen ;0.60;voorlopig
+9017;Bergharen;01/01/2022;;5057;GM;GM0225;Druten;32.30;voorlopig
+9017;Bergharen;01/01/2022;;5057;GM;GM0296;Wijchen   ;67.10;voorlopig
+9017;Bergharen;01/01/2022;;5057;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9019;Culemborg;01/01/2022;;34435;GM;GM0214;Buren ;14.60;voorlopig
+9019;Culemborg;01/01/2022;;34435;GM;GM0216;Culemborg ;85.40;voorlopig
+9019;Culemborg;01/01/2022;;34435;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9020;Overasselt;01/01/2022;;5197;GM;GM0252;Heumen;100.00;voorlopig
+9020;Overasselt;01/01/2022;;5197;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9024;Nijmegen;01/01/2022;;243215;GM;GM0209;Beuningen ;10.77;voorlopig
+9024;Nijmegen;01/01/2022;;243215;GM;GM0252;Heumen;4.92;voorlopig
+9024;Nijmegen;01/01/2022;;243215;GM;GM0268;Nijmegen  ;64.47;voorlopig
+9024;Nijmegen;01/01/2022;;243215;GM;GM0296;Wijchen   ;15.60;voorlopig
+9024;Nijmegen;01/01/2022;;243215;GM;GM1945;Berg en Dal   ;4.23;voorlopig
+9024;Nijmegen;01/01/2022;;243215;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9025;Tiel;01/01/2022;;72621;GM;GM0214;Buren ;25.84;voorlopig
+9025;Tiel;01/01/2022;;72621;GM;GM0281;Tiel  ;58.21;voorlopig
+9025;Tiel;01/01/2022;;72621;GM;GM1740;Neder-Betuwe  ;11.39;voorlopig
+9025;Tiel;01/01/2022;;72621;GM;GM1960;West Betuwe   ;4.56;voorlopig
+9025;Tiel;01/01/2022;;72621;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9026;Dodewaard;01/01/2022;;23654;GM;GM1734;Overbetuwe;29.20;voorlopig
+9026;Dodewaard;01/01/2022;;23654;GM;GM1740;Neder-Betuwe  ;70.80;voorlopig
+9026;Dodewaard;01/01/2022;;23654;VR;VR07;Gelderland-Midden ;29.20;voorlopig
+9026;Dodewaard;01/01/2022;;23654;VR;VR08;Gelderland-Zuid   ;70.80;voorlopig
+9027;Druten;01/01/2022;;29353;GM;GM0225;Druten;59.80;voorlopig
+9027;Druten;01/01/2022;;29353;GM;GM0668;West Maas en Waal ;40.20;voorlopig
+9027;Druten;01/01/2022;;29353;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9030;Maasbommel;01/01/2022;;2720;GM;GM0668;West Maas en Waal ;100.00;voorlopig
+9030;Maasbommel;01/01/2022;;2720;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9031;Beesd;01/01/2022;;6166;GM;GM1960;West Betuwe   ;100.00;voorlopig
+9031;Beesd;01/01/2022;;6166;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9032;Zetten;01/01/2022;;6825;GM;GM1734;Overbetuwe;99.90;voorlopig
+9032;Zetten;01/01/2022;;6825;GM;GM1740;Neder-Betuwe  ;0.10;voorlopig
+9032;Zetten;01/01/2022;;6825;VR;VR07;Gelderland-Midden ;99.90;voorlopig
+9032;Zetten;01/01/2022;;6825;VR;VR08;Gelderland-Zuid   ;0.10;voorlopig
+9037;Gorinchem;01/01/2022;;19001;GM;GM0512;Gorinchem ;83.00;voorlopig
+9037;Gorinchem;01/01/2022;;19001;GM;GM1960;West Betuwe   ;17.00;voorlopig
+9037;Gorinchem;01/01/2022;;19001;VR;VR08;Gelderland-Zuid   ;17.00;voorlopig
+9037;Gorinchem;01/01/2022;;19001;VR;VR18;Zuid-Holland-Zuid ;83.00;voorlopig
+9038;Gendt;01/01/2022;;26892;GM;GM1705;Lingewaard;99.90;voorlopig
+9038;Gendt;01/01/2022;;26892;GM;GM1734;Overbetuwe;0.10;voorlopig
+9038;Gendt;01/01/2022;;26892;VR;VR07;Gelderland-Midden ;100.00;voorlopig
+9039;Dreumel;01/01/2022;;6511;GM;GM0263;Maasdriel ;21.00;voorlopig
+9039;Dreumel;01/01/2022;;6511;GM;GM0668;West Maas en Waal ;79.00;voorlopig
+9039;Dreumel;01/01/2022;;6511;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9040;Haaften;01/01/2022;;11438;GM;GM1960;West Betuwe   ;100.00;voorlopig
+9040;Haaften;01/01/2022;;11438;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9041;Zaltbommel;01/01/2022;;54096;GM;GM0263;Maasdriel ;44.62;voorlopig
+9041;Zaltbommel;01/01/2022;;54096;GM;GM0297;Zaltbommel;55.38;voorlopig
+9041;Zaltbommel;01/01/2022;;54096;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+9042;Millingen aan de Rijn;01/01/2022;;8071;GM;GM1945;Berg en Dal   ;100.00;voorlopig
+9042;Millingen aan de Rijn;01/01/2022;;8071;VR;VR08;Gelderland-Zuid   ;100.00;voorlopig
+10001;Zeist;01/01/2022;;59753;GM;GM0310;De Bilt   ;0.15;voorlopig
+10001;Zeist;01/01/2022;;59753;GM;GM0355;Zeist ;99.85;voorlopig
+10001;Zeist;01/01/2022;;59753;VR;VR09;Utrecht   ;100.00;voorlopig
+10003;De Bilt;01/01/2022;;49059;GM;GM0310;De Bilt   ;88.40;voorlopig
+10003;De Bilt;01/01/2022;;49059;GM;GM0355;Zeist ;11.60;voorlopig
+10003;De Bilt;01/01/2022;;49059;VR;VR09;Utrecht   ;100.00;voorlopig
+10008;Driebergen;01/01/2022;;29400;GM;GM0312;Bunnik;0.10;voorlopig
+10008;Driebergen;01/01/2022;;29400;GM;GM0352;Wijk bij Duurstede;0.10;voorlopig
+10008;Driebergen;01/01/2022;;29400;GM;GM0355;Zeist ;0.40;voorlopig
+10008;Driebergen;01/01/2022;;29400;GM;GM1581;Utrechtse Heuvelrug   ;99.40;voorlopig
+10008;Driebergen;01/01/2022;;29400;VR;VR09;Utrecht   ;100.00;voorlopig
+10009;Utrecht;01/01/2022;;269712;GM;GM0310;De Bilt   ;0.02;voorlopig
+10009;Utrecht;01/01/2022;;269712;GM;GM0312;Bunnik;0.03;voorlopig
+10009;Utrecht;01/01/2022;;269712;GM;GM0344;Utrecht   ;99.19;voorlopig
+10009;Utrecht;01/01/2022;;269712;GM;GM0355;Zeist ;0.02;voorlopig
+10009;Utrecht;01/01/2022;;269712;GM;GM1904;Stichtse Vecht;0.76;voorlopig
+10009;Utrecht;01/01/2022;;269712;VR;VR09;Utrecht   ;100.00;voorlopig
+10010;Soest;01/01/2022;;72334;GM;GM0308;Baarn ;34.39;voorlopig
+10010;Soest;01/01/2022;;72334;GM;GM0310;De Bilt   ;0.02;voorlopig
+10010;Soest;01/01/2022;;72334;GM;GM0342;Soest ;64.94;voorlopig
+10010;Soest;01/01/2022;;72334;GM;GM0355;Zeist ;0.65;voorlopig
+10010;Soest;01/01/2022;;72334;VR;VR09;Utrecht   ;100.00;voorlopig
+10012;De Meern;01/01/2022;;31242;GM;GM0344;Utrecht   ;73.80;voorlopig
+10012;De Meern;01/01/2022;;31242;GM;GM0632;Woerden   ;26.20;voorlopig
+10012;De Meern;01/01/2022;;31242;VR;VR09;Utrecht   ;100.00;voorlopig
+10020;Woudenberg;01/01/2022;;30228;GM;GM0279;Scherpenzeel  ;34.10;voorlopig
+10020;Woudenberg;01/01/2022;;30228;GM;GM0327;Leusden   ;0.20;voorlopig
+10020;Woudenberg;01/01/2022;;30228;GM;GM0351;Woudenberg;45.70;voorlopig
+10020;Woudenberg;01/01/2022;;30228;GM;GM1581;Utrechtse Heuvelrug   ;20.00;voorlopig
+10020;Woudenberg;01/01/2022;;30228;VR;VR07;Gelderland-Midden ;34.10;voorlopig
+10020;Woudenberg;01/01/2022;;30228;VR;VR09;Utrecht   ;65.90;voorlopig
+10021;Veenendaal;01/01/2022;;76234;GM;GM0228;Ede   ;0.08;voorlopig
+10021;Veenendaal;01/01/2022;;76234;GM;GM0279;Scherpenzeel  ;0.03;voorlopig
+10021;Veenendaal;01/01/2022;;76234;GM;GM0339;Renswoude ;7.40;voorlopig
+10021;Veenendaal;01/01/2022;;76234;GM;GM0340;Rhenen;1.30;voorlopig
+10021;Veenendaal;01/01/2022;;76234;GM;GM0345;Veenendaal;88.76;voorlopig
+10021;Veenendaal;01/01/2022;;76234;GM;GM0351;Woudenberg;0.07;voorlopig
+10021;Veenendaal;01/01/2022;;76234;GM;GM1581;Utrechtse Heuvelrug   ;2.37;voorlopig
+10021;Veenendaal;01/01/2022;;76234;VR;VR07;Gelderland-Midden ;0.11;voorlopig
+10021;Veenendaal;01/01/2022;;76234;VR;VR09;Utrecht   ;99.89;voorlopig
+10024;Montfoort;01/01/2022;;13814;GM;GM0335;Montfoort ;100.00;voorlopig
+10024;Montfoort;01/01/2022;;13814;VR;VR09;Utrecht   ;100.00;voorlopig
+10025;Bunnik;01/01/2022;;15514;GM;GM0312;Bunnik;99.80;voorlopig
+10025;Bunnik;01/01/2022;;15514;GM;GM0352;Wijk bij Duurstede;0.10;voorlopig
+10025;Bunnik;01/01/2022;;15514;GM;GM1581;Utrechtse Heuvelrug   ;0.10;voorlopig
+10025;Bunnik;01/01/2022;;15514;VR;VR09;Utrecht   ;100.00;voorlopig
+10027;Amersfoort;01/01/2022;;211540;GM;GM0267;Nijkerk   ;0.01;voorlopig
+10027;Amersfoort;01/01/2022;;211540;GM;GM0307;Amersfoort;74.88;voorlopig
+10027;Amersfoort;01/01/2022;;211540;GM;GM0313;Bunschoten;10.55;voorlopig
+10027;Amersfoort;01/01/2022;;211540;GM;GM0327;Leusden   ;14.49;voorlopig
+10027;Amersfoort;01/01/2022;;211540;GM;GM0342;Soest ;0.07;voorlopig
+10027;Amersfoort;01/01/2022;;211540;VR;VR07;Gelderland-Midden ;0.01;voorlopig
+10027;Amersfoort;01/01/2022;;211540;VR;VR09;Utrecht   ;99.99;voorlopig
+10028;Nieuwegein;01/01/2022;;98349;GM;GM0331;Lopik ;0.40;voorlopig
+10028;Nieuwegein;01/01/2022;;98349;GM;GM0353;IJsselstein   ;33.98;voorlopig
+10028;Nieuwegein;01/01/2022;;98349;GM;GM0356;Nieuwegein;65.61;voorlopig
+10028;Nieuwegein;01/01/2022;;98349;VR;VR09;Utrecht   ;100.00;voorlopig
+10029;Wijk Bij Duurstede;01/01/2022;;24031;GM;GM0321;Houten;0.10;voorlopig
+10029;Wijk Bij Duurstede;01/01/2022;;24031;GM;GM0352;Wijk bij Duurstede;99.40;voorlopig
+10029;Wijk Bij Duurstede;01/01/2022;;24031;GM;GM1581;Utrechtse Heuvelrug   ;0.50;voorlopig
+10029;Wijk Bij Duurstede;01/01/2022;;24031;VR;VR09;Utrecht   ;100.00;voorlopig
+10031;Breukelen;01/01/2022;;14046;GM;GM0344;Utrecht   ;0.10;voorlopig
+10031;Breukelen;01/01/2022;;14046;GM;GM1904;Stichtse Vecht;99.90;voorlopig
+10031;Breukelen;01/01/2022;;14046;VR;VR09;Utrecht   ;100.00;voorlopig
+10032;Oudewater;01/01/2022;;10207;GM;GM0589;Oudewater ;99.50;voorlopig
+10032;Oudewater;01/01/2022;;10207;GM;GM1931;Krimpenerwaard;0.50;voorlopig
+10032;Oudewater;01/01/2022;;10207;VR;VR09;Utrecht   ;99.50;voorlopig
+10032;Oudewater;01/01/2022;;10207;VR;VR16;Hollands-Midden   ;0.50;voorlopig
+10034;Ronde Venen;01/01/2022;;35382;GM;GM0736;De Ronde Venen;100.00;voorlopig
+10034;Ronde Venen;01/01/2022;;35382;VR;VR09;Utrecht   ;100.00;voorlopig
+10035;Rhenen;01/01/2022;;32030;GM;GM0340;Rhenen;60.20;voorlopig
+10035;Rhenen;01/01/2022;;32030;GM;GM1581;Utrechtse Heuvelrug   ;39.80;voorlopig
+10035;Rhenen;01/01/2022;;32030;VR;VR09;Utrecht   ;100.00;voorlopig
+10036;Houten;01/01/2022;;50332;GM;GM0321;Houten;99.93;voorlopig
+10036;Houten;01/01/2022;;50332;GM;GM0356;Nieuwegein;0.06;voorlopig
+10036;Houten;01/01/2022;;50332;VR;VR09;Utrecht   ;100.00;voorlopig
+10037;Loenen;01/01/2022;;8526;GM;GM1696;Wijdemeren;3.10;voorlopig
+10037;Loenen;01/01/2022;;8526;GM;GM1904;Stichtse Vecht;96.90;voorlopig
+10037;Loenen;01/01/2022;;8526;VR;VR09;Utrecht   ;96.90;voorlopig
+10037;Loenen;01/01/2022;;8526;VR;VR14;Gooi en Vechtstreek   ;3.10;voorlopig
+10038;Lopik;01/01/2022;;14120;GM;GM0331;Lopik ;100.00;voorlopig
+10038;Lopik;01/01/2022;;14120;VR;VR09;Utrecht   ;100.00;voorlopig
+11004;Hilversum;01/01/2022;;57973;GM;GM0402;Hilversum ;100.00;voorlopig
+11004;Hilversum;01/01/2022;;57973;VR;VR14;Gooi en Vechtstreek   ;100.00;voorlopig
+11005;Amstelveen;01/01/2022;;101088;GM;GM0362;Amstelveen;91.24;voorlopig
+11005;Amstelveen;01/01/2022;;101088;GM;GM0437;Ouder-Amstel  ;8.76;voorlopig
+11005;Amstelveen;01/01/2022;;101088;VR;VR13;Amsterdam-Amstelland  ;100.00;voorlopig
+11006;Uithoorn;01/01/2022;;40296;GM;GM0358;Aalsmeer  ;23.00;voorlopig
+11006;Uithoorn;01/01/2022;;40296;GM;GM0451;Uithoorn  ;77.00;voorlopig
+11006;Uithoorn;01/01/2022;;40296;VR;VR13;Amsterdam-Amstelland  ;100.00;voorlopig
+11008;Blaricum;01/01/2022;;33332;GM;GM0317;Eemnes;28.30;voorlopig
+11008;Blaricum;01/01/2022;;33332;GM;GM0376;Blaricum  ;37.10;voorlopig
+11008;Blaricum;01/01/2022;;33332;GM;GM0417;Laren ;34.60;voorlopig
+11008;Blaricum;01/01/2022;;33332;VR;VR09;Utrecht   ;28.30;voorlopig
+11008;Blaricum;01/01/2022;;33332;VR;VR14;Gooi en Vechtstreek   ;71.70;voorlopig
+11010;Weesp;01/01/2022;;29806;GM;GM0384;Diemen;0.10;voorlopig
+11010;Weesp;01/01/2022;24/03/2022;29806;GM;GM0457;Weesp ;69.70;voorlopig
+11010;Weesp;24/03/2022;;29806;GM;GM0363;Amsterdam;69.70;voorlopig
+11010;Weesp;01/01/2022;;29806;GM;GM1904;Stichtse Vecht;5.10;voorlopig
+11010;Weesp;01/01/2022;;29806;GM;GM1942;Gooise Meren  ;25.20;voorlopig
+11010;Weesp;01/01/2022;;29806;VR;VR09;Utrecht   ;5.10;voorlopig
+11010;Weesp;01/01/2022;24/03/2022;29806;VR;VR13;Amsterdam-Amstelland  ;0.10;voorlopig
+11010;Weesp;24/03/2022;;29806;VR;VR13;Amsterdam-Amstelland  ;69.70;voorlopig
+11010;Weesp;01/01/2022;24/03/2022;29806;VR;VR14;Gooi en Vechtstreek   ;94.80;voorlopig
+11010;Weesp;24/03/2022;;29806;VR;VR14;Gooi en Vechtstreek   ;25.20;voorlopig
+11012;Huizen;01/01/2022;;40938;GM;GM0406;Huizen;100.00;voorlopig
+11012;Huizen;01/01/2022;;40938;VR;VR14;Gooi en Vechtstreek   ;100.00;voorlopig
+11013;Horstermeer;01/01/2022;;110047;GM;GM0402;Hilversum ;30.68;voorlopig
+11013;Horstermeer;01/01/2022;;110047;GM;GM1696;Wijdemeren;22.02;voorlopig
+11013;Horstermeer;01/01/2022;;110047;GM;GM1904;Stichtse Vecht;0.65;voorlopig
+11013;Horstermeer;01/01/2022;;110047;GM;GM1942;Gooise Meren  ;46.65;voorlopig
+11013;Horstermeer;01/01/2022;;110047;VR;VR09;Utrecht   ;0.65;voorlopig
+11013;Horstermeer;01/01/2022;;110047;VR;VR14;Gooi en Vechtstreek   ;99.35;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;GM;GM0362;Amstelveen;0.01;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;GM;GM0363;Amsterdam ;93.06;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;GM;GM0384;Diemen;4.70;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;GM;GM0415;Landsmeer ;0.02;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;GM;GM0431;Oostzaan  ;0.01;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;GM;GM0437;Ouder-Amstel  ;0.79;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;GM;GM0736;De Ronde Venen;1.41;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;VR;VR09;Utrecht   ;1.41;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;VR;VR11;Zaanstreek-Waterland  ;0.02;voorlopig
+11014;Amsterdam West;01/01/2022;;676762;VR;VR13;Amsterdam-Amstelland  ;98.56;voorlopig
+12001;Heiloo;01/01/2022;;42820;GM;GM0361;Alkmaar   ;13.30;voorlopig
+12001;Heiloo;01/01/2022;;42820;GM;GM0383;Castricum ;29.80;voorlopig
+12001;Heiloo;01/01/2022;;42820;GM;GM0399;Heiloo;56.90;voorlopig
+12001;Heiloo;01/01/2022;;42820;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12006;Alkmaar;01/01/2022;;48715;GM;GM0361;Alkmaar   ;78.10;voorlopig
+12006;Alkmaar;01/01/2022;;48715;GM;GM0373;Bergen (NH.)  ;21.90;voorlopig
+12006;Alkmaar;01/01/2022;;48715;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;GM;GM0363;Amsterdam ;0.19;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;GM;GM0415;Landsmeer ;14.43;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;GM;GM0431;Oostzaan  ;12.82;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;GM;GM0479;Zaanstad  ;71.89;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;GM;GM0852;Waterland ;0.66;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;GM;GM0880;Wormerland;0.03;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;VR;VR11;Zaanstreek-Waterland  ;99.81;voorlopig
+12010;Zaandam-Oost;01/01/2022;;74871;VR;VR13;Amsterdam-Amstelland  ;0.19;voorlopig
+12012;Everstekoog;01/01/2022;;13687;GM;GM0448;Texel ;100.00;voorlopig
+12012;Everstekoog;01/01/2022;;13687;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;GM;GM0361;Alkmaar   ;29.35;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;GM;GM0373;Bergen (NH.)  ;10.17;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;GM;GM0432;Opmeer;0.06;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;GM;GM0441;Schagen   ;7.92;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;GM;GM1598;Koggenland;0.04;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;GM;GM1911;Hollands Kroon;5.63;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;GM;GM1980;Dijk en Waard ;46.84;voorlopig
+12013;Geestmerambacht;01/01/2022;;187159;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12014;Beemster;01/01/2022;;104999;GM;GM0361;Alkmaar   ;6.69;voorlopig
+12014;Beemster;01/01/2022;;104999;GM;GM0385;Edam-Volendam ;1.02;voorlopig
+12014;Beemster;01/01/2022;;104999;GM;GM0415;Landsmeer ;0.61;voorlopig
+12014;Beemster;01/01/2022;;104999;GM;GM0439;Purmerend ;87.84;voorlopig
+12014;Beemster;01/01/2022;;104999;GM;GM0852;Waterland ;1.88;voorlopig
+12014;Beemster;01/01/2022;;104999;GM;GM0880;Wormerland;1.95;voorlopig
+12014;Beemster;01/01/2022;;104999;VR;VR10;Noord-Holland-Noord   ;6.69;voorlopig
+12014;Beemster;01/01/2022;;104999;VR;VR11;Zaanstreek-Waterland  ;93.31;voorlopig
+12016;Katwoude;01/01/2022;;45416;GM;GM0385;Edam-Volendam ;67.30;voorlopig
+12016;Katwoude;01/01/2022;;45416;GM;GM0852;Waterland ;32.70;voorlopig
+12016;Katwoude;01/01/2022;;45416;VR;VR11;Zaanstreek-Waterland  ;100.00;voorlopig
+12018;Wieringen;01/01/2022;;8472;GM;GM1911;Hollands Kroon;100.00;voorlopig
+12018;Wieringen;01/01/2022;;8472;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12019;Stolpen;01/01/2022;;36471;GM;GM0441;Schagen   ;87.40;voorlopig
+12019;Stolpen;01/01/2022;;36471;GM;GM1911;Hollands Kroon;12.60;voorlopig
+12019;Stolpen;01/01/2022;;36471;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM0388;Enkhuizen ;10.29;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM0405;Hoorn ;41.05;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM0420;Medemblik ;25.07;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM0432;Opmeer;0.05;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM0498;Drechterland  ;11.05;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM0532;Stede Broec   ;12.13;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM1598;Koggenland;0.01;voorlopig
+12021;Wervershoof;01/01/2022;;180902;GM;GM1911;Hollands Kroon;0.35;voorlopig
+12021;Wervershoof;01/01/2022;;180902;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0361;Alkmaar   ;0.27;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0373;Bergen (NH.)  ;0.01;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0375;Beverwijk ;24.07;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0383;Castricum ;13.45;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0396;Heemskerk ;22.42;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0450;Uitgeest  ;7.75;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0479;Zaanstad  ;23.84;voorlopig
+12022;Beverwijk;01/01/2022;;174828;GM;GM0880;Wormerland;8.19;voorlopig
+12022;Beverwijk;01/01/2022;;174828;VR;VR10;Noord-Holland-Noord   ;13.73;voorlopig
+12022;Beverwijk;01/01/2022;;174828;VR;VR11;Zaanstreek-Waterland  ;32.03;voorlopig
+12022;Beverwijk;01/01/2022;;174828;VR;VR12;Kennemerland  ;54.24;voorlopig
+12023;Den Helder;01/01/2022;;68676;GM;GM0400;Den Helder;82.03;voorlopig
+12023;Den Helder;01/01/2022;;68676;GM;GM0441;Schagen   ;0.18;voorlopig
+12023;Den Helder;01/01/2022;;68676;GM;GM1911;Hollands Kroon;17.79;voorlopig
+12023;Den Helder;01/01/2022;;68676;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12024;Ursem;01/01/2022;;39595;GM;GM0361;Alkmaar   ;11.70;voorlopig
+12024;Ursem;01/01/2022;;39595;GM;GM0385;Edam-Volendam ;0.10;voorlopig
+12024;Ursem;01/01/2022;;39595;GM;GM0420;Medemblik ;0.20;voorlopig
+12024;Ursem;01/01/2022;;39595;GM;GM0432;Opmeer;30.00;voorlopig
+12024;Ursem;01/01/2022;;39595;GM;GM1598;Koggenland;58.00;voorlopig
+12024;Ursem;01/01/2022;;39595;VR;VR10;Noord-Holland-Noord   ;99.90;voorlopig
+12024;Ursem;01/01/2022;;39595;VR;VR11;Zaanstreek-Waterland  ;0.10;voorlopig
+12025;Wieringermeer;01/01/2022;;12299;GM;GM1911;Hollands Kroon;100.00;voorlopig
+12025;Wieringermeer;01/01/2022;;12299;VR;VR10;Noord-Holland-Noord   ;100.00;voorlopig
+12026;Oosthuizen;01/01/2022;;4797;GM;GM0385;Edam-Volendam ;100.00;voorlopig
+12026;Oosthuizen;01/01/2022;;4797;VR;VR11;Zaanstreek-Waterland  ;100.00;voorlopig
+13003;Velsen;01/01/2022;;68419;GM;GM0394;Haarlemmermeer;0.05;voorlopig
+13003;Velsen;01/01/2022;;68419;GM;GM0453;Velsen;99.95;voorlopig
+13003;Velsen;01/01/2022;;68419;VR;VR12;Kennemerland  ;100.00;voorlopig
+13004;Heemstede;01/01/2022;;27555;GM;GM0397;Heemstede ;100.00;voorlopig
+13004;Heemstede;01/01/2022;;27555;VR;VR12;Kennemerland  ;100.00;voorlopig
+13005;Zwanenburg;01/01/2022;;91868;GM;GM0363;Amsterdam ;0.18;voorlopig
+13005;Zwanenburg;01/01/2022;;91868;GM;GM0394;Haarlemmermeer;99.82;voorlopig
+13005;Zwanenburg;01/01/2022;;91868;VR;VR12;Kennemerland  ;99.82;voorlopig
+13005;Zwanenburg;01/01/2022;;91868;VR;VR13;Amsterdam-Amstelland  ;0.18;voorlopig
+13010;Haarlem-Waarderpolder;01/01/2022;;142026;GM;GM0377;Bloemendaal   ;11.44;voorlopig
+13010;Haarlem-Waarderpolder;01/01/2022;;142026;GM;GM0392;Haarlem   ;73.77;voorlopig
+13010;Haarlem-Waarderpolder;01/01/2022;;142026;GM;GM0394;Haarlemmermeer;2.73;voorlopig
+13010;Haarlem-Waarderpolder;01/01/2022;;142026;GM;GM0473;Zandvoort ;12.04;voorlopig
+13010;Haarlem-Waarderpolder;01/01/2022;;142026;VR;VR12;Kennemerland  ;100.00;voorlopig
+13012;Haarlem-Schalkwijk;01/01/2022;;58125;GM;GM0392;Haarlem   ;99.99;voorlopig
+13012;Haarlem-Schalkwijk;01/01/2022;;58125;VR;VR12;Kennemerland  ;100.00;voorlopig
+13023;Noordwijk;01/01/2022;;58934;GM;GM0575;Noordwijk ;71.01;voorlopig
+13023;Noordwijk;01/01/2022;;58934;GM;GM1525;Teylingen ;28.99;voorlopig
+13023;Noordwijk;01/01/2022;;58934;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13030;Leimuiden;01/01/2022;;5398;GM;GM0394;Haarlemmermeer;14.40;voorlopig
+13030;Leimuiden;01/01/2022;;5398;GM;GM1884;Kaag en Braassem  ;85.50;voorlopig
+13030;Leimuiden;01/01/2022;;5398;VR;VR12;Kennemerland  ;14.40;voorlopig
+13030;Leimuiden;01/01/2022;;5398;VR;VR16;Hollands-Midden   ;85.60;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;GM;GM0484;Alphen aan den Rijn   ;0.67;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;GM;GM0537;Katwijk   ;0.06;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;GM;GM0546;Leiden;61.92;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;GM;GM0626;Voorschoten   ;25.65;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;GM;GM0638;Zoeterwoude   ;9.24;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;GM;GM1916;Leidschendam-Voorburg ;2.46;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;VR;VR15;Haaglanden;2.46;voorlopig
+13033;Leiden Zuid-West;01/01/2022;;99910;VR;VR16;Hollands-Midden   ;97.54;voorlopig
+13034;Lisse;01/01/2022;;23014;GM;GM0553;Lisse ;100.00;voorlopig
+13034;Lisse;01/01/2022;;23014;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13035;Alphen-Noord;01/01/2022;;50361;GM;GM0484;Alphen aan den Rijn   ;84.13;voorlopig
+13035;Alphen-Noord;01/01/2022;;50361;GM;GM0569;Nieuwkoop ;13.42;voorlopig
+13035;Alphen-Noord;01/01/2022;;50361;GM;GM1884;Kaag en Braassem  ;2.44;voorlopig
+13035;Alphen-Noord;01/01/2022;;50361;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13038;Nieuwveen;01/01/2022;;23599;GM;GM0484;Alphen aan den Rijn   ;5.00;voorlopig
+13038;Nieuwveen;01/01/2022;;23599;GM;GM0569;Nieuwkoop ;95.00;voorlopig
+13038;Nieuwveen;01/01/2022;;23599;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13039;Gouda;01/01/2022;;74974;GM;GM0513;Gouda ;95.68;voorlopig
+13039;Gouda;01/01/2022;;74974;GM;GM1931;Krimpenerwaard;4.32;voorlopig
+13039;Gouda;01/01/2022;;74974;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13041;Katwijk;01/01/2022;;106302;GM;GM0537;Katwijk   ;62.06;voorlopig
+13041;Katwijk;01/01/2022;;106302;GM;GM0546;Leiden;1.66;voorlopig
+13041;Katwijk;01/01/2022;;106302;GM;GM0579;Oegstgeest;21.45;voorlopig
+13041;Katwijk;01/01/2022;;106302;GM;GM1525;Teylingen ;14.84;voorlopig
+13041;Katwijk;01/01/2022;;106302;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13042;Bodegraven;01/01/2022;;31580;GM;GM0484;Alphen aan den Rijn   ;8.60;voorlopig
+13042;Bodegraven;01/01/2022;;31580;GM;GM0569;Nieuwkoop ;0.20;voorlopig
+13042;Bodegraven;01/01/2022;;31580;GM;GM0632;Woerden   ;0.40;voorlopig
+13042;Bodegraven;01/01/2022;;31580;GM;GM1901;Bodegraven-Reeuwijk   ;90.80;voorlopig
+13042;Bodegraven;01/01/2022;;31580;VR;VR09;Utrecht   ;0.40;voorlopig
+13042;Bodegraven;01/01/2022;;31580;VR;VR16;Hollands-Midden   ;99.60;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;GM;GM0358;Aalsmeer  ;19.55;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;GM;GM0377;Bloemendaal   ;6.31;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;GM;GM0394;Haarlemmermeer;52.79;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;GM;GM0534;Hillegom  ;18.81;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;GM;GM0575;Noordwijk ;2.12;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;GM;GM1525;Teylingen ;0.01;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;GM;GM1884;Kaag en Braassem  ;0.40;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;VR;VR12;Kennemerland  ;59.11;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;VR;VR13;Amsterdam-Amstelland  ;19.55;voorlopig
+13044;Zwaanshoek;01/01/2022;;118594;VR;VR16;Hollands-Midden   ;21.34;voorlopig
+13046;Leiden Noord;01/01/2022;;96583;GM;GM0546;Leiden;63.63;voorlopig
+13046;Leiden Noord;01/01/2022;;96583;GM;GM0547;Leiderdorp;28.44;voorlopig
+13046;Leiden Noord;01/01/2022;;96583;GM;GM0579;Oegstgeest;2.80;voorlopig
+13046;Leiden Noord;01/01/2022;;96583;GM;GM1525;Teylingen ;5.13;voorlopig
+13046;Leiden Noord;01/01/2022;;96583;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13047;Nieuwe Wetering;01/01/2022;;16464;GM;GM1525;Teylingen ;0.70;voorlopig
+13047;Nieuwe Wetering;01/01/2022;;16464;GM;GM1884;Kaag en Braassem  ;99.30;voorlopig
+13047;Nieuwe Wetering;01/01/2022;;16464;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13048;Waddinxveen-Randenburg;01/01/2022;;44228;GM;GM0484;Alphen aan den Rijn   ;36.40;voorlopig
+13048;Waddinxveen-Randenburg;01/01/2022;;44228;GM;GM0627;Waddinxveen   ;59.90;voorlopig
+13048;Waddinxveen-Randenburg;01/01/2022;;44228;GM;GM1901;Bodegraven-Reeuwijk   ;3.60;voorlopig
+13048;Waddinxveen-Randenburg;01/01/2022;;44228;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+13049;Alphen Kerk en Zanen;01/01/2022;;51372;GM;GM0484;Alphen aan den Rijn   ;89.86;voorlopig
+13049;Alphen Kerk en Zanen;01/01/2022;;51372;GM;GM1884;Kaag en Braassem  ;10.14;voorlopig
+13049;Alphen Kerk en Zanen;01/01/2022;;51372;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+14002;Woerden;01/01/2022;;50096;GM;GM0569;Nieuwkoop ;0.07;voorlopig
+14002;Woerden;01/01/2022;;50096;GM;GM0632;Woerden   ;88.98;voorlopig
+14002;Woerden;01/01/2022;;50096;GM;GM1901;Bodegraven-Reeuwijk   ;10.95;voorlopig
+14002;Woerden;01/01/2022;;50096;VR;VR09;Utrecht   ;88.98;voorlopig
+14002;Woerden;01/01/2022;;50096;VR;VR16;Hollands-Midden   ;11.02;voorlopig
+14003;Leidsche Rijn;01/01/2022;;109635;GM;GM0344;Utrecht   ;64.75;voorlopig
+14003;Leidsche Rijn;01/01/2022;;109635;GM;GM1904;Stichtse Vecht;35.25;voorlopig
+14003;Leidsche Rijn;01/01/2022;;109635;VR;VR09;Utrecht   ;100.00;voorlopig
+15004;Nieuwe Waterweg;01/01/2022;;70152;GM;GM0599;Rotterdam ;14.74;voorlopig
+15004;Nieuwe Waterweg;01/01/2022;;70152;GM;GM1783;Westland  ;85.26;voorlopig
+15004;Nieuwe Waterweg;01/01/2022;;70152;VR;VR15;Haaglanden;85.26;voorlopig
+15004;Nieuwe Waterweg;01/01/2022;;70152;VR;VR17;Rotterdam-Rijnmond;14.74;voorlopig
+15005;Houtrust;01/01/2022;;244964;GM;GM0518;s-Gravenhage ;100.00;voorlopig
+15005;Houtrust;01/01/2022;;244964;VR;VR15;Haaglanden;100.00;voorlopig
+15007;De Groote Lucht;01/01/2022;;206411;GM;GM0556;Maassluis ;16.54;voorlopig
+15007;De Groote Lucht;01/01/2022;;206411;GM;GM0606;Schiedam  ;38.53;voorlopig
+15007;De Groote Lucht;01/01/2022;;206411;GM;GM0622;Vlaardingen   ;35.88;voorlopig
+15007;De Groote Lucht;01/01/2022;;206411;GM;GM1783;Westland  ;5.84;voorlopig
+15007;De Groote Lucht;01/01/2022;;206411;GM;GM1842;Midden-Delfland   ;3.21;voorlopig
+15007;De Groote Lucht;01/01/2022;;206411;VR;VR15;Haaglanden;9.05;voorlopig
+15007;De Groote Lucht;01/01/2022;;206411;VR;VR17;Rotterdam-Rijnmond;90.95;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM0484;Alphen aan den Rijn   ;0.44;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM0503;Delft ;12.40;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM0518;s-Gravenhage ;36.53;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM0603;Rijswijk  ;6.75;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM0629;Wassenaar ;3.19;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM0637;Zoetermeer;14.91;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM0638;Zoeterwoude   ;0.01;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM1621;Lansingerland ;3.94;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM1783;Westland  ;4.81;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM1842;Midden-Delfland   ;1.52;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM1916;Leidschendam-Voorburg ;8.80;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;GM;GM1926;Pijnacker-Nootdorp;6.71;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;VR;VR15;Haaglanden;95.62;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;VR;VR16;Hollands-Midden   ;0.44;voorlopig
+15008;Harnaschpolder;01/01/2022;;843483;VR;VR17;Rotterdam-Rijnmond;3.94;voorlopig
+16009;Kortenoord;01/01/2022;;76930;GM;GM0513;Gouda ;3.03;voorlopig
+16009;Kortenoord;01/01/2022;;76930;GM;GM0599;Rotterdam ;16.78;voorlopig
+16009;Kortenoord;01/01/2022;;76930;GM;GM0627;Waddinxveen   ;6.27;voorlopig
+16009;Kortenoord;01/01/2022;;76930;GM;GM1621;Lansingerland ;15.35;voorlopig
+16009;Kortenoord;01/01/2022;;76930;GM;GM1892;Zuidplas  ;58.57;voorlopig
+16009;Kortenoord;01/01/2022;;76930;VR;VR16;Hollands-Midden   ;67.87;voorlopig
+16009;Kortenoord;01/01/2022;;76930;VR;VR17;Rotterdam-Rijnmond;32.13;voorlopig
+16010;Kralingseveer;01/01/2022;;269505;GM;GM0502;Capelle aan den IJssel;13.20;voorlopig
+16010;Kralingseveer;01/01/2022;;269505;GM;GM0599;Rotterdam ;79.72;voorlopig
+16010;Kralingseveer;01/01/2022;;269505;GM;GM1621;Lansingerland ;7.08;voorlopig
+16010;Kralingseveer;01/01/2022;;269505;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+16011;Groenedijk;01/01/2022;;48126;GM;GM0502;Capelle aan den IJssel;65.70;voorlopig
+16011;Groenedijk;01/01/2022;;48126;GM;GM0599;Rotterdam ;32.90;voorlopig
+16011;Groenedijk;01/01/2022;;48126;GM;GM1892;Zuidplas  ;1.40;voorlopig
+16011;Groenedijk;01/01/2022;;48126;VR;VR16;Hollands-Midden   ;1.40;voorlopig
+16011;Groenedijk;01/01/2022;;48126;VR;VR17;Rotterdam-Rijnmond;98.60;voorlopig
+17002;Bergambacht;01/01/2022;;6349;GM;GM1931;Krimpenerwaard;100.00;voorlopig
+17002;Bergambacht;01/01/2022;;6349;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+17004;Ammerstol;01/01/2022;;2024;GM;GM1931;Krimpenerwaard;100.00;voorlopig
+17004;Ammerstol;01/01/2022;;2024;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+17005;Stolwijk;01/01/2022;;5712;GM;GM1931;Krimpenerwaard;100.00;voorlopig
+17005;Stolwijk;01/01/2022;;5712;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+17011;Ridderkerk;01/01/2022;;59173;GM;GM0597;Ridderkerk;78.22;voorlopig
+17011;Ridderkerk;01/01/2022;;59173;GM;GM0599;Rotterdam ;21.72;voorlopig
+17011;Ridderkerk;01/01/2022;;59173;GM;GM0642;Zwijndrecht   ;0.06;voorlopig
+17011;Ridderkerk;01/01/2022;;59173;VR;VR17;Rotterdam-Rijnmond;99.94;voorlopig
+17011;Ridderkerk;01/01/2022;;59173;VR;VR18;Zuid-Holland-Zuid ;0.06;voorlopig
+17013;Papendrecht;01/01/2022;;32206;GM;GM0590;Papendrecht   ;100.00;voorlopig
+17013;Papendrecht;01/01/2022;;32206;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17016;Alblasserdam;01/01/2022;;34299;GM;GM0482;Alblasserdam  ;58.60;voorlopig
+17016;Alblasserdam;01/01/2022;;34299;GM;GM1978;Molenlanden   ;41.40;voorlopig
+17016;Alblasserdam;01/01/2022;;34299;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17026;Hardinxveld-Giessendam;01/01/2022;;13521;GM;GM0523;Hardinxveld-Giessendam;90.00;voorlopig
+17026;Hardinxveld-Giessendam;01/01/2022;;13521;GM;GM1978;Molenlanden   ;10.00;voorlopig
+17026;Hardinxveld-Giessendam;01/01/2022;;13521;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17029;Vianen;01/01/2022;;27933;GM;GM1961;Vijfheerenlanden  ;100.00;voorlopig
+17029;Vianen;01/01/2022;;27933;VR;VR09;Utrecht   ;100.00;voorlopig
+17040;Oostvoorne;01/01/2022;;14242;GM;GM0501;Brielle   ;0.30;voorlopig
+17040;Oostvoorne;01/01/2022;;14242;GM;GM0530;Hellevoetsluis;0.10;voorlopig
+17040;Oostvoorne;01/01/2022;;14242;GM;GM0614;Westvoorne;99.50;voorlopig
+17040;Oostvoorne;01/01/2022;;14242;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17041;Hellevoetsluis;01/01/2022;;65119;GM;GM0501;Brielle   ;24.27;voorlopig
+17041;Hellevoetsluis;01/01/2022;;65119;GM;GM0530;Hellevoetsluis;62.17;voorlopig
+17041;Hellevoetsluis;01/01/2022;;65119;GM;GM0614;Westvoorne;1.20;voorlopig
+17041;Hellevoetsluis;01/01/2022;;65119;GM;GM1930;Nissewaard;9.53;voorlopig
+17041;Hellevoetsluis;01/01/2022;;65119;GM;GM1963;Hoeksche Waard;2.82;voorlopig
+17041;Hellevoetsluis;01/01/2022;;65119;VR;VR17;Rotterdam-Rijnmond;97.18;voorlopig
+17041;Hellevoetsluis;01/01/2022;;65119;VR;VR18;Zuid-Holland-Zuid ;2.82;voorlopig
+17043;Strijen;01/01/2022;;9301;GM;GM1963;Hoeksche Waard;100.00;voorlopig
+17043;Strijen;01/01/2022;;9301;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17044;Dordrecht;01/01/2022;;119331;GM;GM0505;Dordrecht ;100.00;voorlopig
+17044;Dordrecht;01/01/2022;;119331;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17045;Oud-Beijerland;01/01/2022;;34402;GM;GM1963;Hoeksche Waard;100.00;voorlopig
+17045;Oud-Beijerland;01/01/2022;;34402;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17048;Goedereede;01/01/2022;;12024;GM;GM1924;Goeree-Overflakkee;100.00;voorlopig
+17048;Goedereede;01/01/2022;;12024;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17052;Sliedrecht;01/01/2022;;34190;GM;GM0523;Hardinxveld-Giessendam;4.90;voorlopig
+17052;Sliedrecht;01/01/2022;;34190;GM;GM0610;Sliedrecht;75.70;voorlopig
+17052;Sliedrecht;01/01/2022;;34190;GM;GM1978;Molenlanden   ;19.40;voorlopig
+17052;Sliedrecht;01/01/2022;;34190;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17053;De Groote Zaag;01/01/2022;;49564;GM;GM0542;Krimpen aan den IJssel;59.30;voorlopig
+17053;De Groote Zaag;01/01/2022;;49564;GM;GM1931;Krimpenerwaard;40.70;voorlopig
+17053;De Groote Zaag;01/01/2022;;49564;VR;VR16;Hollands-Midden   ;40.70;voorlopig
+17053;De Groote Zaag;01/01/2022;;49564;VR;VR17;Rotterdam-Rijnmond;59.30;voorlopig
+17054;Piershil;01/01/2022;;5964;GM;GM1963;Hoeksche Waard;100.00;voorlopig
+17054;Piershil;01/01/2022;;5964;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17055;Middelharnis;01/01/2022;;24264;GM;GM1924;Goeree-Overflakkee;100.00;voorlopig
+17055;Middelharnis;01/01/2022;;24264;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17056;Oude Tonge;01/01/2022;;9099;GM;GM1924;Goeree-Overflakkee;100.00;voorlopig
+17056;Oude Tonge;01/01/2022;;9099;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17057;Rozenburg;01/01/2022;;12456;GM;GM0599;Rotterdam ;100.00;voorlopig
+17057;Rozenburg;01/01/2022;;12456;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17061;Dokhaven;01/01/2022;;335577;GM;GM0489;Barendrecht   ;0.01;voorlopig
+17061;Dokhaven;01/01/2022;;335577;GM;GM0597;Ridderkerk;0.01;voorlopig
+17061;Dokhaven;01/01/2022;;335577;GM;GM0599;Rotterdam ;99.97;voorlopig
+17061;Dokhaven;01/01/2022;;335577;GM;GM0606;Schiedam  ;0.01;voorlopig
+17061;Dokhaven;01/01/2022;;335577;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17062;Heenvliet;01/01/2022;;7012;GM;GM0501;Brielle   ;24.80;voorlopig
+17062;Heenvliet;01/01/2022;;7012;GM;GM1930;Nissewaard;75.20;voorlopig
+17062;Heenvliet;01/01/2022;;7012;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17063;Leerdam;01/01/2022;;20011;GM;GM1961;Vijfheerenlanden  ;100.00;voorlopig
+17063;Leerdam;01/01/2022;;20011;VR;VR09;Utrecht   ;100.00;voorlopig
+17065;Groot-Ammers;01/01/2022;;28239;GM;GM1931;Krimpenerwaard;47.40;voorlopig
+17065;Groot-Ammers;01/01/2022;;28239;GM;GM1961;Vijfheerenlanden  ;14.60;voorlopig
+17065;Groot-Ammers;01/01/2022;;28239;GM;GM1978;Molenlanden   ;38.00;voorlopig
+17065;Groot-Ammers;01/01/2022;;28239;VR;VR09;Utrecht   ;14.60;voorlopig
+17065;Groot-Ammers;01/01/2022;;28239;VR;VR16;Hollands-Midden   ;47.40;voorlopig
+17065;Groot-Ammers;01/01/2022;;28239;VR;VR18;Zuid-Holland-Zuid ;38.00;voorlopig
+17066;Numansdorp;01/01/2022;;17176;GM;GM1963;Hoeksche Waard;100.00;voorlopig
+17066;Numansdorp;01/01/2022;;17176;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+17067;Haastrecht;01/01/2022;;4286;GM;GM1931;Krimpenerwaard;100.00;voorlopig
+17067;Haastrecht;01/01/2022;;4286;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+17068;Berkenwoude;01/01/2022;;1867;GM;GM1931;Krimpenerwaard;100.00;voorlopig
+17068;Berkenwoude;01/01/2022;;1867;VR;VR16;Hollands-Midden   ;100.00;voorlopig
+17070;Hoogvliet;01/01/2022;;58911;GM;GM0489;Barendrecht   ;0.03;voorlopig
+17070;Hoogvliet;01/01/2022;;58911;GM;GM0599;Rotterdam ;68.65;voorlopig
+17070;Hoogvliet;01/01/2022;;58911;GM;GM0613;Albrandswaard ;31.33;voorlopig
+17070;Hoogvliet;01/01/2022;;58911;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17074;Den Bommel;01/01/2022;;3000;GM;GM1924;Goeree-Overflakkee;100.00;voorlopig
+17074;Den Bommel;01/01/2022;;3000;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17075;Ooltgensplaat;01/01/2022;;2659;GM;GM1924;Goeree-Overflakkee;100.00;voorlopig
+17075;Ooltgensplaat;01/01/2022;;2659;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17076;Schelluinen;01/01/2022;;44972;GM;GM0512;Gorinchem ;48.60;voorlopig
+17076;Schelluinen;01/01/2022;;44972;GM;GM0523;Hardinxveld-Giessendam;10.40;voorlopig
+17076;Schelluinen;01/01/2022;;44972;GM;GM1961;Vijfheerenlanden  ;14.90;voorlopig
+17076;Schelluinen;01/01/2022;;44972;GM;GM1978;Molenlanden   ;26.10;voorlopig
+17076;Schelluinen;01/01/2022;;44972;VR;VR09;Utrecht   ;14.90;voorlopig
+17076;Schelluinen;01/01/2022;;44972;VR;VR18;Zuid-Holland-Zuid ;85.10;voorlopig
+17077;Spijkenisse-Allemanspolder;01/01/2022;;74854;GM;GM1930;Nissewaard;100.00;voorlopig
+17077;Spijkenisse-Allemanspolder;01/01/2022;;74854;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+17078;Zwijndrecht;01/01/2022;;115631;GM;GM0489;Barendrecht   ;16.20;voorlopig
+17078;Zwijndrecht;01/01/2022;;115631;GM;GM0531;Hendrik-Ido-Ambacht   ;27.38;voorlopig
+17078;Zwijndrecht;01/01/2022;;115631;GM;GM0597;Ridderkerk;0.53;voorlopig
+17078;Zwijndrecht;01/01/2022;;115631;GM;GM0642;Zwijndrecht   ;38.69;voorlopig
+17078;Zwijndrecht;01/01/2022;;115631;GM;GM1963;Hoeksche Waard;17.20;voorlopig
+17078;Zwijndrecht;01/01/2022;;115631;VR;VR17;Rotterdam-Rijnmond;16.73;voorlopig
+17078;Zwijndrecht;01/01/2022;;115631;VR;VR18;Zuid-Holland-Zuid ;83.27;voorlopig
+17079;Barendrecht;01/01/2022;;37418;GM;GM0489;Barendrecht   ;80.00;voorlopig
+17079;Barendrecht;01/01/2022;;37418;GM;GM0613;Albrandswaard ;20.00;voorlopig
+17079;Barendrecht;01/01/2022;;37418;VR;VR17;Rotterdam-Rijnmond;100.00;voorlopig
+18006;Westerschouwen;01/01/2022;;7920;GM;GM1676;Schouwen-Duiveland;100.00;voorlopig
+18006;Westerschouwen;01/01/2022;;7920;VR;VR19;Zeeland   ;100.00;voorlopig
+18007;Mastgat;01/01/2022;;9722;GM;GM1676;Schouwen-Duiveland;100.00;voorlopig
+18007;Mastgat;01/01/2022;;9722;VR;VR19;Zeeland   ;100.00;voorlopig
+18009;De Verseput;01/01/2022;;16474;GM;GM1676;Schouwen-Duiveland;100.00;voorlopig
+18009;De Verseput;01/01/2022;;16474;VR;VR19;Zeeland   ;100.00;voorlopig
+19001;Sint Maartensdijk;01/01/2022;;15444;GM;GM0716;Tholen;100.00;voorlopig
+19001;Sint Maartensdijk;01/01/2022;;15444;VR;VR19;Zeeland   ;100.00;voorlopig
+19003;Tholen;01/01/2022;;10919;GM;GM0716;Tholen;100.00;voorlopig
+19003;Tholen;01/01/2022;;10919;VR;VR19;Zeeland   ;100.00;voorlopig
+20009;Waarde;01/01/2022;;21166;GM;GM0703;Reimerswaal   ;100.00;voorlopig
+20009;Waarde;01/01/2022;;21166;VR;VR19;Zeeland   ;100.00;voorlopig
+20010;Camperlandpolder;01/01/2022;;7666;GM;GM1695;Noord-Beveland;100.00;voorlopig
+20010;Camperlandpolder;01/01/2022;;7666;VR;VR19;Zeeland   ;100.00;voorlopig
+20011;Willem Annapolder;01/01/2022;;76475;GM;GM0654;Borsele   ;29.88;voorlopig
+20011;Willem Annapolder;01/01/2022;;76475;GM;GM0664;Goes  ;50.93;voorlopig
+20011;Willem Annapolder;01/01/2022;;76475;GM;GM0678;Kapelle   ;17.03;voorlopig
+20011;Willem Annapolder;01/01/2022;;76475;GM;GM0703;Reimerswaal   ;2.17;voorlopig
+20011;Willem Annapolder;01/01/2022;;76475;VR;VR19;Zeeland   ;100.00;voorlopig
+21001;Walcheren;01/01/2022;;115631;GM;GM0687;Middelburg;42.55;voorlopig
+21001;Walcheren;01/01/2022;;115631;GM;GM0717;Veere ;18.89;voorlopig
+21001;Walcheren;01/01/2022;;115631;GM;GM0718;Vlissingen;38.56;voorlopig
+21001;Walcheren;01/01/2022;;115631;VR;VR19;Zeeland   ;100.00;voorlopig
+22008;Retranchement;01/01/2022;;3628;GM;GM1714;Sluis ;100.00;voorlopig
+22008;Retranchement;01/01/2022;;3628;VR;VR19;Zeeland   ;100.00;voorlopig
+22012;Oostburg;01/01/2022;;10816;GM;GM1714;Sluis ;100.00;voorlopig
+22012;Oostburg;01/01/2022;;10816;VR;VR19;Zeeland   ;100.00;voorlopig
+22013;Breskens;01/01/2022;;10253;GM;GM0715;Terneuzen ;15.20;voorlopig
+22013;Breskens;01/01/2022;;10253;GM;GM1714;Sluis ;84.80;voorlopig
+22013;Breskens;01/01/2022;;10253;VR;VR19;Zeeland   ;100.00;voorlopig
+23002;Terneuzen;01/01/2022;;52943;GM;GM0677;Hulst ;0.05;voorlopig
+23002;Terneuzen;01/01/2022;;52943;GM;GM0715;Terneuzen ;99.95;voorlopig
+23002;Terneuzen;01/01/2022;;52943;VR;VR19;Zeeland   ;100.00;voorlopig
+24001;Hulst;01/01/2022;;19965;GM;GM0677;Hulst ;99.90;voorlopig
+24001;Hulst;01/01/2022;;19965;GM;GM0715;Terneuzen ;0.10;voorlopig
+24001;Hulst;01/01/2022;;19965;VR;VR19;Zeeland   ;100.00;voorlopig
+24002;Kloosterzande;01/01/2022;;7562;GM;GM0677;Hulst ;99.90;voorlopig
+24002;Kloosterzande;01/01/2022;;7562;VR;VR19;Zeeland   ;100.00;voorlopig
+25001;Rijen;01/01/2022;;52681;GM;GM0758;Breda ;0.15;voorlopig
+25001;Rijen;01/01/2022;;52681;GM;GM0766;Dongen;45.51;voorlopig
+25001;Rijen;01/01/2022;;52681;GM;GM0784;Gilze en Rijen;50.38;voorlopig
+25001;Rijen;01/01/2022;;52681;GM;GM0826;Oosterhout;0.17;voorlopig
+25001;Rijen;01/01/2022;;52681;GM;GM0855;Tilburg   ;3.74;voorlopig
+25001;Rijen;01/01/2022;;52681;GM;GM1723;Alphen-Chaam  ;0.04;voorlopig
+25001;Rijen;01/01/2022;;52681;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25003;Waalwijk;01/01/2022;;30173;GM;GM0867;Waalwijk  ;100.00;voorlopig
+25003;Waalwijk;01/01/2022;;30173;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25008;Ossendrecht;01/01/2022;;5705;GM;GM0703;Reimerswaal   ;1.50;voorlopig
+25008;Ossendrecht;01/01/2022;;5705;GM;GM0873;Woensdrecht   ;98.50;voorlopig
+25008;Ossendrecht;01/01/2022;;5705;VR;VR19;Zeeland   ;1.50;voorlopig
+25008;Ossendrecht;01/01/2022;;5705;VR;VR20;Midden- en West-Brabant   ;98.50;voorlopig
+25012;Putte;01/01/2022;;3858;GM;GM0873;Woensdrecht   ;100.00;voorlopig
+25012;Putte;01/01/2022;;3858;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25013;Riel;01/01/2022;;7286;GM;GM0785;Goirle;41.10;voorlopig
+25013;Riel;01/01/2022;;7286;GM;GM0855;Tilburg   ;0.30;voorlopig
+25013;Riel;01/01/2022;;7286;GM;GM1723;Alphen-Chaam  ;58.60;voorlopig
+25013;Riel;01/01/2022;;7286;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25014;Waspik;01/01/2022;;5222;GM;GM0766;Dongen;1.40;voorlopig
+25014;Waspik;01/01/2022;;5222;GM;GM0867;Waalwijk  ;98.60;voorlopig
+25014;Waspik;01/01/2022;;5222;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25016;Nieuw-Vossemeer;01/01/2022;;2234;GM;GM0851;Steenbergen   ;100.00;voorlopig
+25016;Nieuw-Vossemeer;01/01/2022;;2234;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM0758;Breda ;69.53;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM0777;Etten-Leur;16.38;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM0826;Oosterhout;1.30;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM0840;Rucphen   ;0.03;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM0879;Zundert   ;8.34;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM1709;Moerdijk  ;0.60;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM1719;Drimmelen ;3.18;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;GM;GM1723;Alphen-Chaam  ;0.63;voorlopig
+25017;Nieuwveer;01/01/2022;;265490;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25019;Chaam;01/01/2022;;4471;GM;GM1723;Alphen-Chaam  ;100.00;voorlopig
+25019;Chaam;01/01/2022;;4471;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25020;Kaatsheuvel;01/01/2022;;36109;GM;GM0766;Dongen;4.50;voorlopig
+25020;Kaatsheuvel;01/01/2022;;36109;GM;GM0809;Loon op Zand  ;56.90;voorlopig
+25020;Kaatsheuvel;01/01/2022;;36109;GM;GM0867;Waalwijk  ;38.60;voorlopig
+25020;Kaatsheuvel;01/01/2022;;36109;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM0748;Bergen op Zoom;22.33;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM0777;Etten-Leur;0.27;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM0840;Rucphen   ;9.29;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM0851;Steenbergen   ;6.60;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM0873;Woensdrecht   ;5.09;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM0879;Zundert   ;0.03;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM1655;Halderberge   ;12.39;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM1674;Roosendaal;31.08;voorlopig
+25021;Bath;01/01/2022;;248264;GM;GM1709;Moerdijk  ;12.92;voorlopig
+25021;Bath;01/01/2022;;248264;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25023;Dongemond;01/01/2022;;88667;GM;GM0766;Dongen;0.90;voorlopig
+25023;Dongemond;01/01/2022;;88667;GM;GM0779;Geertruidenberg   ;24.74;voorlopig
+25023;Dongemond;01/01/2022;;88667;GM;GM0826;Oosterhout;59.73;voorlopig
+25023;Dongemond;01/01/2022;;88667;GM;GM1719;Drimmelen ;14.62;voorlopig
+25023;Dongemond;01/01/2022;;88667;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25025;Halsteren;01/01/2022;;12455;GM;GM0748;Bergen op Zoom;100.00;voorlopig
+25025;Halsteren;01/01/2022;;12455;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25026;Baarle-Nassau;01/01/2022;;6381;GM;GM0744;Baarle-Nassau ;100.00;voorlopig
+25026;Baarle-Nassau;01/01/2022;;6381;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25027;Lage Zwaluwe;01/01/2022;;6034;GM;GM1709;Moerdijk  ;0.50;voorlopig
+25027;Lage Zwaluwe;01/01/2022;;6034;GM;GM1719;Drimmelen ;99.50;voorlopig
+25027;Lage Zwaluwe;01/01/2022;;6034;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25028;Dinteloord;01/01/2022;;5647;GM;GM0851;Steenbergen   ;99.70;voorlopig
+25028;Dinteloord;01/01/2022;;5647;GM;GM1709;Moerdijk  ;0.30;voorlopig
+25028;Dinteloord;01/01/2022;;5647;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+25029;Willemstad;01/01/2022;;3545;GM;GM1709;Moerdijk  ;100.00;voorlopig
+25029;Willemstad;01/01/2022;;3545;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+26005;Sleeuwijk;01/01/2022;;57008;GM;GM1959;Altena;100.00;voorlopig
+26005;Sleeuwijk;01/01/2022;;57008;VR;VR20;Midden- en West-Brabant   ;100.00;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0770;Eersel;3.77;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0772;Eindhoven ;51.01;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0820;Nuenen. Gerwen en Nederwetten ;5.10;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0847;Someren   ;0.07;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0848;Son en Breugel;3.63;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0858;Valkenswaard  ;6.69;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0861;Veldhoven ;9.81;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM0866;Waalre;3.77;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM1658;Heeze-Leende  ;3.51;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM1724;Bergeijk  ;4.04;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM1771;Geldrop-Mierlo;8.58;voorlopig
+27003;Eindhoven;01/01/2022;;467169;GM;GM1948;Meierijstad   ;0.01;voorlopig
+27003;Eindhoven;01/01/2022;;467169;VR;VR21;Brabant-Noord ;0.01;voorlopig
+27003;Eindhoven;01/01/2022;;467169;VR;VR22;Brabant-Zuidoost  ;99.99;voorlopig
+27004;Boxtel;01/01/2022;;45900;GM;GM0757;Boxtel;72.10;voorlopig
+27004;Boxtel;01/01/2022;;45900;GM;GM0824;Oisterwijk;0.10;voorlopig
+27004;Boxtel;01/01/2022;;45900;GM;GM0845;Sint-Michielsgestel   ;27.70;voorlopig
+27004;Boxtel;01/01/2022;;45900;GM;GM0865;Vught ;0.10;voorlopig
+27004;Boxtel;01/01/2022;;45900;GM;GM1948;Meierijstad   ;0.10;voorlopig
+27004;Boxtel;01/01/2022;;45900;VR;VR20;Midden- en West-Brabant   ;0.10;voorlopig
+27004;Boxtel;01/01/2022;;45900;VR;VR21;Brabant-Noord ;99.90;voorlopig
+27005;Hapert;01/01/2022;;36127;GM;GM0770;Eersel;5.90;voorlopig
+27005;Hapert;01/01/2022;;36127;GM;GM0798;Hilvarenbeek  ;0.10;voorlopig
+27005;Hapert;01/01/2022;;36127;GM;GM1667;Reusel-De Mierden ;36.70;voorlopig
+27005;Hapert;01/01/2022;;36127;GM;GM1728;Bladel;57.30;voorlopig
+27005;Hapert;01/01/2022;;36127;VR;VR20;Midden- en West-Brabant   ;0.10;voorlopig
+27005;Hapert;01/01/2022;;36127;VR;VR22;Brabant-Zuidoost  ;99.90;voorlopig
+27006;Soerendonk;01/01/2022;;21087;GM;GM0847;Someren   ;1.80;voorlopig
+27006;Soerendonk;01/01/2022;;21087;GM;GM1658;Heeze-Leende  ;0.20;voorlopig
+27006;Soerendonk;01/01/2022;;21087;GM;GM1706;Cranendonck   ;98.00;voorlopig
+27006;Soerendonk;01/01/2022;;21087;VR;VR22;Brabant-Zuidoost  ;100.00;voorlopig
+27008;'s Hertogenbosch;01/01/2022;;177471;GM;GM0796;s-Hertogenbosch  ;59.15;voorlopig
+27008;'s Hertogenbosch;01/01/2022;;177471;GM;GM0797;Heusden   ;25.67;voorlopig
+27008;'s Hertogenbosch;01/01/2022;;177471;GM;GM0865;Vught ;15.15;voorlopig
+27008;'s Hertogenbosch;01/01/2022;;177471;GM;GM0867;Waalwijk  ;0.03;voorlopig
+27008;'s Hertogenbosch;01/01/2022;;177471;VR;VR20;Midden- en West-Brabant   ;0.03;voorlopig
+27008;'s Hertogenbosch;01/01/2022;;177471;VR;VR21;Brabant-Noord ;99.97;voorlopig
+27009;Haaren;01/01/2022;;36870;GM;GM0757;Boxtel;0.10;voorlopig
+27009;Haaren;01/01/2022;;36870;GM;GM0824;Oisterwijk;86.90;voorlopig
+27009;Haaren;01/01/2022;;36870;GM;GM0865;Vught ;12.90;voorlopig
+27009;Haaren;01/01/2022;;36870;VR;VR20;Midden- en West-Brabant   ;86.90;voorlopig
+27009;Haaren;01/01/2022;;36870;VR;VR21;Brabant-Noord ;13.10;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;GM;GM0753;Best  ;48.36;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;GM;GM0798;Hilvarenbeek  ;0.10;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;GM;GM0823;Oirschot  ;21.29;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;GM;GM0824;Oisterwijk;0.05;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;GM;GM0848;Son en Breugel;1.28;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;GM;GM1948;Meierijstad   ;28.92;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;VR;VR20;Midden- en West-Brabant   ;0.14;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;VR;VR21;Brabant-Noord ;28.92;voorlopig
+27010;Sint-Oedenrode;01/01/2022;;63291;VR;VR22;Brabant-Zuidoost  ;70.94;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;GM;GM0744;Baarle-Nassau ;1.00;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;GM;GM0770;Eersel;0.20;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;GM;GM0785;Goirle;48.10;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;GM;GM0798;Hilvarenbeek  ;37.10;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;GM;GM0823;Oirschot  ;13.10;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;GM;GM0824;Oisterwijk;0.40;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;VR;VR20;Midden- en West-Brabant   ;86.70;voorlopig
+27011;Biest-Houtakker;01/01/2022;;42307;VR;VR22;Brabant-Zuidoost  ;13.30;voorlopig
+28002;Asten;01/01/2022;;43230;GM;GM0743;Asten ;39.50;voorlopig
+28002;Asten;01/01/2022;;43230;GM;GM0762;Deurne;17.50;voorlopig
+28002;Asten;01/01/2022;;43230;GM;GM0847;Someren   ;43.00;voorlopig
+28002;Asten;01/01/2022;;43230;VR;VR22;Brabant-Zuidoost  ;100.00;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;GM;GM0762;Deurne;14.42;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;GM;GM0794;Helmond   ;53.83;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;GM;GM0847;Someren   ;0.23;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;GM;GM1652;Gemert-Bakel  ;17.87;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;GM;GM1659;Laarbeek  ;13.21;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;GM;GM1771;Geldrop-Mierlo;0.03;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;GM;GM1948;Meierijstad   ;0.41;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;VR;VR21;Brabant-Noord ;0.41;voorlopig
+28003;Aarle-Rixtel;01/01/2022;;173624;VR;VR22;Brabant-Zuidoost  ;99.59;voorlopig
+28005;Dinther;01/01/2022;;125190;GM;GM0755;Boekel;8.81;voorlopig
+28005;Dinther;01/01/2022;;125190;GM;GM1721;Bernheze  ;8.11;voorlopig
+28005;Dinther;01/01/2022;;125190;GM;GM1948;Meierijstad   ;50.75;voorlopig
+28005;Dinther;01/01/2022;;125190;GM;GM1991;Maashorst ;32.33;voorlopig
+28005;Dinther;01/01/2022;;125190;VR;VR21;Brabant-Noord ;100.00;voorlopig
+28006;Vinkel;01/01/2022;;41547;GM;GM0796;s-Hertogenbosch  ;6.70;voorlopig
+28006;Vinkel;01/01/2022;;41547;GM;GM0828;Oss   ;0.50;voorlopig
+28006;Vinkel;01/01/2022;;41547;GM;GM0845;Sint-Michielsgestel   ;40.90;voorlopig
+28006;Vinkel;01/01/2022;;41547;GM;GM1721;Bernheze  ;51.90;voorlopig
+28006;Vinkel;01/01/2022;;41547;VR;VR21;Brabant-Noord ;100.00;voorlopig
+29002;Oijen;01/01/2022;;162103;GM;GM0796;s-Hertogenbosch  ;30.10;voorlopig
+29002;Oijen;01/01/2022;;162103;GM;GM0828;Oss   ;57.44;voorlopig
+29002;Oijen;01/01/2022;;162103;GM;GM1982;Land van Cuijk;6.84;voorlopig
+29002;Oijen;01/01/2022;;162103;GM;GM1991;Maashorst ;5.63;voorlopig
+29002;Oijen;01/01/2022;;162103;VR;VR21;Brabant-Noord ;100.00;voorlopig
+29003;Land van Cuijk;01/01/2022;;88378;GM;GM1652;Gemert-Bakel  ;0.02;voorlopig
+29003;Land van Cuijk;01/01/2022;;88378;GM;GM1982;Land van Cuijk;90.08;voorlopig
+29003;Land van Cuijk;01/01/2022;;88378;GM;GM1991;Maashorst ;9.90;voorlopig
+29003;Land van Cuijk;01/01/2022;;88378;VR;VR21;Brabant-Noord ;99.98;voorlopig
+29003;Land van Cuijk;01/01/2022;;88378;VR;VR22;Brabant-Zuidoost  ;0.02;voorlopig
+30003;Limmel;01/01/2022;;78319;GM;GM0935;Maastricht;44.15;voorlopig
+30003;Limmel;01/01/2022;;78319;GM;GM0938;Meerssen  ;23.72;voorlopig
+30003;Limmel;01/01/2022;;78319;GM;GM0986;Voerendaal;1.51;voorlopig
+30003;Limmel;01/01/2022;;78319;GM;GM0994;Valkenburg aan de Geul;20.43;voorlopig
+30003;Limmel;01/01/2022;;78319;GM;GM1729;Gulpen-Wittem ;0.27;voorlopig
+30003;Limmel;01/01/2022;;78319;GM;GM1903;Eijsden-Margraten ;5.19;voorlopig
+30003;Limmel;01/01/2022;;78319;GM;GM1954;Beekdaelen;4.72;voorlopig
+30003;Limmel;01/01/2022;;78319;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30005;Weert;01/01/2022;;67890;GM;GM0946;Nederweert;23.71;voorlopig
+30005;Weert;01/01/2022;;67890;GM;GM0988;Weert ;74.15;voorlopig
+30005;Weert;01/01/2022;;67890;GM;GM1640;Leudal;2.08;voorlopig
+30005;Weert;01/01/2022;;67890;GM;GM1894;Peel en Maas  ;0.06;voorlopig
+30005;Weert;01/01/2022;;67890;VR;VR23;Limburg-Noord ;100.00;voorlopig
+30007;Bosscherveld;01/01/2022;;60034;GM;GM0935;Maastricht;100.00;voorlopig
+30007;Bosscherveld;01/01/2022;;60034;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30011;Simpelveld;01/01/2022;;10422;GM;GM0965;Simpelveld;99.90;voorlopig
+30011;Simpelveld;01/01/2022;;10422;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30013;Rimburg;01/01/2022;;31109;GM;GM0882;Landgraaf ;69.50;voorlopig
+30013;Rimburg;01/01/2022;;31109;GM;GM0928;Kerkrade  ;30.50;voorlopig
+30013;Rimburg;01/01/2022;;31109;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30014;Kerkrade;01/01/2022;;42182;GM;GM0882;Landgraaf ;12.20;voorlopig
+30014;Kerkrade;01/01/2022;;42182;GM;GM0917;Heerlen   ;2.80;voorlopig
+30014;Kerkrade;01/01/2022;;42182;GM;GM0928;Kerkrade  ;85.00;voorlopig
+30014;Kerkrade;01/01/2022;;42182;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM0882;Landgraaf ;5.72;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM0888;Beek  ;8.46;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM0899;Brunssum  ;3.68;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM0917;Heerlen   ;47.69;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM0965;Simpelveld;0.01;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM0986;Voerendaal;6.28;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM1729;Gulpen-Wittem ;0.03;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM1883;Sittard-Geleen;15.10;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;GM;GM1954;Beekdaelen;13.03;voorlopig
+30015;Hoensbroek;01/01/2022;;178875;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30016;Heugem;01/01/2022;;45475;GM;GM0935;Maastricht;58.30;voorlopig
+30016;Heugem;01/01/2022;;45475;GM;GM0994;Valkenburg aan de Geul;0.40;voorlopig
+30016;Heugem;01/01/2022;;45475;GM;GM1903;Eijsden-Margraten ;41.40;voorlopig
+30016;Heugem;01/01/2022;;45475;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30017;Venlo;01/01/2022;;190344;GM;GM0889;Beesel;7.04;voorlopig
+30017;Venlo;01/01/2022;;190344;GM;GM0893;Bergen (L.)   ;0.03;voorlopig
+30017;Venlo;01/01/2022;;190344;GM;GM0983;Venlo ;53.66;voorlopig
+30017;Venlo;01/01/2022;;190344;GM;GM1507;Horst aan de Maas ;19.29;voorlopig
+30017;Venlo;01/01/2022;;190344;GM;GM1894;Peel en Maas  ;19.97;voorlopig
+30017;Venlo;01/01/2022;;190344;VR;VR23;Limburg-Noord ;100.00;voorlopig
+30018;Meijel;01/01/2022;;6227;GM;GM0946;Nederweert;0.20;voorlopig
+30018;Meijel;01/01/2022;;6227;GM;GM1894;Peel en Maas  ;99.80;voorlopig
+30018;Meijel;01/01/2022;;6227;VR;VR23;Limburg-Noord ;100.00;voorlopig
+30019;Wijlre;01/01/2022;;27035;GM;GM0981;Vaals ;37.50;voorlopig
+30019;Wijlre;01/01/2022;;27035;GM;GM0986;Voerendaal;0.10;voorlopig
+30019;Wijlre;01/01/2022;;27035;GM;GM1729;Gulpen-Wittem ;51.40;voorlopig
+30019;Wijlre;01/01/2022;;27035;GM;GM1903;Eijsden-Margraten ;11.00;voorlopig
+30019;Wijlre;01/01/2022;;27035;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30020;Venray;01/01/2022;;53860;GM;GM0893;Bergen (L.)   ;6.64;voorlopig
+30020;Venray;01/01/2022;;53860;GM;GM0984;Venray;81.63;voorlopig
+30020;Venray;01/01/2022;;53860;GM;GM1507;Horst aan de Maas ;11.74;voorlopig
+30020;Venray;01/01/2022;;53860;VR;VR23;Limburg-Noord ;100.00;voorlopig
+30021;Stein;01/01/2022;;25931;GM;GM0888;Beek  ;2.70;voorlopig
+30021;Stein;01/01/2022;;25931;GM;GM0971;Stein ;95.60;voorlopig
+30021;Stein;01/01/2022;;25931;GM;GM1883;Sittard-Geleen;1.70;voorlopig
+30021;Stein;01/01/2022;;25931;VR;VR24;Limburg-Zuid  ;100.00;voorlopig
+30022;Susteren;01/01/2022;;128849;GM;GM0899;Brunssum  ;16.37;voorlopig
+30022;Susteren;01/01/2022;;128849;GM;GM0917;Heerlen   ;0.27;voorlopig
+30022;Susteren;01/01/2022;;128849;GM;GM1641;Maasgouw  ;2.01;voorlopig
+30022;Susteren;01/01/2022;;128849;GM;GM1711;Echt-Susteren ;24.55;voorlopig
+30022;Susteren;01/01/2022;;128849;GM;GM1883;Sittard-Geleen;49.87;voorlopig
+30022;Susteren;01/01/2022;;128849;GM;GM1954;Beekdaelen;6.92;voorlopig
+30022;Susteren;01/01/2022;;128849;VR;VR23;Limburg-Noord ;26.57;voorlopig
+30022;Susteren;01/01/2022;;128849;VR;VR24;Limburg-Zuid  ;73.43;voorlopig
+30023;Panheel;01/01/2022;;18150;GM;GM1640;Leudal;40.10;voorlopig
+30023;Panheel;01/01/2022;;18150;GM;GM1641;Maasgouw  ;59.90;voorlopig
+30023;Panheel;01/01/2022;;18150;VR;VR23;Limburg-Noord ;100.00;voorlopig
+30024;Roermond;01/01/2022;;118819;GM;GM0946;Nederweert;1.02;voorlopig
+30024;Roermond;01/01/2022;;118819;GM;GM0957;Roermond  ;49.81;voorlopig
+30024;Roermond;01/01/2022;;118819;GM;GM1640;Leudal;22.92;voorlopig
+30024;Roermond;01/01/2022;;118819;GM;GM1641;Maasgouw  ;8.87;voorlopig
+30024;Roermond;01/01/2022;;118819;GM;GM1669;Roerdalen ;17.29;voorlopig
+30024;Roermond;01/01/2022;;118819;GM;GM1711;Echt-Susteren ;0.08;voorlopig
+30024;Roermond;01/01/2022;;118819;VR;VR23;Limburg-Noord ;100.00;voorlopig
+30025;Gennep;01/01/2022;;34691;GM;GM0893;Bergen (L.)   ;27.30;voorlopig
+30025;Gennep;01/01/2022;;34691;GM;GM0907;Gennep;49.70;voorlopig
+30025;Gennep;01/01/2022;;34691;GM;GM0944;Mook en Middelaar ;23.00;voorlopig
+30025;Gennep;01/01/2022;;34691;VR;VR23;Limburg-Noord ;100.00;voorlopig
+31005;Westpoort;01/01/2022;;313928;GM;GM0363;Amsterdam ;80.30;voorlopig
+31005;Westpoort;01/01/2022;;313928;GM;GM0394;Haarlemmermeer;0.06;voorlopig
+31005;Westpoort;01/01/2022;;313928;GM;GM0479;Zaanstad  ;19.64;voorlopig
+31005;Westpoort;01/01/2022;;313928;VR;VR11;Zaanstreek-Waterland  ;19.64;voorlopig
+31005;Westpoort;01/01/2022;;313928;VR;VR12;Kennemerland  ;0.06;voorlopig
+31005;Westpoort;01/01/2022;;313928;VR;VR13;Amsterdam-Amstelland  ;80.30;voorlopig
+32002;Tilburg;01/01/2022;;226629;GM;GM0785;Goirle;0.27;voorlopig
+32002;Tilburg;01/01/2022;;226629;GM;GM0809;Loon op Zand  ;1.41;voorlopig
+32002;Tilburg;01/01/2022;;226629;GM;GM0824;Oisterwijk;0.11;voorlopig
+32002;Tilburg;01/01/2022;;226629;GM;GM0855;Tilburg   ;98.16;voorlopig
+32002;Tilburg;01/01/2022;;226629;GM;GM0865;Vught ;0.04;voorlopig
+32002;Tilburg;01/01/2022;;226629;VR;VR20;Midden- en West-Brabant   ;99.96;voorlopig
+32002;Tilburg;01/01/2022;;226629;VR;VR21;Brabant-Noord ;0.04;voorlopig
+33001;Foxhol;01/01/2022;;30140;GM;GM0014;Groningen ;1.90;voorlopig
+33001;Foxhol;01/01/2022;;30140;GM;GM1680;Aa en Hunze   ;2.00;voorlopig
+33001;Foxhol;01/01/2022;;30140;GM;GM1730;Tynaarlo  ;37.30;voorlopig
+33001;Foxhol;01/01/2022;;30140;GM;GM1952;Midden-Groningen  ;58.80;voorlopig
+33001;Foxhol;01/01/2022;;30140;VR;VR01;Groningen ;60.70;voorlopig
+33001;Foxhol;01/01/2022;;30140;VR;VR03;Drenthe   ;39.30;voorlopig
+49998;Bruggehof (particulier);01/01/2022;;169;GM;GM0505;Dordrecht ;100.00;voorlopig
+49998;Bruggehof (particulier);01/01/2022;;169;VR;VR18;Zuid-Holland-Zuid ;100.00;voorlopig
+49999;Schiphol(derden);01/01/2022;;111;GM;GM0394;Haarlemmermeer;100.00;voorlopig
+49999;Schiphol(derden);01/01/2022;;111;VR;VR12;Kennemerland  ;100.00;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;1;GM;GM0034;Almere;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;120;GM;GM0059;Achtkarspelen ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;5;GM;GM0085;Ooststellingwerf  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;72;GM;GM0086;Opsterland;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;7;GM;GM0098;Weststellingwerf  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;2;GM;GM0171;Noordoostpolder   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;4;GM;GM0177;Raalte;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;6;GM;GM0303;Dronten   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;6;GM;GM0363;Amsterdam ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;6;GM;GM0385;Edam-Volendam ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;4;GM;GM0388;Enkhuizen ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;17;GM;GM0405;Hoorn ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;1;GM;GM0502;Capelle aan den IJssel;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;33;GM;GM0505;Dordrecht ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;32;GM;GM0513;Gouda ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;9;GM;GM0530;Hellevoetsluis;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;4;GM;GM0542;Krimpen aan den IJssel;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;1;GM;GM0556;Maassluis ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;182;GM;GM0597;Ridderkerk;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;173;GM;GM0599;Rotterdam ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;71;GM;GM0606;Schiedam  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;92;GM;GM0622;Vlaardingen   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;8;GM;GM0642;Zwijndrecht   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;2;GM;GM0677;Hulst ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;10;GM;GM0703;Reimerswaal   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;2;GM;GM0715;Terneuzen ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;37;GM;GM0716;Tholen;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;124;GM;GM0744;Baarle-Nassau ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;7;GM;GM0779;Geertruidenberg   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;5;GM;GM0785;Goirle;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;21;GM;GM0826;Oosterhout;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;2;GM;GM0840;Rucphen   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;14;GM;GM0851;Steenbergen   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;2;GM;GM0852;Waterland ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;6;GM;GM0855;Tilburg   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;35;GM;GM0867;Waalwijk  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;19;GM;GM0879;Zundert   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;11;GM;GM0995;Lelystad  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;83;GM;GM1674;Roosendaal;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;22;GM;GM1676;Schouwen-Duiveland;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;1;GM;GM1695;Noord-Beveland;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;4;GM;GM1696;Wijdemeren;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;62;GM;GM1709;Moerdijk  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;55;GM;GM1719;Drimmelen ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;45;GM;GM1892;Zuidplas  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;3;GM;GM1904;Stichtse Vecht;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;3;GM;GM1911;Hollands Kroon;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;2;GM;GM1924;Goeree-Overflakkee;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;3;GM;GM1930;Nissewaard;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;6;GM;GM1931;Krimpenerwaard;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;126;GM;GM1963;Hoeksche Waard;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;14;GM;GM1970;Noardeast-Fryslân ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;218;VR;VR02;Fryslân   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;4;VR;VR04;IJsselland;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;3;VR;VR09;Utrecht   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;24;VR;VR10;Noord-Holland-Noord   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;8;VR;VR11;Zaanstreek-Waterland  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;6;VR;VR13;Amsterdam-Amstelland  ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;4;VR;VR14;Gooi en Vechtstreek   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;83;VR;VR16;Hollands-Midden   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;538;VR;VR17;Rotterdam-Rijnmond;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;167;VR;VR18;Zuid-Holland-Zuid ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;74;VR;VR19;Zeeland   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;433;VR;VR20;Midden- en West-Brabant   ;;voorlopig
+-9995;buiten RWZI herkomstgebied;01/01/2022;;20;VR;VR25;Flevoland ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;108;GM;GM0014;Groningen ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;35;GM;GM0034;Almere;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0037;Stadskanaal   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0050;Zeewolde  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0059;Achtkarspelen ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0060;Ameland   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0080;Leeuwarden;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0085;Ooststellingwerf  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0093;Terschelling  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;8;GM;GM0098;Weststellingwerf  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;6;GM;GM0106;Assen ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;29;GM;GM0114;Emmen ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0141;Almelo;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM0150;Deventer  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;24;GM;GM0158;Haaksbergen   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;105;GM;GM0180;Staphorst ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM0183;Tubbergen ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;26;GM;GM0184;Urk   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0197;Aalten;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0200;Apeldoorn ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0214;Buren ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM0228;Ede   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0233;Ermelo;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;8;GM;GM0243;Harderwijk;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;12;GM;GM0273;Putten;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0281;Tiel  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0285;Voorst;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;9;GM;GM0299;Zevenaar  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0302;Nunspeet  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0308;Baarn ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0317;Eemnes;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0321;Houten;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;131;GM;GM0344;Utrecht   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM0361;Alkmaar   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;455;GM;GM0363;Amsterdam ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM0375;Beverwijk ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0376;Blaricum  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;20;GM;GM0394;Haarlemmermeer;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0396;Heemskerk ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;34;GM;GM0399;Heiloo;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0405;Hoorn ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0415;Landsmeer ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0417;Laren ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;52;GM;GM0420;Medemblik ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM0432;Opmeer;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;5;GM;GM0439;Purmerend ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;18;GM;GM0441;Schagen   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;90;GM;GM0453;Velsen;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0473;Zandvoort ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;15;GM;GM0479;Zaanstad  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0484;Alphen aan den Rijn   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;111;GM;GM0501;Brielle   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM0505;Dordrecht ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;303;GM;GM0518;s-Gravenhage ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0523;Hardinxveld-Giessendam;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;68;GM;GM0530;Hellevoetsluis;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0546;Leiden;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0553;Lisse ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;44;GM;GM0569;Nieuwkoop ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0575;Noordwijk ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;125;GM;GM0599;Rotterdam ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0606;Schiedam  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0627;Waddinxveen   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;241;GM;GM0629;Wassenaar ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0637;Zoetermeer;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0642;Zwijndrecht   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0716;Tholen;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM0717;Veere ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM0748;Bergen op Zoom;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;27;GM;GM0758;Breda ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM0762;Deurne;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;20;GM;GM0772;Eindhoven ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;5;GM;GM0796;s-Hertogenbosch  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;9;GM;GM0798;Hilvarenbeek  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;12;GM;GM0809;Loon op Zand  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;6;GM;GM0820;Nuenen. Gerwen en Nederwetten ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;160;GM;GM0840;Rucphen   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;71;GM;GM0851;Steenbergen   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;16;GM;GM0852;Waterland ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM0865;Vught ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;14;GM;GM0879;Zundert   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM0882;Landgraaf ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0888;Beek  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0893;Bergen (L.)   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM0928;Kerkrade  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;30;GM;GM0935;Maastricht;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM0957;Roermond  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM0981;Vaals ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;5;GM;GM0988;Weert ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1509;Oude IJsselstreek ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1581;Utrechtse Heuvelrug   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1640;Leudal;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;23;GM;GM1641;Maasgouw  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1652;Gemert-Bakel  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;7;GM;GM1658;Heeze-Leende  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1674;Roosendaal;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;14;GM;GM1676;Schouwen-Duiveland;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM1680;Aa en Hunze   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1695;Noord-Beveland;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM1699;Noordenveld   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;5;GM;GM1700;Twenterand;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;5;GM;GM1708;Steenwijkerland   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM1711;Echt-Susteren ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM1714;Sluis ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;4;GM;GM1719;Drimmelen ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;6;GM;GM1729;Gulpen-Wittem ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;13;GM;GM1731;Midden-Drenthe;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;22;GM;GM1735;Hof van Twente;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1771;Geldrop-Mierlo;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM1774;Dinkelland;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;9;GM;GM1883;Sittard-Geleen;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1884;Kaag en Braassem  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1903;Eijsden-Margraten ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM1904;Stichtse Vecht;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM1911;Hollands Kroon;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM1924;Goeree-Overflakkee;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;2;GM;GM1940;De Fryske Marren  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM1942;Gooise Meren  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1950;Westerwolde   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;1;GM;GM1959;Altena;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;23;GM;GM1963;Hoeksche Waard;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;GM;GM1970;Noardeast-Fryslân ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;26;GM;GM1980;Dijk en Waard ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;14;GM;GM1982;Land van Cuijk;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;12;GM;GM1991;Maashorst ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;111;VR;VR01;Groningen ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;18;VR;VR02;Fryslân   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;54;VR;VR03;Drenthe   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;114;VR;VR04;IJsselland;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;58;VR;VR05;Twente;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;28;VR;VR06;Noord- en Oost-Gelderland ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;13;VR;VR07;Gelderland-Midden ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;3;VR;VR08;Gelderland-Zuid   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;138;VR;VR09;Utrecht   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;142;VR;VR10;Noord-Holland-Noord   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;38;VR;VR11;Zaanstreek-Waterland  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;116;VR;VR12;Kennemerland  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;455;VR;VR13;Amsterdam-Amstelland  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;7;VR;VR14;Gooi en Vechtstreek   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;545;VR;VR15;Haaglanden;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;51;VR;VR16;Hollands-Midden   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;308;VR;VR17;Rotterdam-Rijnmond;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;30;VR;VR18;Zuid-Holland-Zuid ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;23;VR;VR19;Zeeland   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;302;VR;VR20;Midden- en West-Brabant   ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;34;VR;VR21;Brabant-Noord ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;38;VR;VR22;Brabant-Zuidoost  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;35;VR;VR23;Limburg-Noord ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;55;VR;VR24;Limburg-Zuid  ;;voorlopig
+-9999;niet ingedeeld;01/01/2022;;62;VR;VR25;Flevoland ;;voorlopig
+;;;;;;;;;
+;;;;;;;;;
