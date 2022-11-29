@@ -92,8 +92,6 @@ def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, windo
     df_inwoners = df_inwoners.groupby(df_inwoners["rwzi_code"]).mean().reset_index()
     
     df_inwoners["aandeel_maal_inwoners"]= df_inwoners["aandeel"] * df_inwoners["inwoners"]/100
-    print ("TOTAAL INWONERS")
-    print (df_inwoners["aandeel_maal_inwoners"].sum())
     df_rioolwaterdata["Date_measurement"] = pd.to_datetime(
             df_rioolwaterdata["Date_measurement"], format="%Y-%m-%d")
     df_rioolwaterdata["aantal"] = 1
@@ -113,22 +111,26 @@ def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, windo
 
     df_rioolwaterdata["result"] = ((df_rioolwaterdata["product"]/df_rioolwaterdata["inwoners"]  ) ) *100_000
  
-    df_riool_rivm["date_rivm"] = pd.to_datetime(df_riool_rivm["date_unix"], unit='s' )
-    df_riool_rivm["date_rivm"] =  df_riool_rivm["date_rivm"].dt.strftime('%Y-%m-%d')
-    # print (df_riool_rivm) 
+    # df_riool_rivm["date_rivm"] = pd.to_datetime(df_riool_rivm["date_unix"], unit='s' )
+    # df_riool_rivm["date_rivm"] =  df_riool_rivm["date_rivm"].dt.strftime('%Y-%m-%d')
+    
     df_riool_rivm["date_rivm"] =  pd.to_datetime( df_riool_rivm["date_rivm"] , format="%Y-%m-%d")
-    print (df_riool_rivm)  
+
+    # name_="C:\\Users\\rcxsm\\Documents\\riool_rivm.csv"
+    # compression_opts = dict(method=None, archive_name=name_)
+    # df_riool_rivm.to_csv(name_, index=False, compression=compression_opts)
+  
     df_lcps["date"] = pd.to_datetime(df_lcps["date"], format="%Y-%m-%d")
     
     df_totaal = pd.merge(df_rioolwaterdata, df_lcps, how="inner", left_on="Date_measurement", right_on = "date")
     df_totaal = pd.merge(df_totaal, df_rioolwaterdata_simpel, how="inner", left_on="date", right_on="Date_measurement")
     df_totaal = pd.merge(df_totaal, df_riool_rivm, how="inner", left_on = "date", right_on="date_rivm")
     df_totaal["RNA_flow_per_100000_simpel"] = df_totaal["RNA_flow_per_100000_simpel"] / 100_000_000_000
-    print (df_totaal.dtypes)
+   
     df_totaal["RNA_flow_per_100000_simpel_gedeeld_door_aantal"] = df_totaal["RNA_flow_per_100000_simpel"] / df_totaal["aantal_x"]
     df_totaal = df_totaal.fillna(0)
     df_totaal = df_totaal.sort_values(by='date') 
-    print (df_totaal.dtypes)
+    
     for t in ["result", what_to_show,"RNA_flow_per_100000_simpel", "RNA_flow_per_100000_simpel_gedeeld_door_aantal","value_rivm_official"]:
         make_sma(df_totaal, t, window, centersmooth)
 
@@ -148,7 +150,7 @@ def get_data():
         url_rioolwaterdata= "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.csv"
     #url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/lcps_by_day.csv"
         url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/all_data.csv"
-
+        url_riool_rivm = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaardes_official_rivm.csv"
     df_inwoners =  pd.read_csv(url_inwoners, delimiter=';', low_memory=False)
     df_rioolwaterdata = pd.read_csv(url_rioolwaterdata, delimiter=';', low_memory=False)
     df_lcps = pd.read_csv(url_lcps, delimiter=',', low_memory=False)
@@ -254,7 +256,7 @@ def make_graphs(df_totaal, new_column, which_riooldeeltjes):
     make_annotations(fig)
     st.write(f"Result = {new_column}")
     st.plotly_chart(fig, use_container_width=True)
-    find_lag_time(df_totaal,which_riooldeeltjes, new_column,-31,31)
+    #find_lag_time(df_totaal,which_riooldeeltjes, new_column,-31,31)
     make_scatter(df_totaal, x=which_riooldeeltjes, y=new_column, title=title_1b )
     make_scatter(df_totaal, x="date", y=which_riooldeeltjes, title= "aantal deeltjes door de tijd heen")
     make_scatter(df_totaal, x="date", y="rioolwaarde_gedeeld_door_what_to_show", title=(f"{new_column} per rioolwaarde"))
@@ -356,7 +358,7 @@ def main():
     df_inwoners, df_rioolwaterdata, df_lcps,df_riool_rivm = get_data()
 
     df_totaal = transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, window, centersmooth,what_to_show)
-    print (df_totaal)
+   
     df_totaal = select_period_oud(df_totaal, "date", FROM, UNTIL)
     what_to_show_sma = what_to_show +"_sma"
     df_totaal, new_column = move_column(df_totaal, what_to_show_sma , days_move_columns)
