@@ -353,7 +353,6 @@ def interface():
     return FROM,UNTIL,days_move_columns,window,centersmooth,what_to_show, which_riooldeeltjes
 
 def main():
-    
     FROM, UNTIL, days_move_columns, window, centersmooth,what_to_show,which_riooldeeltjes = interface()
     df_inwoners, df_rioolwaterdata, df_lcps,df_riool_rivm = get_data()
 
