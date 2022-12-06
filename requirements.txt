@@ -7,7 +7,6 @@ seaborn
 lmfit
 imageio
 tabulate
-sklearn
 gsheetsdb
 plotly
 statsmodels
