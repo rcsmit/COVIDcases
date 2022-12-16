@@ -45,12 +45,12 @@ def scrape_rioolwater():
         l.append([date_unix,value_rivm_official, date_rivm])    
 
     total_df = pd.DataFrame(l, columns=columns)
-    print (total_df)
-  
     return total_df
-def main():
-    scrape_rioolwater()
 
+def main():
+    df = scrape_rioolwater()
+    print(df)
+    
 if __name__ == "__main__":
     main()
 

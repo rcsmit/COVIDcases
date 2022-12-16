@@ -13,3 +13,5 @@ statsmodels
 patsy
 scikit-learn
 cbsodata
+bs4
+lxml
