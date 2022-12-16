@@ -5,44 +5,20 @@ import datetime as dt
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-# import matplotlib.dates as mdates
-# from textwrap import wrap
-# import matplotlib.cm as cm
-# import seaborn as sn
-# from scipy import stats
-# import datetime as dt
-# from datetime import datetime, timedelta
+import get_rioolwater
 
-# from streamlit.errors import NoSessionContext
-
-# import json
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# from matplotlib.font_manager import FontProperties
-# from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
-# import matplotlib.ticker as ticker
-# import math
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
-# from scipy.signal import savgol_filter
-# from sklearn.metrics import r2_score
-import streamlit as st
-# import urllib
-# import urllib.request
-# from pathlib import Path
-# #from streamlit import caching
-# from inspect import currentframe, getframeinfo
-# from helpers import *
-# import covid_dashboard_show_toelichting_footer
 
+import streamlit as st
 
 # https://www.cbs.nl/nl-nl/maatwerk/2022/42/inwoners-per-rioolwaterzuiveringsinstallatie-1-1-2022
 # https://coronadashboard.rijksoverheid.nl/landelijk/rioolwater
 # 853 x 100 miljard = 853 * 10E11 = 8.53 *10E13 per 100.000 inwoners
-
-
 
 def select_period_oud(df, field, show_from, show_until):
     """Shows two inputfields (from/until and Select a period in a df (helpers.py).
@@ -63,9 +39,6 @@ def select_period_oud(df, field, show_from, show_until):
     df = df.loc[mask]
     df = df.reset_index()
     return df
-
-
-
 
 def move_column(df, column_, days):
     """Move/shift a column
@@ -105,32 +78,24 @@ def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, windo
     # https://www.rivm.nl/documenten/berekening-cijfers-rioolwatermetingen-covid-19
     #df_rioolwaterdata["product"] = df_rioolwaterdata["RNA_flow_per_100000"] * df_rioolwaterdata["inwoners"] / 100_000
     df_rioolwaterdata["product"] = (df_rioolwaterdata["RNA_flow_per_100000"] * df_rioolwaterdata["aandeel_maal_inwoners"] / 100_000 ) / 100_000_000_000
-
-
     df_rioolwaterdata = df_rioolwaterdata.groupby(df_rioolwaterdata["Date_measurement"]).sum()
-
     df_rioolwaterdata["result"] = ((df_rioolwaterdata["product"]/df_rioolwaterdata["inwoners"]  ) ) *100_000
- 
-    # df_riool_rivm["date_rivm"] = pd.to_datetime(df_riool_rivm["date_unix"], unit='s' )
-    # df_riool_rivm["date_rivm"] =  df_riool_rivm["date_rivm"].dt.strftime('%Y-%m-%d')
-    
     df_riool_rivm["date_rivm"] =  pd.to_datetime( df_riool_rivm["date_rivm"] , format="%Y-%m-%d")
 
     # name_="C:\\Users\\rcxsm\\Documents\\riool_rivm.csv"
     # compression_opts = dict(method=None, archive_name=name_)
     # df_riool_rivm.to_csv(name_, index=False, compression=compression_opts)
-  
     df_lcps["date"] = pd.to_datetime(df_lcps["date"], format="%Y-%m-%d")
     
     df_totaal = pd.merge(df_rioolwaterdata, df_lcps, how="inner", left_on="Date_measurement", right_on = "date")
     df_totaal = pd.merge(df_totaal, df_rioolwaterdata_simpel, how="inner", left_on="date", right_on="Date_measurement")
     df_totaal = pd.merge(df_totaal, df_riool_rivm, how="inner", left_on = "date", right_on="date_rivm")
     df_totaal["RNA_flow_per_100000_simpel"] = df_totaal["RNA_flow_per_100000_simpel"] / 100_000_000_000
-   
+
     df_totaal["RNA_flow_per_100000_simpel_gedeeld_door_aantal"] = df_totaal["RNA_flow_per_100000_simpel"] / df_totaal["aantal_x"]
     df_totaal = df_totaal.fillna(0)
     df_totaal = df_totaal.sort_values(by='date') 
-    
+    print (df_totaal.dtypes)
     for t in ["result", what_to_show,"RNA_flow_per_100000_simpel", "RNA_flow_per_100000_simpel_gedeeld_door_aantal","value_rivm_official"]:
         make_sma(df_totaal, t, window, centersmooth)
 
@@ -143,18 +108,18 @@ def get_data():
         url_inwoners = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\inwoners_rzwi.csv"
         url_rioolwaterdata = r"C:\Users\rcxsm\Downloads\COVID-19_rioolwaterdata.csv"
         url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/all_data.csv"
-        url_riool_rivm = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaardes_official_rivm.csv"
-    
+
     else:
         url_inwoners = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/inwoners_rzwi.csv"
         url_rioolwaterdata= "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.csv"
-    #url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/lcps_by_day.csv"
+        #url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/lcps_by_day.csv"
         url_lcps = "https://raw.githubusercontent.com/mzelst/covid-19/master/data/all_data.csv"
-        url_riool_rivm = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaardes_official_rivm.csv"
+        
     df_inwoners =  pd.read_csv(url_inwoners, delimiter=';', low_memory=False)
     df_rioolwaterdata = pd.read_csv(url_rioolwaterdata, delimiter=';', low_memory=False)
     df_lcps = pd.read_csv(url_lcps, delimiter=',', low_memory=False)
-    df_riool_rivm = pd.read_csv(url_riool_rivm, delimiter=',', low_memory=False)
+
+    df_riool_rivm = get_rioolwater.scrape_rioolwater()
     
     return df_inwoners,df_rioolwaterdata,df_lcps,df_riool_rivm
 
@@ -177,7 +142,6 @@ def find_lag_time(df_, what_happens_first, what_happens_second, r1, r2):
     df, b_sma = make_sma(df, b, 7, True )
     df, a_sma = make_sma(df, a, 7, True )
 
-  
     df, nx = move_column(df, a, 0) #strange way to prevent error
     df, nx_sma = move_column(df, a_sma, 0) #strange way to prevent error
 
@@ -202,7 +166,6 @@ def find_lag_time(df_, what_happens_first, what_happens_second, r1, r2):
             n_max_sma = n
         y_sma.append(c_sma)
 
-
     title = f"Correlation between : {a} - {b} with moved days\n"#({FROM} - {UNTIL})"
 
     with _lock:
@@ -225,7 +188,36 @@ def find_lag_time(df_, what_happens_first, what_happens_second, r1, r2):
     # graph_daily(df, [a], [max_column], "SMA", "line", showday)
     # if the optimum is negative, the second one is that x days later
 
+   
+def make_scatter(df_totaal, x,y, title):
+    fig1 = px.scatter(df_totaal, x=x, y=y, title=title)
+    # fig1b.add_trace(go.Scatter(x=[500], 
+                          
+    #                      mode='lines', 
+    #                      line=dict(color='green', width=2, dash='dash'),
+    #                      ))
+    if x == "date":
+        make_annotations(fig1)             
+    st.plotly_chart(fig1, use_container_width=True)
 
+def make_annotations(fig1):
+    fig1.add_vrect(x0="2021-1-01", x1="2021-12-31", 
+                annotation_text="2021", annotation_position="bottom left",
+                fillcolor="pink", opacity=0.25, line_width=0)
+
+    fig1.add_vrect(x0='2021-01-6', x1="2021-01-7",
+                annotation_text="Start Vaccinatie", annotation_position="top left",
+                fillcolor="green", opacity=0.25)
+     
+    fig1.add_vrect(x0='2021-11-18', x1="2021-11-19",
+                annotation_text="Start Booster", annotation_position="top left",
+                fillcolor="green", opacity=0.25)
+    fig1.add_vrect(x0='2022-01-01', x1="2022-01-02",
+                annotation_text="Opmars omnicron", annotation_position="bottom left",
+                fillcolor="green", opacity=0.25)
+    fig1.add_vrect(x0='2022-09-19', x1="2022-09-20",
+                annotation_text="Start Herhaalprik", annotation_position="top left",
+                fillcolor="green", opacity=0.25)    
 def make_graphs(df_totaal, new_column, which_riooldeeltjes):
     title_1 = (f"{new_column} en Gemiddeld aantal virusdeeltjes [(per 100.000 inwoners)  x 100 miljard] door de tijd heen")
     title_1b= (f"rioolwaardes vs {new_column}")
@@ -263,46 +255,11 @@ def make_graphs(df_totaal, new_column, which_riooldeeltjes):
     make_scatter(df_totaal, x=which_riooldeeltjes, y="RNA_flow_per_100000_simpel_sma", title="gewogen waarde vs opgetelde waardes")
     make_scatter(df_totaal, x=which_riooldeeltjes, y="RNA_flow_per_100000_simpel_gedeeld_door_aantal_sma", title = "gewogen waarde vs gemiddelde waarde per meetstation")
     make_scatter(df_totaal, x="date", y="aantal_x", title= "aantal meetstations door de tijd heen")
-   
     make_scatter(df_totaal, x=which_riooldeeltjes, y="value_rivm_official_sma", title="gewogen waarde vs officiele waarde")
-    
-def make_scatter(df_totaal, x,y, title):
-    fig1 = px.scatter(df_totaal, x=x, y=y, title=title)
-    # fig1b.add_trace(go.Scatter(x=[500], 
-                          
-    #                      mode='lines', 
-    #                      line=dict(color='green', width=2, dash='dash'),
-    #                      ))
-    if x == "date":
-        make_annotations(fig1)
-        
-   
-                
-    st.plotly_chart(fig1, use_container_width=True)
-
-def make_annotations(fig1):
-    fig1.add_vrect(x0="2021-1-01", x1="2021-12-31", 
-                annotation_text="2021", annotation_position="bottom left",
-                fillcolor="pink", opacity=0.25, line_width=0)
-
-    fig1.add_vrect(x0='2021-01-6', x1="2021-01-7",
-                annotation_text="Start Vaccinatie", annotation_position="top left",
-                fillcolor="green", opacity=0.25)
-     
-    fig1.add_vrect(x0='2021-11-18', x1="2021-11-19",
-                annotation_text="Start Booster", annotation_position="top left",
-                fillcolor="green", opacity=0.25)
-    fig1.add_vrect(x0='2022-01-01', x1="2022-01-02",
-                annotation_text="Opmars omnicron", annotation_position="bottom left",
-                fillcolor="green", opacity=0.25)
-    fig1.add_vrect(x0='2022-09-19', x1="2022-09-20",
-                annotation_text="Start Herhaalprik", annotation_position="top left",
-                fillcolor="green", opacity=0.25)
-        
-    
+ 
 
 def interface():
-    mzelst =  ["IC_Nieuwe_Opnames_COVID_Nederland","Kliniek_Nieuwe_Opnames_COVID_Nederland","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected",
+    mzelst =  ["IC_opnames_covid","kliniek_opnames_covid","cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected",
         "IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative",
         "IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul",
         "IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","new.infection","corrections.cases","net.infection","new.hospitals",
@@ -355,9 +312,7 @@ def interface():
 def main():
     FROM, UNTIL, days_move_columns, window, centersmooth,what_to_show,which_riooldeeltjes = interface()
     df_inwoners, df_rioolwaterdata, df_lcps,df_riool_rivm = get_data()
-
     df_totaal = transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, window, centersmooth,what_to_show)
-   
     df_totaal = select_period_oud(df_totaal, "date", FROM, UNTIL)
     what_to_show_sma = what_to_show +"_sma"
     df_totaal, new_column = move_column(df_totaal, what_to_show_sma , days_move_columns)
