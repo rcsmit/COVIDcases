@@ -253,9 +253,9 @@ def make_graphs(df_totaal, new_column, which_riooldeeltjes):
     make_scatter(df_totaal, x="date", y=which_riooldeeltjes, title= "aantal deeltjes door de tijd heen")
     make_scatter(df_totaal, x="date", y="rioolwaarde_gedeeld_door_what_to_show", title=(f"{new_column} per rioolwaarde"))
     make_scatter(df_totaal, x=which_riooldeeltjes, y="RNA_flow_per_100000_simpel_sma", title="gewogen waarde vs opgetelde waardes")
-    make_scatter(df_totaal, x=which_riooldeeltjes, y="RNA_flow_per_100000_simpel_gedeeld_door_aantal_sma", title = "gewogen waarde vs gemiddelde waarde per meetstation")
+    make_scatter(df_totaal, x=which_riooldeeltjes, y="RNA_flow_per_100000_simpel_gedeeld_door_aantal_sma", title = "gewogen waarde vs gemiddelde waarde per meetstation [x100 miljard]")
     make_scatter(df_totaal, x="date", y="aantal_x", title= "aantal meetstations door de tijd heen")
-    make_scatter(df_totaal, x=which_riooldeeltjes, y="value_rivm_official_sma", title="gewogen waarde vs officiele waarde")
+    make_scatter(df_totaal, x=which_riooldeeltjes, y="value_rivm_official_sma", title="gewogen waarde vs officiele waarde [x100 miljard]")
  
 
 def interface():
