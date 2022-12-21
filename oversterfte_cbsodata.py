@@ -10,7 +10,7 @@ from plotly.subplots import make_subplots
 import platform
 from oversterfte_helpers import *
 import get_rioolwater
-from streamlit import caching
+# from streamlit import caching
 
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
@@ -19,7 +19,7 @@ from streamlit import caching
 # toc = pd.DataFrame(cbsodata.get_table_list())
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
-@st.cache(ttl=60 * 60 * 24)
+# @st.cache(ttl=60 * 60 * 24)
 def get_sterftedata():
     if platform.processor() != "":
         # file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overledenen_cbs.csv"
