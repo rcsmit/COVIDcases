@@ -34,6 +34,7 @@ def scrape_rioolwater():
     # with open('output_rioolwater.txt', 'w') as f:
     #     f.write(output)
 
+    # TODO: see if using named tuples is better https://www.youtube.com/watch?v=BlVciXgsBYI
 
     l=[]
     columns = ["date_unix","value_rivm_official", "date_rivm"]
@@ -41,15 +42,22 @@ def scrape_rioolwater():
         date_unix =  (i["date_unix"])
         value_rivm_official =  (i["average"])
         date_rivm = get_normal_date(date_unix)
-
+        
         l.append([date_unix,value_rivm_official, date_rivm])    
 
     total_df = pd.DataFrame(l, columns=columns)
-    return total_df
+    total_df["date_rivm"] =  pd.to_datetime(total_df["date_rivm"] , format="%Y-%m-%d")
+    total_df['year_number'] = total_df['date_rivm'].dt.isocalendar().year
+    total_df['week_number'] = total_df['date_rivm'].dt.isocalendar().week
+    total_df["weeknr"] = total_df["year_number"].astype(str) +"_" + total_df["week_number"].astype(str).str.zfill(2)
+    total_df["value_rivm_official_sma"] =  total_df["value_rivm_official"].rolling(window = 5, center = False).mean()
+    df_grouped = total_df.groupby([total_df["weeknr"]], sort=True).mean().reset_index()
+    return total_df,df_grouped
 
 def main():
-    df = scrape_rioolwater()
-    print(df)
+    df,df_grouped = scrape_rioolwater()
+   
+    print(df_grouped)
     
 if __name__ == "__main__":
     main()

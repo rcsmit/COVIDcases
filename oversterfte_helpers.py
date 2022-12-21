@@ -122,7 +122,7 @@ def get_data_for_series(df_, seriename):
         
     return df
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik, series_name, rightax, mergetype):
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, series_name, rightax, mergetype):
     """_summary_
 
     Args:
@@ -144,6 +144,8 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
         df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr", how = mergetype)
     if rightax == "herfstprik":
         df_oversterfte = pd.merge(df_oversterfte, df_herfstprik, on="weeknr", how = mergetype)
+    if rightax == "rioolwater":
+        df_oversterfte = pd.merge(df_oversterfte, df_rioolwater, on="weeknr", how = mergetype)
 
 
     what_to_sma_ = ["low05", "high95"]
@@ -277,6 +279,23 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
             corr = df_oversterfte[b].corr(df_oversterfte[how])
             
             st.write(f"Correlation = {round(corr,3)}")  
+        elif rightax == "rioolwater" :          
+        
+            
+            b= "value_rivm_official_sma"
+            fig.add_trace(  go.Scatter(
+                    name='rioolwater',
+                    x=df_oversterfte["week_"],
+                    y=df_oversterfte[b],
+                    mode='lines',
+                    
+                    line=dict(width=2,
+                            color="rgba(94, 172, 219, 1)")
+                    )  ,secondary_y=True) 
+        
+            corr = df_oversterfte[b].corr(df_oversterfte[how])
+            
+            st.write(f"Correlation = {round(corr,3)}")  
    
     #data.append(booster)  
             
@@ -290,7 +309,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
 
     st.plotly_chart(fig, use_container_width=True)
   
-def plot(df_boosters, df_herhaalprik, df_herfstprik, df_, series_names, how, yaxis_to_zero, rightax, mergetype):
+def plot(df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, df_, series_names, how, yaxis_to_zero, rightax, mergetype):
     
     """_summary_
 
@@ -313,7 +332,7 @@ def plot(df_boosters, df_herhaalprik, df_herfstprik, df_, series_names, how, yax
             plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile)
 
         elif (how == "year_minus_avg")  or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_herfstprik, series_name, rightax, mergetype)
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, series_name, rightax, mergetype)
            
 
         else:

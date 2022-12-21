@@ -9,7 +9,8 @@ import numpy as np
 from plotly.subplots import make_subplots
 import platform
 from oversterfte_helpers import *
-# #from streamlit import caching
+import get_rioolwater
+from streamlit import caching
 
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
@@ -18,7 +19,7 @@ from oversterfte_helpers import *
 # toc = pd.DataFrame(cbsodata.get_table_list())
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
-# @st.cache(ttl=60 * 60 * 24)
+@st.cache(ttl=60 * 60 * 24)
 def get_sterftedata():
     if platform.processor() != "":
         # file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overledenen_cbs.csv"
@@ -80,8 +81,10 @@ def get_all_data():
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
     df_herfstprik = get_herfstprik()
+    df_rioolwater_dag, df_rioolwater = get_rioolwater.scrape_rioolwater()
     df_ = get_sterftedata()
-    return df_boosters,df_herhaalprik,df_herfstprik,df_
+
+    return df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater,df_
 
 
 
@@ -89,7 +92,7 @@ def interface():
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte", "year_minus_avg", "p_score"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     if (how == "year_minus_avg") or (how == "p_score"):
-        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", "herfstprik", None], index = 1, key = "aa")
+        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", "herfstprik", "rioolwater", None], index = 1, key = "aa")
         mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
     else:
         rightax = None
@@ -109,8 +112,10 @@ def main():
     st.header("Overstefte - minder leeftijdscategorieen")
     st.write("Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019")
     how, yaxis_to_zero, rightax, mergetype = interface()
-    df_boosters, df_herhaalprik, df_herfstprik, df_sterfte = get_all_data()
-    plot(df_boosters, df_herhaalprik, df_herfstprik, df_sterfte, serienames, how, yaxis_to_zero, rightax, mergetype)
+    df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, df_sterfte = get_all_data()
+
+    plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, serienames, how, yaxis_to_zero, rightax, mergetype)
+    
     footer()
 
 if __name__ == "__main__":
