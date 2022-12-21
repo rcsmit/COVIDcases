@@ -80,7 +80,7 @@ def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, windo
     df_rioolwaterdata["product"] = (df_rioolwaterdata["RNA_flow_per_100000"] * df_rioolwaterdata["aandeel_maal_inwoners"] / 100_000 ) / 100_000_000_000
     df_rioolwaterdata = df_rioolwaterdata.groupby(df_rioolwaterdata["Date_measurement"]).sum()
     df_rioolwaterdata["result"] = ((df_rioolwaterdata["product"]/df_rioolwaterdata["inwoners"]  ) ) *100_000
-    df_riool_rivm["date_rivm"] =  pd.to_datetime( df_riool_rivm["date_rivm"] , format="%Y-%m-%d")
+    
 
     # name_="C:\\Users\\rcxsm\\Documents\\riool_rivm.csv"
     # compression_opts = dict(method=None, archive_name=name_)
