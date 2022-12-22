@@ -27,6 +27,7 @@ import numpy as np
 from plotly.subplots import make_subplots
 import platform
 import plotly.express as px
+import get_rioolwater
 
 def get_sterfte(country):
     """_summary_
@@ -180,13 +181,14 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
         df = df_[["jaar","weeknr","TOTAL_T", seriename]].copy(deep=True)
     #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
     df = df[ (df["jaar"] >= vanaf_jaar)]  #& (df["weeknr"] != 53)]
+    print (f"Lengte df ({len(df)})")
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
  
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
 
-    for y in range (2015,2020):
+    for y in range (int(vanaf_jaar),2020):
         df_year = df[(df["jaar"] == y)]
         som = df_year["TOTAL_T"].sum()
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
@@ -207,7 +209,7 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
                 df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
     return df
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter):
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter):
     """_summary_
 
     Args:
@@ -227,6 +229,8 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
         df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr", how = mergetype)
     if rightax == "herhaalprik":
         df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr", how = mergetype)
+    if rightax == "rioolwater":
+        df_oversterfte = pd.merge(df_oversterfte, df_rioolwater, on="weeknr", how = mergetype)
     what_to_sma_ = ["low05", "high95"]
     for what_to_sma in what_to_sma_:
         # sma = 6 is also in de procedure of CBS
@@ -356,6 +360,24 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, seri
           
             corr = df_oversterfte[b].corr(df_oversterfte[how]) 
             st.write(f"Correlation = {round(corr,3)}")  
+    
+    elif rightax == "rioolwater" :          
+        
+            
+            b= "value_rivm_official_sma"
+            fig.add_trace(  go.Scatter(
+                    name='rioolwater',
+                    x=df_oversterfte["week_"],
+                    y=df_oversterfte[b],
+                    mode='lines',
+                    
+                    line=dict(width=2,
+                            color="rgba(94, 172, 219, 1)")
+                    )  ,secondary_y=True) 
+        
+            corr = df_oversterfte[b].corr(df_oversterfte[how])
+            
+            st.write(f"Correlation = {round(corr,3)}")  
 
     #data.append(booster)  
     
@@ -385,6 +407,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
         mergetype (_type_): _description_
     """    
     df_boosters, df_herhaalprik, df_ = get_data(country)
+    df_rioolwater_dag, df_rioolwater = get_rioolwater.scrape_rioolwater()
    
     #series_names  = df_['age_sex'].drop_duplicates().sort_values()
 
@@ -505,7 +528,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 data = [ high95,low05,avg, sterfte, sterfte_sma] #, value_in_year_2021 ]
             else:
                 data = [ high95,low05,avg, sterfte] #, value_in_year_2021 ]
-            title = f"Overleden {series_name}"
+            title = f"Overleden {series_name} (marges {vanaf_jaar}-2019)"
             layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
                             title=title,)
                 
@@ -550,7 +573,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             if (series_name[-1:] == "T" or series_name[:4] == "m_v_"):
                 df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
                 
-                plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter)
+                plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter)
            
 
         elif (how == "lines"):
@@ -698,6 +721,7 @@ def make_df_quantile(series_name, df_data, year):
         _type_: _description_
     """    
     df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)].copy(deep=True)
+    print (f"Lengte df_to_use = {len(df_to_use)}")
     df_quantile =None
            
     week_list = df_to_use['weeknr'].unique().tolist()
@@ -733,7 +757,7 @@ def interface():
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte","year_minus_avg","year_minus_avg_cumm", "p_score"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     if (how == "year_minus_avg") or (how=="year_minus_avg_cumm") or (how == "p_score"):
-        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
+        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik","rioolwater", None], index = 1, key = "aa")
         mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
         show_scatter = st.sidebar.selectbox("Show_scatter", [False, True], index = 0)
         
