@@ -122,7 +122,8 @@ def get_data_for_series(df_, seriename):
         
     return df
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, series_name, rightax, mergetype):
+
+def plot_graph_oversterfte          (how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, series_name, rightax, mergetype):
     """_summary_
 
     Args:
@@ -230,7 +231,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
                     line=dict(width=1,color='rgba(204, 63, 61, 1)'),
                     )) 
     # rightax = "boosters" # "herhaalprik"
-    if series_name in booster_cat:
+    if series_name in booster_cat or rightax == "rioolwater" :
         if rightax == "boosters":
             
             b= "boosters_"+series_name

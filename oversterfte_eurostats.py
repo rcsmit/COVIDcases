@@ -545,9 +545,6 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             fig.add_vline(x="2021_01",  line_width=3, line_dash="dash", line_color="green")
             fig.add_vline(x="2022_01",  line_width=3, line_dash="dash", line_color="green")
 
-
-
-
             fig.add_vrect(x0="2020_13", x1="2020_18", 
               annotation_text="Eerste golf", annotation_position="top left",
               fillcolor="pink", opacity=0.25, line_width=0)

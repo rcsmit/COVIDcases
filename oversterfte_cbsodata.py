@@ -19,7 +19,7 @@ import get_rioolwater
 # toc = pd.DataFrame(cbsodata.get_table_list())
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
-# @st.cache(ttl=60 * 60 * 24)
+@st.cache(ttl=60 * 60 * 24)
 def get_sterftedata():
     if platform.processor() != "":
         # file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overledenen_cbs.csv"
@@ -78,6 +78,11 @@ def get_sterftedata():
     return df
 
 def get_all_data():
+    """_summary_
+
+    Returns:
+        _type_: df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater,df_
+    """    
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
     df_herfstprik = get_herfstprik()
@@ -91,7 +96,7 @@ def get_all_data():
 def interface():
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte", "year_minus_avg", "p_score"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
-    if (how == "year_minus_avg") or (how == "p_score"):
+    if (how == "year_minus_avg") or (how == "p_score") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") :
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", "herfstprik", "rioolwater", None], index = 1, key = "aa")
         mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
     else:

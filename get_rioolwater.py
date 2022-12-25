@@ -20,9 +20,22 @@ def get_normal_date(unixdate):
     # may be in milliseconds, try `ts /= 1000` in that case
     return (datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d'))
 
-def scrape_rioolwater():
-    """Scrape rioolwaterdata van de RIVM site. Dit is verpakt in een stuk javascript met JSON
-    """    
+
+
+def load_data_from_csv():
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaardes_official_rivm.csv"
+    else: 
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaardes_official_rivm.csv"
+        df_ = pd.read_csv(
+            file,
+            delimiter=";",
+            low_memory=False,
+        )
+    
+    return df_
+
+def scrape_data_from_site():
     res = requests.get("https://coronadashboard.rijksoverheid.nl/landelijk/rioolwater") # your link here
     soup = bs4.BeautifulSoup(res.content, features="lxml")
     item=soup.select_one('script[id="__NEXT_DATA__"]').text
@@ -46,18 +59,33 @@ def scrape_rioolwater():
         l.append([date_unix,value_rivm_official, date_rivm])    
 
     total_df = pd.DataFrame(l, columns=columns)
+    return total_df
+
+def make_grouped_df(total_df):
     total_df["date_rivm"] =  pd.to_datetime(total_df["date_rivm"] , format="%Y-%m-%d")
     total_df['year_number'] = total_df['date_rivm'].dt.isocalendar().year
     total_df['week_number'] = total_df['date_rivm'].dt.isocalendar().week
     total_df["weeknr"] = total_df["year_number"].astype(str) +"_" + total_df["week_number"].astype(str).str.zfill(2)
     total_df["value_rivm_official_sma"] =  total_df["value_rivm_official"].rolling(window = 5, center = False).mean()
     df_grouped = total_df.groupby([total_df["weeknr"]], sort=True).mean().reset_index()
+    return df_grouped
+
+def scrape_rioolwater():
+    """Scrape rioolwaterdata van de RIVM site. Dit is verpakt in een stuk javascript met JSON
+    """    
+    try:
+        total_df = scrape_data_from_site()
+    except:
+        total_df = load_data_from_csv()
+
+    df_grouped = make_grouped_df(total_df)
     return total_df,df_grouped
 
 def main():
-    df,df_grouped = scrape_rioolwater()
-   
-    print(df_grouped)
+    total_df,df_grouped = scrape_rioolwater()
+    print (total_df)
+    print (df_grouped)
+
     
 if __name__ == "__main__":
     main()
