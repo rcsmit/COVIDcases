@@ -80,7 +80,7 @@ def make_grouped_df(total_df):
     total_df['week_number'] = total_df['date_rivm'].dt.isocalendar().week
     total_df["weeknr"] = total_df["year_number"].astype(str) +"_" + total_df["week_number"].astype(str).str.zfill(2)
     total_df["value_rivm_official_sma"] =  total_df["value_rivm_official"].rolling(window = 5, center = False).mean().round(1)
-    df_grouped = total_df.groupby([total_df["weeknr"]], sort=True).mean().reset_index().round(1)
+    df_grouped = total_df.groupby([total_df["weeknr"]], sort=True).mean().reset_index() #.round(1)
     return df_grouped
 
 def scrape_rioolwater():
