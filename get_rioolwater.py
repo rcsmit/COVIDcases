@@ -35,6 +35,18 @@ def load_data_from_csv():
     
     return df_
 
+
+
+def save_df(df, name):
+    """  _ _ _ """
+    name_ =  name + ".csv"
+    compression_opts = dict(method=None, archive_name=name_)
+    df.to_csv(name_, index=False, compression=compression_opts)
+
+    print("--- Saving " + name_ + " ---")
+
+
+
 def scrape_data_from_site():
     res = requests.get("https://coronadashboard.rijksoverheid.nl/landelijk/rioolwater") # your link here
     soup = bs4.BeautifulSoup(res.content, features="lxml")
@@ -42,10 +54,10 @@ def scrape_data_from_site():
 
     jsondata=json.loads(item)
 
-    # print and save the JSON in a nice way
-    # output = (json.dumps(jsondata, indent=4))
-    # with open('output_rioolwater.txt', 'w') as f:
-    #     f.write(output)
+    #print and save the JSON in a nice way
+    output = (json.dumps(jsondata, indent=4))
+    with open('output_rioolwater.txt', 'w') as f:
+        f.write(output)
 
     # TODO: see if using named tuples is better https://www.youtube.com/watch?v=BlVciXgsBYI
 
@@ -59,6 +71,7 @@ def scrape_data_from_site():
         l.append([date_unix,value_rivm_official, date_rivm])    
 
     total_df = pd.DataFrame(l, columns=columns)
+    
     return total_df
 
 def make_grouped_df(total_df):
@@ -66,8 +79,8 @@ def make_grouped_df(total_df):
     total_df['year_number'] = total_df['date_rivm'].dt.isocalendar().year
     total_df['week_number'] = total_df['date_rivm'].dt.isocalendar().week
     total_df["weeknr"] = total_df["year_number"].astype(str) +"_" + total_df["week_number"].astype(str).str.zfill(2)
-    total_df["value_rivm_official_sma"] =  total_df["value_rivm_official"].rolling(window = 5, center = False).mean()
-    df_grouped = total_df.groupby([total_df["weeknr"]], sort=True).mean().reset_index()
+    total_df["value_rivm_official_sma"] =  total_df["value_rivm_official"].rolling(window = 5, center = False).mean().round(1)
+    df_grouped = total_df.groupby([total_df["weeknr"]], sort=True).mean().reset_index().round(1)
     return df_grouped
 
 def scrape_rioolwater():
@@ -85,7 +98,7 @@ def main():
     total_df,df_grouped = scrape_rioolwater()
     print (total_df)
     print (df_grouped)
-
+    save_df(df_grouped,"rioolwater_per_week")
     
 if __name__ == "__main__":
     main()
