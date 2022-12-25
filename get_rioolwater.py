@@ -92,7 +92,7 @@ def scrape_rioolwater():
         total_df = load_data_from_csv()
 
     df_grouped = make_grouped_df(total_df)
-    return df_grouped
+    return total_df
 
 def main():
     total_df,df_grouped = scrape_rioolwater()
