@@ -154,7 +154,7 @@ def make_plot(df_,cat, what_,jaar,rw, show_interval):
         #       annotation_text="Hitte golf", annotation_position="top left",
         #       fillcolor="orange", opacity=0.5, line_width=0)
 
-        fig.add_vrect(x0="2022_32", x1="2022_33", 
+        fig.add_vrect(x0="2022_32", x1="2022_34", 
               annotation_text="Hitte golf", annotation_position="top right",
               fillcolor="orange", opacity=0.25, line_width=0)
         fig.update_yaxes(rangemode='tozero')
@@ -173,9 +173,9 @@ def main():
     df = get_data()
     
     cat_ = ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999", "m_0_999", "v_0_999"]
-    what = st.sidebar.selectbox("What", ["over_onder_sterfte", "meer_minder_sterfte", "year_minus_exp", "year_minus_exp_sma"], index = 3)
+    what = st.sidebar.selectbox("What", ["over_onder_sterfte", "meer_minder_sterfte", "year_minus_exp", "year_minus_exp_sma"], index = 2)
     jaar = st.sidebar.selectbox("Jaar", [2020,2021,2022], index = 2)
-    rw =  st.sidebar.selectbox("Rioolwaterwaarde",  ["value_rivm_official" ,  "value_rivm_official_sma", None], index = 1)
+    rw =  st.sidebar.selectbox("Rioolwaterwaarde",  ["value_rivm_official" ,  "value_rivm_official_sma", None], index = 0)
     show_interval = st.sidebar.selectbox("Show sterfte en CI-interval", [True, False], index = 1)
     for cat in cat_:
         st.subheader(f"Grafiek van {cat}")
