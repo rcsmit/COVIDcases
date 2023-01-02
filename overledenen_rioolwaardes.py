@@ -150,6 +150,9 @@ def make_plot(df_,cat, what_,jaar,rw, show_interval):
                                 title=title,)
                 
         fig.add_hline(y=0)
+        fig.add_vrect(x0="2020_33", x1="2020_34", 
+              annotation_text="Hitte golf", annotation_position="top left",
+              fillcolor="orange", opacity=0.25, line_width=0)
 
         fig.update_yaxes(rangemode='tozero')
 

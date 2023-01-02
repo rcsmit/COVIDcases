@@ -103,3 +103,13 @@ def main():
 if __name__ == "__main__":
     main()
 
+
+
+    """"Toen Delta kwam, zagen we zowel in het rioolwater als bij de positieve testen een duidelijke stijging.
+     Maar opvallend genoeg zagen we bij Omikron (BA.1) geen stijging in het rioolwater terwijl
+      het aantal positieve testen flink steeg". Het verband tussen het rioolwater en het aantal
+       positieve testen was bij BA.1 "helemaal weggevallen". "Met de opkomst van Omikron BA.2 
+       was het verband tussen rioolwater en positieve testen weer terug."
+
+       https://www.corona-lokaal.nl/locatie/Nederland/waterzuivering/Nederland
+    """
