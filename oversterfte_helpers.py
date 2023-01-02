@@ -487,6 +487,10 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     fig.add_vrect(x0="2020_33", x1="2020_34", 
               annotation_text="Hitte golf", annotation_position="top left",
               fillcolor="orange", opacity=0.25, line_width=0)
+    fig.add_vrect(x0="2022_32", x1="2020_33", 
+              annotation_text="Hitte golf", annotation_position="top left",
+              fillcolor="orange", opacity=0.25, line_width=0)
+    
     if yaxis_to_zero:
         fig.update_yaxes(rangemode="tozero")
     st.plotly_chart(fig, use_container_width=True)
