@@ -275,7 +275,7 @@ def interface():
             "What to show", mzelst, index=1
         )
     which_riooldeeltjes = st.sidebar.selectbox(
-            "Welke riooldeeltjes", ["result_sma", "value_rivm_official_sma"], index=1
+            "Welke riooldeeltjes", ["value_rivm_official", "value_rivm_official_sma"], index=1
         )
 
     start_ = "2021-01-01"
