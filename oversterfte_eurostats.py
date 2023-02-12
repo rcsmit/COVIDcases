@@ -192,10 +192,11 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
         df_year = df[(df["jaar"] == y)]
         som = df_year["TOTAL_T"].sum()
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
+        # https://www.cbs.nl/nl-nl/nieuws/2023/05/eind-januari-geen-oversterfte-meer/oversterfte-en-verwachte-sterfte
         factor_2020 = 153402 / som
         factor_2021 = 154887 / som
         factor_2022 = 155494 / som
-       
+        factor_2023 = 156666 / som
         for i in range(len(df)):
             
             
@@ -204,9 +205,11 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
                 new_column_name_2020 = seriename + "_factor_2020"
                 new_column_name_2021 = seriename + "_factor_2021"
                 new_column_name_2022 = seriename + "_factor_2022"
+                new_column_name_2023 = seriename + "_factor_2023"
                 df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
                 df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
                 df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
+                df.loc[i,new_column_name_2023] = df.loc[i,seriename] * factor_2023
     return df
 
 def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter):
@@ -542,8 +545,8 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             # — derde oversterftegolf: week 33 tot en met week 52 van 2021 (half augustus 2021–eind
             # december 2021).
             # De hittegolf in 2020 betreft week 33 en week 34 (half augustus 2020).
-            fig.add_vline(x="2021_01",  line_width=3, line_dash="dash", line_color="green")
-            fig.add_vline(x="2022_01",  line_width=3, line_dash="dash", line_color="green")
+            fig.add_vline(x="2021_01",  line_width=2, line_dash="dash", line_color="green")
+            fig.add_vline(x="2022_01",  line_width=2, line_dash="dash", line_color="green")
 
             fig.add_vrect(x0="2020_13", x1="2020_18", 
               annotation_text="Eerste golf", annotation_position="top left",
@@ -584,7 +587,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
                 #df = df.sort_values(by=['weeknr'])
-                if year == 2020 or year ==2021   or year ==2022:
+                if year == 2020 or year ==2021   or year ==2022 or year ==2023:
                     width = 3
                     opacity = 1
                 else:
@@ -650,13 +653,15 @@ def make_df_qantile(series_name, df_data):
     df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
     df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
     df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
-    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22],axis = 0)
+    df_corona_23 = df_data[(df_data["jaar"] ==2023)].copy(deep=True)
+    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22,  df_corona_23],axis = 0)
     df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
   
     df_quantile_2020 = make_df_quantile(series_name, df_data, 2020)
     df_quantile_2021 = make_df_quantile(series_name, df_data, 2021)
     df_quantile_2022 = make_df_quantile(series_name, df_data, 2022)
-    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022],axis = 0)
+    df_quantile_2023 = make_df_quantile(series_name, df_data, 2023)
+    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022,  df_quantile_2023],axis = 0)
     df_quantile["week_"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
         
     return df_corona,df_quantile
@@ -717,7 +722,7 @@ def make_df_quantile(series_name, df_data, year):
     Returns:
         _type_: _description_
     """    
-    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)].copy(deep=True)
+    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022) & (df_data["jaar"] !=2023].copy(deep=True)
     print (f"Lengte df_to_use = {len(df_to_use)}")
     df_quantile =None
            
