@@ -722,7 +722,7 @@ def make_df_quantile(series_name, df_data, year):
     Returns:
         _type_: _description_
     """    
-    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022) & (df_data["jaar"] !=2023].copy(deep=True)
+    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022) & (df_data["jaar"] !=2023)].copy(deep=True)
     print (f"Lengte df_to_use = {len(df_to_use)}")
     df_quantile =None
            
