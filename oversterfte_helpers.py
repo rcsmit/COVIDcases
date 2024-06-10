@@ -150,7 +150,7 @@ def get_data_for_series(df_, seriename):
     return df
 
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater,df_kobak, series_name, rightax, mergetype):
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater,df_kobak, series_name, rightax, mergetype, sec_y):
             
     """_summary_
 
@@ -273,7 +273,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
                     
                     line=dict(width=2,
                             color="rgba(94, 172, 219, 1)")
-                    )  ,secondary_y=True) 
+                    )  ,secondary_y=sec_y) 
             corr = df_oversterfte[b].corr(df_oversterfte[how]) 
             st.write(f"Correlation = {round(corr,3)}")     
         elif rightax == "herhaalprik" :          
@@ -288,7 +288,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
                     
                     line=dict(width=2,
                             color="rgba(94, 172, 219, 1)")
-                    )  ,secondary_y=True) 
+                    )  ,secondary_y=sec_y) 
         
             corr = df_oversterfte[b].corr(df_oversterfte[how])
             
@@ -305,7 +305,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
                     
                     line=dict(width=2,
                             color="rgba(94, 172, 219, 1)")
-                    )  ,secondary_y=True) 
+                    )  ,secondary_y=sec_y) 
         
             corr = df_oversterfte[b].corr(df_oversterfte[how])
             
@@ -320,7 +320,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
                     
                     line=dict(width=2,
                             color="rgba(94, 172, 219, 1)")
-                    )  ,secondary_y=True) 
+                    )  ,secondary_y=sec_y) 
         
             corr = df_oversterfte[b].corr(df_oversterfte[how])
             
@@ -337,7 +337,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
                     
                     line=dict(width=2,
                             color="rgba(94, 172, 219, 1)")
-                    )  ,secondary_y=True) 
+                    )  ,secondary_y=sec_y) 
         
             corr = df_oversterfte[b].corr(df_oversterfte[how])
             
@@ -355,7 +355,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
 
     st.plotly_chart(fig, use_container_width=True)
     #plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype)
-def plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_,        df_kobak, series_names, how, yaxis_to_zero, rightax, mergetype):
+def plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_,        df_kobak, series_names, how, yaxis_to_zero, rightax, mergetype, sec_y):
     """_summary_
 
     Args:
@@ -379,7 +379,7 @@ def plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_,        
             plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile)
 
         elif (how == "year_minus_avg")  or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak, series_name, rightax, mergetype)
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak, series_name, rightax, mergetype, sec_y)
             #plot_graph_oversterfte(how, df_quantile, df_corona,  series_name, rightax, mergetype)
            
 

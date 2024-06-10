@@ -109,10 +109,12 @@ def interface():
     if (how == "year_minus_avg") or (how == "p_score") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") :
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", "herfstprik", "rioolwater", "kobak", None], index = 1, key = "aa")
         mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
+        sec_y = st.sidebar.selectbox("Secondary Y axis", [True, False], index = 0, key = "cc")
     else:
         rightax = None
         mergetype = None
-    return how,yaxis_to_zero,rightax,mergetype
+        sec_y = None
+    return how,yaxis_to_zero,rightax,mergetype, sec_y
 
 def main():
     # serienames = ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999", 
@@ -126,9 +128,9 @@ def main():
 
     st.header("Overstefte - minder leeftijdscategorieen")
     st.write("Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019")
-    how, yaxis_to_zero, rightax, mergetype = interface()
+    how, yaxis_to_zero, rightax, mergetype, sec_y = interface()
     df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
-    plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype)
+    plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype, sec_y)
 
     footer()
 
