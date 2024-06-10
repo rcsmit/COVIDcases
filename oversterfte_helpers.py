@@ -131,7 +131,7 @@ def get_data_for_series(df_, seriename):
         factor_2021 = 154887 / som
         factor_2022 = 155494 / som
         factor_2023 = 156666 / som # 169333 / som  # was 156 666, wellicht excl. de sterfte door corona ?
-        factor_2024 = 169521 / som  #NOG OPZOEKEN
+        factor_2024 = 157846 / som # berekend door de intervallen 2023/2022 op elkaar te delen // 169521 / som  #NOG OPZOEKEN
         for i in range(len(df)):
             
             if df.loc[i,"jaar"] == y:
