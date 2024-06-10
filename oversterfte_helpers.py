@@ -7,7 +7,7 @@ import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
-import platform
+# import platform
 
 
 def get_boosters():
@@ -16,10 +16,10 @@ def get_boosters():
     Returns:
         _type_: _description_
     """   
-    if platform.processor() != "":
-        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\boosters_per_week_per_leeftijdscat.csv"
-    else: 
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/boosters_per_week_per_leeftijdscat.csv"
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\boosters_per_week_per_leeftijdscat.csv"
+    # else: 
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/boosters_per_week_per_leeftijdscat.csv"
     df_ = pd.read_csv(
         file,
         delimiter=";",
@@ -39,10 +39,10 @@ def get_herhaalprik():
     Returns:
         _type_: _description_
     """    
-    if platform.processor() != "":
-        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\herhaalprik_per_week_per_leeftijdscat.csv"
-    else:
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herhaalprik_per_week_per_leeftijdscat.csv"
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\herhaalprik_per_week_per_leeftijdscat.csv"
+    # else:
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herhaalprik_per_week_per_leeftijdscat.csv"
     df_ = pd.read_csv(
         file,
         delimiter=";",
@@ -65,12 +65,12 @@ def get_kobak():
     Returns:
         _type_: _description_
     """    
-    if platform.processor() != "":
-        # C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv
+    # if platform.processor() != "":
+    #     # C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv
 
-        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv"
-    else:
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/excess-mortality-timeseries_NL_kobak.csv"
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv"
+    # else:
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/excess-mortality-timeseries_NL_kobak.csv"
     df_ = pd.read_csv(
         file,
         delimiter=",",
@@ -86,10 +86,10 @@ def get_herfstprik():
     Returns:
         _type_: _description_
     """    
-    if platform.processor() != "":
-        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\herfstprik_per_week_per_leeftijdscat.csv"
-    else:
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herfstprik_per_week_per_leeftijdscat.csv"
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\herfstprik_per_week_per_leeftijdscat.csv"
+    # else:
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/herfstprik_per_week_per_leeftijdscat.csv"
     df_ = pd.read_csv(
         file,
         delimiter=",",

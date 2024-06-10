@@ -7,7 +7,7 @@ import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
-import platform
+# import platform
 from oversterfte_helpers import *
 import get_rioolwater
 # from streamlit import caching
@@ -87,10 +87,10 @@ def get_all_data():
     return df_, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak
 
 def get_rioolwater_simpel():
-    if platform.processor() != "":
-        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
-    else: 
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaarde2024.csv"
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
+    # else: 
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaarde2024.csv"
     df_rioolwater = pd.read_csv(
         file,
         delimiter=",",
