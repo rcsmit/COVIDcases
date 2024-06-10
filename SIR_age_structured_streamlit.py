@@ -193,7 +193,7 @@ def show_toelichting():
 
     st.write("* Beschrijving transmissiemodel berekening zorgbelasting Voorlopige versie, dd. 2 april 2020 https://www.rivm.nl/sites/default/files/2021-04/beschrijving_transmissiemodel%20beveiligd.pdf")
     st.write("* Ainslie et al. The expected outcome of COVID-19 vaccination strategies (https://www.rivm.nl/sites/default/files/2021-03/Modellingresults%20COVID19%20vaccination%20version1.0%2020210324_0.pdf) ")
-
+    # https://www.rivm.nl/sites/default/files/2021-03/Modellingresults%20COVID19%20vaccination%20version1.0%2020210324_0%20%281%29_2.pdf
     st.subheader ("Bronnen parameters: ")
     st.write("* Ziekenhuis, IC en IFR: waardes uit ziekenhuis_ic_opnames_per_leeftijdsgroep.csv gedeeld op de cummulatieve prevalentie gedeeld door 8")
     st.write("* IFR: waardes van  https://www.rivm.nl/coronavirus-covid-19/grafieken (overleden naar leeftijd en geslacht) gedeeld op de cummulatieve prevalentie gedeeld door 8")

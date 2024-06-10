@@ -58,6 +58,28 @@ def get_herhaalprik():
     return df_
 
 
+
+def get_kobak():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """    
+    if platform.processor() != "":
+        # C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv
+
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv"
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/excess-mortality-timeseries_NL_kobak.csv"
+    df_ = pd.read_csv(
+        file,
+        delimiter=",",
+        
+        low_memory=False,
+    )
+  
+    return df_
+
 def get_herfstprik():
     """_summary_
 
@@ -104,10 +126,13 @@ def get_data_for_series(df_, seriename):
         df_year = df[(df["jaar"] == y)]
         som = df_year["m_v_0_999"].sum()
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
+        #  https://www.cbs.nl/nl-nl/nieuws/2024/06/sterfte-in-2023-afgenomen/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2023%20is%20deze%20156%20666.
+
         factor_2020 = 153402 / som
         factor_2021 = 154887 / som
         factor_2022 = 155494 / som
-       
+        factor_2023 = 156666 / som  #NOG OPZOEKEN
+        factor_2024 = 156666 / som  #NOG OPZOEKEN
         for i in range(len(df)):
             
             
@@ -116,14 +141,19 @@ def get_data_for_series(df_, seriename):
                 new_column_name_2020 = seriename + "_factor_2020"
                 new_column_name_2021 = seriename + "_factor_2021"
                 new_column_name_2022 = seriename + "_factor_2022"
+                new_column_name_2023 = seriename + "_factor_2023"
+                new_column_name_2024 = seriename + "_factor_2024"
                 df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
                 df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
                 df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
+                df.loc[i,new_column_name_2023] = df.loc[i,seriename] * factor_2023
+                df.loc[i,new_column_name_2024] = df.loc[i,seriename] * factor_2024
         
     return df
 
 
-def plot_graph_oversterfte          (how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, series_name, rightax, mergetype):
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater,df_kobak, series_name, rightax, mergetype):
+            
     """_summary_
 
     Args:
@@ -139,6 +169,7 @@ def plot_graph_oversterfte          (how, df, df_corona, df_boosters, df_herhaal
     booster_cat = ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999"]
 
     df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr", how = "outer")
+    
     if rightax == "boosters":
         df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr", how = mergetype)
     if rightax == "herhaalprik":
@@ -147,8 +178,9 @@ def plot_graph_oversterfte          (how, df, df_corona, df_boosters, df_herhaal
         df_oversterfte = pd.merge(df_oversterfte, df_herfstprik, on="weeknr", how = mergetype)
     if rightax == "rioolwater":
         df_oversterfte = pd.merge(df_oversterfte, df_rioolwater, on="weeknr", how = mergetype)
-
-
+    if rightax == "kobak":
+        df_oversterfte = pd.merge(df_oversterfte, df_kobak, on="weeknr", how = mergetype)
+    print (df_oversterfte)
     what_to_sma_ = ["low05", "high95"]
     for what_to_sma in what_to_sma_:
         df_oversterfte[what_to_sma] = df_oversterfte[what_to_sma].rolling(window=6, center=True).mean()
@@ -281,11 +313,26 @@ def plot_graph_oversterfte          (how, df, df_corona, df_boosters, df_herhaal
             
             st.write(f"Correlation = {round(corr,3)}")  
         elif rightax == "rioolwater" :          
-        
-            
             b= "value_rivm_official_sma"
             fig.add_trace(  go.Scatter(
                     name='rioolwater',
+                    x=df_oversterfte["week_"],
+                    y=df_oversterfte[b],
+                    mode='lines',
+                    
+                    line=dict(width=2,
+                            color="rgba(94, 172, 219, 1)")
+                    )  ,secondary_y=True) 
+        
+            corr = df_oversterfte[b].corr(df_oversterfte[how])
+            
+            st.write(f"Correlation = {round(corr,3)}")  
+        elif rightax == "kobak" :          
+        
+            print (df_oversterfte)
+            b= "excess deaths"
+            fig.add_trace(  go.Scatter(
+                    name='excess deaths(kobak)',
                     x=df_oversterfte["week_"],
                     y=df_oversterfte[b],
                     mode='lines',
@@ -309,12 +356,12 @@ def plot_graph_oversterfte          (how, df, df_corona, df_boosters, df_herhaal
     fig.update_yaxes(rangemode='tozero')
 
     st.plotly_chart(fig, use_container_width=True)
-  
-def plot(df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, df_, series_names, how, yaxis_to_zero, rightax, mergetype):
-    
+    #plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype)
+def plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_,        df_kobak, series_names, how, yaxis_to_zero, rightax, mergetype):
     """_summary_
 
     Args:
+        df_ : df_sterfte
         series_names (_type_): _description_
         how (_type_): _description_
         yaxis_to_zero (_type_): _description_
@@ -322,6 +369,7 @@ def plot(df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, df_, series_n
         mergetype (_type_): _description_
     """    
     print("plot is called")
+    
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
         df_data = get_data_for_series(df_, series_name).copy(deep=True)
@@ -333,7 +381,8 @@ def plot(df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, df_, series_n
             plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile)
 
         elif (how == "year_minus_avg")  or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
-            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, series_name, rightax, mergetype)
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak, series_name, rightax, mergetype)
+            #plot_graph_oversterfte(how, df_quantile, df_corona,  series_name, rightax, mergetype)
            
 
         else:
@@ -350,7 +399,7 @@ def plot_lines(series_name, df_data):
         df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
                 #df = df.sort_values(by=['weeknr'])
-        if year == 2020 or year ==2021  or year ==2022:
+        if year == 2020 or year ==2021  or year ==2022 or year ==2023 or year ==2024:
             width = 3
             opacity = 1
         else:
@@ -487,7 +536,7 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     fig.add_vrect(x0="2020_33", x1="2020_34", 
               annotation_text="Hitte golf", annotation_position="top left",
               fillcolor="orange", opacity=0.25, line_width=0)
-    fig.add_vrect(x0="2022_32", x1="2020_33", 
+    fig.add_vrect(x0="2022_32", x1="2022_33", 
               annotation_text="Hitte golf", annotation_position="top left",
               fillcolor="orange", opacity=0.25, line_width=0)
     
@@ -510,13 +559,19 @@ def make_df_qantile(series_name, df_data):
     df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
     df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
     df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
-    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22],axis = 0)
+    df_corona_23 = df_data[(df_data["jaar"] ==2023)].copy(deep=True)
+    df_corona_24 = df_data[(df_data["jaar"] ==2024)].copy(deep=True)
+    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22,df_corona_23,df_corona_24],axis = 0)
     #df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
    
     df_quantile_2020 = make_df_quantile(series_name, df_data, 2020)
     df_quantile_2021 = make_df_quantile(series_name, df_data, 2021)
     df_quantile_2022 = make_df_quantile(series_name, df_data, 2022)
-    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022],axis = 0)
+    df_quantile_2023 = make_df_quantile(series_name, df_data, 2023)
+    df_quantile_2024 = make_df_quantile(series_name, df_data, 2024)
+    
+    
+    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022,  df_quantile_2023,  df_quantile_2024],axis = 0)
     df_quantile["week_"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
    
     return df_corona,df_quantile
@@ -582,7 +637,7 @@ def make_df_quantile(series_name, df_data, year):
     Returns:
         _type_: _description_
     """    
-    df_to_use = df_data[(df_data["jaar"] > 2014 ) & (df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)].copy(deep=True)
+    df_to_use = df_data[(df_data["jaar"] > 2014 ) & (df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)& (df_data["jaar"] !=2023)& (df_data["jaar"] !=2024)].copy(deep=True)
     df_quantile =None
   
            

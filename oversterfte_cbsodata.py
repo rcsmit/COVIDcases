@@ -19,36 +19,28 @@ import get_rioolwater
 # toc = pd.DataFrame(cbsodata.get_table_list())
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_sterftedata():
-    if platform.processor() != "":
-        # file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overledenen_cbs.csv"
-        # data  = pd.read_csv(
-        #     file,
-        #     delimiter=",",
-            
-        #     low_memory=False,
-        # )
-        data = pd.DataFrame(cbsodata.get_data('70895ned'))
-    else: 
-        data = pd.DataFrame(cbsodata.get_data('70895ned'))
+    data = pd.DataFrame(cbsodata.get_data('70895ned'))
+ 
+    data[['jaar','week']] = data.Perioden.str.split(" week ",expand=True,)
+    #data['week_'] = data['week_']+" _"
+    #data['week_'] = data['week_'].replace(' dagen','_',  regex=True)
+    #data['week_'] = data['week_'].replace('\)_',')',  regex=True)
+    # Remove rows where 'Perioden' contains 'dagen'
+    data = data[~data['Perioden'].str.contains('dagen')]
+    data = data[~data['Perioden'].str.contains('dag')]
+    print (data)
+    data = data.reset_index()
 
-        # name_ = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overledenen_cbs.csv"
-        # compression_opts = dict(method=None, archive_name=name_)
-        # data.to_csv(name_, index=False, compression=compression_opts)
-        #print("--- Saving " + name_ + " ---")
-
-    data[['jaar','week_']] = data.Perioden.str.split(" week ",expand=True,)
-    data['week_'] = data['week_']+" _"
-    data['week_'] = data['week_'].replace(' dag','_',  regex=True)
-    data['week_'] = data['week_'].replace('\) _',')',  regex=True)
     
-    data[['week','aantal_dagen']] = data.week_.str.split(" ",expand=True,)
+
+    #data[['week','aantal_dagen']] = data.week_.str.split(" ",expand=True,)
     data = data[data['week'].notnull()] #remove the year-totals
-    data['aantal_dagen'] = data['aantal_dagen'].replace('_','7')
-    data['aantal_dagen'] = data['aantal_dagen'].replace('\(','', regex=True)
-    data['aantal_dagen'] = data['aantal_dagen'].replace('_\)','', regex=True)
-    data = data[data['aantal_dagen'] == '7'] # only complete weeks
+    # data['aantal_dagen'] = data['aantal_dagen'].replace('_','7')
+    # data['aantal_dagen'] = data['aantal_dagen'].replace('\(','', regex=True)
+    # data['aantal_dagen'] = data['aantal_dagen'].replace('_\)','', regex=True)
+    # data = data[data['aantal_dagen'] == '7'] # only complete weeks
     data["weeknr"] = data["jaar"].astype(str) +"_" + data["week"].astype(str).str.zfill(2)
     import math
     data["week_int"]=data['week'].astype(int)
@@ -86,10 +78,28 @@ def get_all_data():
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
     df_herfstprik = get_herfstprik()
-    df_rioolwater_dag, df_rioolwater = get_rioolwater.scrape_rioolwater()
+    #df_rioolwater_dag, df_rioolwater = None, None # get_rioolwater.scrape_rioolwater()
+    df_kobak = get_kobak()
+    df_rioolwater = get_rioolwater_simpel()
     df_ = get_sterftedata()
 
-    return df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater,df_
+
+    return df_, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak
+
+def get_rioolwater_simpel():
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
+    else: 
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaarde2024.csv"
+    df_rioolwater = pd.read_csv(
+        file,
+        delimiter=",",
+        low_memory=False,
+        )
+    df_rioolwater["weeknr"] = df_rioolwater["jaar"].astype(int).astype(str) +"_"+df_rioolwater["week"].astype(int).astype(str)
+    df_rioolwater["value_rivm_official_sma"] =  df_rioolwater["rioolwaarde"].rolling(window = 5, center = False).mean().round(1)
+    print (df_rioolwater)
+    return df_rioolwater
 
 
 
@@ -97,7 +107,7 @@ def interface():
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte", "year_minus_avg", "p_score"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     if (how == "year_minus_avg") or (how == "p_score") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") :
-        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", "herfstprik", "rioolwater", None], index = 1, key = "aa")
+        rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", "herfstprik", "rioolwater", "kobak", None], index = 1, key = "aa")
         mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
     else:
         rightax = None
@@ -117,10 +127,9 @@ def main():
     st.header("Overstefte - minder leeftijdscategorieen")
     st.write("Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019")
     how, yaxis_to_zero, rightax, mergetype = interface()
-    df_boosters, df_herhaalprik, df_herfstprik,df_rioolwater, df_sterfte = get_all_data()
+    df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
+    plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype)
 
-    plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, serienames, how, yaxis_to_zero, rightax, mergetype)
-    
     footer()
 
 if __name__ == "__main__":

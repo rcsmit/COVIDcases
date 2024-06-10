@@ -86,14 +86,19 @@ def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, windo
     # compression_opts = dict(method=None, archive_name=name_)
     # df_riool_rivm.to_csv(name_, index=False, compression=compression_opts)
     df_lcps["date"] = pd.to_datetime(df_lcps["date"], format="%Y-%m-%d")
+    st.write(df_lcps) 
+    df_totaal = pd.merge(df_rioolwaterdata, df_lcps, how="outer", left_on="Date_measurement", right_on = "date")
+    df_totaal = pd.merge(df_totaal, df_rioolwaterdata_simpel, how="outer", left_on="date", right_on="Date_measurement")
     
-    df_totaal = pd.merge(df_rioolwaterdata, df_lcps, how="inner", left_on="Date_measurement", right_on = "date")
-    df_totaal = pd.merge(df_totaal, df_rioolwaterdata_simpel, how="inner", left_on="date", right_on="Date_measurement")
-    df_totaal = pd.merge(df_totaal, df_riool_rivm, how="inner", left_on = "date", right_on="date_rivm")
+    df_totaal = pd.merge(df_totaal, df_riool_rivm, how="outer", left_on = "date", right_on="date_rivm")
     df_totaal["RNA_flow_per_100000_simpel"] = df_totaal["RNA_flow_per_100000_simpel"] / 100_000_000_000
 
     df_totaal["RNA_flow_per_100000_simpel_gedeeld_door_aantal"] = df_totaal["RNA_flow_per_100000_simpel"] / df_totaal["aantal_x"]
     df_totaal = df_totaal.fillna(0)
+    df_totaal = df_totaal[df_totaal["date_rivm"] != 0]
+    df_totaal["date"] = df_totaal["date_rivm"] 
+    df_totaal["date"] = pd.to_datetime(df_totaal["date"], format="%Y-%m-%d")
+    st.write (df_totaal)
     df_totaal = df_totaal.sort_values(by='date') 
     print (df_totaal.dtypes)
     for t in ["result", what_to_show,"RNA_flow_per_100000_simpel", "RNA_flow_per_100000_simpel_gedeeld_door_aantal","value_rivm_official"]:
@@ -119,7 +124,7 @@ def get_data():
     df_rioolwaterdata = pd.read_csv(url_rioolwaterdata, delimiter=';', low_memory=False)
     df_lcps = pd.read_csv(url_lcps, delimiter=',', low_memory=False)
 
-    df_riool_rivm = get_rioolwater.scrape_rioolwater()
+    df_riool_rivm, df_grouped = get_rioolwater.scrape_rioolwater()
     
     return df_inwoners,df_rioolwaterdata,df_lcps,df_riool_rivm
 
