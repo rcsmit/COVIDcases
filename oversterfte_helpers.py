@@ -127,12 +127,12 @@ def get_data_for_series(df_, seriename):
         som = df_year["m_v_0_999"].sum()
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
         #  https://www.cbs.nl/nl-nl/nieuws/2024/06/sterfte-in-2023-afgenomen/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2023%20is%20deze%20156%20666.
-
+        # https://opendata.cbs.nl/statline/#/CBS/nl/dataset/85753NED/table?dl=A787C
         factor_2020 = 153402 / som
         factor_2021 = 154887 / som
         factor_2022 = 155494 / som
-        factor_2023 = 156666 / som  #NOG OPZOEKEN
-        factor_2024 = 156666 / som  #NOG OPZOEKEN
+        factor_2023 = 169333 / som  # was 156 666, wellicht excl. de sterfte door corona ?
+        factor_2024 = 169521 / som  #NOG OPZOEKEN
         for i in range(len(df)):
             
             
