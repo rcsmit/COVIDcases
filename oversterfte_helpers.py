@@ -121,7 +121,6 @@ def get_data_for_series(df_, seriename):
     
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
-
     for y in range (2015,2020):
         df_year = df[(df["jaar"] == y)]
         som = df_year["m_v_0_999"].sum()
