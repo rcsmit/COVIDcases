@@ -135,7 +135,6 @@ def get_data_for_series(df_, seriename):
         factor_2024 = 169521 / som  #NOG OPZOEKEN
         for i in range(len(df)):
             
-            
             if df.loc[i,"jaar"] == y:
                 #for s in serienames:
                 new_column_name_2020 = seriename + "_factor_2020"
