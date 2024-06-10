@@ -105,6 +105,41 @@ def get_herfstprik():
     return df_
 
 
+def filter_rivm(df, seriename):
+
+
+    # Selecteer de gegevens van de afgelopen vijf jaar
+    recent_years = df['jaar'].max() - 4
+    recent_data = df[df['jaar'] >= recent_years]
+
+    # Bereken de drempelwaarde voor de 25% hoogste sterftecijfers van de afgelopen vijf jaar
+    threshold_25 = recent_data[seriename].quantile(0.75)
+
+    # Filter de data om de 25% hoogste sterftecijfers van de afgelopen vijf jaar te verwijderen
+    filtered_data = recent_data[recent_data[seriename] <= threshold_25]
+
+    # Filter de oorspronkelijke data om de gefilterde recente gegevens te vervangen
+    df_filtered = df[~df.index.isin(recent_data.index)]
+    df_filtered = pd.concat([df_filtered, filtered_data])
+
+    # Filter de data voor juli en augustus (weken 27-35)
+    summer_data = df_filtered[df_filtered['week'].between(27, 35)]
+
+    # Bereken de drempelwaarde voor de 20% hoogste sterftecijfers in juli en augustus
+    threshold_20 = summer_data[seriename].quantile(0.80)
+
+    # Filter de data om de 20% hoogste sterftecijfers in juli en augustus te verwijderen
+    summer_filtered = summer_data[summer_data[seriename] <= threshold_20]
+
+    # Filter de oorspronkelijke gefilterde data om de gefilterde zomergegevens te vervangen
+    df_filtered = df_filtered[~df_filtered.index.isin(summer_data.index)]
+    df_filtered = pd.concat([df_filtered, summer_filtered])
+
+    # Sorteer de DataFrame opnieuw op jaar en weeknr
+    df_filtered = df_filtered.sort_values(by=['jaar', 'week']).reset_index(drop=True)
+
+    return (df_filtered)
+
 def get_data_for_series(df_, seriename):
     
     if seriename == "m_v_0_999":
@@ -114,6 +149,9 @@ def get_data_for_series(df_, seriename):
     else:
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
         df = df_[["jaar","week","weeknr","m_v_0_999", seriename]].copy(deep=True)
+
+    # df = filter_rivm(df, seriename)
+
     #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
     df = df[ (df["jaar"] > 2014)]  #& (df["weeknr"] != 53)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
@@ -178,7 +216,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
         df_oversterfte = pd.merge(df_oversterfte, df_rioolwater, on="weeknr", how = mergetype)
     if rightax == "kobak":
         df_oversterfte = pd.merge(df_oversterfte, df_kobak, on="weeknr", how = mergetype)
-    print (df_oversterfte)
+    # print (df_oversterfte)
     what_to_sma_ = ["low05", "high95"]
     for what_to_sma in what_to_sma_:
         df_oversterfte[what_to_sma] = df_oversterfte[what_to_sma].rolling(window=6, center=True).mean()
@@ -327,7 +365,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
             st.write(f"Correlation = {round(corr,3)}")  
         elif rightax == "kobak" :          
         
-            print (df_oversterfte)
+            # print (df_oversterfte)
             b= "excess deaths"
             fig.add_trace(  go.Scatter(
                     name='excess deaths(kobak)',
@@ -391,7 +429,7 @@ def plot_lines(series_name, df_data):
     year_list = df_data['jaar'].unique().tolist()
             
     data = []
-    print (year_list)
+    # print (year_list)
             
     for idx, year in enumerate(year_list):
         df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
@@ -403,7 +441,7 @@ def plot_lines(series_name, df_data):
         else:
             width = .7
             opacity = .3
-        print (df)
+        # print (df)
                
         fig_ = go.Scatter(x=df['week'],
                             y=df[series_name],

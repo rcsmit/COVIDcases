@@ -30,7 +30,7 @@ def get_sterftedata():
     # Remove rows where 'Perioden' contains 'dagen'
     data = data[~data['Perioden'].str.contains('dagen')]
     data = data[~data['Perioden'].str.contains('dag')]
-    print (data)
+    # print (data)
     data = data.reset_index()
 
     
@@ -66,7 +66,7 @@ def get_sterftedata():
     df = data.pivot(index=['weeknr', "jaar", "week"], columns='categorie', values = 'Overledenen_1').reset_index()
     df["week"] = df["week"].astype(int)
     df["jaar"] = df["jaar"].astype(int)
-  
+    
     return df
 
 def get_all_data():
@@ -98,7 +98,7 @@ def get_rioolwater_simpel():
         )
     df_rioolwater["weeknr"] = df_rioolwater["jaar"].astype(int).astype(str) +"_"+df_rioolwater["week"].astype(int).astype(str)
     df_rioolwater["value_rivm_official_sma"] =  df_rioolwater["rioolwaarde"].rolling(window = 5, center = False).mean().round(1)
-    print (df_rioolwater)
+    # print (df_rioolwater)
     return df_rioolwater
 
 
