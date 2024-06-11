@@ -41,6 +41,82 @@ import statsmodels.api as sm
 # noemen we de sterfte licht verhoogd. Bij 3 standaarddeviaties noemen we de sterfte
 # verhoogd. Bij 4 of meer standaarddeviaties noemen we de sterfte sterk verhoogd.
 
+def show_difference():
+    """Function to show the difference between the two methods quickly
+    """
+
+    url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input//overl_cbs_vs_rivm.csv"
+    df = pd.read_csv(
+            url,
+            delimiter=",",
+            
+            low_memory=False,
+        )
+    st.write(df)
+   # Maak een interactieve plot met Plotly
+    fig = go.Figure()
+
+    # Voeg de voorspelde lijn RIVM toe
+    fig.add_trace(go.Scatter(
+        x=df['datum'],
+        y=df['aantal_overlijdens'],
+        mode='lines',
+        name='Werkelijk overleden'
+    ))
+        # Voeg de betrouwbaarheidsinterval toe
+    fig.add_trace(go.Scatter(
+        x=df['datum'],
+        y=df['high_rivm'],
+        mode='lines',
+        fill=None,
+        line_color='yellow',
+        name='high rivm'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df['datum'],
+        y=df['low_rivm'],
+        mode='lines',
+        fill='tonexty',  # Vul het gebied tussen de lijnen
+        line_color='yellow',
+        name='low rivm'
+    ))
+
+   # Voeg de voorspelde lijn toe
+    fig.add_trace(go.Scatter(
+        x=df['datum'],
+        y=df['verw_cbs'],
+        mode='lines',
+        name='Voorspeld model'
+    ))
+    # Voeg de betrouwbaarheidsinterval toe
+    fig.add_trace(go.Scatter(
+        x=df['datum'],
+        y=df['low_cbs'],
+        mode='lines',
+        fill=None,
+        line_color='lightgrey',
+        name='low cbs'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df['datum'],
+        y=df['high_cbs'],
+        mode='lines',
+        fill='tonexty',  # Vul het gebied tussen de lijnen
+        line_color='lightgrey',
+        name='high cbs'
+    ))
+
+    # Titel en labels toevoegen
+    fig.update_layout(
+        title='Voorspelling van Overledenen met 95% Betrouwbaarheidsinterval',
+        xaxis_title='Tijd',
+        yaxis_title='Aantal Overledenen'
+    )
+
+    st.plotly_chart(fig)
+
 @st.cache_data(ttl=60 * 60 * 24)
 def get_sterftedata():
     data = pd.DataFrame(cbsodata.get_data('70895ned'))
@@ -322,10 +398,8 @@ def duplicate_row(df, from_,to):
     df = df.sort_values(by=['weeknr']).reset_index(drop=True)
      
     return df
-def main():
-    rivm=st.sidebar.selectbox("Show RIVM values", [False,True])
-    df = get_sterftedata()
-    
+
+def sterfte_rivm(df, series_naam):
     # adding week 52, because its not in the data
     # based on the rivm-data, we assume that the numbers are quit the same
     df = duplicate_row(df, "2021_51", "2021_52")
@@ -334,9 +408,9 @@ def main():
     df["boekweek"] = df["week"].shift(26)
 
     df_compleet = pd.DataFrame()
-    for y in [2021,2022,2023]:
+    for y in [2020, 2021,2022,2023]:
         st.subheader (y)
-        series_naam = "m_v_0_999"
+        
 
         # we filteren 5 jaar voor jaar y (y=2020: 2015 t/m 2020 )
         recent_years = y - 5
@@ -348,8 +422,16 @@ def main():
         df_do_lin_regression = do_lin_regression(df_filtered, df_volledig,  series_naam,y)
         df_do_lin_regression = df_do_lin_regression[(df_do_lin_regression['boekjaar_y'] == y)]
         df_compleet =  pd.concat([df_compleet,df_do_lin_regression])
-
-    
+        return df_compleet
+def main():
+    rivm=st.sidebar.selectbox("Show RIVM values", [False,True])
+    df = get_sterftedata()
+    series_naam = "m_v_0_999"
+    df_compleet = sterfte_rivm(df, series_naam)
     plot_graph(df_compleet, series_naam, rivm)
 
-main()
+if __name__ == "__main__":
+    import datetime
+    print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
+    main()
+    show_difference()
