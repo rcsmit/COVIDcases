@@ -71,7 +71,8 @@ def main():
             ["42. Oversterfte 5yrs groeps Eurostat week" , "oversterfte_eurostats"],
             ["43. Oversterfte 5yrs groeps Eurostat maand" , "oversterfte_eurostats_maand"],
             ["44. Rioolwaarde vs ziekenhuis" , "rioolwater_vs_ziekenhuis"],
-            ["45. Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"]]
+            ["45. Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"],
+            ["46. Sterfte RIVM", "sterfte_rivm"]]
 
     query_params = st.experimental_get_query_params() # reading  the choice from the URL..
 

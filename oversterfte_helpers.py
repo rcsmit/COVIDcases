@@ -10,6 +10,7 @@ from plotly.subplots import make_subplots
 # import platform
 
 
+
 def get_boosters():
     """_summary_
 
@@ -104,42 +105,6 @@ def get_herfstprik():
   
     return df_
 
-
-def filter_rivm(df, seriename):
-
-
-    # Selecteer de gegevens van de afgelopen vijf jaar
-    recent_years = df['jaar'].max() - 4
-    recent_data = df[df['jaar'] >= recent_years]
-
-    # Bereken de drempelwaarde voor de 25% hoogste sterftecijfers van de afgelopen vijf jaar
-    threshold_25 = recent_data[seriename].quantile(0.75)
-
-    # Filter de data om de 25% hoogste sterftecijfers van de afgelopen vijf jaar te verwijderen
-    filtered_data = recent_data[recent_data[seriename] <= threshold_25]
-
-    # Filter de oorspronkelijke data om de gefilterde recente gegevens te vervangen
-    df_filtered = df[~df.index.isin(recent_data.index)]
-    df_filtered = pd.concat([df_filtered, filtered_data])
-
-    # Filter de data voor juli en augustus (weken 27-35)
-    summer_data = df_filtered[df_filtered['week'].between(27, 35)]
-
-    # Bereken de drempelwaarde voor de 20% hoogste sterftecijfers in juli en augustus
-    threshold_20 = summer_data[seriename].quantile(0.80)
-
-    # Filter de data om de 20% hoogste sterftecijfers in juli en augustus te verwijderen
-    summer_filtered = summer_data[summer_data[seriename] <= threshold_20]
-
-    # Filter de oorspronkelijke gefilterde data om de gefilterde zomergegevens te vervangen
-    df_filtered = df_filtered[~df_filtered.index.isin(summer_data.index)]
-    df_filtered = pd.concat([df_filtered, summer_filtered])
-
-    # Sorteer de DataFrame opnieuw op jaar en weeknr
-    df_filtered = df_filtered.sort_values(by=['jaar', 'week']).reset_index(drop=True)
-
-    return (df_filtered)
-
 def get_data_for_series(df_, seriename):
     
     if seriename == "m_v_0_999":
@@ -150,9 +115,7 @@ def get_data_for_series(df_, seriename):
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
         df = df_[["jaar","week","weeknr","m_v_0_999", seriename]].copy(deep=True)
 
-    # df = filter_rivm(df, seriename)
-
-    #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
+   
     df = df[ (df["jaar"] > 2014)]  #& (df["weeknr"] != 53)]
     #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
@@ -569,13 +532,25 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     fig.add_vrect(x0="2021_33", x1="2021_52", 
               annotation_text="Derde golf", annotation_position="top left",
               fillcolor="pink", opacity=0.25, line_width=0)
+
+    # hittegolven
     fig.add_vrect(x0="2020_33", x1="2020_34", 
-              annotation_text="Hitte golf", annotation_position="top left",
-              fillcolor="orange", opacity=0.25, line_width=0)
+              annotation_text=" ", annotation_position="top left",
+              fillcolor="yellow", opacity=0.35, line_width=0)
+
+              
     fig.add_vrect(x0="2022_32", x1="2022_33", 
-              annotation_text="Hitte golf", annotation_position="top left",
-              fillcolor="orange", opacity=0.25, line_width=0)
+              annotation_text=" ", annotation_position="top left",
+              fillcolor="yellow", opacity=0.35, line_width=0)
     
+    fig.add_vrect(x0="2023_23", x1="2023_24", 
+              annotation_text=" ", annotation_position="top left",
+              fillcolor="yellow", opacity=0.35, line_width=0)
+    fig.add_vrect(x0="2023_36", x1="2023_37", 
+              annotation_text="Geel = Hitte golf", annotation_position="top left",
+              fillcolor="yellow", opacity=0.35, line_width=0)
+    
+
     if yaxis_to_zero:
         fig.update_yaxes(rangemode="tozero")
     st.plotly_chart(fig, use_container_width=True)
@@ -591,7 +566,7 @@ def make_df_qantile(series_name, df_data):
     Returns:
         _type_: _description_
     """    
- 
+    # df_data =  filter_rivm(df_data, series_name)
     df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
     df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
     df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
@@ -674,6 +649,8 @@ def make_df_quantile(series_name, df_data, year):
         _type_: _description_
     """    
     df_to_use = df_data[(df_data["jaar"] > 2014 ) & (df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)& (df_data["jaar"] !=2023)& (df_data["jaar"] !=2024)].copy(deep=True)
+    
+    
     df_quantile =None
   
            

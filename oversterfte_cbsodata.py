@@ -102,7 +102,6 @@ def get_rioolwater_simpel():
     return df_rioolwater
 
 
-
 def interface():
     how = st.sidebar.selectbox("How", ["quantiles", "Lines", "over_onder_sterfte", "meer_minder_sterfte", "year_minus_avg", "p_score"], index = 0)
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
