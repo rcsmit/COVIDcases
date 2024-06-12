@@ -8,7 +8,10 @@ from plotly.subplots import make_subplots
 
 import statsmodels.api as sm
 
-
+# TO SUPRESS
+# A value is trying to be set on a copy of a slice from a DataFrame.
+# Try using .loc[row_indexer,col_indexer] = value instead
+pd.options.mode.chained_assignment = None
 
 # replicating https://www.rivm.nl/monitoring-sterftecijfers-nederland
 
@@ -230,8 +233,9 @@ def add_columns(df):
     df['tijd'] = df['boekjaar'] + (df['boekweek'] - 1) / 52
 
     # Voeg sinus- en cosinustermen toe voor seizoensgebondenheid (met een periode van 1 jaar)
-    df['sin'] = np.sin(2 * np.pi * df['boekweek'] / 52)
-    df['cos'] = np.cos(2 * np.pi * df['boekweek'] / 52)
+    
+    df.loc[:,'sin'] = np.sin(2 * np.pi * df['boekweek'] / 52)
+    df.loc[:,'cos'] = np.cos(2 * np.pi * df['boekweek'] / 52)
     return df
 
 def filter_period(df_new, start_year, start_week,end_year,end_week, add):
@@ -286,7 +290,7 @@ def do_lin_regression( df_filtered,df_volledig, series_naam,y):
     X2 = df_volledig[['tijd', 'sin', 'cos']]
     X2 = sm.add_constant(X2) 
 
-    df_volledig['voorspeld'] = model.predict(X2)
+    df_volledig.loc[:, 'voorspeld'] = model.predict(X2)
     ci_model = False
     if ci_model:
         # Geeft CI van de voorspelde waarde weer. Niet de CI van de meetwaardes
@@ -294,8 +298,8 @@ def do_lin_regression( df_filtered,df_volledig, series_naam,y):
         df_volledig.loc[:,'lower_ci'] = voorspellings_interval[:, 0]
         df_volledig.loc[:,'upper_ci'] = voorspellings_interval[:, 1]
     else:
-        df_volledig.loc[:, 'lower_ci'] = df_volledig.loc[:, 'voorspeld'] - 2 * sd
-        df_volledig.loc[:, 'upper_ci'] = df_volledig.loc[:, 'voorspeld'] + 2 * sd
+        df_volledig.loc[:, 'lower_ci'] = df_volledig['voorspeld'] - 2 * sd
+        df_volledig.loc[:, 'upper_ci'] = df_volledig['voorspeld'] + 2 * sd
     df_new = pd.merge(df_filtered, df_volledig, on="weeknr", how="outer")
     
     df_new = df_new.sort_values(by=['jaar_y', 'week_y']).reset_index(drop=True)
@@ -447,6 +451,7 @@ def main():
 
 if __name__ == "__main__":
     import datetime
+    os.system('cls')
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
     main()
     show_difference_()

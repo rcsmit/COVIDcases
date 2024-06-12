@@ -157,37 +157,78 @@ def comparison():
                 ["low05", "low_cbs"],
                 ["high95", "high_cbs"],
                 ["voorspeld", "verw_rivm"],
-                ["lower_ci", "high_rivm"],
-                ["upper_ci", "low_rivm"]]
+                ["lower_ci", "low_rivm"],
+                ["upper_ci", "high_rivm"]]
     for c in columns:
         print (c)
         df_merged = df_merged.rename(columns={c[0]:c[1]})
     
     show_difference(df_merged, "weeknr")
     
-    df_merged["oversterfte_cbs"] = df_merged["aantal_overlijdens"] - df_merged["verw_cbs"]
-    df_merged["oversterfte_rivm"] = df_merged["aantal_overlijdens"] - df_merged["verw_rivm"]
-    df_merged["oversterfte_cbs_cumm"] = df_merged["oversterfte_cbs"].cumsum()
-    df_merged["oversterfte_rivm_cumm"] = df_merged["oversterfte_rivm"].cumsum()
-    fig = go.Figure()
     for n in ['cbs', 'rivm']:
-        # Voeg de werkelijke data toe
-        fig.add_trace(go.Scatter(
-            x=df_merged['weeknr'],
-            y=df_merged[f'oversterfte_{n}_cumm'],
-            mode='lines',
-            name=f'cummulatieve oversterfte {n}'
-        ))
-    
-    # Titel en labels toevoegen
-    fig.update_layout(
-        title='Cumm oversterfte (simpel)',
-        xaxis_title='Tijd',
-        yaxis_title='Aantal'
-    )
+        df_merged[f"oversterfte_{n}_simpel"] = df_merged["aantal_overlijdens"] - df_merged[f"verw_{n}"]
+        df_merged[f"oversterfte_{n}_simpel_cumm"] = df_merged[f"oversterfte_{n}_simpel"].cumsum()
 
-    st.plotly_chart(fig)
-   
+        # Bereken de nieuwe kolom 'oversterfte'
+        df_merged[f'oversterfte_{n}_complex'] = np.where(
+            df_merged['aantal_overlijdens'] > df_merged[f'high_{n}'], 
+            df_merged['aantal_overlijdens'] - df_merged[f'high_{n}'], 
+            np.where(
+                df_merged['aantal_overlijdens'] < df_merged[f'low_{n}'], 
+                df_merged['aantal_overlijdens'] - df_merged[f'low_{n}'], 
+                0
+            )
+        )
+        
+         # Bereken de nieuwe kolom 'oversterfte'
+        df_merged[f'oversterfte_{n}_middel'] = np.where(
+            df_merged['aantal_overlijdens'] > df_merged[f'high_{n}'], 
+            df_merged['aantal_overlijdens'] - df_merged[f'verw_{n}'], 
+            np.where(
+                df_merged['aantal_overlijdens'] < df_merged[f'low_{n}'], 
+                df_merged['aantal_overlijdens'] - df_merged[f'verw_{n}'], 
+                0
+            )
+        )
+
+        df_merged[f"oversterfte_{n}_complex_cumm"] = df_merged[f"oversterfte_{n}_complex"].cumsum()
+        df_merged[f"oversterfte_{n}_middel_cumm"] = df_merged[f"oversterfte_{n}_middel"].cumsum()
+
+    cbs_middel = df_merged['oversterfte_cbs_middel_cumm'].iloc[-1]
+    cbs_simpel = df_merged['oversterfte_cbs_simpel_cumm'].iloc[-1]
+    cbs_complex = df_merged['oversterfte_cbs_complex_cumm'].iloc[-1]
+
+    rivm_middel = df_merged['oversterfte_rivm_middel_cumm'].iloc[-1]
+    rivm_simpel = df_merged['oversterfte_rivm_simpel_cumm'].iloc[-1]
+    rivm_complex = df_merged['oversterfte_rivm_complex_cumm'].iloc[-1]
+    
+    simpel_str  = f"Simpel : rivm : {int(rivm_simpel)} | cbs : {int(cbs_simpel)} | verschil {int(rivm_simpel-cbs_simpel)}"
+    middel_str = f"Middel : rivm : {int(rivm_middel)} | cbs : {int(cbs_middel)} | verschil {int(rivm_middel-cbs_middel)}"
+    complex_str= f"Complex : rivm : {int(rivm_complex)} | cbs : {int(cbs_complex)} | verschil {int(rivm_complex-cbs_complex)}"
+    texts = [simpel_str, middel_str, complex_str] 
+    st.write(df_merged)
+    for i, p in enumerate(['simpel', 'middel', 'complex']):
+        fig = go.Figure()
+        for n in ['rivm', 'cbs']:
+            # Voeg de werkelijke data toe
+            fig.add_trace(go.Scatter(
+                x=df_merged['weeknr'],
+                y=df_merged[f'oversterfte_{n}_{p}_cumm'],
+                mode='lines',
+                name=f'cummulatieve oversterfte {n}'
+            ))
+        
+        # Titel en labels toevoegen
+        fig.update_layout(
+            title=f'Cumm oversterfte ({p})',
+            xaxis_title='Tijd',
+            yaxis_title='Aantal'
+        )
+
+        st.plotly_chart(fig)
+        st.write(texts[i])
+    for i in [0,1,2]:
+        st.write(texts[i])
 
 if __name__ == "__main__":
     import datetime
