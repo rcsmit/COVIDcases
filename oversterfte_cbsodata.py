@@ -136,7 +136,7 @@ def main():
 
     
 def comparison():
-    
+    st.subheader("Comparison")
     df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
     #plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, ["m_v_0_999"],"quantiles", False, None, None, None) 
     series_name = "m_v_0_999"
