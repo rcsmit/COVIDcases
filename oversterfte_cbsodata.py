@@ -133,7 +133,7 @@ def main():
     plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype, sec_y)
    
     footer()
-
+    comparison()
     
 def comparison():
     st.subheader("Comparison")
@@ -192,6 +192,6 @@ def comparison():
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
-    #main()
-    
-    comparison()
+    main()
+
+   
