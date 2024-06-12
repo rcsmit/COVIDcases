@@ -146,7 +146,6 @@ def comparison():
     df_rivm = sterfte_rivm(df_sterfte, series_name)
     plot_graph_rivm(df_rivm, series_name, False)
 
-
     # Merge de dataframes, waarbij we de kolomnaam van df_quantile aanpassen tijdens de merge
     df_merged = df_corona.merge(df_quantile, left_on='weeknr', right_on='week_').merge(df_rivm, on='weeknr')
 
