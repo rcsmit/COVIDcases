@@ -227,9 +227,11 @@ def comparison():
 
         st.plotly_chart(fig)
         st.write(texts[i])
+
+    st.subheader("Results")
     for i in [0,1,2]:
         st.write(texts[i])
-        
+
 
 if __name__ == "__main__":
     import datetime
