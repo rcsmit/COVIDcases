@@ -229,6 +229,7 @@ def comparison():
         st.write(texts[i])
     for i in [0,1,2]:
         st.write(texts[i])
+        
 
 if __name__ == "__main__":
     import datetime
