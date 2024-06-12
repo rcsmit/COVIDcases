@@ -192,5 +192,5 @@ def comparison():
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
-    main()
+    #main()
     comparison()
