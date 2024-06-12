@@ -9,6 +9,7 @@ import numpy as np
 from plotly.subplots import make_subplots
 # import platform
 from oversterfte_helpers import *
+from sterfte_rivm import *
 import get_rioolwater
 # from streamlit import caching
 
@@ -120,20 +121,76 @@ def main():
     #                 "m_0_999",  "m_0_64",  "m_65_79",  "m_80_999",
     #                 "v_0_999",  "v_0_64",  "v_65_79",  "v_80_999"]
 
-    serienames = ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999", 
+    serienames_ = ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999", 
                     "m_0_999",  "m_0_64",  "m_65_79",  "m_80_999",
                     "v_0_999",  "v_0_64",  "v_65_79",  "v_80_999"]
 
-
+    serienames = st.sidebar.multiselect("Leeftijden", serienames_, ["m_v_0_999"])
     st.header("Overstefte - minder leeftijdscategorieen")
     st.write("Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019")
     how, yaxis_to_zero, rightax, mergetype, sec_y = interface()
     df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
     plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype, sec_y)
-
+   
     footer()
+
+    
+def comparison():
+    
+    df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
+    #plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, ["m_v_0_999"],"quantiles", False, None, None, None) 
+    series_name = "m_v_0_999"
+    df_data = get_data_for_series(df_sterfte, series_name).copy(deep=True)
+    df_corona, df_quantile = make_df_qantile(series_name, df_data) 
+   
+    df_rivm = sterfte_rivm(df_sterfte, series_name)
+    plot_graph_rivm(df_rivm, series_name, False)
+
+
+    # Merge de dataframes, waarbij we de kolomnaam van df_quantile aanpassen tijdens de merge
+    df_merged = df_corona.merge(df_quantile, left_on='weeknr', right_on='week_').merge(df_rivm, on='weeknr')
+
+    # Verwijder de extra 'week_' kolom uit het eindresultaat
+    df_merged = df_merged.drop(columns=['week_'])
+    
+    columns = [[series_name, "aantal_overlijdens"],
+                ["avg", "verw_cbs"],
+                ["low05", "low_cbs"],
+                ["high95", "high_cbs"],
+                ["voorspeld", "verw_rivm"],
+                ["lower_ci", "high_rivm"],
+                ["upper_ci", "low_rivm"]]
+    for c in columns:
+        print (c)
+        df_merged = df_merged.rename(columns={c[0]:c[1]})
+    
+    show_difference(df_merged, "weeknr")
+    df_merged["oversterfte_cbs"] = df_merged["aantal_overlijdens"] - df_merged["verw_cbs"]
+    df_merged["oversterfte_rivm"] = df_merged["aantal_overlijdens"] - df_merged["verw_rivm"]
+    df_merged["oversterfte_cbs_cumm"] = df_merged["oversterfte_cbs"].cumsum()
+    df_merged["oversterfte_rivm_cumm"] = df_merged["oversterfte_rivm"].cumsum()
+    fig = go.Figure()
+    for n in ['cbs', 'rivm']:
+        # Voeg de werkelijke data toe
+        fig.add_trace(go.Scatter(
+            x=df_merged['weeknr'],
+            y=df_merged[f'oversterfte_{n}_cumm'],
+            mode='lines',
+            name=f'cummulatieve oversterfte {n}'
+        ))
+    
+    # Titel en labels toevoegen
+    fig.update_layout(
+        title='Cumm oversterfte (simpel)',
+        xaxis_title='Tijd',
+        yaxis_title='Aantal'
+    )
+
+    st.plotly_chart(fig)
+   
 
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
     main()
+    comparison()
