@@ -165,6 +165,7 @@ def comparison():
         df_merged = df_merged.rename(columns={c[0]:c[1]})
     
     show_difference(df_merged, "weeknr")
+    
     df_merged["oversterfte_cbs"] = df_merged["aantal_overlijdens"] - df_merged["verw_cbs"]
     df_merged["oversterfte_rivm"] = df_merged["aantal_overlijdens"] - df_merged["verw_rivm"]
     df_merged["oversterfte_cbs_cumm"] = df_merged["oversterfte_cbs"].cumsum()

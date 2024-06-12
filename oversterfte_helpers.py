@@ -428,8 +428,7 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     for what_to_sma in columnlist:
         df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=True).mean()
 
-                 
-
+                
     df_quantile = df_quantile.sort_values(by=['jaar','week_'])
     fig = go.Figure()
     low05 = go.Scatter(
