@@ -77,7 +77,10 @@ def main():
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
     # query_params = st.query_params["choice"] 
-    choice = int(st.query_params["choice"]) 
+    try:
+        choice = int(st.query_params["choice"]) 
+    except:
+        choice = 0 
     # if "choice" in query_params else 0 # .. and make it the default value
 
     if choice == 99:  #sandbox
