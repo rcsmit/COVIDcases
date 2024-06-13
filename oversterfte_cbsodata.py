@@ -18,6 +18,10 @@ import get_rioolwater
 
 # Downloaden van tabeloverzicht
 # toc = pd.DataFrame(cbsodata.get_table_list())
+try:
+    st.set_page_config(layout="wide")
+except:
+    pass
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
 @st.cache_data(ttl=60 * 60 * 24)
@@ -133,11 +137,11 @@ def main():
     plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype, sec_y)
    
     footer()
-    comparison()
+    comparison(df_sterfte)
     
-def comparison():
+def comparison(df_sterfte):
     st.subheader("Comparison")
-    df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
+    #df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
     #plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, ["m_v_0_999"],"quantiles", False, None, None, None) 
     series_name = "m_v_0_999"
     df_data = get_data_for_series(df_sterfte, series_name).copy(deep=True)
@@ -151,87 +155,147 @@ def comparison():
 
     # Verwijder de extra 'week_' kolom uit het eindresultaat
     df_merged = df_merged.drop(columns=['week_'])
-    
-    columns = [[series_name, "aantal_overlijdens"],
-                ["avg", "verw_cbs"],
-                ["low05", "low_cbs"],
-                ["high95", "high_cbs"],
-                ["voorspeld", "verw_rivm"],
-                ["lower_ci", "low_rivm"],
-                ["upper_ci", "high_rivm"]]
-    for c in columns:
-        print (c)
-        df_merged = df_merged.rename(columns={c[0]:c[1]})
-    
-    show_difference(df_merged, "weeknr")
-    
-    for n in ['cbs', 'rivm']:
-        df_merged[f"oversterfte_{n}_simpel"] = df_merged["aantal_overlijdens"] - df_merged[f"verw_{n}"]
-        df_merged[f"oversterfte_{n}_simpel_cumm"] = df_merged[f"oversterfte_{n}_simpel"].cumsum()
-
-        # Bereken de nieuwe kolom 'oversterfte'
-        df_merged[f'oversterfte_{n}_complex'] = np.where(
-            df_merged['aantal_overlijdens'] > df_merged[f'high_{n}'], 
-            df_merged['aantal_overlijdens'] - df_merged[f'high_{n}'], 
-            np.where(
-                df_merged['aantal_overlijdens'] < df_merged[f'low_{n}'], 
-                df_merged['aantal_overlijdens'] - df_merged[f'low_{n}'], 
-                0
-            )
-        )
+    print (df_merged.dtypes)
+    for y in ["All",2020,2021,2022,2023,2024]:   
+        st.subheader(y) 
         
-         # Bereken de nieuwe kolom 'oversterfte'
-        df_merged[f'oversterfte_{n}_middel'] = np.where(
-            df_merged['aantal_overlijdens'] > df_merged[f'high_{n}'], 
-            df_merged['aantal_overlijdens'] - df_merged[f'verw_{n}'], 
-            np.where(
-                df_merged['aantal_overlijdens'] < df_merged[f'low_{n}'], 
-                df_merged['aantal_overlijdens'] - df_merged[f'verw_{n}'], 
-                0
-            )
-        )
-
-        df_merged[f"oversterfte_{n}_complex_cumm"] = df_merged[f"oversterfte_{n}_complex"].cumsum()
-        df_merged[f"oversterfte_{n}_middel_cumm"] = df_merged[f"oversterfte_{n}_middel"].cumsum()
-
-    cbs_middel = df_merged['oversterfte_cbs_middel_cumm'].iloc[-1]
-    cbs_simpel = df_merged['oversterfte_cbs_simpel_cumm'].iloc[-1]
-    cbs_complex = df_merged['oversterfte_cbs_complex_cumm'].iloc[-1]
-
-    rivm_middel = df_merged['oversterfte_rivm_middel_cumm'].iloc[-1]
-    rivm_simpel = df_merged['oversterfte_rivm_simpel_cumm'].iloc[-1]
-    rivm_complex = df_merged['oversterfte_rivm_complex_cumm'].iloc[-1]
-    
-    simpel_str  = f"Simpel : rivm : {int(rivm_simpel)} | cbs : {int(cbs_simpel)} | verschil {int(rivm_simpel-cbs_simpel)}"
-    middel_str = f"Middel : rivm : {int(rivm_middel)} | cbs : {int(cbs_middel)} | verschil {int(rivm_middel-cbs_middel)}"
-    complex_str= f"Complex : rivm : {int(rivm_complex)} | cbs : {int(cbs_complex)} | verschil {int(rivm_complex-cbs_complex)}"
-    texts = [simpel_str, middel_str, complex_str] 
-    st.write(df_merged)
-    for i, p in enumerate(['simpel', 'middel', 'complex']):
-        fig = go.Figure()
-        for n in ['rivm', 'cbs']:
-            # Voeg de werkelijke data toe
-            fig.add_trace(go.Scatter(
-                x=df_merged['weeknr'],
-                y=df_merged[f'oversterfte_{n}_{p}_cumm'],
-                mode='lines',
-                name=f'cummulatieve oversterfte {n}'
-            ))
+        if y !="All":
+            df_merged_jaar = df_merged[df_merged["jaar_x_x"] == y] .copy()  
+            #df_merged_jaar = df_merged[df_merged["boekjaar_x"] == y] .copy()  
+            
+        else:
+            df_merged_jaar = df_merged.copy()
+        columns = [[series_name, "aantal_overlijdens"],
+                    ["avg", "verw_cbs"],
+                    ["low05", "low_cbs"],
+                    ["high95", "high_cbs"],
+                    ["voorspeld", "verw_rivm"],
+                    ["lower_ci", "low_rivm"],
+                    ["upper_ci", "high_rivm"]]
+        for c in columns:
+            print (c)
+            df_merged_jaar =  df_merged_jaar.rename(columns={c[0]:c[1]})
         
-        # Titel en labels toevoegen
-        fig.update_layout(
-            title=f'Cumm oversterfte ({p})',
-            xaxis_title='Tijd',
-            yaxis_title='Aantal'
-        )
+        show_difference( df_merged_jaar, "weeknr")
+        
+        for n in ['cbs', 'rivm']:
+            df_merged_jaar[f"oversterfte_{n}_simpel"] =  df_merged_jaar["aantal_overlijdens"] -  df_merged_jaar[f"verw_{n}"]
+            df_merged_jaar[f"oversterfte_{n}_simpel_cumm"] =  df_merged_jaar[f"oversterfte_{n}_simpel"].cumsum()
+            # Bereken de nieuwe kolom 'oversterfte'
+            df_merged_jaar[f'oversterfte_{n}_complex'] = np.where(
+                df_merged_jaar['aantal_overlijdens'] >  df_merged_jaar[f'high_{n}'], 
+                df_merged_jaar['aantal_overlijdens'] -  df_merged_jaar[f'high_{n}'], 
+                np.where(
+                    df_merged_jaar['aantal_overlijdens'] <  df_merged_jaar[f'low_{n}'], 
+                    df_merged_jaar['aantal_overlijdens'] -  df_merged_jaar[f'low_{n}'], 
+                    0
+                )
+            )
+            
+            # Bereken de nieuwe kolom 'oversterfte'
+            df_merged_jaar[f'oversterfte_{n}_middel'] = np.where(
+                df_merged_jaar['aantal_overlijdens'] >  df_merged_jaar[f'high_{n}'], 
+                df_merged_jaar['aantal_overlijdens'] -  df_merged_jaar[f'verw_{n}'], 
+               np.where(
+                    df_merged_jaar['aantal_overlijdens'] <  df_merged_jaar[f'low_{n}'], 
+                    df_merged_jaar['aantal_overlijdens'] -  df_merged_jaar[f'verw_{n}'], 
+                    0
+                )
+            )
 
-        st.plotly_chart(fig)
-        st.write(texts[i])
+            df_merged_jaar[f"oversterfte_{n}_complex_cumm"] =  df_merged_jaar[f"oversterfte_{n}_complex"].cumsum()
+            df_merged_jaar[f"oversterfte_{n}_middel_cumm"] =  df_merged_jaar[f"oversterfte_{n}_middel"].cumsum()
 
-    st.subheader("Results")
-    for i in [0,1,2]:
-        st.write(texts[i])
+        cbs_middel =  df_merged_jaar['oversterfte_cbs_middel_cumm'].iloc[-1]
+        cbs_simpel =  df_merged_jaar['oversterfte_cbs_simpel_cumm'].iloc[-1]
+        cbs_complex =  df_merged_jaar['oversterfte_cbs_complex_cumm'].iloc[-1]
 
+        rivm_middel =  df_merged_jaar['oversterfte_rivm_middel_cumm'].iloc[-1]
+        rivm_simpel =  df_merged_jaar['oversterfte_rivm_simpel_cumm'].iloc[-1]
+        rivm_complex =  df_merged_jaar['oversterfte_rivm_complex_cumm'].iloc[-1]
+        
+        simpel_str  = f"Simpel : rivm : {int(rivm_simpel)} | cbs : {int(cbs_simpel)} | verschil {int(rivm_simpel-cbs_simpel)}"
+        middel_str = f"Middel : rivm : {int(rivm_middel)} | cbs : {int(cbs_middel)} | verschil {int(rivm_middel-cbs_middel)}"
+        complex_str= f"Complex : rivm : {int(rivm_complex)} | cbs : {int(cbs_complex)} | verschil {int(rivm_complex-cbs_complex)}"
+        texts = [simpel_str, middel_str, complex_str] 
+        #st.write( df_merged_jaar)
+        temp1=[None,None,None]
+        col1,col2,col3=st.columns(3)
+        temp1[0],temp1[1],temp1[2] = col1,col2,col3
+        for i, p in enumerate(['simpel', 'middel', 'complex']):
+            with temp1[i]:
+                fig = go.Figure()
+                for n in ['rivm', 'cbs']:
+                    # Voeg de werkelijke data toe
+                    fig.add_trace(go.Scatter(
+                        x= df_merged_jaar['weeknr'],
+                        y= df_merged_jaar[f'oversterfte_{n}_{p}_cumm'],
+                        mode='lines',
+                        name=f'cummulatieve oversterfte {n}'
+                    ))
+                
+                # Titel en labels toevoegen
+                fig.update_layout(
+                    title=f'Cumm oversterfte ({p}) - {y}',
+                    xaxis_title='Tijd',
+                    yaxis_title='Aantal'
+                )
+
+                st.plotly_chart(fig)
+                st.write(texts[i])
+
+        st.subheader(f"Results - {y}")
+    
+        df_grouped= df_merged_jaar.groupby(by="jaar_x_x").sum().reset_index()
+    
+        df_grouped = df_grouped[[
+                    "jaar_x_x",
+                    "oversterfte_rivm_simpel",
+                    "oversterfte_rivm_middel",
+                    "oversterfte_rivm_complex",
+                    
+                    "oversterfte_cbs_simpel",
+                    "oversterfte_cbs_middel",
+                    "oversterfte_cbs_complex",
+                ]]
+        # for i in [0,1,2]:
+        #     st.write(texts[i])
+
+        for x in ['simpel', 'middel', 'complex']:
+            df_grouped[f"verschil_{x}"] =  df_grouped[f"oversterfte_rivm_{x}"] - df_grouped[f"oversterfte_cbs_{x}"]
+        df_grouped_transposed = df_grouped.transpose().astype(int)
+       
+        
+        if y =="All":
+            st.write (df_grouped_transposed)
+        else:
+            # Create a new DataFrame with more logical structure
+            new_data = {
+                'rivm': {
+                    'simpel': df_grouped['oversterfte_rivm_simpel'].iloc[0],
+                    'middel': df_grouped['oversterfte_rivm_middel'].iloc[0],
+                    'complex': df_grouped['oversterfte_rivm_complex'].iloc[0],
+                },
+                'cbs': {
+                    'simpel': df_grouped['oversterfte_cbs_simpel'].iloc[0],
+                    'middel': df_grouped['oversterfte_cbs_middel'].iloc[0],
+                    'complex': df_grouped['oversterfte_cbs_complex'].iloc[0],
+                },
+                'verschil': {
+                    'simpel': df_grouped['verschil_simpel'].iloc[0],
+                    'middel': df_grouped['verschil_middel'].iloc[0],
+                    'complex': df_grouped['verschil_complex'].iloc[0],
+                }
+            }
+
+            # Convert the dictionary to a DataFrame
+            new_df_grouped = pd.DataFrame(new_data)
+
+            # Transpose the DataFrame for the desired format
+            new_df_grouped = new_df_grouped.transpose().astype(int)
+
+            # Display the new DataFrame
+            st.write(new_df_grouped)
 
 if __name__ == "__main__":
     import datetime
