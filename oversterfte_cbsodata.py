@@ -68,11 +68,13 @@ def comparison(df_sterfte):
     df_corona, df_quantile = make_df_qantile(series_name, df_data) 
     df_official = get_df_offical()
     df_rivm = sterfte_rivm(df_sterfte, series_name)
-    plot_graph_rivm(df_rivm, series_name, False)
+    # plot_graph_rivm(df_rivm, series_name, False)
 
-
+    df_corona = duplicate_row(df_corona, "2021_51", "2021_52")
+    df_corona = duplicate_row(df_corona, "2022_51", "2022_52")
     # Merge de dataframes, waarbij we de kolomnaam van df_quantile aanpassen tijdens de merge
-    df_merged = df_corona.merge(df_quantile, left_on='weeknr', right_on='week_').merge(df_rivm, on='weeknr').merge(df_official,left_on='weeknr', right_on='weeknr_z')
+    df_merged__ = df_corona.merge(df_quantile, left_on='weeknr', right_on='week_').merge(df_rivm, on='weeknr')
+    df_merged = df_merged__.merge(df_official,left_on='weeknr', right_on='weeknr_z', how="outer")
     print (df_merged.dtypes)
     print (df_official.dtypes)
     # Verwijder de extra 'week_' kolom uit het eindresultaat
