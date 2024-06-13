@@ -1,4 +1,4 @@
-﻿jaar,week,datum,Overledenen,verw_cbs,low_cbs,high_cbs,aantal_overlijdens,low_rivm,high_rivm,opgehoogd
+﻿jaar_z,week_z,datum,Overledenen_z,verw_cbs_official,low_cbs_official,high_cbs_official,aantal_overlijdens_z,low_rivm_official,high_rivm_official,opgehoogd
 2021,26,28/06/2021,2792,2743,2603,2883,2794,2571,2924,nee
 2021,27,05/07/2021,2837,2750,2571,2929,2840,2560,2913,nee
 2021,28,12/07/2021,2873,2745,2541,2949,2873,2552,2905,nee

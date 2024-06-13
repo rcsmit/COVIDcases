@@ -24,87 +24,6 @@ except:
     pass
 
 # Downloaden van gehele tabel (kan een halve minuut duren)
-@st.cache_data(ttl=60 * 60 * 24)
-def get_sterftedata():
-    data = pd.DataFrame(cbsodata.get_data('70895ned'))
- 
-    data[['jaar','week']] = data.Perioden.str.split(" week ",expand=True,)
-    #data['week_'] = data['week_']+" _"
-    #data['week_'] = data['week_'].replace(' dagen','_',  regex=True)
-    #data['week_'] = data['week_'].replace('\)_',')',  regex=True)
-    # Remove rows where 'Perioden' contains 'dagen'
-    data = data[~data['Perioden'].str.contains('dagen')]
-    data = data[~data['Perioden'].str.contains('dag')]
-    # print (data)
-    data = data.reset_index()
-
-    
-
-    #data[['week','aantal_dagen']] = data.week_.str.split(" ",expand=True,)
-    data = data[data['week'].notnull()] #remove the year-totals
-    # data['aantal_dagen'] = data['aantal_dagen'].replace('_','7')
-    # data['aantal_dagen'] = data['aantal_dagen'].replace('\(','', regex=True)
-    # data['aantal_dagen'] = data['aantal_dagen'].replace('_\)','', regex=True)
-    # data = data[data['aantal_dagen'] == '7'] # only complete weeks
-    data["weeknr"] = data["jaar"].astype(str) +"_" + data["week"].astype(str).str.zfill(2)
-    import math
-    data["week_int"]=data['week'].astype(int)
-    #data["week_int"].apply(lambda x: float(x))
-    data["virtuele_maand"] = ((data["week_int"]-1)/4)+1
-    data["virtuele_maand"]=data['virtuele_maand'].astype(int)
-    data["virtuele_maandnr"] = data["jaar"].astype(str) +"_" + data["virtuele_maand"].astype(str).str.zfill(2)
-    #data = data.round({'virtuele_maand': 0})
-
-    data['Geslacht'] = data['Geslacht'].replace(['Totaal mannen en vrouwen'],'m_v_')
-    data['Geslacht'] = data['Geslacht'].replace(['Mannen'],'m_')
-    data['Geslacht'] = data['Geslacht'].replace(['Vrouwen'],'v_')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['Totaal leeftijd'],'0_999')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['0 tot 65 jaar'],'0_64')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['65 tot 80 jaar'],'65_79')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['80 jaar of ouder'],'80_999')
-    data['categorie'] = data['Geslacht']+data['LeeftijdOp31December']
-
-    # print (data.dtypes)
-    # Downloaden van metadata
-    # metadata = pd.DataFrame(cbsodata.get_meta('70895ned', 'DataProperties'))
-    # print(metadata[['Key','Title']])
-    df = data.pivot(index=['weeknr', "jaar", "week"], columns='categorie', values = 'Overledenen_1').reset_index()
-    df["week"] = df["week"].astype(int)
-    df["jaar"] = df["jaar"].astype(int)
-    
-    return df
-
-def get_all_data():
-    """_summary_
-
-    Returns:
-        _type_: df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater,df_
-    """    
-    df_boosters = get_boosters()
-    df_herhaalprik = get_herhaalprik()
-    df_herfstprik = get_herfstprik()
-    #df_rioolwater_dag, df_rioolwater = None, None # get_rioolwater.scrape_rioolwater()
-    df_kobak = get_kobak()
-    df_rioolwater = get_rioolwater_simpel()
-    df_ = get_sterftedata()
-
-
-    return df_, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak
-
-def get_rioolwater_simpel():
-    # if platform.processor() != "":
-    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
-    # else: 
-    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaarde2024.csv"
-    df_rioolwater = pd.read_csv(
-        file,
-        delimiter=",",
-        low_memory=False,
-        )
-    df_rioolwater["weeknr"] = df_rioolwater["jaar"].astype(int).astype(str) +"_"+df_rioolwater["week"].astype(int).astype(str)
-    df_rioolwater["value_rivm_official_sma"] =  df_rioolwater["rioolwaarde"].rolling(window = 5, center = False).mean().round(1)
-    # print (df_rioolwater)
-    return df_rioolwater
 
 
 def interface():
@@ -140,22 +59,25 @@ def main():
     comparison(df_sterfte)
     
 def comparison(df_sterfte):
+    show_official = st.sidebar.selectbox("Show official values", [True,False], 1)
     st.subheader("Comparison")
     #df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
     #plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, ["m_v_0_999"],"quantiles", False, None, None, None) 
     series_name = "m_v_0_999"
     df_data = get_data_for_series(df_sterfte, series_name).copy(deep=True)
     df_corona, df_quantile = make_df_qantile(series_name, df_data) 
-   
+    df_official = get_df_offical()
     df_rivm = sterfte_rivm(df_sterfte, series_name)
     plot_graph_rivm(df_rivm, series_name, False)
 
-    # Merge de dataframes, waarbij we de kolomnaam van df_quantile aanpassen tijdens de merge
-    df_merged = df_corona.merge(df_quantile, left_on='weeknr', right_on='week_').merge(df_rivm, on='weeknr')
 
+    # Merge de dataframes, waarbij we de kolomnaam van df_quantile aanpassen tijdens de merge
+    df_merged = df_corona.merge(df_quantile, left_on='weeknr', right_on='week_').merge(df_rivm, on='weeknr').merge(df_official,left_on='weeknr', right_on='weeknr_z')
+    print (df_merged.dtypes)
+    print (df_official.dtypes)
     # Verwijder de extra 'week_' kolom uit het eindresultaat
     df_merged = df_merged.drop(columns=['week_'])
-    print (df_merged.dtypes)
+ 
     for y in ["All",2020,2021,2022,2023,2024]:   
         st.subheader(y) 
         
@@ -176,8 +98,8 @@ def comparison(df_sterfte):
             print (c)
             df_merged_jaar =  df_merged_jaar.rename(columns={c[0]:c[1]})
         
-        show_difference( df_merged_jaar, "weeknr")
-        
+        show_difference( df_merged_jaar, "weeknr", show_official)
+
         for n in ['cbs', 'rivm']:
             df_merged_jaar[f"oversterfte_{n}_simpel"] =  df_merged_jaar["aantal_overlijdens"] -  df_merged_jaar[f"verw_{n}"]
             df_merged_jaar[f"oversterfte_{n}_simpel_cumm"] =  df_merged_jaar[f"oversterfte_{n}_simpel"].cumsum()

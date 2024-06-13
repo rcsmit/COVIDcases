@@ -105,6 +105,105 @@ def get_herfstprik():
   
     return df_
 
+def get_all_data():
+    """_summary_
+
+    Returns:
+        _type_: df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater,df_
+    """    
+    df_boosters = get_boosters()
+    df_herhaalprik = get_herhaalprik()
+    df_herfstprik = get_herfstprik()
+    #df_rioolwater_dag, df_rioolwater = None, None # get_rioolwater.scrape_rioolwater()
+    df_kobak = get_kobak()
+    df_rioolwater = get_rioolwater_simpel()
+    df_ = get_sterftedata()
+
+
+    return df_, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak
+
+@st.cache_data(ttl=60 * 60 * 24)
+def get_sterftedata():
+    data = pd.DataFrame(cbsodata.get_data('70895ned'))
+ 
+    data[['jaar','week']] = data.Perioden.str.split(" week ",expand=True,)
+    #data['week_'] = data['week_']+" _"
+    #data['week_'] = data['week_'].replace(' dagen','_',  regex=True)
+    #data['week_'] = data['week_'].replace('\)_',')',  regex=True)
+    # Remove rows where 'Perioden' contains 'dagen'
+    data = data[~data['Perioden'].str.contains('dagen')]
+    data = data[~data['Perioden'].str.contains('dag')]
+    # print (data)
+    data = data.reset_index()
+
+    #data[['week','aantal_dagen']] = data.week_.str.split(" ",expand=True,)
+    data = data[data['week'].notnull()] #remove the year-totals
+    # data['aantal_dagen'] = data['aantal_dagen'].replace('_','7')
+    # data['aantal_dagen'] = data['aantal_dagen'].replace('\(','', regex=True)
+    # data['aantal_dagen'] = data['aantal_dagen'].replace('_\)','', regex=True)
+    # data = data[data['aantal_dagen'] == '7'] # only complete weeks
+    data["weeknr"] = data["jaar"].astype(str) +"_" + data["week"].astype(str).str.zfill(2)
+    import math
+    data["week_int"]=data['week'].astype(int)
+    #data["week_int"].apply(lambda x: float(x))
+    data["virtuele_maand"] = ((data["week_int"]-1)/4)+1
+    data["virtuele_maand"]=data['virtuele_maand'].astype(int)
+    data["virtuele_maandnr"] = data["jaar"].astype(str) +"_" + data["virtuele_maand"].astype(str).str.zfill(2)
+    #data = data.round({'virtuele_maand': 0})
+
+    data['Geslacht'] = data['Geslacht'].replace(['Totaal mannen en vrouwen'],'m_v_')
+    data['Geslacht'] = data['Geslacht'].replace(['Mannen'],'m_')
+    data['Geslacht'] = data['Geslacht'].replace(['Vrouwen'],'v_')
+    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['Totaal leeftijd'],'0_999')
+    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['0 tot 65 jaar'],'0_64')
+    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['65 tot 80 jaar'],'65_79')
+    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['80 jaar of ouder'],'80_999')
+    data['categorie'] = data['Geslacht']+data['LeeftijdOp31December']
+
+    # print (data.dtypes)
+    # Downloaden van metadata
+    # metadata = pd.DataFrame(cbsodata.get_meta('70895ned', 'DataProperties'))
+    # print(metadata[['Key','Title']])
+    df = data.pivot(index=['weeknr', "jaar", "week"], columns='categorie', values = 'Overledenen_1').reset_index()
+    df["week"] = df["week"].astype(int)
+    df["jaar"] = df["jaar"].astype(int)
+    
+    return df
+
+def get_rioolwater_simpel():
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
+    # else: 
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaarde2024.csv"
+    df_rioolwater = pd.read_csv(
+        file,
+        delimiter=",",
+        low_memory=False,
+        )
+    df_rioolwater["weeknr"] = df_rioolwater["jaar"].astype(int).astype(str) +"_"+df_rioolwater["week"].astype(int).astype(str)
+    df_rioolwater["value_rivm_official_sma"] =  df_rioolwater["rioolwaarde"].rolling(window = 5, center = False).mean().round(1)
+    # print (df_rioolwater)
+    return df_rioolwater
+
+
+def get_df_offical():
+    """Laad de waardes zoals door RIVM en CBS is bepaald. Gedownload dd 11 juni 2024
+    Returns:
+        _df
+    """    
+    file="C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\overl_cbs_vs_rivm.csv"
+    # else: 
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overl_cbs_vs_rivm.csv"
+    df_ = pd.read_csv(
+        file,
+        delimiter=",",
+        
+        low_memory=False,
+    )
+    df_["weeknr_z"] = df_["jaar_z"].astype(str) +"_" + df_["week_z"].astype(str).str.zfill(2)
+    df_["verw_rivm_official"] = (df_["low_rivm_official"] + df_["high_rivm_official"])/2
+    return df_
+
 def get_data_for_series(df_, seriename):
     
     if seriename == "m_v_0_999":
@@ -563,7 +662,8 @@ def make_df_qantile(series_name, df_data):
         df_data (_type_): _description_
 
     Returns:
-        _type_: _description_
+        df_corona: df with baseline
+        df_quantiles : df with quantiles
     """    
     # df_data =  filter_rivm(df_data, series_name)
     df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)

@@ -55,7 +55,7 @@ def show_difference_():
     df["verw_rivm"] = None
     st.write(df, "datum")
 
-def show_difference(df, date_field):
+def show_difference(df, date_field, show_official):
     """Function to show the difference between the two methods quickly
     """
     columnlist = ["low_cbs", "high_cbs"]
@@ -124,7 +124,57 @@ def show_difference(df, date_field):
         line_color='lightgrey',
         name='high cbs'
     ))
+    if show_official:
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['high_rivm_official'],
+            mode='lines',
+            fill=None,
+            line_color='orange',
+            name='high rivm official'
+        ))
 
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['low_rivm_official'],
+            mode='lines',
+            fill='tonexty',  # Vul het gebied tussen de lijnen
+            line_color='orange',
+            name='low rivm  official'
+        ))
+ 
+        # Voeg de voorspelde lijn toe
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['verw_rivm_official'],
+            mode='lines',
+            name='Voorspeld model rivm  official'
+        ))
+    # Voeg de voorspelde lijn toe
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['verw_cbs_official'],
+            mode='lines',
+            name='Voorspeld model cbs  official'
+        ))
+        # Voeg de betrouwbaarheidsinterval toe
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['low_cbs_official'],
+            mode='lines',
+            fill=None,
+            line_color='lightblue',
+            name='low cbs  official'
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['high_cbs_official'],
+            mode='lines',
+            fill='tonexty',  # Vul het gebied tussen de lijnen
+            line_color='lightblue',
+            name='high cbs  official'
+        ))
     # Titel en labels toevoegen
     fig.update_layout(
         title='Vergelijking CBS vs RIVM',

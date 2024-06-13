@@ -2,7 +2,8 @@ import streamlit as st
 import importlib
 import traceback
 
-st.set_page_config(page_title="COVID SCRIPTS of René Smit")
+
+st.set_page_config(page_title="COVID SCRIPTS of René Smit", layout="wide")
 
 def show_info():
     tekst = (
@@ -74,9 +75,10 @@ def main():
             ["45. Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"],
             ["46. Sterfte RIVM", "sterfte_rivm"]]
 
-    query_params = st.experimental_get_query_params() # reading  the choice from the URL..
-
-    choice = int(query_params["choice"][0]) if "choice" in query_params else 0 # .. and make it the default value
+    #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
+    # query_params = st.query_params["choice"] 
+    choice = int(st.query_params["choice"]) 
+    # if "choice" in query_params else 0 # .. and make it the default value
 
     if choice == 99:  #sandbox
         try:
@@ -97,11 +99,14 @@ def main():
     menuchoicelist = [options[n][0] for n, l in enumerate(options)]
 
     with st.sidebar.expander('MENU: Choose a script | scroll down for options/parameters',  expanded=True):
-        menu_choice = st.radio(".",menuchoicelist, index=choice,  label_visibility='hidden')
-
+        try:
+            menu_choice = st.radio(".",menuchoicelist, index=choice,  label_visibility='hidden')
+        except:
+            st.error("ERROR. Choice not in menulist")
+            st.stop()
     st.sidebar.markdown("<h1>- - - - - - - - - - - - - - - - - </h1>", unsafe_allow_html=True)
-    st.experimental_set_query_params(choice=menuchoicelist.index(menu_choice)) # setting the choice in the URL
-
+    #st.experimental_set_query_params(choice=menuchoicelist.index(menu_choice)) # setting the choice in the URL
+    st.query_params.choice = menuchoicelist.index(menu_choice)
     for n, l in enumerate(options):
         if menu_choice == options[n][0]:
             m = options[n][1].replace(" ","_") # I was too lazy to change it in the list
