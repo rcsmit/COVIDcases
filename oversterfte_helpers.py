@@ -202,6 +202,11 @@ def get_df_offical():
     )
     df_["weeknr_z"] = df_["jaar_z"].astype(str) +"_" + df_["week_z"].astype(str).str.zfill(2)
     df_["verw_rivm_official"] = (df_["low_rivm_official"] + df_["high_rivm_official"])/2
+
+    columnlist = ["low_cbs_official", "high_cbs_official"]
+    for what_to_sma in columnlist:
+        df_[what_to_sma] = df_[what_to_sma].rolling(window=6, center=True).mean()
+
     return df_
 
 def get_data_for_series(df_, seriename):
@@ -654,6 +659,143 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     st.plotly_chart(fig, use_container_width=True)
     return df_quantile
 
+
+
+def show_difference(df, date_field, show_official):
+    """Function to show the difference between the two methods quickly
+    """
+    columnlist = ["low_cbs", "high_cbs"]
+    for what_to_sma in columnlist:
+        df[what_to_sma] = df[what_to_sma].rolling(window=6, center=True).mean()
+
+   
+   # Maak een interactieve plot met Plotly
+    fig = go.Figure()
+
+    
+        # Voeg de betrouwbaarheidsinterval toe
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['high_rivm'],
+        mode='lines',
+        fill=None,
+        line_color='yellow',
+        name='high rivm'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['low_rivm'],
+        mode='lines',
+        fill='tonexty',  # Vul het gebied tussen de lijnen
+        line_color='yellow',
+        name='low rivm'
+    ))
+
+  
+    
+    # Voeg de betrouwbaarheidsinterval toe
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['low_cbs'],
+        mode='lines',
+        fill=None,
+        line_color='lightgrey',
+        name='low cbs'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['high_cbs'],
+        mode='lines',
+        fill='tonexty',  # Vul het gebied tussen de lijnen
+        line_color='lightgrey',
+        name='high cbs'
+    ))
+    if show_official:
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['high_rivm_official'],
+            mode='lines',
+            fill=None,
+            line_color='orange',
+            name='high rivm official'
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['low_rivm_official'],
+            mode='lines',
+            fill='tonexty',  # Vul het gebied tussen de lijnen
+            line_color='orange',
+            name='low rivm  official'
+        ))
+ 
+     
+        # Voeg de betrouwbaarheidsinterval toe
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['low_cbs_official'],
+            mode='lines',
+            fill=None,
+            line_color='lightblue',
+            name='low cbs  official'
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['high_cbs_official'],
+            mode='lines',
+            fill='tonexty',  # Vul het gebied tussen de lijnen
+            line_color='lightblue',
+            name='high cbs  official'
+        ))
+       # Voeg de voorspelde lijn toe
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['verw_rivm_official'],
+            mode='lines',
+            name='Baseline model rivm  official'
+        ))
+    # Voeg de voorspelde lijn toe
+        fig.add_trace(go.Scatter(
+            x=df[date_field],
+            y=df['verw_cbs_official'],
+            mode='lines',
+            name='Baseline model cbs  official'
+        ))
+
+        # Voeg de voorspelde lijn toe
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['verw_rivm'],
+        mode='lines',
+        name='Baseline model rivm'
+    ))
+   # Voeg de voorspelde lijn toe
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['verw_cbs'],
+        mode='lines',
+        name='Baseline model cbs'))
+    # Voeg de voorspelde lijn RIVM toe
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['aantal_overlijdens'],
+        mode='lines',
+        name='Werkelijk overleden'
+    ))
+    # Titel en labels toevoegen
+    fig.update_layout(
+        title='Vergelijking CBS vs RIVM',
+        xaxis_title='Tijd',
+        yaxis_title='Aantal Overledenen'
+    )
+
+    st.plotly_chart(fig)
+
+
+
 def make_df_qantile(series_name, df_data):
     """_summary_
 
@@ -769,6 +911,25 @@ def make_df_quantile(series_name, df_data, year):
         
     return df_quantile
         
+def duplicate_row(df, from_,to):
+    """Duplicates a row
+
+    Args:
+        df (df): df
+        from_ (str): oorspronkelijke rij eg. '2022_51'
+        to (str): bestemmingsrij eg. '2022_52'
+    """    
+     # Find the row where weeknr is '2022_51' and duplicate it
+    row_to_duplicate = df[df['weeknr'] == from_].copy()
+
+    # Update the weeknr value to '2022_52' in the duplicated row
+    row_to_duplicate['weeknr'] = to
+
+    # Append the duplicated row to the DataFrame
+    df = pd.concat([df,row_to_duplicate], ignore_index=True)
+    df = df.sort_values(by=['weeknr']).reset_index(drop=True)
+     
+    return df
 
 def footer():
     st.write("De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie.")

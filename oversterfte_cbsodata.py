@@ -50,17 +50,24 @@ def main():
 
     serienames = st.sidebar.multiselect("Leeftijden", serienames_, ["m_v_0_999"])
     st.header("Overstefte - minder leeftijdscategorieen")
+    st.subheader("CBS Methode")
     st.write("Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019")
     how, yaxis_to_zero, rightax, mergetype, sec_y = interface()
     df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
     plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype, sec_y)
-   
+    if how == "quantiles":
+        st.subheader("RIVM methode")
+        for s in serienames:
+            df_compleet = sterfte_rivm(df_sterfte, s)
+            plot_graph_rivm(df_compleet,s, False)
+        
+        comparison(df_sterfte)
+    else:
+        st.info("De vergrlijking met vaccinateies, rioolwater etc is vooralsnog alleen mogelijk met CBS methode ")
     footer()
-    comparison(df_sterfte)
-    
 def comparison(df_sterfte):
     show_official = st.sidebar.selectbox("Show official values", [True,False], 1)
-    st.subheader("Comparison")
+    st.subheader("Vergelijking")
     #df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
     #plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, ["m_v_0_999"],"quantiles", False, None, None, None) 
     series_name = "m_v_0_999"
