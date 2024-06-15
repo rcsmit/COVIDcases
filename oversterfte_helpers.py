@@ -133,7 +133,7 @@ def get_sterftedata():
     # Remove rows where 'Perioden' contains 'dagen'
     data = data[~data['Perioden'].str.contains('dagen')]
     data = data[~data['Perioden'].str.contains('dag')]
-    # print (data)
+    
     data = data.reset_index()
 
     #data[['week','aantal_dagen']] = data.week_.str.split(" ",expand=True,)
@@ -160,10 +160,6 @@ def get_sterftedata():
     data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['80 jaar of ouder'],'80_999')
     data['categorie'] = data['Geslacht']+data['LeeftijdOp31December']
 
-    # print (data.dtypes)
-    # Downloaden van metadata
-    # metadata = pd.DataFrame(cbsodata.get_meta('70895ned', 'DataProperties'))
-    # print(metadata[['Key','Title']])
     df = data.pivot(index=['weeknr', "jaar", "week"], columns='categorie', values = 'Overledenen_1').reset_index()
     df["week"] = df["week"].astype(int)
     df["jaar"] = df["jaar"].astype(int)
@@ -182,7 +178,7 @@ def get_rioolwater_simpel():
         )
     df_rioolwater["weeknr"] = df_rioolwater["jaar"].astype(int).astype(str) +"_"+df_rioolwater["week"].astype(int).astype(str)
     df_rioolwater["value_rivm_official_sma"] =  df_rioolwater["rioolwaarde"].rolling(window = 5, center = False).mean().round(1)
-    # print (df_rioolwater)
+   
     return df_rioolwater
 
 
@@ -205,7 +201,7 @@ def get_df_offical():
 
     columnlist = ["low_cbs_official", "high_cbs_official"]
     for what_to_sma in columnlist:
-        df_[what_to_sma] = df_[what_to_sma].rolling(window=6, center=True).mean()
+        df_[what_to_sma] = df_[what_to_sma].rolling(window=6, center=False).mean()
 
     return df_
 
@@ -232,27 +228,29 @@ def get_data_for_series(df_, seriename):
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
         #  https://www.cbs.nl/nl-nl/nieuws/2024/06/sterfte-in-2023-afgenomen/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2023%20is%20deze%20156%20666.
         # https://opendata.cbs.nl/statline/#/CBS/nl/dataset/85753NED/table?dl=A787C
-        factor_2020 = 153402 / som
-        factor_2021 = 154887 / som
-        factor_2022 = 155494 / som
-        factor_2023 = 156666 / som # 169333 / som  # was 156 666, wellicht excl. de sterfte door corona ?
-        factor_2024 = 157846 / som # berekend door de intervallen 2023/2022 op elkaar te delen // 169521 / som  #NOG OPZOEKEN
-        for i in range(len(df)):
-            
-            if df.loc[i,"jaar"] == y:
-                #for s in serienames:
-                new_column_name_2020 = seriename + "_factor_2020"
-                new_column_name_2021 = seriename + "_factor_2021"
-                new_column_name_2022 = seriename + "_factor_2022"
-                new_column_name_2023 = seriename + "_factor_2023"
-                new_column_name_2024 = seriename + "_factor_2024"
-                df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
-                df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
-                df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
-                df.loc[i,new_column_name_2023] = df.loc[i,seriename] * factor_2023
-                df.loc[i,new_column_name_2024] = df.loc[i,seriename] * factor_2024
-        
-    return df
+        # Define the factors for each year
+        factors = {
+            2014: 153402 / som,
+            2015: 153402 / som,
+            2016: 153402 / som,
+            2017: 153402 / som,
+            2018: 153402 / som,
+            2019: 153402 / som,
+            2020: 153402 / som,
+            2021: 154887 / som,
+            2022: 155494 / som,
+            2023: 156666 / som,  # or 169333 / som if you decide to use the updated factor
+            2024: 157846 / som
+        }
+
+        # Loop through the years 2014 to 2024 and apply the factors
+        for year in range(2014, 2025):
+            new_column_name = f"{seriename}_factor_{year}"
+            factor = factors[year]
+            df[new_column_name] = df[seriename] * factor
+
+                
+        return df
 
 
 def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater,df_kobak, series_name, rightax, mergetype, sec_y):
@@ -283,10 +281,9 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
         df_oversterfte = pd.merge(df_oversterfte, df_rioolwater, on="weeknr", how = mergetype)
     if rightax == "kobak":
         df_oversterfte = pd.merge(df_oversterfte, df_kobak, on="weeknr", how = mergetype)
-    # print (df_oversterfte)
     what_to_sma_ = ["low05", "high95"]
     for what_to_sma in what_to_sma_:
-        df_oversterfte[what_to_sma] = df_oversterfte[what_to_sma].rolling(window=6, center=True).mean()
+        df_oversterfte[what_to_sma] = df_oversterfte[what_to_sma].rolling(window=6, center=False).mean()
 
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["meer_minder_sterfte"] =  0
@@ -294,7 +291,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
     df_oversterfte["p_score"] = ( df_oversterfte[series_name]- df_oversterfte["avg"]) /   df_oversterfte["avg"]
-    df_oversterfte["p_score"] = df_oversterfte["p_score"].rolling(window=6, center=True).mean()
+    df_oversterfte["p_score"] = df_oversterfte["p_score"].rolling(window=6, center=False).mean()
 
     for i in range( len (df_oversterfte)):
         if df_oversterfte.loc[i,series_name ] >  df_oversterfte.loc[i,"high95"] :
@@ -432,7 +429,6 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_h
             st.write(f"Correlation = {round(corr,3)}")  
         elif rightax == "kobak" :          
         
-            # print (df_oversterfte)
             b= "excess deaths"
             fig.add_trace(  go.Scatter(
                     name='excess deaths(kobak)',
@@ -471,13 +467,14 @@ def plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_,        
         rightax (_type_): _description_
         mergetype (_type_): _description_
     """    
-    print("plot is called")
+ 
     
     for col, series_name in enumerate(series_names):
         print (f"---{series_name}----")
         df_data = get_data_for_series(df_, series_name).copy(deep=True)
         
         df_corona, df_quantile = make_df_qantile(series_name, df_data)
+       
         st.subheader(series_name)
         if how =="quantiles":
             
@@ -496,8 +493,7 @@ def plot_lines(series_name, df_data):
     year_list = df_data['jaar'].unique().tolist()
             
     data = []
-    # print (year_list)
-            
+    
     for idx, year in enumerate(year_list):
         df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
@@ -508,8 +504,7 @@ def plot_lines(series_name, df_data):
         else:
             width = .7
             opacity = .3
-        # print (df)
-               
+      
         fig_ = go.Scatter(x=df['week'],
                             y=df[series_name],
                             line=dict(width=width), opacity = opacity, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
@@ -530,8 +525,7 @@ def plot_lines(series_name, df_data):
 def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
     for what_to_sma in columnlist:
-        df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=True).mean()
-
+        df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=False).mean()
                 
     df_quantile = df_quantile.sort_values(by=['jaar','week_'])
     fig = go.Figure()
@@ -566,7 +560,7 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     avg = go.Scatter(
                 name='gemiddeld',
                 x=df_quantile["week_"],
-                y=df_quantile["avg"],
+                y=df_quantile["q50"],
                 mode='lines',
                 line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
                 )
@@ -664,11 +658,12 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
 def show_difference(df, date_field, show_official):
     """Function to show the difference between the two methods quickly
     """
-    columnlist = ["low_cbs", "high_cbs"]
+    columnlist = ["low_cbs","verw_cbs", "high_cbs"]
     for what_to_sma in columnlist:
-        df[what_to_sma] = df[what_to_sma].rolling(window=6, center=True).mean()
+        df[f'{what_to_sma}_sma'] = df[what_to_sma].rolling(window=6, center=True).mean()
 
-   
+    st.write("665")
+    st.write(df)
    # Maak een interactieve plot met Plotly
     fig = go.Figure()
 
@@ -697,7 +692,7 @@ def show_difference(df, date_field, show_official):
     # Voeg de betrouwbaarheidsinterval toe
     fig.add_trace(go.Scatter(
         x=df[date_field],
-        y=df['low_cbs'],
+        y=df['low_cbs_sma'],
         mode='lines',
         fill=None,
         line_color='lightgrey',
@@ -706,7 +701,7 @@ def show_difference(df, date_field, show_official):
 
     fig.add_trace(go.Scatter(
         x=df[date_field],
-        y=df['high_cbs'],
+        y=df['high_cbs_sma'],
         mode='lines',
         fill='tonexty',  # Vul het gebied tussen de lijnen
         line_color='lightgrey',
@@ -764,7 +759,7 @@ def show_difference(df, date_field, show_official):
             mode='lines',
             name='Baseline model cbs  official'
         ))
-
+    
         # Voeg de voorspelde lijn toe
     fig.add_trace(go.Scatter(
         x=df[date_field],
@@ -775,9 +770,11 @@ def show_difference(df, date_field, show_official):
    # Voeg de voorspelde lijn toe
     fig.add_trace(go.Scatter(
         x=df[date_field],
-        y=df['verw_cbs'],
+        y=df['verw_cbs_sma'],
         mode='lines',
         name='Baseline model cbs'))
+
+
     # Voeg de voorspelde lijn RIVM toe
     fig.add_trace(go.Scatter(
         x=df[date_field],
@@ -807,25 +804,25 @@ def make_df_qantile(series_name, df_data):
         df_corona: df with baseline
         df_quantiles : df with quantiles
     """    
-    # df_data =  filter_rivm(df_data, series_name)
-    df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
-    df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
-    df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
-    df_corona_23 = df_data[(df_data["jaar"] ==2023)].copy(deep=True)
-    df_corona_24 = df_data[(df_data["jaar"] ==2024)].copy(deep=True)
-    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22,df_corona_23,df_corona_24],axis = 0)
-    #df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
    
-    df_quantile_2020 = make_df_quantile(series_name, df_data, 2020)
-    df_quantile_2021 = make_df_quantile(series_name, df_data, 2021)
-    df_quantile_2022 = make_df_quantile(series_name, df_data, 2022)
-    df_quantile_2023 = make_df_quantile(series_name, df_data, 2023)
-    df_quantile_2024 = make_df_quantile(series_name, df_data, 2024)
+    df_corona = df_data[df_data["jaar"].between(2015, 2025)]
+
+    # List to store individual quantile DataFrames
+    df_quantiles = []
+
+    # Loop through the years 2014 to 2024
+    for year in range(2015, 2025):
+        df_quantile_year = make_df_quantile_year(series_name, df_data, year)
+        df_quantiles.append(df_quantile_year)
+
+    # Concatenate all quantile DataFrames into a single DataFrame
+    df_quantile = pd.concat(df_quantiles, axis=0)    
     
-    
-    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022,  df_quantile_2023,  df_quantile_2024],axis = 0)
     df_quantile["week_"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
-   
+    
+    st.write("822")
+    st.write(df_corona)
+    st.write(df_quantile)
     return df_corona,df_quantile
 
 def make_row_df_quantile(series_name, year, df_to_use, w_):
@@ -850,6 +847,14 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
     
     column_to_use = series_name +  "_factor_" + str(year)
     data = df_to_use_[column_to_use ] #.tolist()
+
+    if w==10:
+        print ("848")
+        print(year)
+        print (column_to_use)
+        print (w)
+        print("852")
+        print (data)
     try:           
         q05 = np.percentile(data, 5)
         q25 = np.percentile(data, 25)
@@ -860,6 +865,10 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
         q05, q25,q50,q75,q95 = 0,0,0,0,0
                 
     avg = round(data.mean(),0)
+    if w==10:
+        print (f"avg {year}")
+        print (avg)
+        print (q50)
     sd = round(data.std(),0)
     low05 = round(avg - (2*sd),0)
     high95 = round(avg +(2*sd),0)
@@ -882,24 +891,20 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
             
     return df_quantile_
 
-def make_df_quantile(series_name, df_data, year):
+def make_df_quantile_year(series_name, df_data, year):
 
     """ Calculate the quantiles
 
     Returns:
         _type_: _description_
     """    
-    df_to_use = df_data[(df_data["jaar"] > 2014 ) & (df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)& (df_data["jaar"] !=2023)& (df_data["jaar"] !=2024)].copy(deep=True)
-    
+    df_to_use = df_data[(df_data["jaar"] >= 2014 ) & (df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)& (df_data["jaar"] !=2023)& (df_data["jaar"] !=2024)].copy(deep=True)
+   
     
     df_quantile =None
   
            
     week_list = df_to_use['weeknr'].unique().tolist()
-            # week_list = week_list.sort()
-          
-            
-            #for w in week_list:  #puts week 1 at the end
     for w in range(1,53):
         df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w)
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
@@ -924,9 +929,17 @@ def duplicate_row(df, from_,to):
 
     # Update the weeknr value to '2022_52' in the duplicated row
     row_to_duplicate['weeknr'] = to
+    row_to_duplicate['week'] =int(to.split('_')[1])
 
+    # df_merged['week'] = np.where(df_merged['weeknr'] == '2021_52', 52, df_merged['week'])
+    # df_merged['week'] = np.where(df_merged['weeknr'] == '2022_52', 52, df_merged['week'])
+    # df_merged['week'] = np.where(df_merged['weeknr'] == '2019_01', 1, df_merged['week'])
+    # df_merged['week'] = np.where(df_merged['weeknr'] == '2015_01', 1, df_merged['week'])
+    
     # Append the duplicated row to the DataFrame
     df = pd.concat([df,row_to_duplicate], ignore_index=True)
+
+
     df = df.sort_values(by=['weeknr']).reset_index(drop=True)
      
     return df

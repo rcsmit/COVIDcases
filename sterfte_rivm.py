@@ -256,8 +256,7 @@ def sterfte_rivm(df, series_naam):
 
     # adding week 52, because its not in the data
     # based on the rivm-data, we assume that the numbers are quit the same
-    df = duplicate_row(df, "2021_51", "2021_52")
-    df = duplicate_row(df, "2022_51", "2022_52")
+    
     df["boekjaar"] = df["jaar"].shift(26)
     df["boekweek"] = df["week"].shift(26)
 
