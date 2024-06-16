@@ -434,6 +434,7 @@ def do_kobak_vs_cbs():
         df_covid (df): df with the calcualted values with the CBS method
         df_kobak_github (df): df with the values of the Kobak baseline from their Github repo
     """    
+    st.subheader("Kobak vs CBS")
     df_deaths = get_sterftedata()
     df,_,_ = make_df_quantile("m_v_0_999", df_deaths)
 
