@@ -16,66 +16,63 @@ import math
 
 
 def get_kobak():
-    """Load the csv with the excess mortality as calculated by Ariel Karlinsky and Dmitry Kobak
+    """Load the csv with the baselines as calculated by Ariel Karlinsky and Dmitry Kobak
     https://elifesciences.org/articles/69336#s4
     https://github.com/dkobak/excess-mortality/
+
+
+    One line is deleted: Netherlands, 2020, 53, 3087.2
+    since all other years have 52 weeks
+
     Returns:
         _type_: _description_
     """
   
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/kobak_baselines.csv"
+    #file = r"C:\\Users\\rcxsm\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\kobak_baselines.csv"
     df_ = pd.read_csv(
         file,
         delimiter=",",
-        
         low_memory=False,
     )
   
     return df_
   
-def duplicate_row(df, from_,to):
-    """Duplicates a row
-
-    Args:
-        df (df): df
-        from_ (str): oorspronkelijke rij eg. '2022_51'
-        to (str): bestemmingsrij eg. '2022_52'
-    """    
-     # Find the row where weeknr is '2022_51' and duplicate it
-    row_to_duplicate = df[df['weeknr'] == from_].copy()
-
-    # Update the weeknr value to '2022_52' in the duplicated row
-    row_to_duplicate['weeknr'] = to
-    row_to_duplicate['week'] =int(to.split('_')[1])
-    #row_to_duplicate['m_v_0_999'] = 0
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2021_52', 52, df_merged['week'])
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2022_52', 52, df_merged['week'])
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2019_01', 1, df_merged['week'])
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2015_01', 1, df_merged['week'])
-    
-    # Append the duplicated row to the DataFrame
-    df = pd.concat([df,row_to_duplicate], ignore_index=True)
-
-
-    df = df.sort_values(by=['weeknr']).reset_index(drop=True)
-     
-    return df
-
 # @st.cache_data(ttl=60 * 60 * 24)
 def get_sterftedata(seriename="m_v_0_999"):
+    """Get and manipulate data of the deaths
+
+    Args:
+        seriename (str, optional): _description_. Defaults to "m_v_0_999".
+    """
+
+        
+    def manipulate_data_df(data):
+        """Filters out week 0 and 53 and makes a category column (eg. "M_V_0_999")
+
+        """    
+        data = data[data['week'].notna()]
+        data = data[~data['week'].isin([0, 53])] #filter out week 2020-53
+        data["weeknr"] = data["jaar"].astype(str) +"_" + data["week"].astype(str).str.zfill(2)
+        data["week_int"]=data['week'].astype(int)
+        
+        data['Geslacht'] = data['Geslacht'].replace(['Totaal mannen en vrouwen'],'m_v_')
+        data['Geslacht'] = data['Geslacht'].replace(['Mannen'],'m_')
+        data['Geslacht'] = data['Geslacht'].replace(['Vrouwen'],'v_')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['Totaal leeftijd'],'0_999')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['0 tot 65 jaar'],'0_64')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['65 tot 80 jaar'],'65_79')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['80 jaar of ouder'],'80_999')
+        data['categorie'] = data['Geslacht']+data['LeeftijdOp31December']
+        return data
+
     data_ruw = pd.DataFrame(cbsodata.get_data('70895ned'))
 
     # Filter rows where Geslacht is 'Totaal mannen en vrouwen' and LeeftijdOp31December is 'Totaal leeftijd'
     data_ruw = data_ruw[(data_ruw['Geslacht'] == 'Totaal mannen en vrouwen') & (data_ruw['LeeftijdOp31December'] == 'Totaal leeftijd')]
-
-
     data_ruw[['jaar','week']] = data_ruw.Perioden.str.split(" week ",expand=True,)
- 
     data_compleet = data_ruw[~data_ruw['Perioden'].str.contains('dag')]
-   
     data_inclompleet = data_ruw[data_ruw['Perioden'].str.contains('dag')]
-   
-    
    
     # Function to extract the year, week, and days
     def extract_period_info(period):
@@ -88,13 +85,14 @@ def get_sterftedata(seriename="m_v_0_999"):
         return None, None, None
 
     # Apply the function to the "perioden" column and create new columns
-    data_inclompleet[['year', 'week', 'days']] = data_inclompleet['Perioden'].apply(lambda x: pd.Series(extract_period_info(x)))
-    st.write(data_inclompleet)
-    st.write(data_inclompleet.dtypes)
-    
+    data_inclompleet[['year', 'week', 'days']] = data_inclompleet['Perioden'].apply(lambda x: pd.Series(extract_period_info(x))) 
 
-    # Adjust "Overledenen_1" based on the week number
+   
     def adjust_overledenen(df):
+        """ # Adjust "Overledenen_1" based on the week number
+            # if week = 0, overledenen_l : add to week 52 of the year before
+            # if week = 53: overleden_l : add to week 1 to the year after
+        """        
         for index, row in df.iterrows():
             if row['week'] == 0:
                 previous_year = row['year'] - 1
@@ -107,32 +105,11 @@ def get_sterftedata(seriename="m_v_0_999"):
         return df
 
     data_adjusted = adjust_overledenen(data_inclompleet)
-    st.write (data_adjusted)
     
-    #data[['week','aantal_dagen']] = data.week_.str.split(" ",expand=True,)
     # Combine the adjusted rows with the remaining rows
     data = pd.concat([data_compleet, data_adjusted])
-    data = data[data['week'].notna()]
-    data = data[~data['week'].isin([0, 53])] #filter out week 2020-53
-    st.write(data)
-    data["weeknr"] = data["jaar"].astype(str) +"_" + data["week"].astype(str).str.zfill(2)
-    
 
-
-    data["week_int"]=data['week'].astype(int)
-    #data["week_int"].apply(lambda x: float(x))
-    data["virtuele_maand"] = ((data["week_int"]-1)/4)+1
-    data["virtuele_maand"]=data['virtuele_maand'].astype(int)
-    data["virtuele_maandnr"] = data["jaar"].astype(str) +"_" + data["virtuele_maand"].astype(str).str.zfill(2)
-    
-    data['Geslacht'] = data['Geslacht'].replace(['Totaal mannen en vrouwen'],'m_v_')
-    data['Geslacht'] = data['Geslacht'].replace(['Mannen'],'m_')
-    data['Geslacht'] = data['Geslacht'].replace(['Vrouwen'],'v_')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['Totaal leeftijd'],'0_999')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['0 tot 65 jaar'],'0_64')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['65 tot 80 jaar'],'65_79')
-    data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['80 jaar of ouder'],'80_999')
-    data['categorie'] = data['Geslacht']+data['LeeftijdOp31December']
+    data = manipulate_data_df(data)
 
     df_ = data.pivot(index=['weeknr', "jaar", "week"], columns='categorie', values = 'Overledenen_1').reset_index()
     df_["week"] = df_["week"].astype(int)
@@ -140,16 +117,11 @@ def get_sterftedata(seriename="m_v_0_999"):
 
 
     if seriename == "m_v_0_999":
-       # df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr","week", seriename]].copy(deep=True)
-        
     else:
-       # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
         df = df_[["jaar","week","weeknr","m_v_0_999", seriename]].copy(deep=True)
 
-   
-    df = df[ (df["jaar"] > 2014)]  #& (df["weeknr"] != 53)]
-    #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
+    df = df[ (df["jaar"] > 2014)] 
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
     
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
@@ -183,14 +155,14 @@ def get_sterftedata(seriename="m_v_0_999"):
     for year in range(2014, 2025):
         new_column_name = f"{seriename}_factor_{year}"
         factor = factors[year]
-        #factor=1
         df[new_column_name] = df[seriename] * factor
 
     
     return df
 
-def make_df_qantile(series_name, df_data):
-    """_summary_
+def make_df_quantile(series_name, df_data):
+    """_Makes df quantile
+    make_df_quantile -> make_df_quantile -> make_row_quantile
 
     Args:
         series_name (_type_): _description_
@@ -201,6 +173,85 @@ def make_df_qantile(series_name, df_data):
         df_quantiles : df with quantiles
     """    
    
+
+    def make_df_quantile_year(series_name, df_data, year):
+
+        """ Calculate the quantiles for a certain year
+            make_df_quantile -> make_df_quantile -> make_row_quantile
+
+
+        Returns:
+            _type_: _description_
+        """    
+
+            
+        def make_row_df_quantile(series_name, year, df_to_use, w_):
+            """ Calculate the percentiles of a certain week
+                make_df_quantile -> make_df_quantile -> make_row_quantile
+
+            Args:
+                series_name (_type_): _description_
+                year (_type_): _description_
+                df_to_use (_type_): _description_
+                w_ (_type_): _description_
+
+            Returns:
+                _type_: _description_
+            """    
+            if w_ == 53:
+                w = 52
+            else:
+                w = w_
+            
+            df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
+            
+            
+            column_to_use = series_name +  "_factor_" + str(year)
+            data = df_to_use_[column_to_use ] #.tolist()
+
+            try:           
+                q05 = np.percentile(data, 5)
+                q25 = np.percentile(data, 25)
+                q50 = np.percentile(data, 50)
+                q75 = np.percentile(data, 75)
+                q95 = np.percentile(data, 95)
+            except:
+                q05, q25,q50,q75,q95 = 0,0,0,0,0
+                        
+            avg = round(data.mean(),0)
+            
+            sd = round(data.std(),0)
+            low05 = round(avg - (2*sd),0)
+            high95 = round(avg +(2*sd),0)
+            
+            df_quantile_ =  pd.DataFrame(
+                        [ {
+                                "week_": w_,
+                                "jaar":year,
+                                "q05": q05,
+                                "q25": q25,
+                                "q50": q50,
+                                "avg_": avg,
+                                "q75": q75,
+                                "q95": q95,
+                                "low05":low05,
+                                "high95":high95,
+                            
+                                }]
+                        )
+                    
+            return df_quantile_
+        df_to_use = df_data[(df_data["jaar"] >= 2015 ) & (df_data["jaar"] <2020)].copy(deep=True)
+    
+        
+        df_quantile =None
+    
+            
+        week_list = df_to_use['weeknr'].unique().tolist()
+        for w in range(1,53):
+            df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w)
+            df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)     
+        return df_quantile
     df_corona = df_data[df_data["jaar"].between(2015, 2025)]
 
     # List to store individual quantile DataFrames
@@ -219,94 +270,32 @@ def make_df_qantile(series_name, df_data):
     df = pd.merge(df_corona, df_quantile, on="weeknr")
     return df
 
-def make_row_df_quantile(series_name, year, df_to_use, w_):
-    """Calculate the percentiles of a certain week
+def predict(X,  verbose=False, excess_begin=None):   
+    """Function to predict the baseline with linear regression
+       Source: https://github.com/dkobak/excess-mortality/blob/main/all-countries.ipynb
 
     Args:
-        series_name (_type_): _description_
-        year (_type_): _description_
-        df_to_use (_type_): _description_
-        w_ (_type_): _description_
+        X (_type_): _description_
+        verbose (bool, optional): _description_. Defaults to False.
+        excess_begin (_type_, optional): _description_. Defaults to None.
 
     Returns:
         _type_: _description_
-    """    
-    if w_ == 53:
-        w = 52
-    else:
-        w = w_
-    
-    df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
-    
-    
-    column_to_use = series_name +  "_factor_" + str(year)
-    data = df_to_use_[column_to_use ] #.tolist()
+    """
 
-    try:           
-        q05 = np.percentile(data, 5)
-        q25 = np.percentile(data, 25)
-        q50 = np.percentile(data, 50)
-        q75 = np.percentile(data, 75)
-        q95 = np.percentile(data, 95)
-    except:
-        q05, q25,q50,q75,q95 = 0,0,0,0,0
-                
-    avg = round(data.mean(),0)
     
-    sd = round(data.std(),0)
-    low05 = round(avg - (2*sd),0)
-    high95 = round(avg +(2*sd),0)
-    
-    df_quantile_ =  pd.DataFrame(
-                   [ {
-                        "week_": w_,
-                        "jaar":year,
-                        "q05": q05,
-                        "q25": q25,
-                        "q50": q50,
-                        "avg_": avg,
-                        "q75": q75,
-                        "q95": q95,
-                        "low05":low05,
-                        "high95":high95,
-                       
-                        }]
-                )
+    def get_excess_begin( datapoints_per_year = 53):    
+        if datapoints_per_year > 12:
+            beg = 9  # week 10
+        
+        elif datapoints_per_year > 4 and datapoints_per_year <= 12:
+            beg = 2  # March
             
-    return df_quantile_
+        elif datapoints_per_year == 4:
+            beg = 0 
+            
+        return beg
 
-def make_df_quantile_year(series_name, df_data, year):
-
-    """ Calculate the quantiles
-
-    Returns:
-        _type_: _description_
-    """    
-    df_to_use = df_data[(df_data["jaar"] >= 2015 ) & (df_data["jaar"] <2020)].copy(deep=True)
-   
-    
-    df_quantile =None
-  
-           
-    week_list = df_to_use['weeknr'].unique().tolist()
-    for w in range(1,53):
-        df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w)
-        df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)     
-    return df_quantile
-
-def get_excess_begin( datapoints_per_year = 53):    
-    if datapoints_per_year > 12:
-        beg = 9  # week 10
-    
-    elif datapoints_per_year > 4 and datapoints_per_year <= 12:
-        beg = 2  # March
-        
-    elif datapoints_per_year == 4:
-        beg = 0 
-        
-    return beg
-
-def predict(X,  verbose=False, excess_begin=None):    
     # Fit regression model on pre-2020 data 
     ind = (X[:,0] < 2020) & (X[:,1]<53)
     m = np.max(X[ind,1])
@@ -395,24 +384,21 @@ def predict(X,  verbose=False, excess_begin=None):
         total_excess_std = np.nan
        
     return (baseline, baseline2021, baseline2022, baseline2023), total_excess, excess_begin, total_excess_std
+
 def main():
+
+    """Main function
+
+    Results :
+        df_kobak_calculated (df): df with the calculated values of the Kobak baseline
+        df_covid (df): df with the calcualted values with the CBS method
+        df_kobak_github (df): df with the values of the Kobak baseline from their Github repo
+    """    
     df_deaths = get_sterftedata()
-    df = make_df_qantile("m_v_0_999", df_deaths)
+    df = make_df_quantile("m_v_0_999", df_deaths)
 
     df_covid=df[(df["jaar_x"]>=2020 )& (df["jaar_x"] <=2023)]
-    # duplicate_operations = [
-        
-    #     ("2020_02", "2020_01"),
-    #     ("2021_51", "2021_52"),
-    #     ("2022_51", "2022_52")
-        
-    # ]
-
-    # # Iterate over the list and apply duplicate_row function to df_sterfte
-    # for operation in duplicate_operations:
-    #     df = duplicate_row(df, operation[0], operation[1])
-
-
+ 
     X = df[['jaar_x','week','m_v_0_999']].values
     X = X[~np.isnan(X[:,2]),:]
     X = X.astype(int)
@@ -425,26 +411,31 @@ def main():
 
     # Combine the lists
     combined_list = list1 + list2 + list3 + list4
-
- 
-
+    
     # Generate a date range from the start of 2020 to the end of 2023
     date_range = pd.date_range(start='2020-01-01', end='2023-12-31', freq='W-MON')
 
     # Extract year and week number
-    df = pd.DataFrame({
+    df_kobak_calculated = pd.DataFrame({
         'year': date_range.year,
         'week': date_range.isocalendar().week
     })
-    df['baseline_kobak'] = combined_list
-    df["weeknr"] = df["year"].astype(str) +"_" + df["week"].astype(str).str.zfill(2)
+    df_kobak_calculated['baseline_kobak'] = combined_list
+    df_kobak_calculated["weeknr"] = df_kobak_calculated["year"].astype(str) +"_" + df_kobak_calculated["week"].astype(str).str.zfill(2)
     
     df_kobak_github = get_kobak()
-    st.write(df_kobak_github)
-    st.subheader("Kobak")
-    st.write(df)
 
 
+    show_plot(df_kobak_calculated, df_covid, df_kobak_github)
+
+def show_plot(df, df_covid, df_kobak_github):
+    """_summary_
+
+    Args:
+        df (df): df with the calculated values of the Kobak baseline
+        df_covid (df): df with the calcualted values with the CBS method
+        df_kobak_github (df): df with the values of the Kobak baseline from their Github repo
+    """
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df['weeknr'],
