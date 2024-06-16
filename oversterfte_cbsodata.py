@@ -12,7 +12,7 @@ from oversterfte_helpers import *
 from sterfte_rivm import *
 import get_rioolwater
 # from streamlit import caching
-
+from kobak_vs_cbs import *
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
 
@@ -46,9 +46,8 @@ def calculate_year_data(df_merged, year, show_official, series_name):
         df_merged_jaar = df_merged[df_merged["jaar_x_x"] == year].copy()
     else:
         df_merged_jaar = df_merged.copy()
-
-    
-    
+   
+    df_merged_jaar["verw_cbs"] = df_merged_jaar["avg"]
     for n in ['cbs', 'rivm']:
         df_merged_jaar[f"oversterfte_{n}_simpel"] = df_merged_jaar["aantal_overlijdens"] - df_merged_jaar[f"verw_{n}"]
         df_merged_jaar[f"oversterfte_{n}_simpel_cumm"] = df_merged_jaar[f"oversterfte_{n}_simpel"].cumsum()
@@ -76,10 +75,10 @@ def calculate_year_data(df_merged, year, show_official, series_name):
         df_merged_jaar[f"oversterfte_{n}_complex_cumm"] = df_merged_jaar[f"oversterfte_{n}_complex"].cumsum()
         df_merged_jaar[f"oversterfte_{n}_middel_cumm"] = df_merged_jaar[f"oversterfte_{n}_middel"].cumsum()
      
-    columnlist = ["low_cbs","verw_cbs", "high_cbs", "q05","q25","verw_cbs", "verw_cbs_avg","q75","q95"]
+    columnlist = ["low_cbs","verw_cbs", "high_cbs", "q05","q25","verw_cbs","q75","q95"]
     for what_to_sma in columnlist:
         df_merged_jaar=rolling (df_merged_jaar, f'{what_to_sma}' )
-
+        #df_merged_jaar[f'{what_to_sma}_sma'] = df_merged_jaar[what_to_sma]
     return df_merged_jaar
     
 
@@ -168,32 +167,29 @@ def display_results(df_merged_jaar, year):
 
 def make_df_merged(df_sterfte, series_name):
     df_data = get_data_for_series(df_sterfte, series_name).copy(deep=True)
-    df_corona, df_quantile = make_df_qantile(series_name, df_data)
+    _, df_corona, df_quantile = make_df_quantile(series_name, df_data)
     df_official = get_df_offical()
     df_rivm = sterfte_rivm(df_sterfte, series_name)
-    
 
-
-
-    df_merged = df_corona.merge(df_quantile, left_on='weeknr', right_on='week_').merge(df_rivm, on='weeknr', how="outer")
+    df_merged = df_corona.merge(df_quantile, left_on='weeknr', right_on='weeknr').merge(df_rivm, on='weeknr', how="outer")
     df_merged = df_merged.merge(df_official, left_on='weeknr', right_on='weeknr_z', how="outer")
     df_merged = df_merged.drop(columns=['week_'])
   
     df_merged["shifted_jaar"] = df_merged["jaar_x_x"] #.shift(28)
     df_merged["shifted_week"] = df_merged["weeknr"]#.shift(28)
-    st.write("xyz184")
-    st.write(df_merged)
+    
     columns = [
         [series_name, "aantal_overlijdens"],
-        ["avg_", "verw_cbs_avg"],
-        ["q50", "verw_cbs"],
+        ["q50", "verw_cbs_q50"],
         ["low05", "low_cbs"],
+        ["avg_", "avg"],
         ["high95", "high_cbs"],
         ["voorspeld", "verw_rivm"],
         ["lower_ci", "low_rivm"],
         ["upper_ci", "high_rivm"]
     ]
-
+    #["avg_", "verw_cbs"],
+        
     for c in columns:
         df_merged = df_merged.rename(columns={c[0]: c[1]})
     return df_merged
@@ -238,7 +234,8 @@ def plot_steigstra(df_transformed, series_name):
   
     # Plotting with Plotly
     fig = go.Figure()
-    fig.add_vline(x=27, line=dict(color='gray', width=1, dash='dash'))
+    fig.add_vline(x=25, name="week 1",line=dict(color='gray', width=1, dash='dash'))
+    fig.add_hline(y=0, line=dict(color='black', width=2))
 
     for year in df_spaghetti.columns[:-4]:
         fig.add_trace(go.Scatter(
@@ -272,7 +269,7 @@ def plot_steigstra(df_transformed, series_name):
         xaxis_title='Weeks (28 to 27)',
         yaxis_title='Values',
     )
-    st.write("xyz283")
+   
     st.plotly_chart(fig)
 
 def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
@@ -289,7 +286,7 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
     # Reindex DataFrame with new column order
     df_merged = df_merged.reindex(columns=new_columns)
    
-   
+    df_merged["verw_cbs"] = df_merged["avg"]
     
     df_compleet = pd.DataFrame()
     for year in range(2015, 2025):
@@ -324,7 +321,7 @@ def comparison(df_sterfte):
     
     df_merged = make_df_merged(df_sterfte, series_name)
 
-    for year in ["All", 2020, 2021, 2022, 2023, 2024]:
+    for year in ["All"]:#, 2020, 2021, 2022, 2023, 2024]:
         df_merged_jaar = calculate_year_data(df_merged, year, show_official, series_name)
         show_difference(df_merged_jaar, "weeknr", show_official)
         
@@ -352,22 +349,6 @@ def main():
     st.write("Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019")
     how, yaxis_to_zero, rightax, mergetype, sec_y = interface()
     df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
- 
-    # Define a list of tuples with arguments for duplicate_row function
-    duplicate_operations = [
-        ("2015_02", "2015_01"),
-        ("2016_51", "2016_52"),
-        ("2019_02", "2019_01"),
-        ("2020_02", "2020_01"),
-        ("2021_51", "2021_52"),
-        ("2022_51", "2022_52")
-        
-    ]
-
-    # Iterate over the list and apply duplicate_row function to df_sterfte
-    for operation in duplicate_operations:
-        df_sterfte = duplicate_row(df_sterfte, operation[0], operation[1])
-    #rolling(df_sterfte,"m_v_0_999")
 
     plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype, sec_y)
     if how == "quantiles":
@@ -378,6 +359,8 @@ def main():
             plot_graph_rivm(df_compleet,s, False)
         
         comparison(df_sterfte)
+
+        do_kobak_vs_cbs()
     else:
         st.info("De vergrlijking met vaccinateies, rioolwater etc is vooralsnog alleen mogelijk met CBS methode ")
     footer()

@@ -169,6 +169,7 @@ def make_df_quantile(series_name, df_data):
         df_data (_type_): _description_
 
     Returns:
+        df : merged df
         df_corona: df with baseline
         df_quantiles : df with quantiles
     """    
@@ -268,7 +269,7 @@ def make_df_quantile(series_name, df_data):
     df_quantile["weeknr"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
     
     df = pd.merge(df_corona, df_quantile, on="weeknr")
-    return df
+    return df,df_corona, df_quantile
 
 def predict(X,  verbose=False, excess_begin=None):   
     """Function to predict the baseline with linear regression
@@ -385,48 +386,6 @@ def predict(X,  verbose=False, excess_begin=None):
        
     return (baseline, baseline2021, baseline2022, baseline2023), total_excess, excess_begin, total_excess_std
 
-def main():
-
-    """Main function
-
-    Results :
-        df_kobak_calculated (df): df with the calculated values of the Kobak baseline
-        df_covid (df): df with the calcualted values with the CBS method
-        df_kobak_github (df): df with the values of the Kobak baseline from their Github repo
-    """    
-    df_deaths = get_sterftedata()
-    df = make_df_quantile("m_v_0_999", df_deaths)
-
-    df_covid=df[(df["jaar_x"]>=2020 )& (df["jaar_x"] <=2023)]
- 
-    X = df[['jaar_x','week','m_v_0_999']].values
-    X = X[~np.isnan(X[:,2]),:]
-    X = X.astype(int)
-          
-    baselines, total_excess, excess_begin, total_excess_std = predict(X)
-    list1 = baselines[0].tolist()
-    list2 = baselines[1].tolist()
-    list3 = baselines[2].tolist()
-    list4 = baselines[3].tolist()
-
-    # Combine the lists
-    combined_list = list1 + list2 + list3 + list4
-    
-    # Generate a date range from the start of 2020 to the end of 2023
-    date_range = pd.date_range(start='2020-01-01', end='2023-12-31', freq='W-MON')
-
-    # Extract year and week number
-    df_kobak_calculated = pd.DataFrame({
-        'year': date_range.year,
-        'week': date_range.isocalendar().week
-    })
-    df_kobak_calculated['baseline_kobak'] = combined_list
-    df_kobak_calculated["weeknr"] = df_kobak_calculated["year"].astype(str) +"_" + df_kobak_calculated["week"].astype(str).str.zfill(2)
-    
-    df_kobak_github = get_kobak()
-
-
-    show_plot(df_kobak_calculated, df_covid, df_kobak_github)
 
 def show_plot(df, df_covid, df_kobak_github):
     """_summary_
@@ -465,4 +424,56 @@ def show_plot(df, df_covid, df_kobak_github):
     )
 
     st.plotly_chart(fig)
-main()
+
+def do_kobak_vs_cbs():
+
+    """Main function
+
+    Results :
+        df_kobak_calculated (df): df with the calculated values of the Kobak baseline
+        df_covid (df): df with the calcualted values with the CBS method
+        df_kobak_github (df): df with the values of the Kobak baseline from their Github repo
+    """    
+    df_deaths = get_sterftedata()
+    df,_,_ = make_df_quantile("m_v_0_999", df_deaths)
+
+    df_covid=df[(df["jaar_x"]>=2020 )& (df["jaar_x"] <=2023)]
+ 
+    X = df[['jaar_x','week','m_v_0_999']].values
+    X = X[~np.isnan(X[:,2]),:]
+    X = X.astype(int)
+          
+    baselines, total_excess, excess_begin, total_excess_std = predict(X)
+    list1 = baselines[0].tolist()
+    list2 = baselines[1].tolist()
+    list3 = baselines[2].tolist()
+    list4 = baselines[3].tolist()
+
+    # Combine the lists
+    combined_list = list1 + list2 + list3 + list4
+    
+    # Generate a date range from the start of 2020 to the end of 2023
+    date_range = pd.date_range(start='2020-01-01', end='2023-12-31', freq='W-MON')
+
+    # Extract year and week number
+    df_kobak_calculated = pd.DataFrame({
+        'year': date_range.year,
+        'week': date_range.isocalendar().week
+    })
+    df_kobak_calculated['baseline_kobak'] = combined_list
+    df_kobak_calculated["weeknr"] = df_kobak_calculated["year"].astype(str) +"_" + df_kobak_calculated["week"].astype(str).str.zfill(2)
+    
+    df_kobak_github = get_kobak()
+
+
+    show_plot(df_kobak_calculated, df_covid, df_kobak_github)
+
+def main():
+    do_kobak_vs_cbs()
+
+if __name__ == "__main__":
+    import datetime
+    print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
+    main()
+
+   

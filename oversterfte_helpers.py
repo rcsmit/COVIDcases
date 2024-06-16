@@ -10,7 +10,7 @@ from plotly.subplots import make_subplots
 # import platform
 import scipy.stats as stats
 from scipy.signal import savgol_filter
-
+from kobak_vs_cbs import *
 
 def get_boosters():
     """_summary_
@@ -58,8 +58,6 @@ def get_herhaalprik():
     df_ = df_.drop('jaar', axis=1)
  
     return df_
-
-
 
 def get_kobak():
     """Load the csv with the excess mortality as calculated by Ariel Karlinsky and Dmitry Kobak
@@ -126,7 +124,7 @@ def get_all_data():
     return df_, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak
 
 @st.cache_data(ttl=60 * 60 * 24)
-def get_sterftedata():
+def get_sterftedata_():
     data = pd.DataFrame(cbsodata.get_data('70895ned'))
  
     data[['jaar','week']] = data.Perioden.str.split(" week ",expand=True,)
@@ -168,6 +166,106 @@ def get_sterftedata():
     df["jaar"] = df["jaar"].astype(int)
     
     return df
+
+
+
+@st.cache_data(ttl=60 * 60 * 24)
+def get_sterftedata_original(seriename="m_v_0_999"):
+    """Get and manipulate data of the deaths
+
+    Args:
+        seriename (str, optional): _description_. Defaults to "m_v_0_999".
+    """
+
+        
+    def manipulate_data_df(data):
+        """Filter out yeartotals and makes a category column (eg. "M_V_0_999")
+
+        """    
+        data = data[data['week'].notna()] # filters out year totals
+        #data = data[~data['week'].isin([0, 53])] #filter out week 2020-53
+        data["weeknr"] = data["jaar"].astype(str) +"_" + data["week"].astype(str).str.zfill(2)
+        data["week_int"]=data['week'].astype(int)
+        
+        data['Geslacht'] = data['Geslacht'].replace(['Totaal mannen en vrouwen'],'m_v_')
+        data['Geslacht'] = data['Geslacht'].replace(['Mannen'],'m_')
+        data['Geslacht'] = data['Geslacht'].replace(['Vrouwen'],'v_')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['Totaal leeftijd'],'0_999')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['0 tot 65 jaar'],'0_64')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['65 tot 80 jaar'],'65_79')
+        data['LeeftijdOp31December'] = data['LeeftijdOp31December'].replace(['80 jaar of ouder'],'80_999')
+        data['categorie'] = data['Geslacht']+data['LeeftijdOp31December']
+        return data
+
+
+    def extract_period_info(period):
+        """ Function to extract the year, week, and days
+
+        Args:
+            period (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """        
+        import re
+        pattern = r"(\d{4}) week (\d{1,2}) \((\d+) dag(?:en)?\)"
+        match = re.match(pattern, period)
+        if match:
+            year, week, days = match.groups()
+            return int(year), int(week), int(days)
+        return None, None, None
+
+    def adjust_overledenen(df):
+        """ # Adjust "Overledenen_1" based on the week number
+            # if week = 0, overledenen_l : add to week 52 of the year before
+            # if week = 53: overleden_l : add to week 1 to the year after
+        """        
+        for index, row in df.iterrows():
+            if row['week'] == 0:
+                previous_year = row['year'] - 1
+                df.loc[(df['year'] == previous_year) & (df['week'] == 52), 'Overledenen_1'] += row['Overledenen_1']
+            elif row['week'] == 53:
+                next_year = row['year'] + 1
+                df.loc[(df['year'] == next_year) & (df['week'] == 1), 'Overledenen_1'] += row['Overledenen_1']
+        # Filter out the rows where week is 0 or 53 after adjusting
+        df = df[~df['week'].isin([0, 53])]
+        return df
+
+    def split_compleet_incompleet(data_ruw):
+        """makes 2 df's, 1 with complete weeks, 1 with incomplete weeks
+
+        Args:
+            data_ruw (df): df
+
+        Returns:
+            data_compleet : df met complete weken
+            data_compleet : df met incomplete weken
+            
+        """        
+        # Filter rows where Geslacht is 'Totaal mannen en vrouwen' and LeeftijdOp31December is 'Totaal leeftijd'
+        data_ruw = data_ruw[(data_ruw['Geslacht'] == 'Totaal mannen en vrouwen') & (data_ruw['LeeftijdOp31December'] == 'Totaal leeftijd')]
+        data_ruw[['jaar','week']] = data_ruw.Perioden.str.split(" week ",expand=True,)
+        data_compleet = data_ruw[~data_ruw['Perioden'].str.contains('dag')]
+        data_incompleet = data_ruw[data_ruw['Perioden'].str.contains('dag')] 
+        # Apply the function to the "perioden" column and create new columns
+        data_incompleet[['year', 'week', 'days']] = data_incompleet['Perioden'].apply(lambda x: pd.Series(extract_period_info(x))) 
+        return data_compleet, data_incompleet
+    
+    data_ruw = pd.DataFrame(cbsodata.get_data('70895ned'))
+    data_compleet, data_incompleet = split_compleet_incompleet(data_ruw)
+   
+    data_adjusted = adjust_overledenen(data_incompleet)
+    
+    # Combine the adjusted rows with the remaining rows
+    data = pd.concat([data_compleet, data_adjusted])
+
+    data = manipulate_data_df(data)
+
+    df_ = data.pivot(index=['weeknr', "jaar", "week"], columns='categorie', values = 'Overledenen_1').reset_index()
+    df_["week"] = df_["week"].astype(int)
+    df_["jaar"] = df_["jaar"].astype(int)
+
+    return df_
 
 def get_rioolwater_simpel():
     # if platform.processor() != "":
@@ -260,7 +358,7 @@ def rolling (df, what):
    
     df[f'{what}_sma'] = df[what].rolling(window=6, center=True).mean()
     
-    df[what] = df[what].rolling(window=6, center=False).mean()
+    #df[what] = df[what].rolling(window=6, center=False).mean()
     #df[f'{what}_sma'] = savgol_filter(df[what], 7,2)
     return df
 
@@ -482,7 +580,7 @@ def plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_,        
         print (f"---{series_name}----")
         df_data = get_data_for_series(df_, series_name).copy(deep=True)
         
-        df_corona, df_quantile = make_df_qantile(series_name, df_data)
+        _, df_corona, df_quantile = make_df_quantile(series_name, df_data)
        
         st.subheader(series_name)
         if how =="quantiles":
@@ -534,40 +632,24 @@ def plot_lines(series_name, df_data):
 def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     
 
-    df_quantile = df_quantile.sort_values(by=['jaar','week_'])
+    #df_quantile = df_quantile.sort_values(by=['jaar','week_'])
+    
     fig = go.Figure()
     low05 = go.Scatter(
                 name='low',
-                x=df_quantile["week_"],
+                x=df_quantile["weeknr"],
                 y=df_quantile['low05'] ,
                 mode='lines',
                 line=dict(width=0.5,
                         color="rgba(255, 188, 0, 0.5)"),
                 fillcolor='rgba(68, 68, 68, 0.1)', fill='tonexty')
 
-    q05 = go.Scatter(
-                name='q05',
-                x=df_quantile["week_"],
-                y=df_quantile['q05'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.2)', fill='tonexty')
 
-    q25 = go.Scatter(
-                name='q25',
-                x=df_quantile["week_"],
-                y=df_quantile['q25'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)',
-                fill='tonexty')
 
     avg = go.Scatter(
                 name='gemiddeld',
-                x=df_quantile["week_"],
-                y=df_quantile["q50"],
+                x=df_quantile["weeknr"],
+                y=df_quantile["avg_"],
                 mode='lines',
                 line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
                 )
@@ -580,29 +662,9 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
                 line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
                 )
     
-
-    q75 = go.Scatter(
-                name='q75',
-                x=df_quantile["week_"],
-                y=df_quantile['q75'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)',
-                fill='tonexty')
-
-    q95 = go.Scatter(
-                name='q95',
-                x=df_quantile["week_"],
-                y=df_quantile['q95'],
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)'
-            )
     high95 = go.Scatter(
                 name='high',
-                x=df_quantile["week_"],
+                x=df_quantile["weeknr"],
                 y=df_quantile['high95'],
                 mode='lines',
                 line=dict(width=0.5,
@@ -662,68 +724,6 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
 
 
 
-def show_difference_testing(df__, date_field, show_official):
-    """Function to show the difference between the two methods quickly
-
-    ONLY BASSELINE CBS MODEL AND BASELINE CBS OFFICIAL FOR TESTING PURPOSES
-    """
-    df_baseline_kobak = get_baseline_kobak()
-    df = pd.merge(df__, df_baseline_kobak,on="weeknr")
-    rolling(df, 'baseline_kobak')
-    fig = go.Figure()
-   
-    fig.add_trace(go.Scatter(
-        x=df[date_field],
-        y=df['baseline_kobak'],
-        mode='lines',
-        name='Baseline Kobak'
-        ))
-
-    # Voeg de voorspelde lijn toe
-    fig.add_trace(go.Scatter(
-        x=df[date_field],
-        y=df['verw_cbs_official'],
-        mode='lines',
-        name='Baseline model cbs  official'
-        ))
-
-        # Voeg de voorspelde lijn toe
-   
-   # Voeg de voorspelde lijn toe
-    fig.add_trace(go.Scatter(
-        x=df[date_field],
-        y=df['verw_cbs_sma'],
-        mode='lines',
-        name='Baseline model cbs q50'))
-    fig.add_trace(go.Scatter(
-        x=df[date_field],
-        y=df['verw_cbs_avg_sma'],
-        mode='lines',
-        name='Baseline model cbs avg'))
-
-
-    # fig.add_trace(go.Scatter(
-    #         x=df[date_field],
-    #         y=df['avg'],
-    #         mode='lines',
-    #         name='Baseline model cbs'))
-
-    # Voeg de voorspelde lijn RIVM toe
-    fig.add_trace(go.Scatter(
-        x=df[date_field],
-        y=df['aantal_overlijdens'],
-        mode='lines',
-        name='Werkelijk overleden'
-    ))
-    # Titel en labels toevoegen
-    fig.update_layout(
-        title='Vergelijking CBS vs RIVM',
-        xaxis_title='Tijd',
-        yaxis_title='Aantal Overledenen'
-    )
-
-    st.plotly_chart(fig)
-
 def get_baseline_kobak():
     """Load the csv with the baseline as calculated by Ariel Karlinsky and Dmitry Kobak
         https://elifesciences.org/articles/69336#s4
@@ -751,20 +751,20 @@ def show_difference(df, date_field, show_official):
     """Function to show the difference between the two methods quickly
     """
     
-    # df_baseline_kobak = get_baseline_kobak()
-    # df = pd.merge(df__, df_baseline_kobak,on="weeknr")
-    # rolling(df, 'baseline_kobak')
+    df_baseline_kobak = get_baseline_kobak()
+    df = pd.merge(df, df_baseline_kobak,on="weeknr")
+    #rolling(df, 'baseline_kobak')
 
     
    # Maak een interactieve plot met Plotly
     fig = go.Figure()
 
-    # fig.add_trace(go.Scatter(
-    #     x=df[date_field],
-    #     y=df['baseline_kobak'],
-    #     mode='lines',
-    #     name='Baseline Kobak'
-    #     ))
+    fig.add_trace(go.Scatter(
+        x=df[date_field],
+        y=df['baseline_kobak'],
+        mode='lines',
+        name='Baseline Kobak'
+        ))
     
         # Voeg de betrouwbaarheidsinterval toe
     fig.add_trace(go.Scatter(
@@ -893,7 +893,7 @@ def show_difference(df, date_field, show_official):
 
 
 
-def make_df_qantile(series_name, df_data):
+def make_df_quantile_original(series_name, df_data):
     """_summary_
 
     Args:
