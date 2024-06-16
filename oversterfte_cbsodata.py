@@ -47,21 +47,8 @@ def calculate_year_data(df_merged, year, show_official, series_name):
     else:
         df_merged_jaar = df_merged.copy()
 
-    columns = [
-        [series_name, "aantal_overlijdens"],
-        ["q50", "verw_cbs"],
-        ["low05", "low_cbs"],
-        ["high95", "high_cbs"],
-        ["voorspeld", "verw_rivm"],
-        ["lower_ci", "low_rivm"],
-        ["upper_ci", "high_rivm"]
-    ]
-
-    for c in columns:
-        df_merged_jaar = df_merged_jaar.rename(columns={c[0]: c[1]})
-
-    show_difference(df_merged_jaar, "weeknr", show_official)
-
+    
+    
     for n in ['cbs', 'rivm']:
         df_merged_jaar[f"oversterfte_{n}_simpel"] = df_merged_jaar["aantal_overlijdens"] - df_merged_jaar[f"verw_{n}"]
         df_merged_jaar[f"oversterfte_{n}_simpel_cumm"] = df_merged_jaar[f"oversterfte_{n}_simpel"].cumsum()
@@ -88,6 +75,11 @@ def calculate_year_data(df_merged, year, show_official, series_name):
 
         df_merged_jaar[f"oversterfte_{n}_complex_cumm"] = df_merged_jaar[f"oversterfte_{n}_complex"].cumsum()
         df_merged_jaar[f"oversterfte_{n}_middel_cumm"] = df_merged_jaar[f"oversterfte_{n}_middel"].cumsum()
+     
+    columnlist = ["low_cbs","verw_cbs", "high_cbs", "q05","q25","verw_cbs", "verw_cbs_avg","q75","q95"]
+    for what_to_sma in columnlist:
+        df_merged_jaar=rolling (df_merged_jaar, f'{what_to_sma}' )
+
     return df_merged_jaar
     
 
@@ -189,16 +181,34 @@ def make_df_merged(df_sterfte, series_name):
   
     df_merged["shifted_jaar"] = df_merged["jaar_x_x"] #.shift(28)
     df_merged["shifted_week"] = df_merged["weeknr"]#.shift(28)
+    st.write("xyz184")
+    st.write(df_merged)
+    columns = [
+        [series_name, "aantal_overlijdens"],
+        ["avg_", "verw_cbs_avg"],
+        ["q50", "verw_cbs"],
+        ["low05", "low_cbs"],
+        ["high95", "high_cbs"],
+        ["voorspeld", "verw_rivm"],
+        ["lower_ci", "low_rivm"],
+        ["upper_ci", "high_rivm"]
+    ]
+
+    for c in columns:
+        df_merged = df_merged.rename(columns={c[0]: c[1]})
     return df_merged
 
 def plot_steigstra(df_transformed, series_name):
-  
+    # replicatie van https://twitter.com/SteigstraHerman/status/1801641074336706839
+
     # Pivot table
     df_pivot = df_transformed.set_index('week')
 
     # Function to transform the DataFrame
     def create_spaghetti_data(df, year1, year2):
      
+        # part1 = df.loc[28:52, year1]
+        # part2 = df.loc[1:27, year2]
         part1 = df.loc[28:52, year1]
         part2 = df.loc[1:27, year2]
         combined = pd.concat([part1, part2]).reset_index(drop=True)
@@ -220,9 +230,6 @@ def plot_steigstra(df_transformed, series_name):
     # Add the sequence as a new column
     df_spaghetti['weeknr_real'] = sequence
 
-    #df_spaghetti.set_index('New_Column', inplace=True)
-   
-   # Calculate average for the first 5 columns
     df_spaghetti['average'] = df_spaghetti.iloc[:, :4].mean(axis=1)
 
     # Calculate low and high (mean - 1.96*std and mean + 1.96*std) for the first 5 columns
@@ -258,14 +265,14 @@ def plot_steigstra(df_transformed, series_name):
                 line=dict(width=0.5,
                         color="rgba(255, 188, 0, 0.1)"), fill='tonexty',
                 
-                fillcolor='rgba(68, 68, 68, 0.2)',)),
+                fillcolor='rgba(68, 68, 68, 0.2)',))
         
     fig.update_layout(
-        title=f'Steigstra Plot of {series_name} over Different Years week 27 to week 26',
+        title=f'Steigstra Plot of {series_name} over Different Years week 28 to week 27',
         xaxis_title='Weeks (28 to 27)',
         yaxis_title='Values',
     )
-
+    st.write("xyz283")
     st.plotly_chart(fig)
 
 def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
@@ -283,18 +290,7 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
     df_merged = df_merged.reindex(columns=new_columns)
    
    
-    columns = [
-        [series_naam, "aantal_overlijdens"],
-        ["q50", "verw_cbs"],
-        ["low05", "low_cbs"],
-        ["high95", "high_cbs"],
-        ["voorspeld", "verw_rivm"],
-        ["lower_ci", "low_rivm"],
-        ["upper_ci", "high_rivm"]
-    ]
-
-    for c in columns:
-        df_merged = df_merged.rename(columns={c[0]: c[1]})
+    
     df_compleet = pd.DataFrame()
     for year in range(2015, 2025):
         df_merged_jaar = df_merged[df_merged["jaar_x_x"] == year].copy()
@@ -321,7 +317,7 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
     return df
 
 def comparison(df_sterfte):
-    show_official = st.sidebar.selectbox("Show official values", [True, False], 1)
+    show_official = st.sidebar.selectbox("Show official values", [True, False], 0)
     st.subheader("Vergelijking")
 
     series_name = "m_v_0_999"
@@ -330,10 +326,14 @@ def comparison(df_sterfte):
 
     for year in ["All", 2020, 2021, 2022, 2023, 2024]:
         df_merged_jaar = calculate_year_data(df_merged, year, show_official, series_name)
+        show_difference(df_merged_jaar, "weeknr", show_official)
+        
         display_cumulative_oversterfte(df_merged_jaar, year)
         display_results(df_merged_jaar, year)
    
     df=calculate_steigstra(df_merged, series_name)
+
+    
     plot_steigstra(df, series_name)
 
 
@@ -352,20 +352,23 @@ def main():
     st.write("Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019")
     how, yaxis_to_zero, rightax, mergetype, sec_y = interface()
     df_sterfte, df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater, df_kobak = get_all_data()
-    
+ 
     # Define a list of tuples with arguments for duplicate_row function
     duplicate_operations = [
+        ("2015_02", "2015_01"),
+        ("2016_51", "2016_52"),
+        ("2019_02", "2019_01"),
         ("2020_02", "2020_01"),
         ("2021_51", "2021_52"),
-        ("2022_51", "2022_52"),
-        ("2019_02", "2019_01"),
-        ("2015_02", "2015_01"),
-        ("2016_51", "2016_52")
+        ("2022_51", "2022_52")
+        
     ]
 
     # Iterate over the list and apply duplicate_row function to df_sterfte
     for operation in duplicate_operations:
         df_sterfte = duplicate_row(df_sterfte, operation[0], operation[1])
+    #rolling(df_sterfte,"m_v_0_999")
+
     plot(df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_sterfte, df_kobak, serienames, how, yaxis_to_zero, rightax, mergetype, sec_y)
     if how == "quantiles":
         st.subheader("RIVM methode")
