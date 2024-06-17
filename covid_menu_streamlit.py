@@ -66,14 +66,14 @@ def main():
             ["36. Oversterfte gemeente" , "oversterfte_gemeente"],
             ["37. Oversterfte" , "oversterfte"],
             ["38. Bayes Lines tools" , "bayes_lines_tools"],
-            ["39. Oversterfte (CBS Odata)" , "oversterfte_cbsodata"],
+            ["39. Oversterfte (CBS Odata)" , "oversterfte_compleet"],
             ["40. Bayes berekeningen IC ziekenh" , "bayes_prob_ic_hosp"],
             ["41. Disabled by Long covid" , "disabled_by_longcovid"],
             ["42. Oversterfte 5yrs groeps Eurostat week" , "oversterfte_eurostats"],
             ["43. Oversterfte 5yrs groeps Eurostat maand" , "oversterfte_eurostats_maand"],
             ["44. Rioolwaarde vs ziekenhuis" , "rioolwater_vs_ziekenhuis"],
             ["45. Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"],
-            ["46. Sterfte RIVM", "sterfte_rivm"]]
+            ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
     # query_params = st.query_params["choice"] 
