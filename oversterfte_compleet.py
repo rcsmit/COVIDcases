@@ -756,7 +756,7 @@ def get_data_for_series(df_, seriename):
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
     # som_2015_2019 = 0
-    noemer = 151194.0
+    noemer = 149832
     for y in range (2015,2020):
         df_year = df[(df["jaar"] == y)]
         # som = df_year["m_v_0_999"].sum()
@@ -779,8 +779,8 @@ def get_data_for_series(df_, seriename):
             2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
             2024: 157846 / noemer
         }
-    #avg_overledenen_2015_2019 = (som_2015_2019/5)
-    
+    # avg_overledenen_2015_2019 = (som_2015_2019/5)
+    # st.write(avg_overledenen_2015_2019)
     # Loop through the years 2014 to 2024 and apply the factors
     for year in range(2014, 2025):
         new_column_name = f"{seriename}_factor_{year}"
