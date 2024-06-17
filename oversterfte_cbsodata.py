@@ -12,7 +12,7 @@ from oversterfte_helpers import *
 from sterfte_rivm import *
 import get_rioolwater
 # from streamlit import caching
-from kolinek_vs_cbs import *
+from kobak_vs_cbs import *
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
 
