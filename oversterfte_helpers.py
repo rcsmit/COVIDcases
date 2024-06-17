@@ -656,7 +656,7 @@ def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
 
     sterfte = go.Scatter(
                 name="Sterfte",
-                x=df_corona["weeknr"],
+                x=df_quantile["weeknr"],
                 y=df_corona[series_name],
                 mode='lines',
                 line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
@@ -732,8 +732,8 @@ def get_baseline_kobak():
     Returns:
         _type_: _description_
     """
-    
-    url ="C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\kobak_baselines.csv"     # Maak een interactieve plot met Plotly
+    url =  r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/kobak_baselines.csv"
+    #url ="C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\kobak_baselines.csv"     # Maak een interactieve plot met Plotly
     df_ = pd.read_csv(
         url,
         delimiter=",",

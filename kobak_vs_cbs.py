@@ -67,7 +67,7 @@ def get_sterftedata(seriename="m_v_0_999"):
         return data
 
     data_ruw = pd.DataFrame(cbsodata.get_data('70895ned'))
-
+   
     # Filter rows where Geslacht is 'Totaal mannen en vrouwen' and LeeftijdOp31December is 'Totaal leeftijd'
     data_ruw = data_ruw[(data_ruw['Geslacht'] == 'Totaal mannen en vrouwen') & (data_ruw['LeeftijdOp31December'] == 'Totaal leeftijd')]
     data_ruw[['jaar','week']] = data_ruw.Perioden.str.split(" week ",expand=True,)
