@@ -106,6 +106,29 @@ def get_herhaalprik():
 
     return df_
 
+
+def get_rioolwater_simpel():
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
+    # else:
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaarde2024.csv"
+    df_rioolwater = pd.read_csv(
+        file,
+        delimiter=",",
+        low_memory=False,
+    )
+    df_rioolwater["weeknr"] = (
+        df_rioolwater["jaar"].astype(int).astype(str)
+        + "_"
+        + df_rioolwater["week"].astype(int).astype(str)
+    )
+    df_rioolwater["rioolwater_sma"] = (
+        df_rioolwater["rioolwaarde"].rolling(window=5, center=False).mean().round(1)
+    )
+
+    return df_rioolwater
+
+
 def plot_boosters(df_boosters, series_name):
     """_summary_
 
@@ -187,29 +210,55 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
  
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
-
+    som_2015_2019 = 0
+    som =  149832
+    noemer = 149832
     for y in range (int(vanaf_jaar),2020):
-        df_year = df[(df["jaar"] == y)]
-        som = df_year["TOTAL_T"].sum()
+        # df_year = df[(df["jaar"] == y)]
+        # som = df_year["TOTAL_T"].sum()
+
+        # som = df_year["TOTAL_T"].sum()
+        # som_2015_2019 +=som
+
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
         # https://www.cbs.nl/nl-nl/nieuws/2023/05/eind-januari-geen-oversterfte-meer/oversterfte-en-verwachte-sterfte
-        factor_2020 = 153402 / som
-        factor_2021 = 154887 / som
-        factor_2022 = 155494 / som
-        factor_2023 = 156666 / som
-        for i in range(len(df)):
-            
-            
-            if df.loc[i,"jaar"] == y:
-                #for s in serienames:
-                new_column_name_2020 = seriename + "_factor_2020"
-                new_column_name_2021 = seriename + "_factor_2021"
-                new_column_name_2022 = seriename + "_factor_2022"
-                new_column_name_2023 = seriename + "_factor_2023"
-                df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
-                df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
-                df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
-                df.loc[i,new_column_name_2023] = df.loc[i,seriename] * factor_2023
+        # factor_2020 = 153402 / som
+        # factor_2021 = 154887 / som
+        # factor_2022 = 155494 / som
+        # factor_2023 = 156666 / som
+        # factor_2024 = 157846 / som,
+        # for i in range(len(df)):   
+        #     if df.loc[i,"jaar"] == y:
+        #         #for s in serienames:
+        #         new_column_name_2020 = seriename + "_factor_2020"
+        #         new_column_name_2021 = seriename + "_factor_2021"
+        #         new_column_name_2022 = seriename + "_factor_2022"
+        #         new_column_name_2023 = seriename + "_factor_2023"
+        #         new_column_name_2024 = seriename + "_factor_2024"
+        #         df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
+        #         df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
+        #         df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
+        #         df.loc[i,new_column_name_2023] = df.loc[i,seriename] * factor_2023
+        #         df.loc[i,new_column_name_2024] = df.loc[i,seriename] * factor_2024
+
+        factors = {
+            2014: 1,
+            2015: 1,
+            2016: 1,
+            2017: 1,
+            2018: 1,
+            2019: 1,
+            2020: 153402 / noemer,
+            2021: 154887 / noemer,
+            2022: 155494 / noemer,
+            2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
+            2024: 157846 / noemer,
+        }
+        for year in range(2020, 2025):
+            new_column_name = f"{seriename}_factor_{year}"
+            factor = factors[year]
+            # factor=1
+            df[new_column_name] = df[seriename] * factor
     return df
 
 def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter):
@@ -410,8 +459,8 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
         mergetype (_type_): _description_
     """    
     df_boosters, df_herhaalprik, df_ = get_data(country)
-    df_rioolwater_dag, df_rioolwater = get_rioolwater.scrape_rioolwater()
-   
+    # df_rioolwater_dag, df_rioolwater = get_rioolwater.scrape_rioolwater()
+    df_rioolwater = get_rioolwater_simpel()
     #series_names  = df_['age_sex'].drop_duplicates().sort_values()
 
     series_names_ = df_.columns.tolist()
@@ -548,6 +597,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             fig.add_vline(x="2021_01",  line_width=2, line_dash="dash", line_color="green")
             fig.add_vline(x="2022_01",  line_width=2, line_dash="dash", line_color="green")
             fig.add_vline(x="2023_01",  line_width=2, line_dash="dash", line_color="green")
+            fig.add_vline(x="2024_01",  line_width=2, line_dash="dash", line_color="green")
 
             fig.add_vrect(x0="2020_13", x1="2020_18", 
               annotation_text="Eerste golf", annotation_position="top left",
@@ -588,7 +638,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
                 #df = df.sort_values(by=['weeknr'])
-                if year == 2020 or year ==2021   or year ==2022 or year ==2023:
+                if year == 2020 or year ==2021   or year ==2022 or year ==2023 or year ==2024:
                     width = 3
                     opacity = 1
                 else:
@@ -622,7 +672,7 @@ def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
     df_corona, df_quantile = make_df_qantile(series_name, df_data)
     return df_data,df_corona,df_quantile
             
-@st.cache 
+@st.cache_data
 def get_data(country):
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
@@ -655,14 +705,16 @@ def make_df_qantile(series_name, df_data):
     df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
     df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
     df_corona_23 = df_data[(df_data["jaar"] ==2023)].copy(deep=True)
-    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22,  df_corona_23],axis = 0)
+    df_corona_24 = df_data[(df_data["jaar"] ==2024)].copy(deep=True)
+    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22,  df_corona_23, df_corona_24],axis = 0)
     df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
   
     df_quantile_2020 = make_df_quantile(series_name, df_data, 2020)
     df_quantile_2021 = make_df_quantile(series_name, df_data, 2021)
     df_quantile_2022 = make_df_quantile(series_name, df_data, 2022)
     df_quantile_2023 = make_df_quantile(series_name, df_data, 2023)
-    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022,  df_quantile_2023],axis = 0)
+    df_quantile_2024 = make_df_quantile(series_name, df_data, 2024)
+    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022,  df_quantile_2023,  df_quantile_2024],axis = 0)
     df_quantile["week_"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
         
     return df_corona,df_quantile
@@ -723,7 +775,7 @@ def make_df_quantile(series_name, df_data, year):
     Returns:
         _type_: _description_
     """    
-    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022) & (df_data["jaar"] !=2023)].copy(deep=True)
+    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022) & (df_data["jaar"] !=2023) & (df_data["jaar"] !=2024)].copy(deep=True)
     print (f"Lengte df_to_use = {len(df_to_use)}")
     df_quantile =None
            
