@@ -152,6 +152,7 @@ def plot(df, category, value_field):
     # Show the plot
     st.plotly_chart(fig)
 
+
     # Print the formula and R² value
     st.write(f"Trendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}")
     st.write(f"R² value: {r2:.4f}")

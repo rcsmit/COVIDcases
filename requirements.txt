@@ -15,4 +15,8 @@ scikit-learn
 cbsodata
 bs4
 lxml
+<<<<<<< HEAD
 eurostat
+=======
+eurostat
+>>>>>>> b045cfd550132ea901b9ea8da353101438a7a839
