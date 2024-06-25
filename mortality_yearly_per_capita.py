@@ -62,34 +62,21 @@ def get_sterfte(country="NL"):
     # Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
-    do_local = False
-    if do_local:
-        #st.warning("STATIC DATA dd 23/06/2024")
+          
+        
+    if platform.processor() != "":
+            file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
+        
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
             
-        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
-        df_ = pd.read_csv(
-            file,
-            delimiter=",",
+    df_ = pd.read_csv(
+        file,
+        delimiter=",",
             low_memory=False,
             )  
      
-    else:
-        try:
-            df_ = get_data_eurostat()
-
-        except:
-            st.warning("STATIC DATA dd 23/06/2024")
-            if platform.processor() != "":
-                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
-            
-            else:
-                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
-                
-            df_ = pd.read_csv(
-                file,
-                delimiter=",",
-                low_memory=False,
-                )
+    
 
     
     df_=df_[df_["geo"] == country]
@@ -161,22 +148,45 @@ def main():
     df=get_sterfte()
     to_do = unique_values = df["age_sex"].unique()
     labels = ['Y_LT5'] + [f'Y{i}-{i+4}' for i in range(5, 90, 5)]   + ['Y_GE90'] 
-    start=st.number_input("Startjaar", 2000,2020,2000)
-    value_field=st.selectbox("Value field", ["per100k", "OBS_VALUE"],0)
-    df=df[df["jaar"]>=start]
-    for t in labels:
+    colx,coly=st.columns(2)
+    with colx:
+        value_field=st.selectbox("Value field (per 100.000 | absolute value)", ["per100k", "OBS_VALUE"],0)
+    with coly:
+        how=st.selectbox("How (all from one year | compare startyears)", ["all from one year", "compare startyears"],1)
+    
+    if how== "all from one year":
+        start=st.number_input("Startjaar", 2000,2020,2000)
         
-        col1,col2,col3= st.columns(3)
+        df=df[df["jaar"]>=start]
+        for t in labels:
+            
+            col1,col2,col3= st.columns(3)
 
-        with col1:
-            t2=f"{t}_T"
-            plot_wrapper(df, t2, value_field)
-        with col2:
-            t2=f"{t}_M"
-            plot_wrapper(df, t2, value_field)
-        with col3:
-            t2=f"{t}_F"
-            plot_wrapper(df, t2, value_field)
+            with col1:
+                t2=f"{t}_T"
+                plot_wrapper(df, t2, value_field)
+            with col2:
+                t2=f"{t}_M"
+                plot_wrapper(df, t2, value_field)
+            with col3:
+                t2=f"{t}_F"
+                plot_wrapper(df, t2, value_field)
+    else:
+        y=st.selectbox("Which category (T=all, M=Male, F=Female)", ["T", "M", "F"],1)
+        for x in labels:
+        
+            col1,col2,col3= st.columns(3)
+            t2= f"{x}_{y}"
+            with col1:
+                df_=df[df["jaar"]>=2000]
+                plot_wrapper(df_, t2, value_field)
+            with col2:
+                df_=df[df["jaar"]>=2010]
+                plot_wrapper(df_, t2, value_field)
+            with col3:
+                df_=df[df["jaar"]>=2015]
+                plot_wrapper(df_, t2, value_field)
+                    
     st.subheader("Databronnen")
     st.info("Bevolkingsgrootte: https://opendata.cbs.nl/#/CBS/nl/dataset/03759ned/table?dl=39E0B")
     st.info("Sterfte: https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
