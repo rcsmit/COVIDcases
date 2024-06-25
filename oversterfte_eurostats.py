@@ -938,7 +938,8 @@ def get_data_eurostat():
 if __name__ == "__main__":
     import cbsodata
     #data_ruw = pd.DataFrame(cbsodata.get_data("03759ned"))
-    toc = pd.DataFrame(cbsodata.get_table_list()
+    toc = pd.DataFrame(cbsodata.get_table_list())
+    
     st.write(toc)
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
     #main()

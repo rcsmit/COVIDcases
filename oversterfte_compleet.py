@@ -2161,7 +2161,7 @@ def main():
     ]
 
     series_name = st.sidebar.selectbox("Leeftijden", serienames_, 0)
-    st.header("Oversterfte - minder leeftijdscategorieen")
+    st.header("Oversterfte - minder leeftijdscategorieen - v240625a")
     st.subheader("CBS Methode")
     st.write(
         "Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019"
