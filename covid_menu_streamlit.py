@@ -24,7 +24,7 @@ def dynamic_import(module):
     return importlib.import_module(module)
 
 def main():
-    st.title ("COVID SCRIPTS of René Smit")
+    st.title ("COVID SCRIPTS of René Smit -")
 
        #    [n. name in menu, module name]
     options = [["[0] welcome","welcome"],
