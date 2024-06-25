@@ -116,7 +116,7 @@ def plot(df, category, value_field):
     df_2020_and_up = df[df["jaar"] >= 2020]
 
     # Create the scatter plot with Plotly Express for values before 2020
-    fig = px.scatter(df_before_2020, x="jaar", y=value_field, title=f"Overlijdens per 100k - {category}")
+    fig = px.scatter(df_before_2020, x="jaar", y=value_field, title=f"Overlijdens - {category}")
 
     # Add another scatter plot for values 2020 and up
     fig.add_trace(go.Scatter(x=df_2020_and_up["jaar"], y=df_2020_and_up[value_field], mode='markers', name='2020 and up', marker=dict(color='red')))
