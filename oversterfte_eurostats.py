@@ -49,9 +49,11 @@ def get_sterfte(country):
             delimiter=",",
             low_memory=False,
             )  
+     
     else:
         try:
             df_ = get_data_eurostat()
+            
         except:
             st.warning("STATIC DATA dd 23/06/2024")
             if platform.processor() != "":
@@ -73,8 +75,14 @@ def get_sterfte(country):
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
     
-
-    return df_
+    df_bevolking = get_bevolking()
+    
+    df__= df_.merge(df_bevolking, on="age_sex", how="outer")
+    df__["per100k"] = df__["OBS_VALUE"] / df__["aantal"]
+    
+    df__.columns = df__.columns.str.replace('jaar_x', 'jaar', regex=False)
+    #df__.to_csv(r"C:\Users\rcxsm\Documents\endresult.csv")
+    return df__
 
 def get_boosters():
     """_summary_
@@ -92,7 +100,7 @@ def get_boosters():
         
         low_memory=False,
     )
-    df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
+    df_["weeknr"] = df_["jaar"].astype(int).astype(str) +"_" + df_["weeknr"].astype(int).astype(str).str.zfill(2)
     df_ = df_.drop('jaar', axis=1)
     return df_
 def get_herhaalprik():
@@ -111,12 +119,53 @@ def get_herhaalprik():
         
         low_memory=False,
     )
-    df_["weeknr"] = df_["jaar"].astype(str) +"_" + df_["weeknr"].astype(str).str.zfill(2)
+    df_["weeknr"] = df_["jaar"].astype(int).astype(str) +"_" + df_["weeknr"].astype(int).astype(str).str.zfill(2)
     df_ = df_.drop('jaar', axis=1)
 
     return df_
 
+def get_bevolking():
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\bevolking_leeftijd_NL.csv"
+    else: 
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv"
+    data = pd.read_csv(
+        file,
+        delimiter=";",
+        
+        low_memory=False,
+    )
+  
+    data['leeftijd'] = data['leeftijd'].astype(int)
+    #st.write(data)
 
+
+
+    # Define age bins and labels
+    bins = list(range(0, 95, 5)) + [1000]  # [0, 5, 10, ..., 90, 1000]
+    labels = [f'Y{i}-{i+4}' for i in range(0, 90, 5)] + ['90-999']
+
+
+    # Create a new column for age bins
+    data['age_group'] = pd.cut(data['leeftijd'], bins=bins, labels=labels, right=False)
+
+
+    # Group by year, gender, and age_group and sum the counts
+    grouped_data = data.groupby(['jaar', 'geslacht', 'age_group'])['aantal'].sum().reset_index()
+
+    # Save the resulting data to a new CSV file
+    # grouped_data.to_csv('grouped_population_by_age_2010_2024.csv', index=False, sep=';')
+
+    # print("Grouping complete and saved to grouped_population_by_age_2010_2024.csv")
+    grouped_data["age_sex"] = grouped_data['age_group'].astype(str) +"_"+grouped_data['geslacht'].astype(str)
+    
+    
+    for s in ["M", "F", "T"]:
+        grouped_data.replace(f'0-4_{s}', f'Y_LT5_{s}', inplace=True)
+        grouped_data.replace(f'90-999_{s}',f'Y_GE90_{s}', inplace=True)
+    #st.write(grouped_data)
+    # grouped_data.to_csv(r"C:\Users\rcxsm\Documents\per5jaar.csv")
+    return grouped_data
 def get_rioolwater_simpel():
     # if platform.processor() != "":
     #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
@@ -654,14 +703,31 @@ def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
     df_corona, df_quantile = make_df_qantile(series_name, df_data)
     return df_data,df_corona,df_quantile
             
-@st.cache_data
+#@st.cache_data
 def get_data(country):
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
     df__ = get_sterfte(country)
+  
     df__ = df__[df__['age'] !="UNK"]
-    df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
-    df_ = df__.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values='OBS_VALUE').reset_index()
+    df__["age_group"] = df__["age_group"].astype(str)
+   
+    df__ = df__.fillna(0)
+    df__ = df__[df__['OBS_VALUE'] !=None]
+    
+    value_to_do = "OBS_VALUE"
+    value_to_do = "per100k"
+    df__["jaar_week"] = df__["jaar"].astype(int).astype(str)  +"_" + df__["weeknr"].astype(int).astype(str).str.zfill(2)
+   
+    try:
+        df_ = df__.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values=value_to_do).reset_index()
+    except:
+                # Aggregating duplicate entries by summing the 'OBS_VALUE'
+        df_aggregated = df__.groupby(["jaar_week", "jaar", "weeknr", 'age_sex'])[value_to_do].sum().reset_index()
+
+        # Pivot the aggregated dataframe
+        df_ = df_aggregated.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values=value_to_do).reset_index()
+
     #df_ = df__.pivot(index="jaar_week", columns='age_sex', values='OBS_VALUE').reset_index()
     
     df_["m_v_0_49"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
@@ -671,6 +737,7 @@ def get_data(country):
     df_["m_v_80_89"] = df_["Y80-84_T"] + df_["Y85-89_T"]
     df_["m_v_90_999"] = df_["Y_GE90_T"]
     df_["m_v_0_999"] = df_["m_v_0_49"] + df_["m_v_50_64"] + df_["m_v_65_79"] + df_["m_v_80_89"] + df_["m_v_90_999"]
+    
     return df_boosters,df_herhaalprik,df_
 
 def make_df_qantile(series_name, df_data):
@@ -685,7 +752,7 @@ def make_df_qantile(series_name, df_data):
     """    
    
     df_corona = df_data[df_data["jaar"].between(2015, 2025)]
-    df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
+    df_corona["weeknr"] = df_corona["jaar"].astype(int).astype(str) +"_" + df_corona["weeknr"].astype(int).astype(str).str.zfill(2)
   
     # List to store individual quantile DataFrames
     df_quantiles = []
@@ -699,9 +766,9 @@ def make_df_qantile(series_name, df_data):
     df_quantile = pd.concat(df_quantiles, axis=0)
 
     df_quantile["weeknr"] = (
-        df_quantile["jaar"].astype(str)
+        df_quantile["jaar"].astype(int).astype(str)
         + "_"
-        + df_quantile["week_"].astype(str).str.zfill(2)
+        + df_quantile["week_"].astype(int).astype(str).str.zfill(2)
     )
 
     #df = pd.merge(df_corona, df_quantile, on="weeknr")
@@ -936,10 +1003,8 @@ def get_data_eurostat():
 
 
 if __name__ == "__main__":
-    import cbsodata
-    #data_ruw = pd.DataFrame(cbsodata.get_data("03759ned"))
-    toc = pd.DataFrame(cbsodata.get_table_list())
-    
-    st.write(toc)
+  
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
-    #main()
+    
+    print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
+    main()
