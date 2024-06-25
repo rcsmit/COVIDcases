@@ -1267,7 +1267,7 @@ def plot_wrapper(
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
 
         # df_quantile = df_quantile.sort_values(by=['jaar','week_'])
-
+        
         fig = go.Figure()
         low05 = go.Scatter(
             name="low",
@@ -1797,7 +1797,7 @@ def get_sterftedata(seriename="m_v_0_999"):
 
     # dit moet nog ergens anders
     df_[["weeknr", "delete"]] = df_.weeknr.str.split(
-        " \(",
+        r" \(",
         expand=True,
     )
     df_ = df_.replace("2015_1", "2015_01")

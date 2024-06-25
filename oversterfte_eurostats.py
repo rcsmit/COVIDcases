@@ -27,7 +27,8 @@ import numpy as np
 from plotly.subplots import make_subplots
 import platform
 import plotly.express as px
-import get_rioolwater
+import datetime
+import eurostat
 
 def get_sterfte(country):
     """_summary_
@@ -38,28 +39,37 @@ def get_sterfte(country):
     # Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
-    if platform.processor() != "":
-        #file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_meer_leeftijdscat.csv"
+    do_local = True
+    if do_local:
+        st.warning("STATIC DATA dd 23/06/2024")
+            
         file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
+        df_ = pd.read_csv(
+            file,
+            delimiter=",",
+            low_memory=False,
+            )  
     else:
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
-    df_ = pd.read_csv(
-        file,
-        delimiter=",",
-        
-        low_memory=False,
-        )
-    #print (df_.dtypes)
-    #st.write(df_)
-    #st.write(df_["geo"].unique())
+        try:
+            df_ = get_data_eurostat()
+        except:
+            st.warning("STATIC DATA dd 23/06/2024")
+            if platform.processor() != "":
+                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
+            
+            else:
+                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
+                
+            df_ = pd.read_csv(
+                file,
+                delimiter=",",
+                low_memory=False,
+                )
+
+    
     df_=df_[df_["geo"] == country]
     
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
-    #st.write(df_["age_sex"].unique())
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
     
@@ -202,10 +212,9 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
     else:
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr","TOTAL_T", seriename]].copy(deep=True)
-    #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
-    df = df[ (df["jaar"] >= vanaf_jaar)]  #& (df["weeknr"] != 53)]
-    print (f"Lengte df ({len(df)})")
-    #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
+   
+    df = df[ (df["jaar"] >= vanaf_jaar)] 
+   
     df = df.sort_values(by=['jaar','weeknr']).reset_index()
  
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
@@ -222,24 +231,7 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
 
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
         # https://www.cbs.nl/nl-nl/nieuws/2023/05/eind-januari-geen-oversterfte-meer/oversterfte-en-verwachte-sterfte
-        # factor_2020 = 153402 / som
-        # factor_2021 = 154887 / som
-        # factor_2022 = 155494 / som
-        # factor_2023 = 156666 / som
-        # factor_2024 = 157846 / som,
-        # for i in range(len(df)):   
-        #     if df.loc[i,"jaar"] == y:
-        #         #for s in serienames:
-        #         new_column_name_2020 = seriename + "_factor_2020"
-        #         new_column_name_2021 = seriename + "_factor_2021"
-        #         new_column_name_2022 = seriename + "_factor_2022"
-        #         new_column_name_2023 = seriename + "_factor_2023"
-        #         new_column_name_2024 = seriename + "_factor_2024"
-        #         df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
-        #         df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
-        #         df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
-        #         df.loc[i,new_column_name_2023] = df.loc[i,seriename] * factor_2023
-        #         df.loc[i,new_column_name_2024] = df.loc[i,seriename] * factor_2024
+       
 
         factors = {
             2014: 1,
@@ -254,14 +246,14 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
             2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
             2024: 157846 / noemer,
         }
-        for year in range(2020, 2025):
+        for year in range(2014, 2025):
             new_column_name = f"{seriename}_factor_{year}"
             factor = factors[year]
             # factor=1
             df[new_column_name] = df[seriename] * factor
     return df
 
-def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter):
+def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter, sma, sma_center):
     """_summary_
 
     Args:
@@ -275,8 +267,8 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_r
         mergetype (_type_): _description_
     """
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
-
-    df_oversterfte = pd.merge(df, df_corona, left_on = "week_", right_on="weeknr", how = "outer")
+   
+    df_oversterfte = pd.merge(df, df_corona, left_on = "weeknr", right_on="weeknr", how = "outer")
     if rightax == "boosters":
         df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr", how = mergetype)
     if rightax == "herhaalprik":
@@ -287,18 +279,28 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_r
     for what_to_sma in what_to_sma_:
         # sma = 6 is also in de procedure of CBS
         df_oversterfte[what_to_sma] = df_oversterfte[what_to_sma].rolling(window=6, center=True).mean()
-
+   
     df_oversterfte["over_onder_sterfte"] =  0
     df_oversterfte["meer_minder_sterfte"] =  0
     
     df_oversterfte["year_minus_high95"] = df_oversterfte[series_name] - df_oversterfte["high95"]
     df_oversterfte["year_minus_avg"] = df_oversterfte[series_name]- df_oversterfte["avg"]
     df_oversterfte["year_minus_avg_only_pos"] =  df_oversterfte["year_minus_avg"] 
-    df_oversterfte.year_minus_avg_only_pos=df_oversterfte.year_minus_avg_only_pos.mask(df_oversterfte.year_minus_avg_only_pos.lt(0),0)
     df_oversterfte["year_minus_avg_cumm"] = df_oversterfte["year_minus_avg_only_pos"].cumsum()
     df_oversterfte["p_score"] = ( df_oversterfte[series_name]- df_oversterfte["avg"]) /   df_oversterfte["avg"]
-    df_oversterfte["p_score"] = df_oversterfte["p_score"].rolling(window=6, center=True).mean()
-
+    
+    affected_columns = [
+        "year_minus_high95",
+        "year_minus_avg",
+        "year_minus_avg_only_pos",
+        "year_minus_avg_cumm",
+        "p_score"
+    ]
+    for a in affected_columns:
+        df_oversterfte[a] = df_oversterfte[a].rolling(window=sma, center=sma_center).mean()
+    
+    df_oversterfte.year_minus_avg_only_pos=df_oversterfte.year_minus_avg_only_pos.mask(df_oversterfte.year_minus_avg_only_pos.lt(0),0)
+    
     for i in range( len (df_oversterfte)):
         if df_oversterfte.loc[i,series_name ] >  df_oversterfte.loc[i,"high95"] :
             df_oversterfte.loc[i,"over_onder_sterfte" ] =  df_oversterfte.loc[i,series_name ]  -  df_oversterfte.loc[i,"avg"] #["high95"]
@@ -311,7 +313,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_r
     # df_oversterfte.to_csv(name_, index=False, compression=compression_opts)
     # print("--- Saving " + name_ + " ---")
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.add_trace( go.Scatter(x=df_oversterfte['week_'],
+    fig.add_trace( go.Scatter(x=df_oversterfte['weeknr'],
                             y=df_oversterfte[how],
                             #line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
                             line=dict(width=2,color='rgba(205, 61,62, 1)'),
@@ -388,7 +390,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_r
             b= "boosters_"+series_name
             fig.add_trace(  go.Scatter(
                     name='boosters',
-                    x=df_oversterfte["week_"],
+                    x=df_oversterfte["weeknr"],
                     y=df_oversterfte[b],
                     mode='lines',
                     
@@ -402,7 +404,7 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_r
             b= "herhaalprik_"+series_name
             fig.add_trace(  go.Scatter(
                     name='herhaalprik',
-                    x=df_oversterfte["week_"],
+                    x=df_oversterfte["weeknr"],
                     y=df_oversterfte[b],
                     mode='lines',
                     
@@ -416,10 +418,10 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_r
     elif rightax == "rioolwater" :          
         
             
-            b= "value_rivm_official_sma"
+            b= "rioolwaarde"
             fig.add_trace(  go.Scatter(
                     name='rioolwater',
-                    x=df_oversterfte["week_"],
+                    x=df_oversterfte["weeknr"],
                     y=df_oversterfte[b],
                     mode='lines',
                     
@@ -439,7 +441,12 @@ def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, df_r
     fig.add_hline(y=0)
 
     fig.update_yaxes(rangemode='tozero')
-
+    title = f"{how} - {series_name}"
+    fig.update_layout(
+            xaxis=dict(title="Weeknumber"),
+            yaxis=dict(title=how),
+            title=title,
+        )
     st.plotly_chart(fig, use_container_width=True)
     if series_name in booster_cat and show_scatter == True and rightax !=None:
                 
@@ -466,7 +473,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
     series_names_ = df_.columns.tolist()
     series_names_ = series_names_[3:]
     series_names = st.sidebar.multiselect("Which ages to show", series_names_, ["TOTAL_T"])
-    print (series_names)
+ 
     series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
  
     for col, series_name in enumerate(series_to_show):
@@ -478,42 +485,32 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
             for what_to_sma in columnlist:
                 df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=sma_center).mean()
-
-                 
-            #print (df_quantile)
+            df_corona = df_corona[df_corona["weeknr"] != "2015_53"]
+            
             df_quantile = df_quantile.sort_values(by=['jaar','week_'])
+
+            # # Number of rows to drop
+            # n = 52-18
+            
+
+            # # Dropping last n rows using drop
+            # df_quantile.drop(df_quantile.tail(n),inplace = True)
+            # st.write(df_quantile)
             fig = go.Figure()
             low05 = go.Scatter(
                 name='low',
-                x=df_quantile["week_"],
+                x=df_quantile["weeknr"],
                 y=df_quantile['low05'] ,
                 mode='lines',
                 line=dict(width=0.5,
                         color="rgba(255, 188, 0, 0.5)"),
                 fillcolor='rgba(68, 68, 68, 0.1)', fill='tonexty')
 
-            q05 = go.Scatter(
-                name='q05',
-                x=df_quantile["week_"],
-                y=df_quantile['q05'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.2)', fill='tonexty')
-
-            q25 = go.Scatter(
-                name='q25',
-                x=df_quantile["week_"],
-                y=df_quantile['q25'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)',
-                fill='tonexty')
+           
 
             avg = go.Scatter(
                 name='gemiddeld',
-                x=df_quantile["week_"],
+                x=df_quantile["weeknr"],
                 y=df_quantile["avg"],
                 mode='lines',
                 line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
@@ -531,43 +528,25 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                     name="Sterfte",
                     x=df_corona["weeknr"],
                     y=df_corona[series_name],
-                    mode='lines',
-                    line=dict(width=1,color='rgba(255, 0, 255, 0.6)'),)
+                    mode='markers',
+                    line=dict(width=1,color='rgba(255, 0, 255, 0.3)'),)
 
                 col_sma = series_name +"_sma"
                 df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
             
                 
                 sterfte_sma = go.Scatter(
-                    name="Sterfte sma",
+                    name=f"Sterfte sma ({sma})",
                     x=df_corona["weeknr"],
                     y=df_corona[col_sma],
                     mode='lines',
                     line=dict(width=2,color='rgba(255, 0, 0, 1)'),
                     )
 
-            q75 = go.Scatter(
-                name='q75',
-                x=df_quantile["week_"],
-                y=df_quantile['q75'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)',
-                fill='tonexty')
-
-            q95 = go.Scatter(
-                name='q95',
-                x=df_quantile["week_"],
-                y=df_quantile['q95'],
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)'
-            )
+           
             high95 = go.Scatter(
                 name='high',
-                x=df_quantile["week_"],
+                x=df_quantile["weeknr"],
                 y=df_quantile['high95'],
                 mode='lines',
                 line=dict(width=0.5,
@@ -577,7 +556,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             
             #data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
             if sma>1:
-                data = [ high95,low05,avg, sterfte, sterfte_sma] #, value_in_year_2021 ]
+                data = [ high95,low05,avg, sterfte_sma] #, value_in_year_2021 ]
             else:
                 data = [ high95,low05,avg, sterfte] #, value_in_year_2021 ]
             title = f"Overleden {series_name} (marges {vanaf_jaar}-2019)"
@@ -594,40 +573,43 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             # — derde oversterftegolf: week 33 tot en met week 52 van 2021 (half augustus 2021–eind
             # december 2021).
             # De hittegolf in 2020 betreft week 33 en week 34 (half augustus 2020).
-            fig.add_vline(x="2021_01",  line_width=2, line_dash="dash", line_color="green")
-            fig.add_vline(x="2022_01",  line_width=2, line_dash="dash", line_color="green")
-            fig.add_vline(x="2023_01",  line_width=2, line_dash="dash", line_color="green")
-            fig.add_vline(x="2024_01",  line_width=2, line_dash="dash", line_color="green")
+            for i in range (2015,2025):
+                str= f"{i}_01"
+                fig.add_vline(x=str,  line_width=1, line_dash="dash", line_color="green")
+            # fig.add_vline(x="2022_01",  line_width=2, line_dash="dash", line_color="green")
+            # fig.add_vline(x="2023_01",  line_width=2, line_dash="dash", line_color="green")
+            # fig.add_vline(x="2024_01",  line_width=2, line_dash="dash", line_color="green")
 
             fig.add_vrect(x0="2020_13", x1="2020_18", 
-              annotation_text="Eerste golf", annotation_position="top left",
+              annotation_text="[1]", annotation_position="top left",
               fillcolor="pink", opacity=0.25, line_width=0)
             fig.add_vrect(x0="2020_39", x1="2021_03", 
-              annotation_text="Tweede golf", annotation_position="top left",
+              annotation_text="[2]", annotation_position="top left",
               fillcolor="pink", opacity=0.25, line_width=0)
             fig.add_vrect(x0="2021_33", x1="2021_52", 
-              annotation_text="Derde golf", annotation_position="top left",
+              annotation_text="[3]", annotation_position="top left",
               fillcolor="pink", opacity=0.25, line_width=0)
             fig.add_vrect(x0="2020_33", x1="2020_34", 
-              annotation_text="Hitte golf", annotation_position="top left",
+              annotation_text="[H]", annotation_position="top left",
               fillcolor="orange", opacity=0.25, line_width=0)
             fig.add_vrect(x0="2022_32", x1="2022_33", 
-              annotation_text="Hitte golf", annotation_position="top left",
+              annotation_text="[H]", annotation_position="top left",
               fillcolor="orange", opacity=0.25, line_width=0)
             if yaxis_to_zero:
                 fig.update_yaxes(rangemode="tozero")
             st.plotly_chart(fig, use_container_width=True)
-
+            # overleden = df_corona[series_name].sum()
+            # baseline_sum = df_quantile["avg"].sum()
+            # w= "oversterfte" if overleden > baseline_sum else "ondersterfte"
+            # st.write(f"{series_name} - Baseline : {int(baseline_sum)} | Overleden {int(overleden)} | {w} {int(baseline_sum-overleden)} ")
         elif (how == "year_minus_avg") or (how == "year_minus_avg_cumm")  or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
-            print (series_name[-1:]) 
-            #if series_name[:4] == "m_v_":
-            if (series_name[-1:] == "T" or series_name[:4] == "m_v_"):
-                df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
-                
-                plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter)
+            
+            df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
+            
+            plot_graph_oversterfte(how, df_quantile, df_corona, df_boosters, df_herhaalprik, df_rioolwater, series_name, rightax, mergetype, show_scatter, sma, sma_center)
            
 
-        elif (how == "lines"):
+        elif (how == "Lines"):
             df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
             
             #fig = plt.figure()
@@ -666,7 +648,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             st.stop()
 
 def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
-    print (f"---{series_name}----")
+   
     st.subheader(series_name)
     df_data = get_data_for_series(df_, series_name, vanaf_jaar).copy(deep=True)
     df_corona, df_quantile = make_df_qantile(series_name, df_data)
@@ -701,23 +683,29 @@ def make_df_qantile(series_name, df_data):
     Returns:
         _type_: _description_
     """    
-    df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
-    df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
-    df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
-    df_corona_23 = df_data[(df_data["jaar"] ==2023)].copy(deep=True)
-    df_corona_24 = df_data[(df_data["jaar"] ==2024)].copy(deep=True)
-    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22,  df_corona_23, df_corona_24],axis = 0)
+   
+    df_corona = df_data[df_data["jaar"].between(2015, 2025)]
     df_corona["weeknr"] = df_corona["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
   
-    df_quantile_2020 = make_df_quantile(series_name, df_data, 2020)
-    df_quantile_2021 = make_df_quantile(series_name, df_data, 2021)
-    df_quantile_2022 = make_df_quantile(series_name, df_data, 2022)
-    df_quantile_2023 = make_df_quantile(series_name, df_data, 2023)
-    df_quantile_2024 = make_df_quantile(series_name, df_data, 2024)
-    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022,  df_quantile_2023,  df_quantile_2024],axis = 0)
-    df_quantile["week_"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['week_'].astype(str).str.zfill(2)
-        
-    return df_corona,df_quantile
+    # List to store individual quantile DataFrames
+    df_quantiles = []
+
+    # Loop through the years 2014 to 2024
+    for year in range(2015, 2025):
+        df_quantile_year = make_df_quantile_year(series_name, df_data, year)
+        df_quantiles.append(df_quantile_year)
+
+    # Concatenate all quantile DataFrames into a single DataFrame
+    df_quantile = pd.concat(df_quantiles, axis=0)
+
+    df_quantile["weeknr"] = (
+        df_quantile["jaar"].astype(str)
+        + "_"
+        + df_quantile["week_"].astype(str).str.zfill(2)
+    )
+
+    #df = pd.merge(df_corona, df_quantile, on="weeknr")
+    return df_corona, df_quantile
 
 def make_row_df_quantile(series_name, year, df_to_use, w_):
     """Calculate the percentiles of a certain week
@@ -768,15 +756,17 @@ def make_row_df_quantile(series_name, year, df_to_use, w_):
             
     return df_quantile_
 
-def make_df_quantile(series_name, df_data, year):
+def make_df_quantile_year(series_name, df_data, year):
 
     """ Calculate the quantiles
 
     Returns:
         _type_: _description_
     """    
-    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022) & (df_data["jaar"] !=2023) & (df_data["jaar"] !=2024)].copy(deep=True)
-    print (f"Lengte df_to_use = {len(df_to_use)}")
+    #df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022) & (df_data["jaar"] !=2023) & (df_data["jaar"] !=2024)].copy(deep=True)
+    df_to_use = df_data[(df_data["jaar"] >= 2015) & (df_data["jaar"] < 2020)].copy(
+            deep=True
+        )
     df_quantile =None
            
     week_list = df_to_use['weeknr'].unique().tolist()
@@ -792,7 +782,7 @@ def make_df_quantile(series_name, df_data, year):
         df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, 53)
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
 
-        
+    
     return df_quantile
         
 
@@ -813,28 +803,142 @@ def interface():
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     if (how == "year_minus_avg") or (how=="year_minus_avg_cumm") or (how == "p_score"):
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik","rioolwater", None], index = 1, key = "aa")
-        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
+        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 1, key = "bb")
         show_scatter = st.sidebar.selectbox("Show_scatter", [False, True], index = 0)
         
     else:
         rightax, mergetype, show_scatter = None, None, None
     vanaf_jaar = st.sidebar.number_input ("Beginjaar voor CI-interv. (incl.)", 2000, 2022,2015)
-    if how == "quantiles":
-        sma= st.sidebar.number_input ("Smooth moving average", 0, 100,1)
-        sma_center = st.sidebar.selectbox("SMA center", [True, False], index = 0, key = "bb")
-    else:
-        sma, sma_center = None, None
+    sma= st.sidebar.number_input ("Smooth moving average", 0, 100,6)
+    sma_center = st.sidebar.selectbox("SMA center", [True, False], index = 0, key = "cc")
     country = "NL" #  st.sidebar.selectbox("country",["NL", "BE", "DE", "DK", "FR", "ES", "IT", "UK"], index=0)
     return how,yaxis_to_zero,rightax,mergetype, show_scatter, vanaf_jaar,sma, sma_center, country
 
 def main():
+    # import cbsodata
+    # data_ruw = pd.DataFrame(cbsodata.get_data("03759ned"))
+    # st.write(data_ruw)
     st.header("(Over)sterfte per week per geslacht per 5 jaars groep")
    
     how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center, country = interface()
     plot(how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center, country)
     footer(vanaf_jaar)
 
+   
+    
+
+@st.cache_data()
+def get_data_eurostat():
+    """Get from Eurostat : Deaths by week, sex and 5-year age group
+    Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
+    https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
+    https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
+   
+    Returns:
+        df: dataframe with weekly mortality in 5 year tranches
+
+                                DATAFLOW        LAST UPDATE freq     age sex  ... OBS_VALUE OBS_FLAG   age_sex  jaar weeknr
+            0      ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   TOTAL   F  ...    1868.0        p   TOTAL_F  2000      1
+            1      ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   TOTAL   M  ...    1699.0        p   TOTAL_M  2000      1
+            2      ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   TOTAL   T  ...    3567.0        p   TOTAL_T  2000      1
+            ...
+            80071  ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   Y_LT5   M  ...       8.0        p   Y_LT5_M  2024     19
+            80072  ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   Y_LT5   T  ...      12.0        p   Y_LT5_T  2024     19
+ 
+                W  = Weekly
+                NL = Netherlands
+                NR = Number
+                P  = Provisory
+    """
+    
+    code = "DEMO_R_MWK_05"
+    # ['freq', 'age', 'sex', 'unit', 'geo']
+
+    # pars = eurostat.get_pars(code)
+    # result : ['freq', 'age', 'sex', 'unit', 'geo']
+    # for p in pars:
+    #     par_values = eurostat.get_par_values(code,p)
+    #     print (f"{p} ------------------------------")
+    #     print (par_values)
+        
+    my_filter_pars = {'beginPeriod': 2015, 'geo': ['NL']} # beginPeriod is ignored somehow
+    
+    flags = True
+
+    if flags:
+        df = eurostat.get_data_df(code, flags=True, filter_pars=my_filter_pars, verbose=True, reverse_time=False)
+        print (df)
+        # Identify value and flag columns
+        value_columns = [col for col in df.columns if col.endswith('_value')]
+        flag_columns = [col for col in df.columns if col.endswith('_flag')]
+
+        # Melt the value columns
+        df_values = df.melt(id_vars=['freq', 'age', 'sex', 'unit', 'geo\\TIME_PERIOD'],
+                            value_vars=value_columns,
+                            var_name='TIME_PERIOD', value_name='OBS_VALUE')
+
+        # Remove '_value' suffix from TIME_PERIOD column
+        df_values['TIME_PERIOD'] = df_values['TIME_PERIOD'].str.replace('_value', '')
+
+        # Melt the flag columns
+        df_flags = df.melt(id_vars=['freq', 'age', 'sex', 'unit', 'geo\\TIME_PERIOD'],
+                        value_vars=flag_columns,
+                        var_name='TIME_PERIOD', value_name='OBS_FLAG')
+
+        # Remove '_flag' suffix from TIME_PERIOD column
+        df_flags['TIME_PERIOD'] = df_flags['TIME_PERIOD'].str.replace('_flag', '')
+
+        # Merge the values and flags dataframes
+        df_long = pd.merge(df_values, df_flags, on=['freq', 'age', 'sex', 'unit', 'geo\\TIME_PERIOD', 'TIME_PERIOD'])
+
+        # Add additional columns
+        df_long['DATAFLOW'] = 'ESTAT:DEMO_R_MWK_05(1.0)'
+        df_long['LAST UPDATE'] = '14/06/24 23:00:00'
+
+        # Rename the columns to match the desired output
+        df_long.rename(columns={'geo\\TIME_PERIOD': 'geo'}, inplace=True)
+
+        # Filter out rows with None values in OBS_VALUE
+        df_long = df_long[df_long['OBS_VALUE'].notna()]
+
+        # Reorder the columns
+        df_long = df_long[['DATAFLOW', 'LAST UPDATE', 'freq', 'age', 'sex', 'unit', 'geo', 'TIME_PERIOD', 'OBS_VALUE', 'OBS_FLAG']]
+    else:
+        df = eurostat.get_data_df(code, flags=False, filter_pars=my_filter_pars, verbose=True, reverse_time=False)
+        print (df)
+
+        # Melt the dataframe to long format
+        df_long = df.melt(id_vars=['freq', 'age', 'sex', 'unit', r'geo\TIME_PERIOD'],
+                        var_name='TIME_PERIOD', value_name='OBS_VALUE')
+
+        # Add additional columns, made to be reverse compatible with older code
+        df_long['DATAFLOW'] = 'ESTAT:DEMO_R_MWK_05(1.0)'
+        df_long['LAST UPDATE'] = '24/06/24 23:00:00'
+        #df_long['OBS_FLAG'] = 'p'
+
+        # Rename the columns to match the desired output
+        df_long.rename(columns={'geo\\TIME_PERIOD': 'geo'}, inplace=True)
+
+
+        # Filter out rows with None values in OBS_VALUE
+        df_long = df_long[df_long['OBS_VALUE'].notna()]
+
+        # Reorder the columns
+        df_long = df_long[['DATAFLOW', 'LAST UPDATE', 'freq', 'age', 'sex', 'unit', 'geo', 'TIME_PERIOD', 'OBS_VALUE', 'OBS_FLAG']]
+    
+    df_long["age_sex"] = df_long["age"] + "_" +df_long["sex"]
+    df_long["jaar"] = (df_long["TIME_PERIOD"].str[:4]).astype(int)
+    df_long["weeknr"] = (df_long["TIME_PERIOD"].str[6:]).astype(int)
+
+    # Display the resulting dataframe
+    print (df_long)
+    return (df_long)
+
+
 if __name__ == "__main__":
-    import datetime
+    import cbsodata
+    #data_ruw = pd.DataFrame(cbsodata.get_data("03759ned"))
+    toc = pd.DataFrame(cbsodata.get_table_list()
+    st.write(toc)
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
-    main()
+    #main()
