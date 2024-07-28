@@ -42,8 +42,13 @@ def get_sterfte(country):
     do_local = False
     if do_local:
         st.warning("STATIC DATA dd 23/06/2024")
-            
-        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
+        if platform.processor() != "":
+            file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
+        
+        else:
+            file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
+                  
+        #file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
         df_ = pd.read_csv(
             file,
             delimiter=",",
@@ -165,6 +170,7 @@ def get_bevolking():
         grouped_data.replace(f'90-999_{s}',f'Y_GE90_{s}', inplace=True)
     #st.write(grouped_data)
     # grouped_data.to_csv(r"C:\Users\rcxsm\Documents\per5jaar.csv")
+    
     return grouped_data
 def get_rioolwater_simpel():
     # if platform.processor() != "":
@@ -524,13 +530,13 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
     series_names = st.sidebar.multiselect("Which ages to show", series_names_, ["TOTAL_T"])
  
     series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
- 
+   
     for col, series_name in enumerate(series_to_show):
         
         
         if how =="quantiles":
             df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
-            
+           
             columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
             for what_to_sma in columnlist:
                 df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=sma_center).mean()
@@ -544,7 +550,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
 
             # # Dropping last n rows using drop
             # df_quantile.drop(df_quantile.tail(n),inplace = True)
-            # st.write(df_quantile)
+            st.write(df_quantile)
             fig = go.Figure()
             low05 = go.Scatter(
                 name='low',
@@ -714,9 +720,9 @@ def get_data(country):
    
     df__ = df__.fillna(0)
     df__ = df__[df__['OBS_VALUE'] !=None]
-    
-    value_to_do = "OBS_VALUE"
-    value_to_do = "per100k"
+    value_to_do = st.sidebar.selectbox("Value to do [OBS_VALUE | per 100k]", ["OBS_VALUE", "per100k"], 0)
+    #value_to_do = "OBS_VALUE"
+    #value_to_do = "per100k"
     df__["jaar_week"] = df__["jaar"].astype(int).astype(str)  +"_" + df__["weeknr"].astype(int).astype(str).str.zfill(2)
    
     try:
