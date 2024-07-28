@@ -924,7 +924,7 @@ def get_data_for_series(df_, seriename):
 
 def rolling(df, what):
 
-    df[f"{what}_sma"] = df[what].rolling(window=6, center=True).mean()
+    df[f"{what}_sma"] = df[what].rolling(window=7, center=True).mean()
 
     # df[what] = df[what].rolling(window=6, center=False).mean()
     # df[f'{what}_sma'] = savgol_filter(df[what], 7,2)
@@ -1855,12 +1855,18 @@ def make_df_quantile(series_name, df_data):
                 w = 52
             else:
                 w = w_
-
+            column_to_use = series_name + "_factor_" + str(year)
             df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
 
-            column_to_use = series_name + "_factor_" + str(year)
             data = df_to_use_[column_to_use]  # .tolist()
+            avg = round(data.mean(), 0)
+            
+          
+            df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
 
+            data = df_to_use_[column_to_use]  # .tolist()
+            avg = round(data.mean(), 0)
+                
             try:
                 q05 = np.percentile(data, 5)
                 q25 = np.percentile(data, 25)
@@ -1870,7 +1876,7 @@ def make_df_quantile(series_name, df_data):
             except:
                 q05, q25, q50, q75, q95 = 0, 0, 0, 0, 0
 
-            avg = round(data.mean(), 0)
+           
 
             sd = round(data.std(), 0)
             low05 = round(avg - (2 * sd), 0)
