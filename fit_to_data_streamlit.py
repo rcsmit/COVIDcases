@@ -36,8 +36,8 @@ from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
 
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 
 from PIL import Image
 import glob
@@ -111,7 +111,7 @@ def use_curvefit(x_values, x_values_extra, y_values,  title, daterange,i):
 
     # R squared might not be a good idea: https://github.com/scipy/scipy/issues/8439
     # https://stackoverflow.com/a/37899817/4173718
-    with _lock:
+    if 1==1: #with _lock:
         st.subheader(f"Curvefit (scipy) - {title}")
 
         fig1x = plt.figure()
@@ -343,7 +343,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
 
         a = round(result.params['a'].value,5)
         #placeholder1.text(result.fit_report())
-        with _lock:
+        if 1==1: #with _lock:
             #fig1y = plt.figure()
             fig1y, ax1 = plt.subplots()
             ax2 = ax1.twinx()
@@ -385,7 +385,7 @@ def use_lmfit(x_values, y_values,  functionlist, title,i, max_y_values):
             placeholder.pyplot(fig1y)
 
         if prepare_for_animation == False:
-            with _lock:
+            if 1==1: #with _lock:
                 fig1z = plt.figure()
                 # plot results -- note that `best_fit` is already available
 
@@ -507,7 +507,7 @@ def normal_c(df):
     firstday = df.index[0] + Timedelta('1d')
     nextday = df.index[-1] + Timedelta('1d')
     lastday = df.index[-1] + Timedelta(TOTAL_DAYS_IN_GRAPH - len(df), 'd') # extrapolate
-    with _lock:
+    if 1==1: #with _lock:
         #fig1y = plt.figure()
         fig1yz, ax = subplots()
         ax.set_title('NL COVID-19 cumulative log-lognormal extrapolations\n'
@@ -587,7 +587,7 @@ def loglognormal(df, what_to_display):
     firstday = df.index[0] + Timedelta('1d')
     nextday = df.index[-1] + Timedelta('1d')
     lastday = df.index[-1] + Timedelta(TOTAL_DAYS_IN_GRAPH - len(df), 'd') # extrapolate
-    with _lock:
+    if 1==1: #with _lock:
         #fig1y = plt.figure()
         fig1yz, ax = subplots()
         ax.set_title('NL COVID-19 cumulative log-lognormal extrapolations\n'

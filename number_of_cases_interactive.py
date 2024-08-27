@@ -15,9 +15,9 @@ import numpy as np
 import matplotlib.dates as mdates
 import datetime as dt
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 from scipy.integrate import odeint
 import pandas as pd
 
@@ -457,7 +457,8 @@ def main():
         plt.gca().set_title(titlex , fontsize=10)
 
     # POS TESTS /day ################################
-    with _lock:
+    # if 1==1: #with _lock:
+    if 1==1:
         fig1, ax = plt.subplots()
         plt.plot(x, positivetests1, label=label1,  linestyle='--')
         plt.plot(x, positivetests2, label=label2,  linestyle='--')
@@ -481,7 +482,8 @@ def main():
         st.pyplot(fig1)
 
     # # POS TESTS per 100k per week ################################
-    with _lock:
+    # if 1==1: #with _lock:
+    if 1==1:
         fig1d, ax = plt.subplots()
         plt.plot(x, positivetestsper100k)
         positivetestsper100k = []
@@ -552,7 +554,7 @@ def main():
 
     # Show cummulative cases
     if showcummulative:
-        with _lock:
+        if 1==1: #with _lock:
             fig1e, ax = plt.subplots()
             plt.plot(x,cummulative1, label='Cummulative pos. test first variant',  linestyle='--')
             plt.plot(x,cummulative2, label='Cummulative pos. test second variant',  linestyle='--')
@@ -575,7 +577,7 @@ def main():
             st.pyplot(fig1e)
 
         # Infected
-        with _lock:
+        if 1==1: #with _lock:
             fig1i, ax = plt.subplots()
             plt.plot(x, suspectible, label='Suspectible',  linestyle='--')
             plt.plot(x, infected, label='Infected',  linestyle='--')
@@ -593,7 +595,7 @@ def main():
 
             st.pyplot(fig1i)
     # Show the percentage new variant
-    with _lock:
+    if 1==1: #with _lock:
         fig1f, ax = plt.subplots()
         plt.plot(x, ratio, label='Ratio',  linestyle='--')
         ratio = []
@@ -610,7 +612,7 @@ def main():
 
 
     # Show the R number in time
-    with _lock:
+    if 1==1: #with _lock:
         fig1f, ax = plt.subplots()
         plt.plot(x, walkingR, label='Combined R number in time',  linestyle='--')
         plt.plot(x, ry1x, label='Old variant',  linestyle='--')
@@ -633,7 +635,7 @@ def main():
         st.pyplot(fig1f)
 
     # Ziekenhuis opnames
-    with _lock:
+    if 1==1: #with _lock:
         fig1g, ax = plt.subplots()
         plt.plot(x, hospital, label='Ziekenhuis per dag')
         plt.plot(x, ic, label='IC per dag')
@@ -658,7 +660,7 @@ def main():
     ################################################
 
     # Ziekenhuis bezetting
-    with _lock:
+    if 1==1: #with _lock:
         fig1g, ax = plt.subplots()
         plt.plot(x, hospital_cumm, label='Ziekenhuis bezetting per dag')
         plt.plot(x, ic_cumm, label='IC bezetting per dag')
