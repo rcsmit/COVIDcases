@@ -1,5 +1,5 @@
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import matplotlib.pyplot as plt
 
 # import matplotlib as mpl
@@ -118,7 +118,7 @@ def  make_legenda(method, max_value):
         d = {'legenda': stapjes}
 
         df_legenda = pd.DataFrame(data=d)
-        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", max_value,None)).set_precision(2))
+        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", max_value,None)))#.set_precision(2))
 
 
 
@@ -328,7 +328,7 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, FROM, UNTIL,  show
     what_to_show_l = what_to_show_l if type(what_to_show_l) == list else [what_to_show_l]
     what_to_show_r = what_to_show_r if type(what_to_show_r) == list else [what_to_show_r]
     colorlegenda=""
-    with _lock:
+    if 1==1: #with _lock:
             fig1xy,ax = plt.subplots()
 
             x_ = np.array(df_temp[what_to_show_l])

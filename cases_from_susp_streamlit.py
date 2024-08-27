@@ -22,7 +22,7 @@ def calculate_aantallen(ziek, header, h_, ic_opn, ifr_, long_covid):
     df_calculated=df_calculated.astype(str)
     st.write (df_calculated)
 
-Q```
+
     st.title( "Wat gebeurt er als je alles open gooit")
     st.write ("Dit is een simpel scriptje wat een bierviltjes berekening maakt om te zien wat er gebeurt als je alles open gooit zonder maatregelen." )
     st.write ("De belangrijkste parameter is de attackrate en de reeds opgebouwde immuniteit door doorgemaakte ziekte, vaccinatie of kruisimmuniteit")

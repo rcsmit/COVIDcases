@@ -122,7 +122,7 @@ def main():
     a,b,population,vac_rate_old, vac_rate_new, on_y_axis, descr, number_days = interface()
 
     stl.subheader ("VE scenario calculator (screening method)")
-    stl.write("Very estimative. Doesn't take in account confounders, ages, biases in testing, difference in populations, 'infectiedruk', changes in R-number, variants etc.")
+    stl.write("How many people would be in hospital/IC/sick when everybody would have been vaccinated. Very estimative. Doesn't take in account confounders, ages, biases in testing, difference in populations, 'infectiedruk', changes in R-number, variants etc.")
 
     stl.subheader (descr)
     calculate(a,b,population,vac_rate_old, vac_rate_new, on_y_axis, True, number_days)

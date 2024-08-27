@@ -11,13 +11,13 @@ import datetime as dt
 from datetime import datetime, timedelta
 
 import json
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
 
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 
 from sklearn.metrics import r2_score
 import streamlit as st
@@ -46,6 +46,8 @@ def get_data():
         with st.spinner(f"Downloading...(it will take some time!)"):
             if platform.processor() != "":
                 url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+                url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
+
             else:
                 url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
 
@@ -206,7 +208,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
 
-    with _lock:
+    if 1==1: #with _lock:
         fig1x = plt.figure()
         ax = fig1x.add_subplot(111)
         # Some nice colors chosen with coolors.com

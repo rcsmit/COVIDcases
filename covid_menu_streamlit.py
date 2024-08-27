@@ -28,8 +28,8 @@ def main():
 
        #    [n. name in menu, module name]
     options = [["[0] welcome","welcome"],
-            ["[1] covid dashboard","covid dashboard rcsmit"],
-            ["[2] plot hosp ic per age","plot hosp ic streamlit"],
+            ["[X] covid dashboard","covid dashboard rcsmit"],
+            ["[X] plot hosp ic per age","plot hosp ic streamlit"],
             ["[3] false positive rate covid test","calculate false positive rate covid test streamlit"],
             ["[4] number of cases interactive","number of cases interactive"],
             ["[5] ifr from prevalence","calculate_ifr_from_prevalence_streamlit"],
@@ -37,7 +37,7 @@ def main():
             ["[7] SEIR hobbeland","SEIR hobbeland"],
             ["[8] show contactmatrix","show contactmatrix"],
             ["[9] r getal per provincie","r getal per provincie"],
-            ["[10] Cases from suspectibles", "cases_from_susp_streamlit"],
+            ["[XX] Cases from suspectibles", "cases_from_susp_streamlit"],
             ["[11] Fit to data OWID", "fit_to_data_owid_streamlit_animated"],
             ["[12] Calculate R per country owid", "calculate_r_per_country_owid_streamlit"],
             ["[13] Covid dashboard OWID/Google or Waze","covid dashboard owid"],
@@ -118,6 +118,7 @@ def main():
             except Exception as e:
                 st.error(f"Module '{m}' not found or error in the script\n")
                 st.warning(f"{e}")
+                st.warning(traceback.format_exc())
                 st.stop()
             try:
                 module.main()

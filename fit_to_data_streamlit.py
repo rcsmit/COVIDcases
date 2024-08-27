@@ -954,19 +954,20 @@ def main():
     global placeholder0, placeholder, placeholder1
 
     # url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\EINDTABEL.csv"
-    # #url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/EINDTABEL.csv"
-    # df = pd.read_csv(url1, delimiter=",", low_memory=False)
+    url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/EINDTABEL.csv"
+    df = pd.read_csv(url1, delimiter=",", low_memory=False)
+    st.info("Static data dd 8th April 2021")
 
-
-    df_getdata, df_ungrouped_, UPDATETIME = get_data()
-    df = df_getdata.copy(deep=False)
+    # df_getdata, df_ungrouped_, UPDATETIME = get_data()
+    # df = df_getdata.copy(deep=False)
 
     #st.write (df.dtypes)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.fillna(value=0, inplace=True)
     df["Total_reported_cumm"] = df["Total_reported"].cumsum()
     df["Deceased_cumm"] = df["Deceased"].cumsum()
-    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID_Nederland"].cumsum()
+    #df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_COVID_Nederland"].cumsum()
+    df["IC_Nieuwe_Opnames_LCPS_cumm"] = df["IC_Nieuwe_Opnames_LCPS"].cumsum()
     #df["total_reported_k_value"] = 1- df["Total_reported_cumm"].pct_change(periods=7, fill_method='ffill')
     #st.alert("Please ignore the error message, it has to do with some caching issues")
     DATE_FORMAT = "%m/%d/%Y"
@@ -1107,7 +1108,7 @@ def main():
     then = d1 + dt.timedelta(days=total_days)
     daterange = mdates.drange(d1,then,dt.timedelta(days=1))
     global prepare_for_animation
-    if platform.processor() is not "":
+    if platform.processor() != "":
 
         prepare_for_animation = st.sidebar.selectbox("Make animation (SLOW!)", [True, False], index=1)
     else:
@@ -1117,7 +1118,7 @@ def main():
     fit_the_values(to_do_list, total_days, daterange, which_method,prepare_for_animation)
     #normal_c(df_to_use)  #FIXIT doesnt work :()
     loglognormal(df_to_use, what_to_display)
-    st.sidebar.write(f"last updated: {UPDATETIME}")
+    #st.sidebar.write(f"last updated: {UPDATETIME}")
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
         "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"

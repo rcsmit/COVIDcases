@@ -9,6 +9,8 @@ import datetime as dt
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
 import math
+import plotly.express as px
+import plotly.graph_objects as go
 
 from plotly.subplots import make_subplots
 from scipy.stats import fisher_exact
@@ -32,14 +34,14 @@ def read():
 
     url_voll_vax="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/datum_50_pct_voll_gevaxx.csv"
 
-    df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
+    df_data = pd.read_csv(url_data, delimiter=',')#, error_bad_lines=False)
 
     df_data["einddag_week_"] = pd.to_datetime(df_data["einddag_week"], format="%Y-%m-%d" )
 
 
-    df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
+    df_pop = pd.read_csv(url_pop, delimiter=',')#, error_bad_lines=False)
 
-    df_voll_vax = pd.read_csv(url_voll_vax, delimiter=',', error_bad_lines=False)
+    df_voll_vax = pd.read_csv(url_voll_vax, delimiter=',')#, error_bad_lines=False)
 
     df_voll_vax["datum_50_pct_voll_gevaxx"] = pd.to_datetime(df_voll_vax["datum_50_pct_voll_gevaxx"], format="%m/%d/%Y" )
     df  = pd.merge(
@@ -70,7 +72,7 @@ def perc_gevacc():
     url_data = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     #print (url_data)
 
-    df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
+    df_data = pd.read_csv(url_data, delimiter=',')#, error_bad_lines=False)
     #print (df_data)
     # print (df_data.dtypes)
     line_chart_pivot (df_data, None, "% Volledig gevaccineerd", False)
@@ -730,13 +732,111 @@ def referentie_andere_studies():
         yaxis_title=title    )
     st.plotly_chart(fig, use_container_width=True)
 
+
+def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categoryfield, hover_name, hover_data, intercept_100, complete, day_zero, a):
+    """Makes a scatterplot with trendline and statistics
+    Args:
+        df_temp ([type]): [description]
+        what_to_show_l (string): The column to show on x axis
+        what_to_show_r (string): The column to show on y axis
+        show_cat ([type]): [description]
+        categoryfield ([type]): [description]
+    """
+    if 1==1: #with _lock:
+        fig1xy,ax = plt.subplots()
+
+        # if intercept_100 == False:
+        #     try:
+
+        #         x_ = np.array(df_temp[what_to_show_l])
+        #         y_ = np.array(df_temp[what_to_show_r])
+        #         #obtain m (slope) and b(intercept) of linear regression line
+        #         idx = np.isfinite(x_) & np.isfinite(y_)
+        #         m, b = np.polyfit(x_[idx], y_[idx], 1)
+        #         model = np.polyfit(x_[idx], y_[idx], 1)
+
+        #         predict = np.poly1d(model)
+        #         r2 = r2_score  (y_[idx], predict(x_[idx]))
+        #     except:
+        #         m,b,model,predict,r2 =None,None,None,None,None
+
+        #     try:
+
+        #         fig3 = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data,
+        #                             trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
+        #     except:
+        #         # avoid exog contains inf or nans
+        #         fig3 = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
+
+        # else:
+
+
+        #try:
+        m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l, what_to_show_r, intercept_100)
+
+        l = 2 + df_temp["days_bweteen_50_pct_and_einddag"].max()
+        fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
+        df_trendline = create_trendline(l,m,b, complete)
+
+        fig2 = px.line(df_trendline, x="x", y="y")
+        fig2.update_traces(line=dict(color = 'rgba(50,50,50,0.8)'))
+        #add linear regression line to scatterplot
+
+        fig3 = go.Figure(data=fig1xy.data + fig2.data)
+        correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+        correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+        d_end = round(-100/m)
+
+        d_half = round (-50/m)
+        day_end = (day_zero+  pd.Timedelta(d_end, unit='D')   ).date()
+        day_half = (day_zero+  pd.Timedelta(d_half, unit='D')   ).date()
+        st.subheader(f"{a}")
+        if a != "All" and a!= "All except 10-19 and 80+":
+            st.write(f"Day zero = {day_zero.date()} | VE = 50% : {day_half} | VE = 0% :  {day_end}")
+        else:
+            st.write(f"Day zero = {day_zero.date()} | VE = 50% : {d_half} days | VE = 0% :  {d_end} days")
+
+        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+
+        fig3.update_layout(
+            title=dict(
+                text=title_scatter,
+                x=0.5,
+                y=0.95,
+                font=dict(
+                    family="Arial",
+                    size=14,
+                    color='#000000'
+                )
+            ),
+            xaxis_title=what_to_show_l,
+            yaxis_title=what_to_show_r,
+            font=dict(
+                family="Courier New, Monospace",
+                size=12,
+                color='#000000'
+            )
+        )
+
+        ax.text(
+            1,
+            1.3,
+            "Created by Rene Smit — @rcsmit",
+            transform=ax.transAxes,
+            fontsize="xx-small",
+            va="top",
+            ha="right",
+        )
+
+        st.plotly_chart(fig3, use_container_width=True)
+
 def main():
     df_ = read()
     df_ = df_.fillna(0)
     df = make_calculations(df_)
 
     st.header("VE in NL")
-    st.write("Article : https://rcsmit.medium.com/calculation-of-waning-of-vaccin-effectiveness-in-the-netherlands-82957de37ea3")
+    st.write("Article : https://rene-smit.com/calculation-of-waning-of-vaccin-effectiveness-in-the-netherlands/")
     st.write("Attention: very rough estimation due the high number of unknown vaccin statusses. Assumed is that they have the same ratio as the known numbers.")
 
     st.write("Vaccination% of 11-17 is linked to the cases10-19, 18-30 to 20-29. ")

@@ -63,7 +63,7 @@ def main():
     st.subheader(f"Contactmatrix {df1}")
     #st.write (df_first_pivot)
 
-    st.write (df_first_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 10, None)).set_precision(2))
+    st.write (df_first_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 10, None)))#.set_precision(2))
     # show_heatmap (df_first_pivot,"lineair", 10,None)
     calculate_total (df_first_pivot, df1, contact_type)
 
@@ -72,7 +72,7 @@ def main():
 
     # show_heatmap(df_second_pivot,"lineair", 1.5,None)
 
-    st.write (df_second_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 1.5,None)).set_precision(2))
+    st.write (df_second_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 1.5,None)))#.set_precision(2))
     make_legenda("lineair", 1.5)
 
     #st.write (df_second_pivot)
@@ -81,7 +81,7 @@ def main():
 
     st.subheader (f"Verschil als ratio -- ({df2}/{df1}")
     df_difference_as_ratio =  df_second_pivot / df_first_pivot
-    st.write (df_difference_as_ratio.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 1, None)).set_precision(2))
+    st.write (df_difference_as_ratio.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"lineair", 1, None)))#.set_precision(2))
     show_heatmap (df_difference_as_ratio,"lineair", 1,None)
     #st.write (df_difference_as_ratio)
 

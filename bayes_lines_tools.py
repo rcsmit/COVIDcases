@@ -94,4 +94,5 @@ def main():
     st.write("Source python script: https://github.com/rcsmit/COVIDcases/blob/main/bayes_lines_tools.py")
     st.write("Reaction on this paper: https://www.pepijnvanerp.nl/2021/01/bayes-lines-tool-flawed/") 
 
-main()
+if __name__ == "__main__":
+    main()
