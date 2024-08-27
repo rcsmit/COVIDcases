@@ -11,7 +11,6 @@ import datetime as dt
 from datetime import datetime, timedelta
 
 from streamlit.errors import NoSessionContext
-
 import json
 import plotly.express as px
 import plotly.graph_objects as go

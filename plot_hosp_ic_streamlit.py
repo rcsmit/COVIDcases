@@ -21,9 +21,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 import streamlit as st
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 #from streamlit import caching
 
 def save_df(df, name):
@@ -111,112 +111,112 @@ def make_age_graph(df, d, columns_original, legendanames, titel):
     if d is None:
         st.warning("Choose ages to show")
         st.stop()
-    with _lock:
-        color_list = [    "#3e5c76",  # blue 6,
-                        "#ff6666",  # reddish 0
-                        "#ac80a0",  # purple 1
-                        "#3fa34d",  # green 2
-                        "#EAD94C",  # yellow 3
-                        "#EFA00B",  # orange 4
-                        "#7b2d26",  # red 5
-                        "#e49273" , # dark salmon 7
-                        "#1D2D44",  # 8
-                        "#02A6A8",
-                        "#4E9148",
-                        "#F05225",
-                        "#024754",
-                        "#FBAA27",
-                        "#302823",
-                        "#F07826",
-                        ]
+    # with _lock:
+    color_list = [    "#3e5c76",  # blue 6,
+                    "#ff6666",  # reddish 0
+                    "#ac80a0",  # purple 1
+                    "#3fa34d",  # green 2
+                    "#EAD94C",  # yellow 3
+                    "#EFA00B",  # orange 4
+                    "#7b2d26",  # red 5
+                    "#e49273" , # dark salmon 7
+                    "#1D2D44",  # 8
+                    "#02A6A8",
+                    "#4E9148",
+                    "#F05225",
+                    "#024754",
+                    "#FBAA27",
+                    "#302823",
+                    "#F07826",
+                    ]
 
 
-        # df = agg_ages(df)
-        fig1y, ax = plt.subplots()
-        for i, d_ in enumerate(d):
+    # df = agg_ages(df)
+    fig1y, ax = plt.subplots()
+    for i, d_ in enumerate(d):
 
-            #if d_ == "TOTAAL_index":
-            if d_[:6] == "TOTAAL":
-                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[0], label = columns_original[i], linestyle="--", linewidth=2)
-                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[0], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
-            else:
-                ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i+1], label = columns_original[i])
-                ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i+1], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
-        plt.legend()
-        if y_zero == True:
-            ax.set_ylim(bottom = 0)
-        titel_ = titel + " (weekcijfers)"
-        plt.title(titel_)
-        plt.xticks(rotation=270)
+        #if d_ == "TOTAAL_index":
+        if d_[:6] == "TOTAAL":
+            ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[0], label = columns_original[i], linestyle="--", linewidth=2)
+            ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[0], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
+        else:
+            ax.plot(df["Date_of_statistics_week_start"], df[d_], color = color_list[i+1], label = columns_original[i])
+            ax.plot(df["Date_of_statistics_week_start"], df[columns_original[i]], color = color_list[i+1], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
+    plt.legend()
+    if y_zero == True:
+        ax.set_ylim(bottom = 0)
+    titel_ = titel + " (weekcijfers)"
+    plt.title(titel_)
+    plt.xticks(rotation=270)
 
-        ax.text(
-        1,
-        1.1,
-        "Created by Rene Smit — @rcsmit",
-        transform=ax.transAxes,
-        fontsize="xx-small",
-        va="top",
-        ha="right",
-    )
-        # plt.tight_layout()
-        # plt.show()
-        st.pyplot(fig1y)
+    ax.text(
+    1,
+    1.1,
+    "Created by Rene Smit — @rcsmit",
+    transform=ax.transAxes,
+    fontsize="xx-small",
+    va="top",
+    ha="right",
+)
+    # plt.tight_layout()
+    # plt.show()
+    st.pyplot(fig1y)
 
 
 def make_age_graph_per_total_reported(df,  d, titel):
     if d is None:
         st.warning("Choose ages to show")
         st.stop()
-    with _lock:
-        color_list = [    "#3e5c76",  # blue 6,
-                        "#ff6666",  # reddish 0
-                        "#ac80a0",  # purple 1
-                        "#3fa34d",  # green 2
-                        "#EAD94C",  # yellow 3
-                        "#EFA00B",  # orange 4
-                        "#7b2d26",  # red 5
-                        "#e49273" , # dark salmon 7
-                        "#1D2D44",  # 8
-                        "#02A6A8",
-                        "#4E9148",
-                        "#F05225",
-                        "#024754",
-                        "#FBAA27",
-                        "#302823",
-                        "#F07826",
-                        ]
+    # with _lock:
+    color_list = [    "#3e5c76",  # blue 6,
+                    "#ff6666",  # reddish 0
+                    "#ac80a0",  # purple 1
+                    "#3fa34d",  # green 2
+                    "#EAD94C",  # yellow 3
+                    "#EFA00B",  # orange 4
+                    "#7b2d26",  # red 5
+                    "#e49273" , # dark salmon 7
+                    "#1D2D44",  # 8
+                    "#02A6A8",
+                    "#4E9148",
+                    "#F05225",
+                    "#024754",
+                    "#FBAA27",
+                    "#302823",
+                    "#F07826",
+                    ]
 
 
-        # df = agg_ages(df)
-        fig1y, ax = plt.subplots()
-        for i, d_ in enumerate(d):
+    # df = agg_ages(df)
+    fig1y, ax = plt.subplots()
+    for i, d_ in enumerate(d):
 
-            #if d_ == "TOTAAL_index":
-            if d_[:6] == "TOTAAL":
-                ax.plot(df["weekstart"], df[d_], color = color_list[0], label = d[i], linestyle="--", linewidth=2)
-                ax.plot(df["weekstart"], df[d[i]], color = color_list[0], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
-            else:
-                ax.plot(df["weekstart"], df[d_], color = color_list[i+1], label = d[i])
-                ax.plot(df["weekstart"], df[d[i]], color = color_list[i+1], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
-        plt.legend()
-        if y_zero == True:
-            ax.set_ylim(bottom = 0)
-        titel_ = titel + " (weekcijfers)"
-        plt.title(titel_)
-        plt.xticks(rotation=270)
+        #if d_ == "TOTAAL_index":
+        if d_[:6] == "TOTAAL":
+            ax.plot(df["weekstart"], df[d_], color = color_list[0], label = d[i], linestyle="--", linewidth=2)
+            ax.plot(df["weekstart"], df[d[i]], color = color_list[0], alpha =0.5, linestyle="dotted", label = '_nolegend_',  linewidth=2)
+        else:
+            ax.plot(df["weekstart"], df[d_], color = color_list[i+1], label = d[i])
+            ax.plot(df["weekstart"], df[d[i]], color = color_list[i+1], alpha =0.5, linestyle="dotted", label = '_nolegend_' )
+    plt.legend()
+    if y_zero == True:
+        ax.set_ylim(bottom = 0)
+    titel_ = titel + " (weekcijfers)"
+    plt.title(titel_)
+    plt.xticks(rotation=270)
 
-        ax.text(
-        1,
-        1.1,
-        "Created by Rene Smit — @rcsmit",
-        transform=ax.transAxes,
-        fontsize="xx-small",
-        va="top",
-        ha="right",
-    )
-        # plt.tight_layout()
-        # plt.show()
-        st.pyplot(fig1y)
+    ax.text(
+    1,
+    1.1,
+    "Created by Rene Smit — @rcsmit",
+    transform=ax.transAxes,
+    fontsize="xx-small",
+    va="top",
+    ha="right",
+)
+    # plt.tight_layout()
+    # plt.show()
+    st.pyplot(fig1y)
 
 
 def show_age_graph (df,d, titel):
@@ -227,53 +227,53 @@ def make_stack_graph(df, columns_df,columnlist_names, columnlist_ages, datumveld
     if columnlist_ages is None:
         st.warning("Choose ages to show")
         st.stop()
-    with _lock:
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
+    # with _lock:
+    fig1x = plt.figure()
+    ax = fig1x.add_subplot(111)
 
-        #datumlijst = df[datumveld].tolist()
-        #df = df[:-1] # drop last row since this one is incomplete
+    #datumlijst = df[datumveld].tolist()
+    #df = df[:-1] # drop last row since this one is incomplete
 
-        datumlijst = df[datumveld].tolist()
-        color_list = [  "#ff6666",  # reddish 0
-                        "#ac80a0",  # purple 1
-                        "#3fa34d",  # green 2
-                        "#EAD94C",  # yellow 3
-                        "#EFA00B",  # orange 4
-                        "#7b2d26",  # red 5
-                        "#3e5c76",  # blue 6
-                        "#e49273" , # dark salmon 7
-                        "#1D2D44",  # 8
-                        "#02A6A8",
-                        "#4E9148",
-                        "#F05225",
-                        "#024754",
-                        "#FBAA27",
-                        "#302823",
-                        "#F07826",
-                        ]
+    datumlijst = df[datumveld].tolist()
+    color_list = [  "#ff6666",  # reddish 0
+                    "#ac80a0",  # purple 1
+                    "#3fa34d",  # green 2
+                    "#EAD94C",  # yellow 3
+                    "#EFA00B",  # orange 4
+                    "#7b2d26",  # red 5
+                    "#3e5c76",  # blue 6
+                    "#e49273" , # dark salmon 7
+                    "#1D2D44",  # 8
+                    "#02A6A8",
+                    "#4E9148",
+                    "#F05225",
+                    "#024754",
+                    "#FBAA27",
+                    "#302823",
+                    "#F07826",
+                    ]
 
 
 
-        sp = ax.stackplot(datumlijst, columns_df, colors=color_list)
-        #ax.legend(loc="upper left")
-        plt.title(titel)
+    sp = ax.stackplot(datumlijst, columns_df, colors=color_list)
+    #ax.legend(loc="upper left")
+    plt.title(titel)
 
-        proxy = [mpl.patches.Rectangle((0,0), 0,0, facecolor=pol.get_facecolor()[0]) for pol in sp]
-        ax.legend(proxy, tuple (columnlist_ages),  bbox_to_anchor=(1.3, 1),loc="best")
-        plt.xticks(rotation=270)
-        #plt.tight_layout()
-        #plt.show()
-        ax.text(
-        1,
-        1.1,
-        "Created by Rene Smit — @rcsmit",
-        transform=ax.transAxes,
-        fontsize="xx-small",
-        va="top",
-        ha="right",
-    )
-        st.pyplot(fig1x)
+    proxy = [mpl.patches.Rectangle((0,0), 0,0, facecolor=pol.get_facecolor()[0]) for pol in sp]
+    ax.legend(proxy, tuple (columnlist_ages),  bbox_to_anchor=(1.3, 1),loc="best")
+    plt.xticks(rotation=270)
+    #plt.tight_layout()
+    #plt.show()
+    ax.text(
+    1,
+    1.1,
+    "Created by Rene Smit — @rcsmit",
+    transform=ax.transAxes,
+    fontsize="xx-small",
+    va="top",
+    ha="right",
+)
+    st.pyplot(fig1x)
 
 def show_stack(df, c1,titel,absolute_or_relative):
 
