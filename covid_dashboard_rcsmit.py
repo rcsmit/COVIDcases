@@ -21,8 +21,8 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
 import streamlit as st
@@ -935,331 +935,195 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
     title_plotly = title
 
 
-    with _lock:
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
-        # Some nice colors chosen with coolors.com
+    # with _lock:
+    fig1x = plt.figure()
+    ax = fig1x.add_subplot(111)
+    # Some nice colors chosen with coolors.com
 
-        # #CONFIG
+    # #CONFIG
 
-        operamauve = "#ac80a0"  # purple 1
-        green_pigment = "#3fa34d"  # green 2
-        minion_yellow = "#EAD94C"  # yellow 3
-        mariagold = "#EFA00B"  # orange 4
-        falu_red = "#7b2d26"  # red 5
+    operamauve = "#ac80a0"  # purple 1
+    green_pigment = "#3fa34d"  # green 2
+    minion_yellow = "#EAD94C"  # yellow 3
+    mariagold = "#EFA00B"  # orange 4
+    falu_red = "#7b2d26"  # red 5
 
-        prusian_blue = "#1D2D44"  # 8
+    prusian_blue = "#1D2D44"  # 8
 
-        color_list = [
-            "#02A6A8",
-            "#4E9148",
-            "#F05225",
-            "#024754",
-            "#FBAA27",
-            "#302823",
-            "#F07826",
-             "#ff6666",  # reddish 0
-         "#ac80a0",  # purple 1
-         "#3fa34d",  # green 2
-         "#EAD94C",  # yellow 3
-         "#EFA00B",  # orange 4
-         "#7b2d26",  # red 5
-         "#3e5c76",  # blue 6
-         "#e49273",  # dark salmon 7
-         "#1D2D44",  # 8
+    color_list = [
+        "#02A6A8",
+        "#4E9148",
+        "#F05225",
+        "#024754",
+        "#FBAA27",
+        "#302823",
+        "#F07826",
+            "#ff6666",  # reddish 0
+        "#ac80a0",  # purple 1
+        "#3fa34d",  # green 2
+        "#EAD94C",  # yellow 3
+        "#EFA00B",  # orange 4
+        "#7b2d26",  # red 5
+        "#3e5c76",  # blue 6
+        "#e49273",  # dark salmon 7
+        "#1D2D44",  # 8
 
-        ]
+    ]
 
-        n = 0  # counter to walk through the colors-list
+    n = 0  # counter to walk through the colors-list
 
-        df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
+    df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
 
-        # CODE TO MAKE STACKED BARS - DOESNT WORK
-        # stackon=""
-        # if len(what_to_show_l_)>1:
-        #     w = ["Datum"]
-        #     for s in what_to_show_l_:
-        #         w.append(s)
-        #     #st.write(w)
-        #     df_stacked = df[w].copy()
-        #     #print (df_stacked.dtypes)
-        #     #df_stacked.set_index('Datum')
+    # CODE TO MAKE STACKED BARS - DOESNT WORK
+    # stackon=""
+    # if len(what_to_show_l_)>1:
+    #     w = ["Datum"]
+    #     for s in what_to_show_l_:
+    #         w.append(s)
+    #     #st.write(w)
+    #     df_stacked = df[w].copy()
+    #     #print (df_stacked.dtypes)
+    #     #df_stacked.set_index('Datum')
 
-        # st.write(df_stacked)
-        # if t == "bar":
-        # ax = df_stacked.plot.bar(stacked=True)
-        # ax = df_stacked.plot(rot=0)
-        # st.bar_chart(df_stacked)
-        # ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
+    # st.write(df_stacked)
+    # if t == "bar":
+    # ax = df_stacked.plot.bar(stacked=True)
+    # ax = df_stacked.plot(rot=0)
+    # st.bar_chart(df_stacked)
+    # ax = df[c_smooth].plot(label=c_smooth, color = color_list[2],linewidth=1.5)         # SMA
 
-        for b in what_to_show_l_:
-            # if type(a) == list:
-            #     a_=a
-            # else:
-            #     a_=[a]
+    for b in what_to_show_l_:
+        # if type(a) == list:
+        #     a_=a
+        # else:
+        #     a_=[a]
 
-            # PROBEERSEL OM WEEK GEMIDDELDES MEE TE KUNNEN PLOTTEN IN DE DAGELIJKSE GRAFIEK
+        # PROBEERSEL OM WEEK GEMIDDELDES MEE TE KUNNEN PLOTTEN IN DE DAGELIJKSE GRAFIEK
 
-            # dfweek_ = df.groupby('weekalt', sort=False).mean().reset_index()
-            # save_df(dfweek_,"whatisdftemp1")
-            # w = b + "_week"
-            # print ("============="+ w)
-            # df_temp = dfweek_[["weekalt",b ]]
-            # df_temp = df_temp(columns={b: w})
+        # dfweek_ = df.groupby('weekalt', sort=False).mean().reset_index()
+        # save_df(dfweek_,"whatisdftemp1")
+        # w = b + "_week"
+        # print ("============="+ w)
+        # df_temp = dfweek_[["weekalt",b ]]
+        # df_temp = df_temp(columns={b: w})
 
-            # print (df_temp.dtypes)
-            # #df_temp is suddenly a table with all the rows
-            # print (df_temp)
-            # save_df(df_temp,"whatisdftemp2")
+        # print (df_temp.dtypes)
+        # #df_temp is suddenly a table with all the rows
+        # print (df_temp)
+        # save_df(df_temp,"whatisdftemp2")
 
-            if t == "bar":
-                # weekends have a different color
-                firstday = df.iloc[0]["WEEKDAY"]  # monday = 0
-                color_x = find_color_x(firstday, showoneday, showday)
-                # MAYBE WE CAN LEAVE THIS OUT HERE
-                df, columnlist = smooth_columnlist(df, [b], how_to_smooth, WDW2, centersmooth)
+        if t == "bar":
+            # weekends have a different color
+            firstday = df.iloc[0]["WEEKDAY"]  # monday = 0
+            color_x = find_color_x(firstday, showoneday, showday)
+            # MAYBE WE CAN LEAVE THIS OUT HERE
+            df, columnlist = smooth_columnlist(df, [b], how_to_smooth, WDW2, centersmooth)
 
-                df.set_index("date")
+            df.set_index("date")
 
-                df_temp = df
-                if len(what_to_show_l_) == 1:
-                    ax = df_temp[b].plot.bar(
-                        label=b, color=color_x, alpha=0.6
-                    )  # number of cases
+            df_temp = df
+            if len(what_to_show_l_) == 1:
+                ax = df_temp[b].plot.bar(
+                    label=b, color=color_x, alpha=0.6
+                )  # number of cases
 
-                    for c_smooth in columnlist:
-                        ax = df[c_smooth].plot(
-                            label=c_smooth, color=color_list[2], linewidth=1.5
-                        )  # SMA
+                for c_smooth in columnlist:
+                    ax = df[c_smooth].plot(
+                        label=c_smooth, color=color_list[2], linewidth=1.5
+                    )  # SMA
 
-                    if showR:
-                        if show_R_value_RIVM:
-                            ax3 = df["Rt_avg"].plot(
-                                secondary_y=True,
-                                linestyle="--",
-                                label="Rt RIVM",
-                                color=green_pigment,
-                                alpha=0.8,
-                                linewidth=1,
-                            )
-                            ax3.fill_between(
-                                df["date"].index,
-                                df["Rt_low"],
-                                df["Rt_up"],
-                                color=green_pigment,
-                                alpha=0.2,
-                                label="_nolegend_",
-                            )
-                        tgs = [3.5, 4, 5]
+                if showR:
+                    if show_R_value_RIVM:
+                        ax3 = df["Rt_avg"].plot(
+                            secondary_y=True,
+                            linestyle="--",
+                            label="Rt RIVM",
+                            color=green_pigment,
+                            alpha=0.8,
+                            linewidth=1,
+                        )
+                        ax3.fill_between(
+                            df["date"].index,
+                            df["Rt_low"],
+                            df["Rt_up"],
+                            color=green_pigment,
+                            alpha=0.2,
+                            label="_nolegend_",
+                        )
+                    tgs = [3.5, 4, 5]
 
-                        teller = 0
-                        dfmin = ""
-                        dfmax = ""
-                        for TG in tgs:
-                            df, R_smooth, R_smooth_sec = add_walking_r(
-                                df, columnlist, how_to_smooth, TG
-                            )
+                    teller = 0
+                    dfmin = ""
+                    dfmax = ""
+                    for TG in tgs:
+                        df, R_smooth, R_smooth_sec = add_walking_r(
+                            df, columnlist, how_to_smooth, TG
+                        )
 
-                            for R in R_smooth:
-                                # correctie R waarde, moet naar links ivm 2x smoothen
-                                df, Rn = move_column(df, R, MOVE_WR)
+                        for R in R_smooth:
+                            # correctie R waarde, moet naar links ivm 2x smoothen
+                            df, Rn = move_column(df, R, MOVE_WR)
 
-                                if teller == 0:
-                                    dfmin = Rn
-                                elif teller == 1:
-                                    if show_R_value_graph:
-                                        ax3 = df[Rn].plot(
-                                            secondary_y=True,
-                                            label=Rn,
-                                            linestyle="--",
-                                            color=falu_red,
-                                            linewidth=1.2,
-                                        )
-                                elif teller == 2:
-                                    dfmax = Rn
-                                teller += 1
-                            for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
-                                # correctie R waarde, moet naar links ivm 2x smoothen
-                                df, Rn = move_column(df, R, MOVE_WR)
-                                # ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
-                        if show_R_value_graph:
-                            ax3.fill_between(
-                                df["date"].index,
-                                df[dfmin],
-                                df[dfmax],
-                                color=falu_red,
-                                alpha=0.3,
-                                label="_nolegend_",
-                            )
+                            if teller == 0:
+                                dfmin = Rn
+                            elif teller == 1:
+                                if show_R_value_graph:
+                                    ax3 = df[Rn].plot(
+                                        secondary_y=True,
+                                        label=Rn,
+                                        linestyle="--",
+                                        color=falu_red,
+                                        linewidth=1.2,
+                                    )
+                            elif teller == 2:
+                                dfmax = Rn
+                            teller += 1
+                        for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
+                            # correctie R waarde, moet naar links ivm 2x smoothen
+                            df, Rn = move_column(df, R, MOVE_WR)
+                            # ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
+                    if show_R_value_graph:
+                        ax3.fill_between(
+                            df["date"].index,
+                            df[dfmin],
+                            df[dfmax],
+                            color=falu_red,
+                            alpha=0.3,
+                            label="_nolegend_",
+                        )
 
-            else:  # t = line
-                df_temp = df
+        else:  # t = line
+            df_temp = df
 
 
-                b_ = str(b) + "_" + how_to_smooth_
-                df_temp[b_].plot(
-                    label=b, color=color_list[n], linewidth=1.1
-                )  # label = b_ for uitgebreid label
-                df_temp[b].plot(
-                    label="_nolegend_",
-                    color=color_list[n],
-                    linestyle="dotted",
-                    alpha=0.9,
-                    linewidth=0.8,
-                )
-            n += 1
-        if show_scenario == True:
-            df = calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days)
-            # print (df.dtypes)
-            l1 = f"R = {ry1}"
-            l2 = f"R = {ry2}"
-            ax = df["variant_1"].plot(
-                label=l1, color=color_list[4], linestyle="dotted", linewidth=1, alpha=1
+            b_ = str(b) + "_" + how_to_smooth_
+            df_temp[b_].plot(
+                label=b, color=color_list[n], linewidth=1.1
+            )  # label = b_ for uitgebreid label
+            df_temp[b].plot(
+                label="_nolegend_",
+                color=color_list[n],
+                linestyle="dotted",
+                alpha=0.9,
+                linewidth=0.8,
             )
-            ax = df["variant_2"].plot(
-                label=l2, color=color_list[5], linestyle="dotted", linewidth=1, alpha=1
-            )
-            ax = df["variant_12"].plot(
-                label="TOTAL", color=color_list[6], linestyle="--", linewidth=1, alpha=1
-            )
-
-        if what_to_show_r != None:
-            if type(what_to_show_r) == list:
-                what_to_show_r = what_to_show_r
-            else:
-                what_to_show_r = [what_to_show_r]
-
-            n = len(color_list)
-            x = n
-            for a in what_to_show_r:
-                x -= 1
-                lbl = a + " (right ax)"
-                df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
-                for c_ in columnlist:
-                    # smoothed
-                    lbl2 = a + " (right ax)"
-                    ax3 = df_temp[c_].plot(
-                        secondary_y=True,
-                        label=lbl2,
-                        color=color_list[x],
-                        linestyle="--",
-                        linewidth=1.1,
-                    )  # abel = lbl2 voor uitgebreid label
-                ax3 = df_temp[a].plot(
-                    secondary_y=True,
-                    linestyle="dotted",
-                    color=color_list[x],
-                    linewidth=1,
-                    alpha=0.9,
-                    label="_nolegend_",
-                )
-                ax3.set_ylabel("_")
-
-            if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
-                correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
-                correlation_sm = find_correlation_pair(df, b_, c_)
-                title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
-                title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
-                title_plotly = f"{title}<br>Correlation = {correlation}<br>Correlation smoothed = {correlation_sm}"
-
-
-            if len(what_to_show_r) == 1:
-                mean = df[what_to_show_r].mean()
-                std =df[what_to_show_r].std()
-                # print (f"mean {mean}")
-                # print (f"st {std}")
-                low = mean -2*std
-                up = mean +2*std
-                #ax3.set_ylim = (-100, 100)
-        plt.title(title, fontsize=10)
-
-        a__ = (max(df_temp["date"].tolist())).date() - (
-            min(df_temp["date"].tolist())
-        ).date()
-        freq = int(a__.days / 10)
-        ax.xaxis.set_major_locator(MultipleLocator(freq))
-        if what_to_show_l == ["reported_div_tested"]:
-            ax.set_ylim(0,0.3)
-        ax.set_xticks(df_temp["date"].index)
-        ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
-        xticks = ax.xaxis.get_major_ticks()
-        if groupby_timeperiod == "none":
-            for i, tick in enumerate(xticks):
-                if i % 10 != 0:
-                    tick.label1.set_visible(False)
-        plt.xticks()
-
-        # layout of the x-axis
-        ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
-        ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
-        if showlogyaxis == "10":
-            ax.semilogy()
-        if showlogyaxis == "2":
-            ax.semilogy(2)
-        if showlogyaxis == "logit":
-            ax.set_yscale("logit")
-
-        left, right = ax.get_xlim()
-        ax.set_xlim(left, right)
-        fontP = FontProperties()
-        fontP.set_size("xx-small")
-
-        plt.xlabel("date")
-        # everything in legend
-        # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
-        handles, labels = [], []
-        for ax in fig1x.axes:
-            for h, l in zip(*ax.get_legend_handles_labels()):
-                handles.append(h)
-                labels.append(l)
-        # rotateegend(handles,labels)
-        # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
-        plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=1)
-        ax.text(1,1.1,"Created by Rene Smit — @rcsmit",transform=ax.transAxes,
-            fontsize="xx-small",va="top",ha="right",)
-        if show_R_value_graph or show_R_value_RIVM:
-            plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
-        if groupby_timeperiod == "none":
-            add_restrictions(df, ax)
-
-        plt.axhline(y=horiz_line, color="black", alpha=0.6, linestyle="--")
-        if t == "line":
-            set_xmargin(ax, left=-0.04, right=-0.04)
-        st.pyplot(fig1x)
-
-        fig = go.Figure()
-        # TOFIX
-        fig.add_trace(go.Scatter(x=df_temp["date"], y= df_temp[b], mode='lines', name=b, line=dict(
-            color='LightSkyBlue')))
-        fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[b], mode='markers', name = b, showlegend=False,marker=dict(
-            color='LightSkyBlue',
-            size=2)))
-
-        fig.update_layout(
-
-            yaxis=dict(
-                title=b,
-                titlefont=dict(
-                    color="#1f77b4"
-                ),
-                tickfont=dict(
-                    color="#1f77b4"
-                )
-            ),
-            title=dict(
-                    text=title_plotly,
-                    x=0.5,
-                    y=0.95,
-                    font=dict(
-                        family="Arial",
-                        size=14,
-                        color='#000000'
-                    )
-                ),
-
-
+        n += 1
+    if show_scenario == True:
+        df = calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days)
+        # print (df.dtypes)
+        l1 = f"R = {ry1}"
+        l2 = f"R = {ry2}"
+        ax = df["variant_1"].plot(
+            label=l1, color=color_list[4], linestyle="dotted", linewidth=1, alpha=1
+        )
+        ax = df["variant_2"].plot(
+            label=l2, color=color_list[5], linestyle="dotted", linewidth=1, alpha=1
+        )
+        ax = df["variant_12"].plot(
+            label="TOTAL", color=color_list[6], linestyle="--", linewidth=1, alpha=1
         )
 
+    if what_to_show_r != None:
         if type(what_to_show_r) == list:
             what_to_show_r = what_to_show_r
         else:
@@ -1267,43 +1131,179 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
 
         n = len(color_list)
         x = n
-
         for a in what_to_show_r:
-            if a != None:
-                x -= 1
-                lbl = a + " (right ax)"
-                df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
-                for c_ in columnlist:
-                    # smoothed
-                    lbl2 = a + " (right ax)"
-                    fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[c_],  name=a, mode='lines',   line=dict(color='red'),yaxis="y2"))
+            x -= 1
+            lbl = a + " (right ax)"
+            df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
+            for c_ in columnlist:
+                # smoothed
+                lbl2 = a + " (right ax)"
+                ax3 = df_temp[c_].plot(
+                    secondary_y=True,
+                    label=lbl2,
+                    color=color_list[x],
+                    linestyle="--",
+                    linewidth=1.1,
+                )  # abel = lbl2 voor uitgebreid label
+            ax3 = df_temp[a].plot(
+                secondary_y=True,
+                linestyle="dotted",
+                color=color_list[x],
+                linewidth=1,
+                alpha=0.9,
+                label="_nolegend_",
+            )
+            ax3.set_ylabel("_")
 
-                fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[a], mode='markers', name = a, showlegend=False,   yaxis="y2", marker=dict(
-                color='red',
-                size=2)))
-                fig.update_layout(
-                    yaxis2=dict(
-                        title=a,
-                        titlefont=dict(
-                            color="red"
-                        ),
-                        tickfont=dict(
-                            color="red"
-                        ),
+        if len(what_to_show_l) == 1 and len(what_to_show_r) == 1:  # add correlation
+            correlation = find_correlation_pair(df, what_to_show_l, what_to_show_r)
+            correlation_sm = find_correlation_pair(df, b_, c_)
+            title_scatter =  f"{title}({str(FROM)} - {str(UNTIL)})\nCorrelation = {correlation}"
+            title = f"{title} \nCorrelation = {correlation}\nCorrelation smoothed = {correlation_sm}"
+            title_plotly = f"{title}<br>Correlation = {correlation}<br>Correlation smoothed = {correlation_sm}"
 
-                        overlaying="y",
-                        side="right",
-                        position=1.0
-                    )
 
+        if len(what_to_show_r) == 1:
+            mean = df[what_to_show_r].mean()
+            std =df[what_to_show_r].std()
+            # print (f"mean {mean}")
+            # print (f"st {std}")
+            low = mean -2*std
+            up = mean +2*std
+            #ax3.set_ylim = (-100, 100)
+    plt.title(title, fontsize=10)
+
+    a__ = (max(df_temp["date"].tolist())).date() - (
+        min(df_temp["date"].tolist())
+    ).date()
+    freq = int(a__.days / 10)
+    ax.xaxis.set_major_locator(MultipleLocator(freq))
+    if what_to_show_l == ["reported_div_tested"]:
+        ax.set_ylim(0,0.3)
+    ax.set_xticks(df_temp["date"].index)
+    ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
+    xticks = ax.xaxis.get_major_ticks()
+    if groupby_timeperiod == "none":
+        for i, tick in enumerate(xticks):
+            if i % 10 != 0:
+                tick.label1.set_visible(False)
+    plt.xticks()
+
+    # layout of the x-axis
+    ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
+    ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
+    if showlogyaxis == "10":
+        ax.semilogy()
+    if showlogyaxis == "2":
+        ax.semilogy(2)
+    if showlogyaxis == "logit":
+        ax.set_yscale("logit")
+
+    left, right = ax.get_xlim()
+    ax.set_xlim(left, right)
+    fontP = FontProperties()
+    fontP.set_size("xx-small")
+
+    plt.xlabel("date")
+    # everything in legend
+    # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
+    handles, labels = [], []
+    for ax in fig1x.axes:
+        for h, l in zip(*ax.get_legend_handles_labels()):
+            handles.append(h)
+            labels.append(l)
+    # rotateegend(handles,labels)
+    # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
+    plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=1)
+    ax.text(1,1.1,"Created by Rene Smit — @rcsmit",transform=ax.transAxes,
+        fontsize="xx-small",va="top",ha="right",)
+    if show_R_value_graph or show_R_value_RIVM:
+        plt.axhline(y=1, color="yellow", alpha=0.6, linestyle="--")
+    if groupby_timeperiod == "none":
+        add_restrictions(df, ax)
+
+    plt.axhline(y=horiz_line, color="black", alpha=0.6, linestyle="--")
+    if t == "line":
+        set_xmargin(ax, left=-0.04, right=-0.04)
+    st.pyplot(fig1x)
+
+    fig = go.Figure()
+    # TOFIX
+    fig.add_trace(go.Scatter(x=df_temp["date"], y= df_temp[b], mode='lines', name=b, line=dict(
+        color='LightSkyBlue')))
+    fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[b], mode='markers', name = b, showlegend=False,marker=dict(
+        color='LightSkyBlue',
+        size=2)))
+
+    fig.update_layout(
+
+        yaxis=dict(
+            title=b,
+            titlefont=dict(
+                color="#1f77b4"
+            ),
+            tickfont=dict(
+                color="#1f77b4"
+            )
+        ),
+        title=dict(
+                text=title_plotly,
+                x=0.5,
+                y=0.95,
+                font=dict(
+                    family="Arial",
+                    size=14,
+                    color='#000000'
+                )
+            ),
+
+
+    )
+
+    if type(what_to_show_r) == list:
+        what_to_show_r = what_to_show_r
+    else:
+        what_to_show_r = [what_to_show_r]
+
+    n = len(color_list)
+    x = n
+
+    for a in what_to_show_r:
+        if a != None:
+            x -= 1
+            lbl = a + " (right ax)"
+            df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
+            for c_ in columnlist:
+                # smoothed
+                lbl2 = a + " (right ax)"
+                fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[c_],  name=a, mode='lines',   line=dict(color='red'),yaxis="y2"))
+
+            fig.add_trace(go.Scatter(x=df_temp["date"], y=df_temp[a], mode='markers', name = a, showlegend=False,   yaxis="y2", marker=dict(
+            color='red',
+            size=2)))
+            fig.update_layout(
+                yaxis2=dict(
+                    title=a,
+                    titlefont=dict(
+                        color="red"
+                    ),
+                    tickfont=dict(
+                        color="red"
+                    ),
+
+                    overlaying="y",
+                    side="right",
+                    position=1.0
                 )
 
-        # Create axis objects
+            )
+
+    # Create axis objects
 
 
 
 
-        st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 
@@ -1686,18 +1686,18 @@ def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
 
     title = f"Correlation between : {a} - {b} with moved days\n({FROM} - {UNTIL})"
 
-    with _lock:
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
-        plt.xlabel("shift in days")
-        plt.plot(x, y, label = "Values")
-        plt.plot(x, y_sma, label = "Smoothed")
-        #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
-        # Add a grid
-        plt.legend()
-        plt.grid(alpha=0.2, linestyle="--")
-        plt.title(title, fontsize=10)
-        st.pyplot(fig1x)
+    # with _lock:
+    fig1x = plt.figure()
+    ax = fig1x.add_subplot(111)
+    plt.xlabel("shift in days")
+    plt.plot(x, y, label = "Values")
+    plt.plot(x, y_sma, label = "Smoothed")
+    #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
+    # Add a grid
+    plt.legend()
+    plt.grid(alpha=0.2, linestyle="--")
+    plt.title(title, fontsize=10)
+    st.pyplot(fig1x)
     # plt.show()
     st.write (f"Values: heightest correlateion at  {n_max} days - correlation = {max}")
     st.write (f"Smoothed: heightest correlateion at {n_max_sma} days - correlation = {max_sma}")

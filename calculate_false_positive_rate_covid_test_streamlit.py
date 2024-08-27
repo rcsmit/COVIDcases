@@ -5,8 +5,8 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 import streamlit as st
 
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 
 
 
@@ -226,43 +226,43 @@ def main():
             chance_to_be_tested_positive.append(pos)
 
 
-        with _lock:
-            fig1y = plt.figure()
-            ax = fig1y.add_subplot(111)
+        # with _lock:
+        fig1y = plt.figure()
+        ax = fig1y.add_subplot(111)
 
 
-            ax3 = ax.twinx()
-            plt.title(titel)
+        ax3 = ax.twinx()
+        plt.title(titel)
 
-            ax.set_xlabel(f'prevalentie testpopulation(%)')
-            if "false_discovery_rate" in what_to_show_l:
-                # print (prev)
-                # print (false_discovery_rate)
-                # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
-                ax.plot(prev,false_discovery_rate,  'blue')
-                ax.set_ylabel('blue: false discovery rate (%)')
-            if "chance_to_be_tested_positive" in what_to_show_l:
-            # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
-                ax.plot(prev,chance_to_be_tested_positive,'g',  )
+        ax.set_xlabel(f'prevalentie testpopulation(%)')
+        if "false_discovery_rate" in what_to_show_l:
+            # print (prev)
+            # print (false_discovery_rate)
+            # (un)comment next lines (not) to   SHOW FALSE POS AND FALSE NEG RATE
+            ax.plot(prev,false_discovery_rate,  'blue')
+            ax.set_ylabel('blue: false discovery rate (%)')
+        if "chance_to_be_tested_positive" in what_to_show_l:
+        # (un)comment next lines (not) to  SHOW CHANCE TO BE TESTED POSITIVE and FALSE POS RATE
+            ax.plot(prev,chance_to_be_tested_positive,'g',  )
 
-                ax.set_ylabel('green: chance to be tested positive (%)')
-            if "false_omission_rate" in what_to_show_r:
+            ax.set_ylabel('green: chance to be tested positive (%)')
+        if "false_omission_rate" in what_to_show_r:
 
-                ax3.plot(prev,false_negative_rate,'purple' )
-                ax3.set_ylabel('purple: False omission rate (%)')
-            if "false_positive_rate" in what_to_show_r:
+            ax3.plot(prev,false_negative_rate,'purple' )
+            ax3.set_ylabel('purple: False omission rate (%)')
+        if "false_positive_rate" in what_to_show_r:
 
-                ax3.plot(prev,false_positive_rate,'g',  )
-                ax3.set_ylabel('green: False positive rate (%)')
+            ax3.plot(prev,false_positive_rate,'g',  )
+            ax3.set_ylabel('green: False positive rate (%)')
 
 
 
-            if "false_discovery_rate" in what_to_show_r:
-                ax3.plot(prev,false_discovery_rate,  'r',)
-                ax3.set_ylabel('red: false discovery rate (%)')
+        if "false_discovery_rate" in what_to_show_r:
+            ax3.plot(prev,false_discovery_rate,  'r',)
+            ax3.set_ylabel('red: false discovery rate (%)')
 
-            # plt.show()
-            st.pyplot(fig1y)
+        # plt.show()
+        st.pyplot(fig1y)
 
 
         # with _lock:

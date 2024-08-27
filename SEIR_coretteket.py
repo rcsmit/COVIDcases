@@ -16,8 +16,8 @@ import matplotlib.dates as mdates
 import datetime as dt
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import RendererAgg
-from matplotlib.font_manager import FontProperties
-_lock = RendererAgg.lock
+# from matplotlib.font_manager import FontProperties
+# _lock = RendererAgg.lock
 from scipy.integrate import odeint
 
 
@@ -85,7 +85,7 @@ def main():
 
     st.markdown("<hr>", unsafe_allow_html=True)
     startdate = st.sidebar.text_input('startdate (mm/dd/yyyy)',"03/01/2021")
-numb
+
     try:
         startx = dt.datetime.strptime(startdate,'%m/%d/%Y').date()
     except:

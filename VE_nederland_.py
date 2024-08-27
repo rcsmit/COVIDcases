@@ -3,8 +3,8 @@ from math import e
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import datetime as dt
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression

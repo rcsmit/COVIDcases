@@ -34,8 +34,8 @@ from numpy import log, exp, sqrt, clip, argmax, put
 from scipy.special import erfc, erf
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 #from streamlit import caching
 
 from PIL import Image

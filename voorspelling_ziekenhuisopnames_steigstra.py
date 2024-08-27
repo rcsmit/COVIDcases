@@ -25,8 +25,8 @@ from plotly.subplots import make_subplots
 # from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 # import matplotlib.ticker as ticker
 # import math
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 # from scipy.signal import savgol_filter
 # from sklearn.metrics import r2_score
 import streamlit as st

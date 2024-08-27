@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import streamlit as st
 import plotly.express as px
 #import statsmodels
@@ -201,95 +201,95 @@ def read(inwonersgrens, from_,until_):
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
     """Scatterplot maken
     """
-    with _lock:
-        fig1xy,ax = plt.subplots()
+    # with _lock:
+    fig1xy,ax = plt.subplots()
 
-        x_ = np.array(df_temp[what_to_show_l])
-        y_ = np.array(df_temp[what_to_show_r])
-        #obtain m (slope) and b(intercept) of linear regression line
-        idx = np.isfinite(x_) & np.isfinite(y_)
-        m, b = np.polyfit(x_[idx], y_[idx], 1)
-        model = np.polyfit(x_[idx], y_[idx], 1)
+    x_ = np.array(df_temp[what_to_show_l])
+    y_ = np.array(df_temp[what_to_show_r])
+    #obtain m (slope) and b(intercept) of linear regression line
+    idx = np.isfinite(x_) & np.isfinite(y_)
+    m, b = np.polyfit(x_[idx], y_[idx], 1)
+    model = np.polyfit(x_[idx], y_[idx], 1)
 
-        predict = np.poly1d(model)
-        r2 = r2_score  (y_[idx], predict(x_[idx]))
-
-
-        show_cat = False
-        if show_cat == True:
-            # TOFIX
-            cat_ = df_temp['provincie']
-            cat_col = df_temp['provincie'].astype('category')
-            cat_col_ = cat_col.cat.codes
-            scatter = plt.scatter(x_, y_, c = cat_col_, label=cat_)
-            legend1 = ax.legend(*scatter.legend_elements(), loc="best")
-            ax.add_artist(legend1)
-        else:
-            if how== "pyplot":
-                scatter = plt.scatter(x_, y_)
-
-            elif how == "plotly":
-                if what == "verkiezingen":
-
-                    fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='perc_stemmen', text="partij", trendline="ols")
-
-                else:
-                    fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='inwoners_2021', trendline="ols",
-                        hover_name="Gemeentenaam", hover_data=["provincie"])
+    predict = np.poly1d(model)
+    r2 = r2_score  (y_[idx], predict(x_[idx]))
 
 
-        #add linear regression line to scatterplot
+    show_cat = False
+    if show_cat == True:
+        # TOFIX
+        cat_ = df_temp['provincie']
+        cat_col = df_temp['provincie'].astype('category')
+        cat_col_ = cat_col.cat.codes
+        scatter = plt.scatter(x_, y_, c = cat_col_, label=cat_)
+        legend1 = ax.legend(*scatter.legend_elements(), loc="best")
+        ax.add_artist(legend1)
+    else:
+        if how== "pyplot":
+            scatter = plt.scatter(x_, y_)
 
-
-        correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
-        correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
-
-        if how == "pyplot":
-            title_scatter = (f"{what_to_show_l} -  {what_to_show_r}\nCorrelation spearman = {correlation_sp} - Correlation pearson = {correlation_p}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-
-            plt.plot(x_, m*x_+b, 'r')
-            plt.title(title_scatter)
-            plt.xlabel(what_to_show_l)
-            plt.ylabel(what_to_show_r)
         elif how == "plotly":
-            title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+            if what == "verkiezingen":
 
-            fig1xy.update_layout(
-                title=dict(
-                    text=title_scatter,
-                    x=0.5,
-                    y=0.95,
-                    font=dict(
-                        family="Arial",
-                        size=14,
-                        color='#000000'
-                    )
-                ),
-                xaxis_title=what_to_show_l,
-                yaxis_title=what_to_show_r,
+                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='perc_stemmen', text="partij", trendline="ols")
+
+            else:
+                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='inwoners_2021', trendline="ols",
+                    hover_name="Gemeentenaam", hover_data=["provincie"])
+
+
+    #add linear regression line to scatterplot
+
+
+    correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+    correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+
+    if how == "pyplot":
+        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}\nCorrelation spearman = {correlation_sp} - Correlation pearson = {correlation_p}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+
+        plt.plot(x_, m*x_+b, 'r')
+        plt.title(title_scatter)
+        plt.xlabel(what_to_show_l)
+        plt.ylabel(what_to_show_r)
+    elif how == "plotly":
+        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+
+        fig1xy.update_layout(
+            title=dict(
+                text=title_scatter,
+                x=0.5,
+                y=0.95,
                 font=dict(
-                    family="Courier New, Monospace",
-                    size=12,
+                    family="Arial",
+                    size=14,
                     color='#000000'
                 )
+            ),
+            xaxis_title=what_to_show_l,
+            yaxis_title=what_to_show_r,
+            font=dict(
+                family="Courier New, Monospace",
+                size=12,
+                color='#000000'
             )
-
-        ax.text(
-            1,
-            1.3,
-            "Created by Rene Smit — @rcsmit",
-            transform=ax.transAxes,
-            fontsize="xx-small",
-            va="top",
-            ha="right",
         )
 
+    ax.text(
+        1,
+        1.3,
+        "Created by Rene Smit — @rcsmit",
+        transform=ax.transAxes,
+        fontsize="xx-small",
+        va="top",
+        ha="right",
+    )
 
-        if how == "pyplot":
-            st.pyplot(fig1xy)
-            #plt.show()
-        elif how == "plotly":
-            st.plotly_chart(fig1xy, use_container_width=True)
+
+    if how == "pyplot":
+        st.pyplot(fig1xy)
+        #plt.show()
+    elif how == "plotly":
+        st.plotly_chart(fig1xy, use_container_width=True)
 
 
 def bewerk_df(df, partijen_selected):

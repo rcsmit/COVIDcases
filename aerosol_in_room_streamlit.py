@@ -34,8 +34,8 @@ Created on Tue Dec 14 20:55:29 2021
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 
 class Simulation:
     """Time data of concentnrations etc.
@@ -153,124 +153,124 @@ class Simulation:
 
 
         datasets = [self] + list(args)
-        with _lock:
-            fig, axs = plt.subplots(4, 1, tight_layout=True, sharex=True,
-                                    figsize=(7, 9))
-            axs[0].set_title('\n\nAantal personen')
-            axs[1].set_title('Ventilatiesnelheid (m³/h)')
+        # with _lock:
+        fig, axs = plt.subplots(4, 1, tight_layout=True, sharex=True,
+                                figsize=(7, 9))
+        axs[0].set_title('\n\nAantal personen')
+        axs[1].set_title('Ventilatiesnelheid (m³/h)')
 
+        if split_concs:
+            axs[2].set_title(
+                'Aerosolconcentratie (m$^{-3}$)\n'
+                'Van bezoek (—), van bewoners (- -), totaal (⋯)')
+            axs[3].set_title(
+                'Aerosoldosis (h m$^{-3}$)\n'
+                'bezoek → bewoners (—), bewoners → bezoek (- -)')
+        else:
+            axs[2].set_title('Aerosolconcentratie (m$^{-3}$)')
+            axs[3].set_title('Aerosoldosis (h m$^{-3}$)')
+        axs[3].set_xlabel('Tijd (h)')
+
+        from matplotlib.ticker import MaxNLocator
+        axs[3].xaxis.set_major_locator(MaxNLocator(steps=[1,2,5,10]))
+
+        colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+                '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'] * 3
+
+        # dash styles with phase difference to reduce overlap.
+        dash_styles = [(i, (3, 3)) for i in [0, 1, 2]] * 2
+        for i, (ds, col, dstyle) in enumerate(zip(datasets, colors, dash_styles)):
+
+            xargs = dict(zorder=-i, alpha=0.7)
+            ax = axs[0]
+            ax.plot(ds.tms, ds.ns, **xargs)
+
+            ax = axs[1]
+            ax.plot(ds.tms, ds.vrs, color=col, label=ds.desc, **xargs)
+
+            ax = axs[2]
             if split_concs:
-                axs[2].set_title(
-                    'Aerosolconcentratie (m$^{-3}$)\n'
-                    'Van bezoek (—), van bewoners (- -), totaal (⋯)')
-                axs[3].set_title(
-                    'Aerosoldosis (h m$^{-3}$)\n'
-                    'bezoek → bewoners (—), bewoners → bezoek (- -)')
+                ax.plot(ds.tms, ds.concs_s, color=col, ls='-', **xargs)
+                ax.plot(ds.tms, ds.concs_v, color=col, ls=dstyle, **xargs)
+                ax.plot(ds.tms, ds.concs, color=col, ls=':', **xargs)
             else:
-                axs[2].set_title('Aerosolconcentratie (m$^{-3}$)')
-                axs[3].set_title('Aerosoldosis (h m$^{-3}$)')
-            axs[3].set_xlabel('Tijd (h)')
+                ax.plot(ds.tms, ds.concs, color=col, ls='-', **xargs)
 
-            from matplotlib.ticker import MaxNLocator
-            axs[3].xaxis.set_major_locator(MaxNLocator(steps=[1,2,5,10]))
+            # get equivalent CO2 ppm values
+            c2ppm = lambda c: 420 + c*1.67e4
+            ppm2c = lambda p: (p-420)/1.67e4
 
-            colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-                    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'] * 3
-
-            # dash styles with phase difference to reduce overlap.
-            dash_styles = [(i, (3, 3)) for i in [0, 1, 2]] * 2
-            for i, (ds, col, dstyle) in enumerate(zip(datasets, colors, dash_styles)):
-
-                xargs = dict(zorder=-i, alpha=0.7)
-                ax = axs[0]
-                ax.plot(ds.tms, ds.ns, **xargs)
-
-                ax = axs[1]
-                ax.plot(ds.tms, ds.vrs, color=col, label=ds.desc, **xargs)
-
-                ax = axs[2]
-                if split_concs:
-                    ax.plot(ds.tms, ds.concs_s, color=col, ls='-', **xargs)
-                    ax.plot(ds.tms, ds.concs_v, color=col, ls=dstyle, **xargs)
-                    ax.plot(ds.tms, ds.concs, color=col, ls=':', **xargs)
-                else:
-                    ax.plot(ds.tms, ds.concs, color=col, ls='-', **xargs)
-
-                # get equivalent CO2 ppm values
-                c2ppm = lambda c: 420 + c*1.67e4
-                ppm2c = lambda p: (p-420)/1.67e4
-
-                ax2 = ax.secondary_yaxis("right", functions=(c2ppm, ppm2c))
-                ax2.set_ylabel('CO$_2$ conc (ppm)')
-                ax.axhline(y=( (danger_line-420)/1.67e4), color="red", alpha=0.6, linestyle="--")
+            ax2 = ax.secondary_yaxis("right", functions=(c2ppm, ppm2c))
+            ax2.set_ylabel('CO$_2$ conc (ppm)')
+            ax.axhline(y=( (danger_line-420)/1.67e4), color="red", alpha=0.6, linestyle="--")
 
 
-                ax = axs[3]
-                # ax.plot(ds.tms, ds.exps, color=col, **xargs)
-                if split_concs:
-                    ax.plot(ds.tms, ds.exps_v2s, color=col, ls='-', **xargs)
-                    ax.plot(ds.tms, ds.exps_s2v, color=col, ls=dstyle, **xargs)
-                else:
-                    ax.plot(ds.tms, ds.exps, color=col, ls='-', **xargs)
+            ax = axs[3]
+            # ax.plot(ds.tms, ds.exps, color=col, **xargs)
+            if split_concs:
+                ax.plot(ds.tms, ds.exps_v2s, color=col, ls='-', **xargs)
+                ax.plot(ds.tms, ds.exps_s2v, color=col, ls=dstyle, **xargs)
+            else:
+                ax.plot(ds.tms, ds.exps, color=col, ls='-', **xargs)
 
-            for ax in axs:
-                ax.tick_params(axis='y', which='minor')
-                ax.tick_params(axis='both', which='major')
-                ax.grid()
-                # ax.legend()
+        for ax in axs:
+            ax.tick_params(axis='y', which='minor')
+            ax.tick_params(axis='both', which='major')
+            ax.grid()
+            # ax.legend()
 
-            axs[1].legend(loc='upper left', bbox_to_anchor=(1, 1))
-            for ax in axs:
-                ymax = ax.get_ylim()[1]
-                ax.set_ylim(-ymax/50, ymax*1.1)
-            st.pyplot(fig)
+        axs[1].legend(loc='upper left', bbox_to_anchor=(1, 1))
+        for ax in axs:
+            ymax = ax.get_ylim()[1]
+            ax.set_ylim(-ymax/50, ymax*1.1)
+        st.pyplot(fig)
 
 
 def plot_co2_ventilation():
-    with _lock:
-        fig, ax = plt.subplots(figsize=(6, 4), tight_layout=True)
-        vrs = np.linspace(3, 100, 100)
-        emission_one = 0.4/24  # m3/h CO2 per person
+    #with _lock:
+    fig, ax = plt.subplots(figsize=(6, 4), tight_layout=True)
+    vrs = np.linspace(3, 100, 100)
+    emission_one = 0.4/24  # m3/h CO2 per person
 
-        def vr2ppm(vr):
-            return 420 + emission_one / vr * 1e6
+    def vr2ppm(vr):
+        return 420 + emission_one / vr * 1e6
 
-        concs = vr2ppm(vrs)
-        ax.plot(vrs, concs)
-        ax.set_ylim(0, 4000)
-        ax.set_xlim(4, 100)
-        ax.set_xscale('log')
-        ax.set_xlabel('Ventilatiedebiet per persoon (m$^3$/h)')
-        ax.set_ylabel('CO$_2$ concentratie (ppm)')
-        xts = [4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-        ax.set_xticks(xts)
-        xtlabs = [
-            (str(x) if str(x)[0] in '1234568' else '')
-            for x in xts
-            ]
-        ax.set_xticklabels(xtlabs)
-        ax.axhline(420, color='k', ls='--')
-        ax.text(4.1, 500, 'Buitenlucht')
-        ax.set_title('Aanname: 1 persoon = 17 L/h CO$_2$')
+    concs = vr2ppm(vrs)
+    ax.plot(vrs, concs)
+    ax.set_ylim(0, 4000)
+    ax.set_xlim(4, 100)
+    ax.set_xscale('log')
+    ax.set_xlabel('Ventilatiedebiet per persoon (m$^3$/h)')
+    ax.set_ylabel('CO$_2$ concentratie (ppm)')
+    xts = [4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    ax.set_xticks(xts)
+    xtlabs = [
+        (str(x) if str(x)[0] in '1234568' else '')
+        for x in xts
+        ]
+    ax.set_xticklabels(xtlabs)
+    ax.axhline(420, color='k', ls='--')
+    ax.text(4.1, 500, 'Buitenlucht')
+    ax.set_title('Aanname: 1 persoon = 17 L/h CO$_2$')
 
-        # Bouwbesluit
-        vrs_bb = [
-            ('Norm kantoren NL', 23.4),
-            ('Norm onderwijs NL', 30.6),
-            ('*Advies België', 35), # https://www.info-coronavirus.be/nl/ventilatie/
-            ]
-        for label, vr in vrs_bb:
-            c = vr2ppm(vr)
-            ax.scatter([vr], [c], color='k')
-            if label.startswith('*'):
-                ax.text(vr, c-200, label[1:], ha='right')
-            else:
-                ax.text(vr, c+70, label)
+    # Bouwbesluit
+    vrs_bb = [
+        ('Norm kantoren NL', 23.4),
+        ('Norm onderwijs NL', 30.6),
+        ('*Advies België', 35), # https://www.info-coronavirus.be/nl/ventilatie/
+        ]
+    for label, vr in vrs_bb:
+        c = vr2ppm(vr)
+        ax.scatter([vr], [c], color='k')
+        if label.startswith('*'):
+            ax.text(vr, c-200, label[1:], ha='right')
+        else:
+            ax.text(vr, c+70, label)
 
-        # _locator(LogLocator(labelOnlyBase=False))
-        # ax.grid(which='minor', axis='x')
-        ax.grid()
-        st.pyplot(fig)
+    # _locator(LogLocator(labelOnlyBase=False))
+    # ax.grid(which='minor', axis='x')
+    ax.grid()
+    st.pyplot(fig)
 
 
 

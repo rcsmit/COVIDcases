@@ -11,8 +11,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 
 import streamlit as st
 
@@ -173,18 +173,18 @@ def find_lag_time(df_, what_happens_first, what_happens_second, r1, r2):
 
     title = f"Correlation between : {a} - {b} with moved days\n"#({FROM} - {UNTIL})"
 
-    with _lock:
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
-        plt.xlabel("shift in days")
-        plt.plot(x, y, label = "Values")
-        plt.plot(x, y_sma, label = "Smoothed")
-        #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
-        # Add a grid
-        plt.legend()
-        plt.grid(alpha=0.2, linestyle="--")
-        plt.title(title, fontsize=10)
-        st.pyplot(fig1x)
+    # with _lock:
+    fig1x = plt.figure()
+    ax = fig1x.add_subplot(111)
+    plt.xlabel("shift in days")
+    plt.plot(x, y, label = "Values")
+    plt.plot(x, y_sma, label = "Smoothed")
+    #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
+    # Add a grid
+    plt.legend()
+    plt.grid(alpha=0.2, linestyle="--")
+    plt.title(title, fontsize=10)
+    st.pyplot(fig1x)
     # plt.show()
     st.write (f"Values: heightest correlation at  {n_max} days - correlation = {max}")
     st.write (f"Smoothed: heightest correlation at {n_max_sma} days - correlation = {max_sma}")

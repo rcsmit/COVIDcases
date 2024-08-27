@@ -4,8 +4,8 @@ from math import e
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import pandas as pd
 
 import streamlit as st
@@ -70,37 +70,37 @@ def calculate_c_new(result_odeint, i):
 def plot_single_age_group(item, result_odeint, names,  t, N, what_to_show):
     # single age group
     i = names.index(item)
-    with _lock:
-        C_new_tot =  calculate_c_new(result_odeint, i)
-        fig = plt.figure()
-        ax = fig.add_subplot()
+    # with _lock:
+    C_new_tot =  calculate_c_new(result_odeint, i)
+    fig = plt.figure()
+    ax = fig.add_subplot()
 
-        ratio = False
-        if ratio == True:
-            noemer = N[i]
-        else:
-            noemer = 1 # aantallen
+    ratio = False
+    if ratio == True:
+        noemer = N[i]
+    else:
+        noemer = 1 # aantallen
 
-        if "S" in what_to_show : ax.plot(t, result_odeint[:, i]/noemer, "pink", lw=1.5, label="Susceptible")
-        if "E" in what_to_show : ax.plot(t, result_odeint[:, number_of_agegroups+i]/noemer, "purple", lw=1.5, label="Exposed")
-        if "I" in what_to_show : ax.plot(t, result_odeint[:, (2*number_of_agegroups)+i]/noemer, "orange", lw=1.5, label="Infected")
-        if "R" in what_to_show : ax.plot(t, result_odeint[:, (3*number_of_agegroups)+i]/noemer, "blue", lw=1.5, label="Recovered")
-        #if "C" in what_to_show : ax.plot(t, result_odeint[:, (4*number_of_agegroups)+i]/noemer, "green", lw=1.5, label="Cases cumm")
-        if "H" in what_to_show : ax.plot(t, result_odeint[:, (5*number_of_agegroups)+i]/noemer, "yellow", lw=1.5, label="Hospital")
-        if "IC" in what_to_show : ax.plot(t, result_odeint[:, (6*number_of_agegroups)+i]/noemer, "brown", lw=1.5, label="IC")
-        if "D" in what_to_show : ax.plot(t, result_odeint[:, (7*number_of_agegroups)+i]/noemer, "black", lw=1.5, label="Death")
+    if "S" in what_to_show : ax.plot(t, result_odeint[:, i]/noemer, "pink", lw=1.5, label="Susceptible")
+    if "E" in what_to_show : ax.plot(t, result_odeint[:, number_of_agegroups+i]/noemer, "purple", lw=1.5, label="Exposed")
+    if "I" in what_to_show : ax.plot(t, result_odeint[:, (2*number_of_agegroups)+i]/noemer, "orange", lw=1.5, label="Infected")
+    if "R" in what_to_show : ax.plot(t, result_odeint[:, (3*number_of_agegroups)+i]/noemer, "blue", lw=1.5, label="Recovered")
+    #if "C" in what_to_show : ax.plot(t, result_odeint[:, (4*number_of_agegroups)+i]/noemer, "green", lw=1.5, label="Cases cumm")
+    if "H" in what_to_show : ax.plot(t, result_odeint[:, (5*number_of_agegroups)+i]/noemer, "yellow", lw=1.5, label="Hospital")
+    if "IC" in what_to_show : ax.plot(t, result_odeint[:, (6*number_of_agegroups)+i]/noemer, "brown", lw=1.5, label="IC")
+    if "D" in what_to_show : ax.plot(t, result_odeint[:, (7*number_of_agegroups)+i]/noemer, "black", lw=1.5, label="Death")
 
-        if "C" in what_to_show : ax.plot(C_new_tot/noemer, "green", linestyle="--", lw=1.5, label="Cases")
+    if "C" in what_to_show : ax.plot(C_new_tot/noemer, "green", linestyle="--", lw=1.5, label="Cases")
 
-         # ax.plot(result_solve_ivp.y[6+i, :], "blue", lw=1.5, label="Recovered")
-        ax.set_title(f"{ names[i]}",  fontsize=10)
-        plt.legend()
-        #plt.grid()
-        ax.set_xlabel('Time (days)')
-        ax.set_ylabel('Ratio')
-        #ax.set_ylim([0,1])
-        #plt.show()
-        st.pyplot(fig)
+        # ax.plot(result_solve_ivp.y[6+i, :], "blue", lw=1.5, label="Recovered")
+    ax.set_title(f"{ names[i]}",  fontsize=10)
+    plt.legend()
+    #plt.grid()
+    ax.set_xlabel('Time (days)')
+    ax.set_ylabel('Ratio')
+    #ax.set_ylim([0,1])
+    #plt.show()
+    st.pyplot(fig)
 
 def plot_total(result_odeint, noemer, what_to_show):
     """Plot results. Total of all agegroups
@@ -122,31 +122,31 @@ def plot_total(result_odeint, noemer, what_to_show):
         H_tot_odeint += result_odeint[:, (5*number_of_agegroups)+i]
         IC_tot_odeint += result_odeint[:, (6*number_of_agegroups)+i]
         D_tot_odeint += result_odeint[:, (7*number_of_agegroups)+i]
-    with _lock:
-        fig = plt.figure()
-        ax = fig.add_subplot()
-        if "S" in what_to_show : ax.plot(S_tot_odeint/noemer, "pink", lw=1.5, label="Susceptible")
-        if "E" in what_to_show : ax.plot(E_tot_odeint/noemer, "purple", lw=1.5, label="Exposed")
-        if "I" in what_to_show : ax.plot(I_tot_odeint/noemer, "orange", lw=1.5, label="Infected")
-        if "R" in what_to_show : ax.plot(R_tot_odeint/noemer, "blue", lw=1.5, label="Recovered")
-        if "C" in what_to_show : ax.plot(C_tot_odeint/noemer, "green",  lw=1.5, label="Cases cumm")
-        if "C" in what_to_show : ax.plot(C_new_tot/noemer, "green", linestyle="--", lw=1.5, label="Cases")
-        if "H" in what_to_show : ax.plot(H_tot_odeint/noemer, "yellow", lw=1.5, label="Hospital")
-        if "IC" in what_to_show : ax.plot(IC_tot_odeint/noemer, "brown", lw=1.5, label="IC")
-        if "D" in what_to_show : ax.plot(D_tot_odeint/noemer, "black", lw=1.5, label="Death")
-        ax.set_title("Totaal")
-        #fig.tight_layout()
-        ax.set_xlabel('Time (days)')
-        if noemer == 1 :
-            ax.set_ylabel('Numbers')
-        else:
-            ax.set_ylabel('Ratio')
-            ax.set_ylim([0,1])
+    # with _lock:
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    if "S" in what_to_show : ax.plot(S_tot_odeint/noemer, "pink", lw=1.5, label="Susceptible")
+    if "E" in what_to_show : ax.plot(E_tot_odeint/noemer, "purple", lw=1.5, label="Exposed")
+    if "I" in what_to_show : ax.plot(I_tot_odeint/noemer, "orange", lw=1.5, label="Infected")
+    if "R" in what_to_show : ax.plot(R_tot_odeint/noemer, "blue", lw=1.5, label="Recovered")
+    if "C" in what_to_show : ax.plot(C_tot_odeint/noemer, "green",  lw=1.5, label="Cases cumm")
+    if "C" in what_to_show : ax.plot(C_new_tot/noemer, "green", linestyle="--", lw=1.5, label="Cases")
+    if "H" in what_to_show : ax.plot(H_tot_odeint/noemer, "yellow", lw=1.5, label="Hospital")
+    if "IC" in what_to_show : ax.plot(IC_tot_odeint/noemer, "brown", lw=1.5, label="IC")
+    if "D" in what_to_show : ax.plot(D_tot_odeint/noemer, "black", lw=1.5, label="Death")
+    ax.set_title("Totaal")
+    #fig.tight_layout()
+    ax.set_xlabel('Time (days)')
+    if noemer == 1 :
+        ax.set_ylabel('Numbers')
+    else:
+        ax.set_ylabel('Ratio')
+        ax.set_ylim([0,1])
 
-        plt.legend()
-        #plt.grid()
-        #plt.show()
-        st.pyplot(fig)
+    plt.legend()
+    #plt.grid()
+    #plt.show()
+    st.pyplot(fig)
 
 def show_result(result_odeint, N):
     """Print dataframe/table with the results

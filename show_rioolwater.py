@@ -5,8 +5,8 @@ import datetime as dt
 from datetime import datetime
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
-from matplotlib.ticker import MultipleLocator
-_lock = RendererAgg.lock
+# from matplotlib.ticker import MultipleLocator
+# _lock = RendererAgg.lock
 import streamlit as st
 #from streamlit import caching
 
@@ -43,78 +43,78 @@ def graph_day(df, what_to_show_l, title):
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
 
-    with _lock:
-        fig1x = plt.figure()
-        ax = fig1x.add_subplot(111)
+    # with _lock:
+    fig1x = plt.figure()
+    ax = fig1x.add_subplot(111)
 
-        color_list = [
-            "#02A6A8",
-            "#4E9148",
-            "#F05225",
-        ]
+    color_list = [
+        "#02A6A8",
+        "#4E9148",
+        "#F05225",
+    ]
 
-        n = 0  # counter to walk through the colors-list
+    n = 0  # counter to walk through the colors-list
 
-        for b in what_to_show_l_:
-            df_temp = df
+    for b in what_to_show_l_:
+        df_temp = df
 
-            df_temp[b].plot(
-                label="_nolegend_",
-                color=color_list[n],
-                linestyle="--",
-                alpha=0.9,
-                linewidth=0.8,
-                )
-            n += 1
+        df_temp[b].plot(
+            label="_nolegend_",
+            color=color_list[n],
+            linestyle="--",
+            alpha=0.9,
+            linewidth=0.8,
+            )
+        n += 1
 
-        plt.title(title, fontsize=10)
+    plt.title(title, fontsize=10)
 
-        # show every 10th date on x axis
-        a__ = (max(df_temp["date"].tolist())).date() - (
-            min(df_temp["date"].tolist())
-        ).date()
-        freq = int(a__.days / 10)
-        ax.xaxis.set_major_locator(MultipleLocator(freq))
-        ax.set_xticks(df_temp["date"].index)
-        ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
-        xticks = ax.xaxis.get_major_ticks()
+    # show every 10th date on x axis
+    a__ = (max(df_temp["date"].tolist())).date() - (
+        min(df_temp["date"].tolist())
+    ).date()
+    freq = int(a__.days / 10)
+    ax.xaxis.set_major_locator(MultipleLocator(freq))
+    ax.set_xticks(df_temp["date"].index)
+    ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
+    xticks = ax.xaxis.get_major_ticks()
 
 
-        # for i, tick in enumerate(xticks):
-        #     if i % 10 != 0:
-        #         tick.label1.set_visible(False)
-        plt.xticks()
+    # for i, tick in enumerate(xticks):
+    #     if i % 10 != 0:
+    #         tick.label1.set_visible(False)
+    plt.xticks()
 
-        # layout of the x-axis
-        ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
-        ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
+    # layout of the x-axis
+    ax.xaxis.grid(True, which="major", alpha=0.4, linestyle="--")
+    ax.yaxis.grid(True, which="major", alpha=0.4, linestyle="--")
 
-        left, right = ax.get_xlim()
-        ax.set_xlim(left, right)
-        fontP = FontProperties()
-        fontP.set_size("xx-small")
+    left, right = ax.get_xlim()
+    ax.set_xlim(left, right)
+    fontP = FontProperties()
+    fontP.set_size("xx-small")
 
-        plt.xlabel("date")
-        # everything in legend
-        # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
-        handles, labels = [], []
-        for ax in fig1x.axes:
-            for h, l in zip(*ax.get_legend_handles_labels()):
-                handles.append(h)
-                labels.append(l)
-        # plt.legend(handles,labels)
-        # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
-        plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=2)
-        ax.text(
-            1,
-            1.1,
-            "Created by Rene Smit — @rcsmit",
-            transform=ax.transAxes,
-            fontsize="xx-small",
-            va="top",
-            ha="right",
-        )
-        st.pyplot(fig1x)
+    plt.xlabel("date")
+    # everything in legend
+    # https://stackoverflow.com/questions/33611803/pyplot-single-legend-when-plotting-on-secondary-y-axis
+    handles, labels = [], []
+    for ax in fig1x.axes:
+        for h, l in zip(*ax.get_legend_handles_labels()):
+            handles.append(h)
+            labels.append(l)
+    # plt.legend(handles,labels)
+    # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot/43439132#43439132
+    plt.legend(handles, labels, bbox_to_anchor=(0, -0.5), loc="lower left", ncol=2)
+    ax.text(
+        1,
+        1.1,
+        "Created by Rene Smit — @rcsmit",
+        transform=ax.transAxes,
+        fontsize="xx-small",
+        va="top",
+        ha="right",
+    )
+    st.pyplot(fig1x)
 
 def main_oud():
     """  _ _ _ """

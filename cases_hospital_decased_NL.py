@@ -6,8 +6,8 @@ from scipy import stats
 #from scipy.stats import weibull_min
 import pandas as pd
 from statistics import mean
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import streamlit as st
 import random
 from itertools import cycle
@@ -191,70 +191,70 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         show_cat ([type]): [description]
         categoryfield ([type]): [description]
     """
-    with _lock:
-        fig1xy,ax = plt.subplots()
-        try:
+    # with _lock:
+    fig1xy,ax = plt.subplots()
+    try:
 
-            x_ = np.array(df_temp[what_to_show_l])
-            y_ = np.array(df_temp[what_to_show_r])
-            #obtain m (slope) and b(intercept) of linear regression line
-            idx = np.isfinite(x_) & np.isfinite(y_)
-            m, b = np.polyfit(x_[idx], y_[idx], 1)
-            model = np.polyfit(x_[idx], y_[idx], 1)
+        x_ = np.array(df_temp[what_to_show_l])
+        y_ = np.array(df_temp[what_to_show_r])
+        #obtain m (slope) and b(intercept) of linear regression line
+        idx = np.isfinite(x_) & np.isfinite(y_)
+        m, b = np.polyfit(x_[idx], y_[idx], 1)
+        model = np.polyfit(x_[idx], y_[idx], 1)
 
-            predict = np.poly1d(model)
-            r2 = r2_score  (y_[idx], predict(x_[idx]))
-        except:
-            m,b,model,predict,r2 =None,None,None,None,None
+        predict = np.poly1d(model)
+        r2 = r2_score  (y_[idx], predict(x_[idx]))
+    except:
+        m,b,model,predict,r2 =None,None,None,None,None
 
-        try:
+    try:
 
-            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data, trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
-        except:
-            # avoid exog contains inf or nans
-            fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
+        fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data, trendline="ols", trendline_scope = 'overall', trendline_color_override = 'black')
+    except:
+        # avoid exog contains inf or nans
+        fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, color=categoryfield, hover_name=hover_name, hover_data=hover_data)
 
-        #add linear regression line to scatterplot
-
-
-        correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
-        correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
+    #add linear regression line to scatterplot
 
 
-        title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+    correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
+    correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
 
-        fig1xy.update_layout(
-            title=dict(
-                text=title_scatter,
-                x=0.5,
-                y=0.95,
-                font=dict(
-                    family="Arial",
-                    size=14,
-                    color='#000000'
-                )
-            ),
-            xaxis_title=what_to_show_l,
-            yaxis_title=what_to_show_r,
+
+    title_scatter = (f"{what_to_show_l} -  {what_to_show_r}<br>Correlation spearman = {correlation_sp} - Correlation pearson = {correlation_p}<br>y = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
+
+    fig1xy.update_layout(
+        title=dict(
+            text=title_scatter,
+            x=0.5,
+            y=0.95,
             font=dict(
-                family="Courier New, Monospace",
-                size=12,
+                family="Arial",
+                size=14,
                 color='#000000'
             )
+        ),
+        xaxis_title=what_to_show_l,
+        yaxis_title=what_to_show_r,
+        font=dict(
+            family="Courier New, Monospace",
+            size=12,
+            color='#000000'
         )
+    )
 
-        ax.text(
-            1,
-            1.3,
-            "Created by Rene Smit — @rcsmit",
-            transform=ax.transAxes,
-            fontsize="xx-small",
-            va="top",
-            ha="right",
-        )
+    ax.text(
+        1,
+        1.3,
+        "Created by Rene Smit — @rcsmit",
+        transform=ax.transAxes,
+        fontsize="xx-small",
+        va="top",
+        ha="right",
+    )
 
 
-        st.plotly_chart(fig1xy, use_container_width=True)
+    st.plotly_chart(fig1xy, use_container_width=True)
 
 def main():
     # prepare_data()

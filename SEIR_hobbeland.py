@@ -14,9 +14,9 @@ import numpy as np
 import matplotlib.dates as mdates
 import datetime as dt
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 from scipy.integrate import odeint
 
 
