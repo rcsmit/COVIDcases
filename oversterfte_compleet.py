@@ -125,8 +125,8 @@ def calculate_year_data(df_merged, year, show_official, series_name):
         "q95",
     ]
     for what_to_sma in columnlist:
-        df_merged_jaar = rolling(df_merged_jaar, f"{what_to_sma}")
-        # df_merged_jaar[f'{what_to_sma}_sma'] = df_merged_jaar[what_to_sma]
+        #df_merged_jaar = rolling(df_merged_jaar, f"{what_to_sma}")
+        df_merged_jaar[f'{what_to_sma}_sma'] = df_merged_jaar[what_to_sma]
     return df_merged_jaar
 
 
@@ -260,24 +260,23 @@ def plot_steigstra(df_transformed, series_name):
     df_pivot = df_transformed.set_index("week")
 
     # Function to transform the DataFrame
-    def create_spaghetti_data(df, year1, year2):
-
-        # part1 = df.loc[28:52, year1]
-        # part2 = df.loc[1:27, year2]
+    def create_spaghetti_data(df, year1, year2=None):
         part1 = df.loc[28:52, year1]
-        part2 = df.loc[1:27, year2]
-        combined = pd.concat([part1, part2]).reset_index(drop=True)
-
+        if year2 is not None:
+            part2 = df.loc[1:27, year2]
+            combined = pd.concat([part1, part2]).reset_index(drop=True)
+        else:
+            combined = part1.reset_index(drop=True)
         return combined
 
     # Create the spaghetti data
-    years = df_pivot.columns[:-3]
+    years = df_pivot.columns[:-3] 
 
     years = list(map(int, years))
+
     spaghetti_data = {
-        year: create_spaghetti_data(df_pivot, year, year + 1)
+        year: create_spaghetti_data(df_pivot, year, year + 1) if (year + 1) in years else create_spaghetti_data(df_pivot, year)
         for year in years
-        if (year + 1) in years
     }
     df_spaghetti = pd.DataFrame(spaghetti_data)
 
@@ -341,6 +340,18 @@ def plot_steigstra(df_transformed, series_name):
         yaxis_title="Values",
     )
 
+
+    # Update layout to customize x-axis labels
+    fig.update_layout(
+        title='Plot with Custom X-Axis Labels',
+        xaxis_title='Week Number Real',  # Label for x-axis
+        yaxis_title='Value',
+        xaxis=dict(
+            tickvals=df_spaghetti.index,  # Set the tick positions to the DataFrame index
+            ticktext=df_spaghetti['weeknr_real'].astype(str)  # Set the tick labels to 'weeknr_real'
+        )
+    )
+
     st.plotly_chart(fig)
 
 
@@ -394,16 +405,18 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
 
 
 def comparison(df_merged, series_name):
+    
     show_official = st.sidebar.selectbox("Show official values", [True, False], 0)
     st.subheader("Vergelijking")
 
     for year in ["All", 2020, 2021, 2022, 2023, 2024]:
         expanded = True if year == "All" else False
+        
         with st.expander(f"{year}", expanded=expanded):
             df_merged_jaar = calculate_year_data(
                 df_merged, year, show_official, series_name
             )
-            show_difference(df_merged_jaar, "weeknr", show_official)
+            show_difference(df_merged_jaar, "weeknr", show_official, year)
 
             display_cumulative_oversterfte(df_merged_jaar, year)
             display_results(df_merged_jaar, year)
@@ -1447,11 +1460,15 @@ def get_baseline_kobak():
     return df_
 
 
-def show_difference(df, date_field, show_official):
+def show_difference(df, date_field, show_official, year):
     """Function to show the difference between the two methods quickly"""
 
     df_baseline_kobak = get_baseline_kobak()
-    df = pd.merge(df, df_baseline_kobak, on="weeknr")
+    df = pd.merge(df, df_baseline_kobak, on="weeknr", how="outer")
+    
+    if year!= "All":
+        df= df[df["jaar_x_x"] == year]
+  
     # rolling(df, 'baseline_kobak')
 
     # Maak een interactieve plot met Plotly
@@ -1681,7 +1698,7 @@ def get_kobak():
     return df_
 
 
-# @st.cache_data(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_sterftedata(seriename="m_v_0_999"):
     """Get and manipulate data of the deaths
 
