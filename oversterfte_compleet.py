@@ -261,9 +261,9 @@ def plot_steigstra(df_transformed, series_name):
 
     # Function to transform the DataFrame
     def create_spaghetti_data(df, year1, year2=None):
-        part1 = df.loc[28:52, year1]
+        part1 = df.loc[32:52, year1]
         if year2 is not None:
-            part2 = df.loc[1:27, year2]
+            part2 = df.loc[1:31, year2]
             combined = pd.concat([part1, part2]).reset_index(drop=True)
         else:
             combined = part1.reset_index(drop=True)
@@ -283,7 +283,7 @@ def plot_steigstra(df_transformed, series_name):
     df_spaghetti = df_spaghetti.cumsum(axis=0)
 
     # Generate the sequence from 27 to 52 followed by 1 to 26
-    sequence = list(range(27, 53)) + list(range(1, 27))
+    sequence = list(range(32, 53)) + list(range(1, 32))
     # Add the sequence as a new column
     df_spaghetti["weeknr_real"] = sequence
 
@@ -296,7 +296,7 @@ def plot_steigstra(df_transformed, series_name):
     df_spaghetti["high"] = df_spaghetti["average"] + 1.96 * df_spaghetti.iloc[
         :, :4
     ].std(axis=1)
-
+    #st.write(df_spaghetti)
     # Plotting with Plotly
     fig = go.Figure()
     fig.add_vline(x=25, name="week 1", line=dict(color="gray", width=1, dash="dash"))
@@ -334,18 +334,13 @@ def plot_steigstra(df_transformed, series_name):
         )
     )
 
-    fig.update_layout(
-        title=f"Steigstra Plot of {series_name} over Different Years week 28 to week 27",
-        xaxis_title="Weeks (28 to 27)",
-        yaxis_title="Values",
-    )
 
 
     # Update layout to customize x-axis labels
     fig.update_layout(
-        title='Plot with Custom X-Axis Labels',
-        xaxis_title='Week Number Real',  # Label for x-axis
-        yaxis_title='Value',
+        title=f"Steigstra Plot of {series_name} over Different Years week 32 to week 31",
+        xaxis_title="Weeks (32 to 31)",
+        yaxis_title="Values",
         xaxis=dict(
             tickvals=df_spaghetti.index,  # Set the tick positions to the DataFrame index
             ticktext=df_spaghetti['weeknr_real'].astype(str)  # Set the tick labels to 'weeknr_real'
@@ -1672,8 +1667,8 @@ def footer():
     )
     st.write("Code: https://github.com/rcsmit/COVIDcases/blob/main/oversterfte.py")
     st.write("P score = (verschil - gemiddelde) / gemiddelde, gesmooth over 6 weken")
-
-
+    st.info("Karlinsky & Kobak: https://elifesciences.org/articles/69336#s4")
+    st.info("Steigstra: https://twitter.com/SteigstraHerman/status/1801641074336706839")
 def get_kobak():
     """Load the csv with the baselines as calculated by Ariel Karlinsky and Dmitry Kobak
     https://elifesciences.org/articles/69336#s4
