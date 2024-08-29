@@ -2184,11 +2184,13 @@ def main():
     ]
 
     series_name = st.sidebar.selectbox("Leeftijden", serienames_, 0)
-    st.header("Oversterfte - minder leeftijdscategorieen - v240625a")
-    st.subheader("CBS Methode")
+    st.header("Oversterfte - minder leeftijdscategorieen - v240829a")
+    st.subheader("CBS & RIVM Methode")
     st.write(
-        "Dit script heeft minder leeftijdscategorieen, maar de sterftedata wordt opgehaald van het CBS. Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019"
+        """Berekening van de oversterfte met de CBS en RIVM methode. Tevens wordt een vergelijking gemaakt met de methode van Kobak en de methode Steigstra wordt gerepliceerd. Dit script heeft minder leeftijdscategorieen in vergelijking met Eurostats, maar de sterftedata wordt real-time opgehaald van het CBS. 
+        Daarnaast wordt het 95% betrouwbaarheids interval berekend vanuit de jaren 2015-2019"""
     )
+    st.info("https://rene-smit.com/de-grote-oversterftekloof-rivm-vs-cbs/")
     how, yaxis_to_zero, rightax, mergetype, sec_y = interface()
 
     (
