@@ -913,21 +913,7 @@ def get_data_for_series(df_, seriename):
             2019: 1,
             2020: 153402 / noemer,
             2021: 154887 / noemer,
-            2022: 155494 / noemer,
-            2023: 156666
-            / noemer,  # or 169333 / som if you decide to use the updated factor
-            2024: 157846 / noemer,
-        }
-    # avg_overledenen_2015_2019 = (som_2015_2019/5)
-    # st.write(avg_overledenen_2015_2019)
-    # Loop through the years 2014 to 2024 and apply the factors
-    for year in range(2014, 2025):
-        new_column_name = f"{seriename}_factor_{year}"
-        factor = factors[year]
-        # factor=1
-        df[new_column_name] = df[seriename] * factor
-
-    return df
+            
 
 
 def rolling(df, what):

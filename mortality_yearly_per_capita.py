@@ -9,8 +9,10 @@ import plotly.express as px
 
 import statsmodels.api as sm
 from sklearn.metrics import r2_score
-
-st.set_page_config(layout="wide")
+try:
+    st.set_page_config(layout="wide")
+except:
+    pass
 
 def get_bevolking():
     if platform.processor() != "":

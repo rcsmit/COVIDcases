@@ -73,6 +73,8 @@ def main():
             ["[43] Oversterfte 5yrs groeps Eurostat maand" , "oversterfte_eurostats_maand"],
             ["[44] Rioolwaarde vs ziekenhuis" , "rioolwater_vs_ziekenhuis"],
             ["[45] Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"],
+            ["[46] Mortality yearly per capita", "mortality_yearly_per_capita"],
+            
             ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
