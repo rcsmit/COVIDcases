@@ -86,6 +86,8 @@ def death_after_n(df,n=2,jaar=2021,week=13):
     # Show the plot
     st.plotly_chart(fig)
 
+    #st.info("Er zijn 872.617 80+ in Nederland")
+
 
 def calculate_counts_and_percentages(df, conditions, age_groups):
     """Make table. Death after vax x in rows, agegroups in columns
