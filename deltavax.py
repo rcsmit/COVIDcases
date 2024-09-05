@@ -79,11 +79,9 @@ def death_after_n(df,n=2,jaar=2021,week=13):
         df,
         x=f'delta_vax{n}',
         nbins=int(df[f'delta_vax{n}'].max() - df[f'delta_vax{n}'].min()) + 1,
-        title=f'Number of Deaths by Number of Days After Vaccination no.  {n} / [80+]',
+        title=f'Number of Deaths by Number of Days After Vaccination no.  {n} / [80+], died in week [{week}-{jaar}]',
         labels={f'delta_vax{n}': f'Number of Days After Vaccination no.  {n} / [80+]', 'count': 'Number of Deaths'}
     )
-
-
 
     # Show the plot
     st.plotly_chart(fig)
