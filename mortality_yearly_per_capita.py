@@ -123,17 +123,27 @@ def plot(df, category, value_field, countries):
     # Create the scatter plot with Plotly Express for values before 2020
     fig = go.Figure()
 
+    trendline_info = ""  # Initialize a string to store trendline info
     for country in countries:
+        if country == "BE":
+            color_before_2020 = '#B22222'  # Dark Red
+            color_2020_and_up = '#DC143C'  # Crimson
+            trendline_color = '#FFA07A'    # Light Salmon
+        elif country == "NL":
+            color_before_2020 = '#00008B'  # Dark Blue
+            color_2020_and_up = '#1E90FF'  # Dodger Blue
+            trendline_color = '#87CEFA'    # Light Sky Blue
+    
         df_country_before_2020 = df_before_2020[df_before_2020["country"] == country]
         df_country_2020_and_up = df_2020_and_up[df_2020_and_up["country"] == country]
 
         # Plot before 2020
         fig.add_trace(go.Scatter(x=df_country_before_2020["jaar"], y=df_country_before_2020[value_field], 
-                                 mode='markers', name=f'{country} - Before 2020'))
+                                 mode='markers', name=f'{country} - Before 2020', marker=dict(color=color_before_2020)))
 
         # Plot 2020 and up
         fig.add_trace(go.Scatter(x=df_country_2020_and_up["jaar"], y=df_country_2020_and_up[value_field], 
-                                 mode='markers', name=f'{country} - 2020 and up')) #, marker=dict(color='red')))
+                                 mode='markers', name=f'{country} - 2020 and up', marker=dict(color=color_2020_and_up)))
         
         # Calculate the trendline for each country before 2020
         X = df_country_before_2020["jaar"]
@@ -143,21 +153,23 @@ def plot(df, category, value_field, countries):
         model = sm.OLS(y, X).fit()
         trendline = model.predict(X)
 
-        # Add the trendline to the plot
+         # Add the trendline to the plot
         fig.add_trace(go.Scatter(x=df_country_before_2020["jaar"], y=trendline, 
-                                 mode='lines', name=f'Trendline {country} till 2019')) #, marker=dict(color='green')))
+                                 mode='lines', name=f'Trendline {country} till 2019', line=dict(color=trendline_color)))
 
-        st.write(country)
-            # Calculate R² value
+    
+        # Calculate R² value
         r2 = r2_score(y, trendline)
+        trendline_info += f"{country}\nTrendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}\nR² value: {r2:.4f}\n\n"
 
-        # Print the formula and R² value
-        st.write(f"Trendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}")
-        st.write(f"R² value: {r2:.4f}")
+        # # Print the formula and R² value
+        # st.write(f"Trendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}")
+        # st.write(f"R² value: {r2:.4f}")
 
         # Show the plot
     st.plotly_chart(fig)
-
+    with st.expander("Trendline info"):
+        st.write(trendline_info)
 
 def plot_wrapper(df, t2, value_field, countries):
     df_ = df[df["age_sex"] == t2]
@@ -221,8 +233,8 @@ def main():
             with col3:
                 df_ = df_combined[df_combined["jaar"] >= 2015]
                 plot_wrapper(df_, t2, value_field, countries)
-                
-                    
+
+
     st.subheader("Databronnen")
     st.info("Bevolkingsgrootte NL: https://opendata.cbs.nl/#/CBS/nl/dataset/03759ned/table?dl=39E0B")
     st.info("Bevolkingsgrootte BE:https://ec.europa.eu/eurostat/databrowser/view/demo_pjan__custom_12780094/default/table?lang=en")
