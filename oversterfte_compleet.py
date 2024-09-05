@@ -16,6 +16,12 @@ import statsmodels.api as sm
 
 import statsmodels.api as sm
 
+# Impact of different mortality forecasting methods and explicit assumptions on projected future
+# life expectancy
+# Stoeldraijer, L.; van Duin, C.; van Wissen, L.J.G.; Janssen, F
+# https://pure.rug.nl/ws/portalfiles/portal/13869387/stoeldraijer_et_al_2013_DR.pdf
+
+
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
 
@@ -71,7 +77,7 @@ def interface():
     return how, yaxis_to_zero, rightax, mergetype, sec_y
 
 
-def calculate_year_data(df_merged, year, show_official, series_name):
+def calculate_year_data(df_merged, year, show_official, series_name, smooth):
     st.subheader(year)
     if year != "All":
         df_merged_jaar = df_merged[df_merged["jaar_x_x"] == year].copy()
@@ -125,8 +131,10 @@ def calculate_year_data(df_merged, year, show_official, series_name):
         "q95",
     ]
     for what_to_sma in columnlist:
-        #df_merged_jaar = rolling(df_merged_jaar, f"{what_to_sma}")
-        df_merged_jaar[f'{what_to_sma}_sma'] = df_merged_jaar[what_to_sma]
+        if smooth :
+            df_merged_jaar = rolling(df_merged_jaar, f"{what_to_sma}")
+        else:
+            df_merged_jaar[f'{what_to_sma}_sma'] = df_merged_jaar[what_to_sma]
     return df_merged_jaar
 
 
@@ -399,7 +407,7 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
     return df
 
 
-def comparison(df_merged, series_name):
+def comparison(df_merged, series_name, smooth):
     
     show_official = st.sidebar.selectbox("Show official values", [True, False], 0)
     st.subheader("Vergelijking")
@@ -409,7 +417,7 @@ def comparison(df_merged, series_name):
         
         with st.expander(f"{year}", expanded=expanded):
             df_merged_jaar = calculate_year_data(
-                df_merged, year, show_official, series_name
+                df_merged, year, show_official, series_name, smooth
             )
             show_difference(df_merged_jaar, "weeknr", show_official, year)
 
@@ -904,6 +912,20 @@ def get_data_for_series(df_, seriename):
         #  https://www.cbs.nl/nl-nl/nieuws/2024/06/sterfte-in-2023-afgenomen/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2023%20is%20deze%20156%20666.
         # https://opendata.cbs.nl/statline/#/CBS/nl/dataset/85753NED/table?dl=A787C
         # Define the factors for each year
+        
+        # Op basis van de geprognosticeerde leeftijds- en geslachtsspecifieke sterftekansen en de verwachte
+        #  bevolkingsopbouw in dat jaar, wordt het verwachte aantal overledenen naar leeftijd en geslacht 
+        # berekend voor een bepaald jaar. Voor 2020 is de verwachte sterfte 153 402, 
+        # voor 2021 is deze 154 887 en voor 2022 is dit 155 493. 
+        # Het aantal voor 2020 is ontleend aan de Kernprognose 2019-2060 
+        # (L. Stoeldraijer, van Duin, C., Huisman, C., 2019), het aantal voor 2021 aan de
+        #  Bevolkingsprognose 2020-2070 exclusief de aanname van extra sterfgevallen door de 
+        # COVID-19-epidemie; (L. Stoeldraijer, de Regt et al., 2020) en het aantal voor 2022 
+        # aan de Kernprognose 2021-2070 (exclusief de aanname van extra sterfgevallen door de coronapandemie) (L. Stoeldraijer, van Duin et al., 2021). 
+        # https://www.cbs.nl/nl-nl/longread/rapportages/2023/oversterfte-en-doodsoorzaken-in-2020-tot-en-met-2022/2-data-en-methode
+        
+        # geen waarde voor 2024, zie https://twitter.com/Cbscommunicatie/status/1800505651833270551
+        # huidige waarde 2024 is geexptrapoleerd 2022-2023
         factors = {
             2014: 1,
             2015: 1,
@@ -914,8 +936,7 @@ def get_data_for_series(df_, seriename):
             2020: 153402 / noemer,
             2021: 154887 / noemer,
             2022: 155494 / noemer,
-            2023: 156666
-            / noemer,  # or 169333 / som if you decide to use the updated factor
+            2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
             2024: 157846 / noemer,
         }
     # avg_overledenen_2015_2019 = (som_2015_2019/5)
@@ -2179,6 +2200,7 @@ def main():
     ]
 
     series_name = st.sidebar.selectbox("Leeftijden", serienames_, 0)
+    smooth = st.sidebar.selectbox("Smooth div lijnen in de vergelijking", [True,False],0)
     st.header("Oversterfte - minder leeftijdscategorieen - v240829a")
     st.subheader("CBS & RIVM Methode")
     st.write(
@@ -2224,7 +2246,7 @@ def main():
         df_merged = make_df_merged(df_data, df_rivm, series_name)
         if series_name == "m_v_0_999":
             plot_graph_rivm(df_rivm, series_name, False)
-            comparison(df_merged, series_name)
+            comparison(df_merged, series_name, smooth)
             do_kobak_vs_cbs(df_sterfte)
         df_steigstra = calculate_steigstra(df_merged, series_name)
         plot_steigstra(df_steigstra, series_name)
