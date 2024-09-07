@@ -78,7 +78,6 @@ def main():
             ["[48] Verwachte sterfte", "verwachte_sterfte"],
             ]
 
-
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
     # query_params = st.query_params["choice"] 
     try:
