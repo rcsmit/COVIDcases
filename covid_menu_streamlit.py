@@ -75,6 +75,7 @@ def main():
             ["[45] Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"],
             ["[46] Mortality yearly per capita", "mortality_yearly_per_capita"],
             ["[47] Deltavax", "deltavax"],
+            ["[48] Verwachte sterfte", "verwachte_sterfte"],
             ]
 
 
