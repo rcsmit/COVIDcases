@@ -251,7 +251,7 @@ def main():
             2021: 154887 |
             2022: 155494 |
             2023: 156666 
-           ,
+           
             """)
     st.subheader("Databronnen")
     st.info("Bevolkingsgrootte NL: https://opendata.cbs.nl/#/CBS/nl/dataset/03759ned/table?dl=39E0B")
