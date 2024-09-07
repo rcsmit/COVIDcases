@@ -255,11 +255,10 @@ def main():
             """)
     st.subheader("Databronnen")
     st.info("Bevolkingsgrootte NL: https://opendata.cbs.nl/#/CBS/nl/dataset/03759ned/table?dl=39E0B")
-    st.info("Bevolkingsgrootte BE:https://ec.europa.eu/eurostat/databrowser/view/demo_pjan__custom_12780094/default/table?lang=en")
     st.info("Sterfte: https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
 
-
+    st.info("Code: https://github.com/rcsmit/COVIDcases/blob/main/verwachte_sterfte.py")
 
 if __name__ == "__main__":
-    print ("GOO")
+
     main()
