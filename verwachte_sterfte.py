@@ -177,6 +177,14 @@ def bereken_verwachte_sterfte(countries, start, gevraagde_jaar, to_plot=False):
 
     # Convert the results into a DataFrame
     predictions_gevraagde_jaar = pd.DataFrame(results)
+
+    result_gevraagde_jaar = predictions_gevraagde_jaar[predictions_gevraagde_jaar["jaar"] == gevraagde_jaar]
+      
+    endresult_gevraagde_jaar=   pd.merge(result_gevraagde_jaar, df_bevolking_gevraagde_jaar, on=['age_sex'], how='outer') 
+    endresult_gevraagde_jaar = endresult_gevraagde_jaar[endresult_gevraagde_jaar["geslacht"] != "T"]
+    endresult_gevraagde_jaar["aantal_overleden_voorspelling"] = round( endresult_gevraagde_jaar["per100k"] * endresult_gevraagde_jaar["aantal"] / 100_000,1)
+
+
     if (gevraagde_jaar==2024) & (start ==2015):
         to_plot = True
     else:
@@ -193,6 +201,7 @@ def bereken_verwachte_sterfte(countries, start, gevraagde_jaar, to_plot=False):
 
         # Show the plot
         st.plotly_chart(fig)
+        st.write(endresult_gevraagde_jaar)
     # Show the predicted values for gevraagde_jaar
 
     result_gevraagde_jaar = predictions_gevraagde_jaar[predictions_gevraagde_jaar["jaar"] == gevraagde_jaar]
