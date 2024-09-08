@@ -211,6 +211,10 @@ def perform_lineair_regression(group_data: pd.DataFrame, gevraagde_jaar: int, re
 
     Returns:
         np.ndarray: Predicted mortality rate per 100k for the requested year.
+
+    RANSAC: Best for extreme outliers, but slow.
+    Huber: Faster and more balanced, ideal for mild to moderate outliers.
+    https://www.linkedin.com/pulse/tale-two-detectives-huber-vs-ransac-sravya-kamavarapu-anioc/
     """
     # Define X (independent variable) and y (dependent variable)
     X = group_data["jaar"].values.reshape(-1, 1)
