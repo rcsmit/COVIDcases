@@ -19,7 +19,7 @@ import numpy as np
 
 try:
     st.set_page_config(layout="wide")
-except StreamlitAPIException:
+except:
     pass  # Silently ignore if the page configuration has already been set
 
 
