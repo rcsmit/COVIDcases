@@ -418,7 +418,7 @@ def bereken_verwachte_sterfte_simpel(
     countries: list[str], start: int, gevraagde_jaar: int, regresion_type: str, split_season: bool, to_plot: bool = False
      ) -> tuple[float, float]:
     """
-    Calculate the expected mortality for the requested year using linear regression.
+    Calculate the expected mortality for the requested year using the average of 2015-2019.
 
     Args:
         countries (list[str]): List of country codes ("NL", "BE").
@@ -446,7 +446,7 @@ def bereken_verwachte_sterfte_simpel(
     average_per100k.columns = ['age_group', 'average_per100k']
     combined = pd.merge(average_per100k,df_bevolking_gevraagde_jaar,on="age_group")
     combined["verw_overleden"] = combined["average_per100k"] * combined["aantal"] / 100000
-    totaal_verw_overleden = combined["verw_overleden"].sum()/2
+    totaal_verw_overleden = int(combined["verw_overleden"].sum()/2)
     bevolkingsgrootte = combined["aantal"].sum()/2
     
     return totaal_verw_overleden,bevolkingsgrootte
