@@ -371,7 +371,8 @@ def main_chatgpt_method2():
     df_2020_2021["predicted_mortality"] = predicted_mortality
 
     # Display the new data with predictions
-    st.write(df_2020_2021.head())
+    st.write("the new data with predictions")
+    st.write(df_2020_2021)
 
 
 def main_chatgpt_method3():
@@ -449,7 +450,8 @@ def main_chatgpt_method3():
     df_2020_2021["predicted_mortality"] = predicted_mortality
 
     # Display the new data with predictions
-    st.write(df_2020_2021.head())
+    st.write("the new data with predictions")
+    st.write(df_2020_2021)
 
     # Step 5: Calculate 95% confidence interval for the predictions
     # Add intercept for statsmodels logistic regression to calculate CI
@@ -471,7 +473,8 @@ def main_chatgpt_method3():
     df_test["predicted_mortality"] = np.where(df_test["predicted_prob"] >= 0.5, 1, 0)
 
     # Step 6: Compare actual vs predicted mortality and assess under/over mortality
-    st.write(df_test.head())
+    st.write("Compare actual vs predicted mortality and assess under/over mortality")
+    st.write(df_test)
 
 
 def main():
