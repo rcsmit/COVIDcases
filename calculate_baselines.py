@@ -35,6 +35,8 @@ import plotly.express as px
 #  is greater than the mean, which is a common issue in count data. 
 
 # https://chatgpt.com/c/7d57f4eb-20fe-47d6-9f47-0f48295eeff0
+# https://claude.ai/chat/ddbdf00a-beb3-45d5-ad25-36cebef4e436
+
 
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
@@ -259,6 +261,7 @@ def do_poisson(df):
     train_data = df[df['jaar'].between(2015, 2019)]
 
     # Fit the improved Poisson model on 2015-2019 data
+    #model = smf.poisson('observed_deaths ~ week + week_squared + C(jaar)', data=train_data).fit(scale='X2')
     model = smf.poisson('observed_deaths ~ week + week_squared + sin_week + cos_week + C(jaar)', data=train_data).fit(scale='X2')
 
     # Prepare data for 2020
@@ -271,8 +274,6 @@ def do_poisson(df):
     data_2020_for_predict = data_2020.copy()
     data_2020_for_predict['jaar'] = 2019  # Use a year the model has seen
 
-
-
     # Predict expected deaths for 2020
     data_2020['expected_deaths'] = model.predict(data_2020_for_predict)
 
@@ -281,38 +282,34 @@ def do_poisson(df):
 
     st.write(data_2020)
 
+    df_merged_2020 = data_2020.copy()
+
     fig = go.Figure()
 
-    # Add observed deaths trace
-    fig.add_trace(go.Scatter(
-        x=df_merged_2020['week'],
-        y=df_merged_2020['Overledenen_1'],
-        mode='lines+markers',
-        name='Observed Deaths',
-        line=dict(color='blue')
-    ))
+
+    # Add observed deaths trace for each year
+    for year in df['jaar'].unique():
+        year_data = df[df['jaar'] == year]
+        fig.add_trace(go.Scatter(
+            x=year_data['week'],
+            y=year_data['observed_deaths'],
+            mode='lines',
+            name=f'Observed {year}',
+            line=dict(dash='solid')
+        ))
 
     # Add expected deaths trace
     fig.add_trace(go.Scatter(
         x=df_merged_2020['week'],
         y=df_merged_2020['expected_deaths'],
-        mode='lines+markers',
+        mode='lines',
         name='Expected Deaths',
-        line=dict(color='green')
-    ))
-
-    # Add excess deaths trace
-    fig.add_trace(go.Scatter(
-        x=df_merged_2020['week'],
-        y=df_merged_2020['excess_deaths'],
-        mode='lines+markers',
-        name='Excess Deaths',
-        line=dict(color='red')
+        line=dict(color='black', width=2)
     ))
 
     # Update layout
     fig.update_layout(
-        title='Observed vs Expected vs Excess Deaths in 2020',
+        title='Observed vs Expected Deaths (2015-2020)',
         xaxis_title='Week',
         yaxis_title='Number of Deaths',
         legend_title='Legend',
@@ -321,12 +318,36 @@ def do_poisson(df):
 
     # Show the figure
     st.plotly_chart(fig)
+
+    # Create excess deaths plot
+    fig_excess = go.Figure()
+
+    for year in df_merged_2020['jaar'].unique():
+        year_data = df_merged_2020[df_merged_2020['jaar'] == year]
+        fig_excess.add_trace(go.Scatter(
+            x=year_data['week'],
+            y=year_data['excess_deaths'],
+            mode='lines',
+            name=f'Excess Deaths {year}'
+        ))
+        st.write(f"{year} - excess deaths {year_data['excess_deaths'].sum()}")
+    fig_excess.update_layout(
+        title='Excess Deaths by Year (2015-2020)',
+        xaxis_title='Week',
+        yaxis_title='Excess Deaths',
+        legend_title='Legend',
+        template='plotly_white'
+    )
+
+    st.plotly_chart(fig_excess)
+
+
 def main():
     st.info("""This function fits a Poisson and a quasi-Poisson model to observed death data from 2015 to 2019, and then predicts 
     expected deaths for the year 2020 based on the fitted models. It calculates excess deaths by comparing observed deaths 
     to the expected deaths from both models.
     """)
-    st.warning("Results are strange, they dont follow the seasons, but it is just a straight line")
+    
     serienames_ = [
         "m_v_0_999",
         "m_v_0_64",
