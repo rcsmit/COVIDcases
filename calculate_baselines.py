@@ -219,7 +219,8 @@ def do_poisson(df):
 
 
     # Fit a quasi-Poisson model on the data from 2015 to 2019
-    model = smf.poisson('observed_deaths ~ week + C(year)', data=df).fit(scale='X2')
+    #model = smf.poisson('observed_deaths ~ week + C(year)', data=df).fit(scale='X2')
+    model = smf.poisson('observed_deaths ~ week ', data=df).fit(scale='X2')
 
     # Prepare data for 2020
     weeks_2020 = pd.DataFrame({
