@@ -286,6 +286,7 @@ def main():
     expected deaths for the year 2020 based on the fitted models. It calculates excess deaths by comparing observed deaths 
     to the expected deaths from both models.
     """)
+    st.warning("Results are strange, they dont follow the seasons, but it is just a straight line")
     serienames_ = [
         "m_v_0_999",
         "m_v_0_64",
