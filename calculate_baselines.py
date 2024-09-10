@@ -248,29 +248,24 @@ def do_poisson(df):
     # Add non-linear week effect
     df['week_squared'] = df['week'] ** 2
 
-    # Fit the improved Poisson model
-    model = smf.poisson('observed_deaths ~ week + week_squared + sin_week + cos_week + C(jaar)', data=df).fit(scale='X2')
+    # Select the years 2015-2019 for training the model
+    train_data = df[df['jaar'].between(2015, 2019)]
+
+    # Fit the improved Poisson model on 2015-2019 data
+    model = smf.poisson('observed_deaths ~ week + week_squared + sin_week + cos_week + C(jaar)', data=train_data).fit(scale='X2')
 
     # Prepare data for 2020
-    weeks_2020 = pd.DataFrame({
-        'week': np.arange(1, 53),
-        'jaar': 2020
-    })
-    weeks_2020['sin_week'] = np.sin(2 * np.pi * weeks_2020['week'] / 52)
-    weeks_2020['cos_week'] = np.cos(2 * np.pi * weeks_2020['week'] / 52)
-    weeks_2020['week_squared'] = weeks_2020['week'] ** 2
+    data_2020 = df[df['jaar'] == 2020].copy()
+    data_2020['sin_week'] = np.sin(2 * np.pi * data_2020['week'] / 52)
+    data_2020['cos_week'] = np.cos(2 * np.pi * data_2020['week'] / 52)
+    data_2020['week_squared'] = data_2020['week'] ** 2
 
     # Predict expected deaths for 2020
-    weeks_2020['expected_deaths'] = model.predict(weeks_2020)
-
-    # Merge the predicted and actual data for 2020
-    data_2020 = df[df['jaar'] == 2020]
-    df_merged_2020 = pd.merge(weeks_2020, data_2020, on=['week', 'jaar'])
+    data_2020['expected_deaths'] = model.predict(data_2020)
 
     # Calculate excess mortality
-    df_merged_2020['excess_deaths'] = df_merged_2020['observed_deaths'] - df_merged_2020['expected_deaths']
+    data_2020['excess_deaths'] = data_2020['observed_deaths'] - data_2020['expected_deaths']
 
-    st.write(df_merged_2020)
 
     fig = go.Figure()
 
