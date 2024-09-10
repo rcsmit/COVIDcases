@@ -13,7 +13,7 @@ import pandas as pd
 
 # from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import RANSACRegressor, LinearRegression, HuberRegressor
-
+from sklearn.linear_model import LogisticRegression
 import numpy as np
 
 
@@ -188,7 +188,7 @@ def get_sterfte(gevraagde_jaar: int, land: str, split_season: bool) -> tuple[pd.
 
     df_bevolking, df_bevolking_gevraagde_jaar = get_bevolking(gevraagde_jaar, land)
     summed_per_year = (
-        df_.groupby(["jaar", "age_sex", "season"])["OBS_VALUE"].sum().reset_index()
+        df_.groupby(["jaar", "age_sex", "season"],observed=False)["OBS_VALUE"].sum().reset_index()
     )
 
     df__ = pd.merge(summed_per_year, df_bevolking, on=["jaar", "age_sex"], how="outer")
@@ -338,7 +338,7 @@ def bereken_verwachte_sterfte(
 
     # Loop through each group of age_sex and season
     for (age_sex_group, season), group_data in df_combined.groupby(
-        ["age_sex", "season"]
+        ["age_sex", "season"],observed=False
     ):
         predicted_value = perform_lineair_regression(group_data, gevraagde_jaar, regresion_type)
 
@@ -440,7 +440,7 @@ def bereken_verwachte_sterfte_simpel(
     )
    
     # Calculate average per100k for each age_group
-    average_per100k = df_combined.groupby('age_group')['per100k'].mean().reset_index()
+    average_per100k = df_combined.groupby('age_group',observed=False)['per100k'].mean().reset_index()
 
     # Rename the column for clarity
     average_per100k.columns = ['age_group', 'average_per100k']
@@ -451,6 +451,7 @@ def bereken_verwachte_sterfte_simpel(
     
     return totaal_verw_overleden,bevolkingsgrootte
     
+
 
 def main():
     """Streamlit application to predict mortality rates based on historical data for different age and gender groups."""
@@ -491,6 +492,10 @@ def main():
                 #st.write(f"{gevraagde_jaar} - {int(verw_overleden)} - {int(bevolkingsgrootte)}")
                 tabel.loc[gevraagde_jaar, start] = verw_overleden
     st.write(tabel)
+
+
+
+
     col1, col2 = st.columns(2)
     with col1:
 
@@ -546,5 +551,5 @@ def main():
 
 
 if __name__ == "__main__":
-
+    print("Go")
     main()

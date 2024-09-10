@@ -76,6 +76,7 @@ def main():
             ["[46] Mortality yearly per capita", "mortality_yearly_per_capita"],
             ["[47] Deltavax", "deltavax"],
             ["[48] Verwachte sterfte", "verwachte_sterfte"],
+              ["[49] Logistic regression", "logistic_regression"],
             ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
