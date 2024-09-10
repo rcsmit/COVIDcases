@@ -10,6 +10,21 @@ import statsmodels.formula.api as smf
 
 import plotly.graph_objs as go
 import plotly.express as px
+
+# Later aan te vullen met andere methodes
+# https://www.zonmw.nl/sites/zonmw/files/2023-04/Rapportage-oversterfte.pdf
+# In 39 studies werd een statistisch model gebruikt om de verwachte oversterfte te modelleren (Tabel 3
+# en Bijlage 5). Vaak werd hiervoor een statistisch model met een Poisson-verdeling gebruikt (15 studies),
+# hoewel ook binnen de groep Poisson-modellen verschillende keuzes werden gemaakt. Meestal kozen
+# onderzoekers voor een overdispersed (quasi-)Poisson-model waarbij er ruimte is voor meer variatie
+# tussen de datapunten dan het model normaal toestaat. Een andere vaak gebruikte methode was het
+# autoregressive integrated moving average (ARIMA) model of het seasonal ARIMA (SARIMA) model (7
+# studies). Dit is een methode die gebruikt wordt om voorspellingen te doen op basis van een dataset
+# waarbij je metingen hebt op verschillende momenten in de tijd (time series data). Het SARIMA-model
+# bevat daarnaast ook een seizoenscomponent. Regelmatig werd er gekozen voor lineare regressie (6
+# studies) en ook andere generalized linear models met verschillende verdelingen werden gebruikt.
+
+
 # This function fits a Poisson and a quasi-Poisson model to observed death data from 2015 to 2019, and then predicts 
 # expected deaths for the year 2020 based on the fitted models. It calculates excess deaths by comparing observed deaths 
 # to the expected deaths from both models.
