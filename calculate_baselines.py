@@ -241,6 +241,13 @@ def do_poisson(df):
     
     # st.write(df_merged_2020)
 
+    import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+import streamlit as st
+import plotly.graph_objs as go
+
+def do_poisson(df):
     # Add seasonality terms
     df['sin_week'] = np.sin(2 * np.pi * df['week'] / 52)
     df['cos_week'] = np.cos(2 * np.pi * df['week'] / 52)
@@ -260,12 +267,19 @@ def do_poisson(df):
     data_2020['cos_week'] = np.cos(2 * np.pi * data_2020['week'] / 52)
     data_2020['week_squared'] = data_2020['week'] ** 2
 
+    # Create a copy of 2020 data with a year the model has seen (e.g., 2019)
+    data_2020_for_predict = data_2020.copy()
+    data_2020_for_predict['jaar'] = 2019  # Use a year the model has seen
+
+
+
     # Predict expected deaths for 2020
-    data_2020['expected_deaths'] = model.predict(data_2020)
+    data_2020['expected_deaths'] = model.predict(data_2020_for_predict)
 
     # Calculate excess mortality
     data_2020['excess_deaths'] = data_2020['observed_deaths'] - data_2020['expected_deaths']
 
+    st.write(data_2020)
 
     fig = go.Figure()
 
