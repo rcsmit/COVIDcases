@@ -208,39 +208,69 @@ def do_poisson(df):
     """
 
 
-    # Voeg een constante toe aan het model (intercept)
-    df['intercept'] = 1
+    # # Voeg een constante toe aan het model (intercept)
+    # df['intercept'] = 1
 
-    # Selecteer de jaren 2015-2019 voor het trainen van het model
-    train_data = df[df['jaar'] < 2020]
-    data_2020 =  df[df['jaar'] == 2020]
-    st.write(train_data)
-    # Poisson model
+    # # Selecteer de jaren 2015-2019 voor het trainen van het model
+    # train_data = df[df['jaar'] < 2020]
+    # data_2020 =  df[df['jaar'] == 2020]
+    # st.write(train_data)
+    # # Poisson model
 
 
-    # Fit a quasi-Poisson model on the data from 2015 to 2019
-    #model = smf.poisson('observed_deaths ~ week + C(year)', data=df).fit(scale='X2')
-    model = smf.poisson('observed_deaths ~ week ', data=df).fit(scale='X2')
+    # # Fit a quasi-Poisson model on the data from 2015 to 2019
+    # #model = smf.poisson('observed_deaths ~ week + C(year)', data=df).fit(scale='X2')
+    # model = smf.poisson('observed_deaths ~ week + C(year)', data=df).fit(scale='X2')
+
+    # # Prepare data for 2020
+    # weeks_2020 = pd.DataFrame({
+    #     'week': np.arange(1, 53),
+    #     'year': 2020
+    # })
+
+    # # Predict expected deaths for 2020
+    # weeks_2020['expected_deaths'] = model.predict(weeks_2020)
+
+        
+    # # Merge the predicted and actual data for 2020
+    # df_merged_2020 = pd.merge(weeks_2020, data_2020, on=['week', 'year'])
+
+    # # Calculate excess mortality
+    # df_merged_2020['excess_deaths'] = df_merged_2020['Overledenen_1'] - df_merged_2020['expected_deaths']
+
+    
+    # st.write(df_merged_2020)
+
+    # Add seasonality terms
+    df['sin_week'] = np.sin(2 * np.pi * df['week'] / 52)
+    df['cos_week'] = np.cos(2 * np.pi * df['week'] / 52)
+
+    # Add non-linear week effect
+    df['week_squared'] = df['week'] ** 2
+
+    # Fit the improved Poisson model
+    model = smf.poisson('observed_deaths ~ week + week_squared + sin_week + cos_week + C(jaar)', data=df).fit(scale='X2')
 
     # Prepare data for 2020
     weeks_2020 = pd.DataFrame({
         'week': np.arange(1, 53),
-        'year': 2020
+        'jaar': 2020
     })
+    weeks_2020['sin_week'] = np.sin(2 * np.pi * weeks_2020['week'] / 52)
+    weeks_2020['cos_week'] = np.cos(2 * np.pi * weeks_2020['week'] / 52)
+    weeks_2020['week_squared'] = weeks_2020['week'] ** 2
 
     # Predict expected deaths for 2020
     weeks_2020['expected_deaths'] = model.predict(weeks_2020)
 
-        
     # Merge the predicted and actual data for 2020
-    df_merged_2020 = pd.merge(weeks_2020, data_2020, on=['week', 'year'])
+    data_2020 = df[df['jaar'] == 2020]
+    df_merged_2020 = pd.merge(weeks_2020, data_2020, on=['week', 'jaar'])
 
     # Calculate excess mortality
-    df_merged_2020['excess_deaths'] = df_merged_2020['Overledenen_1'] - df_merged_2020['expected_deaths']
+    df_merged_2020['excess_deaths'] = df_merged_2020['observed_deaths'] - df_merged_2020['expected_deaths']
 
-    
     st.write(df_merged_2020)
-
 
     fig = go.Figure()
 
