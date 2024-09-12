@@ -299,10 +299,31 @@ def update_and_display_figures(fig_observed: go.Figure, fig_excess: go.Figure) -
     st.plotly_chart(fig_observed)
     st.plotly_chart(fig_excess)
 
+def add_fields(df_data,series_name):
+    df_data["year"] = df_data["jaar"]
+    df_data = df_data.sort_values(by=["year", "week"])
+    df_data["observed_deaths"]= df_data[f"{series_name}"]
+    df_data["Overledenen_1"] = df_data[f"{series_name}"]
+    df_data["jaar"] = df_data["year"]
+    df_data["weeknr"] = (
+        df_data["jaar"].astype(str) + "_" + df_data["week"].astype(str).str.zfill(2)
+    )
+    return df_data
 def main():
-    st.info("""This function fits a Poisson model to observed death data from 2015 to 2019, and then predicts 
-    expected deaths for the years 2020-2024 based on the fitted models. It calculates excess deaths by comparing observed deaths 
-    to the expected deaths from both models. 
+    st.header("Oversterfte berekening mbv Poisson model")
+    st.info("""
+    
+        This function fits a Poisson model to observed death data from 2015 to 2019, and then predicts 
+        expected deaths for the years 2020-2024 based on the fitted models. It calculates excess deaths by comparing observed deaths 
+        to the expected deaths from both models. 
+        
+        The model to captures not just seasonal and weekly patterns, 
+        but also overall trends in the data over time. This means it can account for gradual changes 
+        in death rates that occur from year to year, beyond just the seasonal fluctuations. 
+        
+        NB : This model assumes that any trend observed in the training data (2015-2019) 
+        continues linearly into the future. This may not always be a valid assumption, 
+        especially over long time periods, big demographic changes or during unusual events (like a pandemic).
     """)
     
 
@@ -326,26 +347,10 @@ def main():
     # before the Poisson model could take into account changes over time, I used a factor to multiply the baseline with.
     # For not changing the code totally, I just set take_factor_in_account on True
 
-    # These changes allow our model to capture not just seasonal and weekly patterns, 
-    # but also overall trends in the data over time. This means it can account for gradual changes 
-    # in death rates that occur from year to year, beyond just the seasonal fluctuations. 
-    # Some important considerations:
-    # 
-    # This model assumes that any trend observed in the training data (2015-2019) 
-    # continues linearly into the future. This may not always be a valid assumption, 
-    # especially over long time periods or during unusual events (like a pandemic).
+   
 
     df_data = get_sterftedata()
-    
-    df_data["year"] = df_data["jaar"]
-    df_data = df_data.sort_values(by=["year", "week"])
-    df_data["observed_deaths"]= df_data[f"{series_name}"]
-    df_data["Overledenen_1"] = df_data[f"{series_name}"]
-    df_data["jaar"] = df_data["year"]
-    df_data["weeknr"] = (
-        df_data["jaar"].astype(str) + "_" + df_data["week"].astype(str).str.zfill(2)
-    )
-   
+    df_data = add_fields(df_data, series_name)
     df_data = adjust_overledenen(df_data)
     perform_poisson_analysis(df_data, take_factor_in_account)
     
