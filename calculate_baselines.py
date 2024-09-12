@@ -10,75 +10,96 @@ import statsmodels.formula.api as smf
 
 import plotly.graph_objs as go
 import plotly.express as px
+from oversterfte_compleet import get_sterftedata
+from statsmodels.genmod.generalized_linear_model import GLMResultsWrapper
 
-# Later aan te vullen met andere methodes
-# https://www.zonmw.nl/sites/zonmw/files/2023-04/Rapportage-oversterfte.pdf
-# In 39 studies werd een statistisch model gebruikt om de verwachte oversterfte te modelleren (Tabel 3
-# en Bijlage 5). Vaak werd hiervoor een statistisch model met een Poisson-verdeling gebruikt (15 studies),
-# hoewel ook binnen de groep Poisson-modellen verschillende keuzes werden gemaakt. Meestal kozen
-# onderzoekers voor een overdispersed (quasi-)Poisson-model waarbij er ruimte is voor meer variatie
-# tussen de datapunten dan het model normaal toestaat. Een andere vaak gebruikte methode was het
-# autoregressive integrated moving average (ARIMA) model of het seasonal ARIMA (SARIMA) model (7
-# studies). Dit is een methode die gebruikt wordt om voorspellingen te doen op basis van een dataset
-# waarbij je metingen hebt op verschillende momenten in de tijd (time series data). Het SARIMA-model
-# bevat daarnaast ook een seizoenscomponent. Regelmatig werd er gekozen voor lineare regressie (6
-# studies) en ook andere generalized linear models met verschillende verdelingen werden gebruikt.
+# https://chatgpt.com/c/66e2ce71-2938-8004-b28b-fbd1f01eac49
+# https://chatgpt.com/c/66e2beaf-a1f8-8004-ae1d-0b28393d2a48
 
-
-# This function fits a Poisson and a quasi-Poisson model to observed death data from 2015 to 2019, and then predicts 
-# expected deaths for the year 2020 based on the fitted models. It calculates excess deaths by comparing observed deaths 
-# to the expected deaths from both models.
-
-
-# In R, the main difference between a Poisson regression model and a quasi-Poisson regression model 
-# is how they handle overdispersion. Overdispersion occurs when the variance of the response variable
-#  is greater than the mean, which is a common issue in count data. 
-
-# https://chatgpt.com/c/7d57f4eb-20fe-47d6-9f47-0f48295eeff0
-# https://claude.ai/chat/ddbdf00a-beb3-45d5-ad25-36cebef4e436
-
-
-# 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
-# Overledenen; geslacht en leeftijd, per week
-
-# Downloaden van tabeloverzicht
-# toc = pd.DataFrame(cbsodata.get_table_list())
-try:
-    st.set_page_config(layout="wide")
-except:
-    pass
-
-# TO SUPRESS
-# A value is trying to be set on a copy of a slice from a DataFrame.
-# Try using .loc[row_indexer,col_indexer] = value instead
-pd.options.mode.chained_assignment = None
+# https://claude.ai/chat/164c1d6e-faf6-4ab5-835f-0f58f7788537
 
 
 def adjust_overledenen(df):
-        """# Adjust "Overledenen_1" based on the week number
-        # if week = 0, overledenen_l : add to week 52 of the year before
-        # if week = 53: overleden_l : add to week 1 to the year after
-        """
+    """
+    Adjust "Overledenen_1" and "aantal_dgn" based on the week number.
+    
+    - Specific cases:
+      - Week 53 of 2020 is added to week 52 of 2020.
+      - Week 0 of 2021 is added to week 1 of 2021.
+      
+    - General case:
+      - If week = 0, add to week 52 of the previous year.
+      - If week = 53, add to week 1 of the next year.
+    """
+    
+   
+    # Handle specific case: Week 53 of 2020 -> Week 52 of 2020
+    if not df[(df["year"] == 2020) & (df["week"] == 53)].empty:
+        # Ensure the row for week 52 exists before adding
+        if not df[(df["year"] == 2020) & (df["week"] == 52)].empty:
+            df.at[df[(df["year"] == 2020) & (df["week"] == 52)].index[0], "Overledenen_1"] += df.loc[
+                (df["year"] == 2020) & (df["week"] == 53), "Overledenen_1"].values[0]
+            df.at[df[(df["year"] == 2020) & (df["week"] == 52)].index[0], "aantal_dgn"] += df.loc[
+                (df["year"] == 2020) & (df["week"] == 53), "aantal_dgn"].values[0]
+    else:
+        print("empty value for 2020-53")
+    # Handle specific case: Week 0 of 2021 -> Week 1 of 2021
+    if not df[(df["year"] == 2021) & (df["week"] == 0)].empty:
+        # Ensure the row for week 1 exists before adding
+        if not df[(df["year"] == 2021) & (df["week"] == 1)].empty:
+            df.at[df[(df["year"] == 2021) & (df["week"] == 1)].index[0], "Overledenen_1"] += df.loc[
+                (df["year"] == 2021) & (df["week"] == 0), "Overledenen_1"].values[0]
+            df.at[df[(df["year"] == 2021) & (df["week"] == 1)].index[0], "aantal_dgn"] += df.loc[
+                (df["year"] == 2021) & (df["week"] == 0), "aantal_dgn"].values[0]
+    else:
+        print("empty value for 2021-0")
 
-        for index, row in df.iterrows():
-            if row["week"] == 0:
-                previous_year = row["year"] - 1
-                df.loc[
-                    (df["year"] == previous_year) & (df["week"] == 52), "Overledenen_1"
-                ] += row["Overledenen_1"]
-            elif row["week"] == 53:
-                next_year = row["year"] + 1
-                df.loc[
-                    (df["year"] == next_year) & (df["week"] == 1), "Overledenen_1"
-                ] += row["Overledenen_1"]
-        # Filter out the rows where week is 0 or 53 after adjusting
-        df = df[~df["week"].isin([0, 53])]
-        return df
+    # Remove the rows for week 53 of 2020 and week 0 of 2021
+    df = df[~((df["year"] == 2020) & (df["week"] == 53))]
+    df = df[~((df["year"] == 2021) & (df["week"] == 0))]
+
+    # Apply general rule for other years
+    for index, row in df.iterrows():
+        if row["week"] == 0 and not (row["year"] == 2021):
+            previous_year = row["year"] - 1
+            df.loc[
+                (df["year"] == previous_year) & (df["week"] == 52), "Overledenen_1"
+            ] += row["Overledenen_1"]
+            df.loc[
+                (df["year"] == previous_year) & (df["week"] == 52), "aantal_dgn"
+            ] += row["aantal_dgn"]
+
+        elif row["week"] == 53 and not (row["year"] == 2020):
+            next_year = row["year"] + 1
+            df.loc[
+                (df["year"] == next_year) & (df["week"] == 1), "Overledenen_1"
+            ] += row["Overledenen_1"]
+            df.loc[
+                (df["year"] == next_year) & (df["week"] == 1), "aantal_dgn"
+            ] += row["aantal_dgn"]
+
+    # Remove any other remaining rows with week 0 or 53
+    df = df[~df["week"].isin([0, 53])]
+    
+    return df
+
+
 
 
 def get_sterfte_data_fixed():
+    """
+    Fetch and preprocess death data from a remote CSV file. 
+    Obsolete, the script uses get_data() from oversterfte_compleet.py
+    
+    Returns:
+    --------
+    pd.DataFrame
+        The processed DataFrame containing death data.
+    """
+
     #C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week.csv
     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week.csv"
+
     df_ = pd.read_csv(
         file,
         delimiter=";",
@@ -90,265 +111,201 @@ def get_sterfte_data_fixed():
     return df_
 
 
-
-def do_poisson_original(df):
-
+def perform_poisson_analysis(df: pd.DataFrame, take_factor_into_account: bool) -> None:
     """
-    This function fits a Poisson and a quasi-Poisson model to observed death data from 2015 to 2019, and then predicts 
-    expected deaths for the year 2020 based on the fitted models. It calculates excess deaths by comparing observed deaths 
-    to the expected deaths from both models.
+    Fit Poisson models to observed death data, predict expected deaths, and calculate excess deaths.
+    This version includes a time trend in the model.
 
-    Parameters:
-    -----------
-    df : pandas.DataFrame
-        A DataFrame containing the following columns:
-        - 'jaar': The year of observation.
-        - 'week': The week number of the year.
-        - 'observed_deaths': The observed number of deaths.
+    Args:
+        df (pd.DataFrame): DataFrame with columns 'jaar' (year), 'week', and 'observed_deaths'.
+        take_factor_into_account (bool): Whether to consider demographic changes in calculations.
 
     Returns:
-    --------
-    None
-        The function does not return any values but prints out a DataFrame showing the week, year, observed deaths, 
-        expected deaths from both models (Poisson and quasi-Poisson), and excess deaths calculated from both models 
-        using Streamlit's st.write() function.
-    
-    Notes:
-    ------
-    - The function adds an intercept column to the DataFrame for modeling purposes.
-    - The quasi-Poisson model is implemented using the Tweedie family with a power parameter set to 1.
-    - The results are printed for inspection within the Streamlit application using `st.write`.
+        None: Results are displayed using Streamlit's st.write() and st.plotly_chart().
     """
+    BASELINE_DEATHS = 149832  # average deaths per year 2015-2019
+    DEMOGRAPHIC_FACTORS = {
+        2014: 1, 2015: 1, 2016: 1, 2017: 1, 2018: 1, 2019: 1,
+        2020: 153402 / BASELINE_DEATHS,
+        2021: 154887 / BASELINE_DEATHS,
+        2022: 155494 / BASELINE_DEATHS,
+        2023: 156666 / BASELINE_DEATHS,
+        2024: 157846 / BASELINE_DEATHS,
+    }
 
+    df = prepare_data(df)
+    model = fit_poisson_model(df[df['jaar'].between(2015, 2019)])
 
-    # Voeg een constante toe aan het model (intercept)
-    df['intercept'] = 1
+    fig_observed = go.Figure()
+    fig_excess = go.Figure()
+    expected_deaths_added = False
 
-    # Selecteer de jaren 2015-2019 voor het trainen van het model
-    train_data = df[df['jaar'] < 2020]
-    st.write(train_data)
-    # Poisson model
-    poisson_model = sm.GLM(train_data['observed_deaths'], train_data[['intercept', 'week']], family=sm.families.Poisson())
-    poisson_results = poisson_model.fit()
+    for year in range(2015, 2025):
+        data_year = prepare_year_data(df, year)
+        #factor = DEMOGRAPHIC_FACTORS[year] if take_factor_into_account else 1
+        factor = 1
+        data_year['expected_deaths'] = predict_deaths(model, data_year) * factor
+        data_year['excess_deaths'] = data_year['observed_deaths'] - data_year['expected_deaths']
 
-    # Voor een quasi-Poisson model gebruik je de Tweedie familie met power=1
-    quasi_poisson_model = sm.GLM(train_data['observed_deaths'], train_data[['intercept', 'week']], family=sm.families.Tweedie(var_power=1))
-    quasi_poisson_results = quasi_poisson_model.fit()
-
-    # Voorspellingen voor 2020 maken
-    predict_data = df[df['year'] == 2020]
-    predict_data['expected_deaths'] = poisson_results.predict(predict_data[['intercept', 'week']])
-    # Voor quasi-Poisson model:
-    predict_data['expected_deaths_quasi_poisson'] = quasi_poisson_results.predict(predict_data[['intercept', 'week']])
-
-    predict_data['excess_deaths'] = predict_data['observed_deaths'] - predict_data['expected_deaths']
-    predict_data['excess_deaths_quasi_poisson'] = predict_data['observed_deaths'] - predict_data['expected_deaths_quasi_poisson']
-
-    # Bekijk de resultaten
-    st.write(predict_data[['week', 'year', 'observed_deaths', 'expected_deaths', 'excess_deaths', "expected_deaths_quasi_poisson", "excess_deaths_quasi_poisson"]])
-
-
-    # Plotly visualisatie
-    fig = px.line(
-        predict_data,
-        x='week',
-        y=['observed_deaths', 'expected_deaths', 'expected_deaths_quasi_poisson'],
-        labels={
-            'week': 'Week',
-            'value': 'Number of Deaths',
-            'variable': 'Death Type'
-        },
-        title='Observed vs Expected Deaths (Poisson and Quasi-Poisson Models) - 2020'
-    )
-    
-    fig.add_scatter(
-        x=predict_data['week'], 
-        y=predict_data['excess_deaths'], 
-        mode='lines', 
-        name='Excess Deaths (Poisson)',
-        line=dict(dash='dash', color='red')
-    )
-    
-    fig.add_scatter(
-        x=predict_data['week'], 
-        y=predict_data['excess_deaths_quasi_poisson'], 
-        mode='lines', 
-        name='Excess Deaths (Quasi-Poisson)',
-        line=dict(dash='dash', color='blue')
-    )
-
-    st.plotly_chart(fig)
-
-
-def do_poisson(df):
-
-    """
-    This function fits a Poisson and a quasi-Poisson model to observed death data from 2015 to 2019, and then predicts 
-    expected deaths for the year 2020 based on the fitted models. It calculates excess deaths by comparing observed deaths 
-    to the expected deaths from both models.
-
-    Parameters:
-    -----------
-    df : pandas.DataFrame
-        A DataFrame containing the following columns:
-        - 'jaar': The year of observation.
-        - 'week': The week number of the year.
-        - 'observed_deaths': The observed number of deaths.
-
-    Returns:
-    --------
-    None
-        The function does not return any values but prints out a DataFrame showing the week, year, observed deaths, 
-        expected deaths from both models (Poisson and quasi-Poisson), and excess deaths calculated from both models 
-        using Streamlit's st.write() function.
-    
-    Notes:
-    ------
-    - The function adds an intercept column to the DataFrame for modeling purposes.
-    - The quasi-Poisson model is implemented using the Tweedie family with a power parameter set to 1.
-    - The results are printed for inspection within the Streamlit application using `st.write`.
-    """
-
-
-    # # Voeg een constante toe aan het model (intercept)
-    # df['intercept'] = 1
-
-    # # Selecteer de jaren 2015-2019 voor het trainen van het model
-    # train_data = df[df['jaar'] < 2020]
-    # data_2020 =  df[df['jaar'] == 2020]
-    # st.write(train_data)
-    # # Poisson model
-
-
-    # # Fit a quasi-Poisson model on the data from 2015 to 2019
-    # #model = smf.poisson('observed_deaths ~ week + C(year)', data=df).fit(scale='X2')
-    # model = smf.poisson('observed_deaths ~ week + C(year)', data=df).fit(scale='X2')
-
-    # # Prepare data for 2020
-    # weeks_2020 = pd.DataFrame({
-    #     'week': np.arange(1, 53),
-    #     'year': 2020
-    # })
-
-    # # Predict expected deaths for 2020
-    # weeks_2020['expected_deaths'] = model.predict(weeks_2020)
-
+        add_observed_trace(fig_observed, data_year, year)
         
-    # # Merge the predicted and actual data for 2020
-    # df_merged_2020 = pd.merge(weeks_2020, data_2020, on=['week', 'year'])
+        if year >= 2020:
+            if take_factor_into_account or not expected_deaths_added:
+                add_expected_trace(fig_observed, data_year, year, take_factor_into_account, expected_deaths_added)
+                expected_deaths_added = True
+            add_excess_trace(fig_excess, data_year, year)
+            st.write(f"{year} - {int(data_year['excess_deaths'].sum())}")
 
-    # # Calculate excess mortality
-    # df_merged_2020['excess_deaths'] = df_merged_2020['Overledenen_1'] - df_merged_2020['expected_deaths']
+    update_and_display_figures(fig_observed, fig_excess)
 
-    
-    # st.write(df_merged_2020)
+def prepare_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Prepare the data by adding calculated columns for seasonality, non-linear week effects, and time trend.
 
-    import numpy as np
-import pandas as pd
-import statsmodels.formula.api as smf
-import streamlit as st
-import plotly.graph_objs as go
+    Args:
+        df (pd.DataFrame): Input DataFrame with 'week' and 'jaar' columns.
 
-def do_poisson(df):
-    # Add seasonality terms
+    Returns:
+        pd.DataFrame: DataFrame with additional calculated columns.
+    """
     df['sin_week'] = np.sin(2 * np.pi * df['week'] / 52)
     df['cos_week'] = np.cos(2 * np.pi * df['week'] / 52)
-
-    # Add non-linear week effect
     df['week_squared'] = df['week'] ** 2
+    df['time'] = (df['jaar'] - df['jaar'].min()) * 52 + df['week']  # Time in weeks since start of data
+    return df
 
-    # Select the years 2015-2019 for training the model
-    train_data = df[df['jaar'].between(2015, 2019)]
+def fit_poisson_model(train_data: pd.DataFrame) -> GLMResultsWrapper:
+    """
+    Fit a Poisson regression model to the training data, including a time trend.
 
-    # Fit the improved Poisson model on 2015-2019 data
-    #model = smf.poisson('observed_deaths ~ week + week_squared + C(jaar)', data=train_data).fit(scale='X2')
-    model = smf.poisson('observed_deaths ~ week + week_squared + sin_week + cos_week + C(jaar)', data=train_data).fit(scale='X2')
+    Args:
+        train_data (pd.DataFrame): Training data for the model.
 
-    # Prepare data for 2020
-    data_2020 = df[df['jaar'] == 2020].copy()
-    data_2020['sin_week'] = np.sin(2 * np.pi * data_2020['week'] / 52)
-    data_2020['cos_week'] = np.cos(2 * np.pi * data_2020['week'] / 52)
-    data_2020['week_squared'] = data_2020['week'] ** 2
+    Returns:
+        GLMResultsWrapper: Fitted Poisson model.
+    """
+    formula = 'observed_deaths ~ week + week_squared + sin_week + cos_week + time'
+    return smf.poisson(formula, data=train_data).fit(scale='X2')
 
-    # Create a copy of 2020 data with a year the model has seen (e.g., 2019)
-    data_2020_for_predict = data_2020.copy()
-    data_2020_for_predict['jaar'] = 2019  # Use a year the model has seen
+def prepare_year_data(df: pd.DataFrame, year: int) -> pd.DataFrame:
+    """
+    Prepare data for a specific year, ensuring the time variable is correctly set.
 
-    # Predict expected deaths for 2020
-    data_2020['expected_deaths'] = model.predict(data_2020_for_predict)
+    Args:
+        df (pd.DataFrame): Full dataset.
+        year (int): Year to prepare data for.
 
-    # Calculate excess mortality
-    data_2020['excess_deaths'] = data_2020['observed_deaths'] - data_2020['expected_deaths']
+    Returns:
+        pd.DataFrame: Prepared data for the specified year.
+    """
+    data_year = df[df['jaar'] == year].copy()
+    min_year = df['jaar'].min()
+    data_year['time'] = (year - min_year) * 52 + data_year['week']
+    return data_year
 
-    st.write(data_2020)
+def predict_deaths(model: GLMResultsWrapper, data: pd.DataFrame) -> np.ndarray:
+    """
+    Predict expected deaths using the fitted model.
 
-    df_merged_2020 = data_2020.copy()
+    Args:
+        model (GLMResultsWrapper): Fitted Poisson model.
+        data (pd.DataFrame): Data to predict on.
 
-    fig = go.Figure()
+    Returns:
+        np.ndarray: Array of predicted death counts.
+    """
+    return model.predict(data)
 
+def add_observed_trace(fig: go.Figure, data: pd.DataFrame, year: int) -> None:
+    """
+    Add a trace for observed deaths to the figure.
 
-    # Add observed deaths trace for each year
-    for year in df['jaar'].unique():
-        year_data = df[df['jaar'] == year]
-        fig.add_trace(go.Scatter(
-            x=year_data['week'],
-            y=year_data['observed_deaths'],
-            mode='lines',
-            name=f'Observed {year}',
-            line=dict(dash='solid')
-        ))
-
-    # Add expected deaths trace
+    Args:
+        fig (go.Figure): Plotly figure to add the trace to.
+        data (pd.DataFrame): Data for the specific year.
+        year (int): Year of the data.
+    """
+    line_width = 2 if year >= 2020 else 1  # Thicker lines for 2020 and later
     fig.add_trace(go.Scatter(
-        x=df_merged_2020['week'],
-        y=df_merged_2020['expected_deaths'],
+        x=data['week'],
+        y=data['observed_deaths'],
         mode='lines',
-        name='Expected Deaths',
-        line=dict(color='black', width=2)
+        name=f'Observed {year}',
+        line=dict(width=line_width)
     ))
 
-    # Update layout
-    fig.update_layout(
-        title='Observed vs Expected Deaths (2015-2020)',
-        xaxis_title='Week',
-        yaxis_title='Number of Deaths',
-        legend_title='Legend',
-        template='plotly_white'
-    )
+def add_expected_trace(fig: go.Figure, data: pd.DataFrame, year: int, take_factor_into_account: bool, expected_deaths_added: bool) -> None:
+    """
+    Add a trace for expected deaths to the figure.
 
-    # Show the figure
-    st.plotly_chart(fig)
-
-    # Create excess deaths plot
-    fig_excess = go.Figure()
-
-    for year in df_merged_2020['jaar'].unique():
-        year_data = df_merged_2020[df_merged_2020['jaar'] == year]
-        fig_excess.add_trace(go.Scatter(
-            x=year_data['week'],
-            y=year_data['excess_deaths'],
+    Args:
+        fig (go.Figure): Plotly figure to add the trace to.
+        data (pd.DataFrame): Data for the specific year.
+        year (int): Year of the data.
+        take_factor_into_account (bool): Whether to consider demographic factors.
+        expected_deaths_added (bool): Whether an expected deaths trace has already been added.
+    """
+    if take_factor_into_account:
+        fig.add_trace(go.Scatter(
+            x=data['week'],
+            y=data['expected_deaths'],
             mode='lines',
-            name=f'Excess Deaths {year}'
+            name=f'Expected {year}',
+            line=dict(width=2, dash='dash')  # Thicker dashed line for expected deaths
         ))
-        st.write(f"{year} - excess deaths {year_data['excess_deaths'].sum()}")
-    fig_excess.update_layout(
-        title='Excess Deaths by Year (2015-2020)',
-        xaxis_title='Week',
-        yaxis_title='Excess Deaths',
-        legend_title='Legend',
-        template='plotly_white'
-    )
+    elif not expected_deaths_added:
+        fig.add_trace(go.Scatter(
+            x=data['week'],
+            y=data['expected_deaths'],
+            mode='lines',
+            name='Expected',
+            line=dict(color="black", width=2, dash='dash')  # Thicker dashed line for expected deaths
+        ))
 
+def add_excess_trace(fig: go.Figure, data: pd.DataFrame, year: int) -> None:
+    """
+    Add a trace for excess deaths to the figure.
+
+    Args:
+        fig (go.Figure): Plotly figure to add the trace to.
+        data (pd.DataFrame): Data for the specific year.
+        year (int): Year of the data.
+    """
+    fig.add_trace(go.Scatter(
+        x=data['week'],
+        y=data['excess_deaths'],
+        mode='lines',
+        name=f'Excess Deaths {year}',
+        line=dict(width=2)  # Thicker line for excess deaths
+    ))
+def update_and_display_figures(fig_observed: go.Figure, fig_excess: go.Figure) -> None:
+    """
+    Update the layout of the figures and display them using Streamlit.
+
+    Args:
+        fig_observed (go.Figure): Figure for observed vs expected deaths.
+        fig_excess (go.Figure): Figure for excess deaths.
+    """
+    fig_observed.update_layout(
+        title='Observed vs Expected Deaths (2015-2024)',
+        xaxis_title='Week', yaxis_title='Number of Deaths',
+        legend_title='Legend', template='plotly_white'
+    )
+    fig_excess.update_layout(
+        title='Excess Deaths by Year (2020-2024)',
+        xaxis_title='Week', yaxis_title='Excess Deaths',
+        legend_title='Legend', template='plotly_white'
+    )
+    st.plotly_chart(fig_observed)
     st.plotly_chart(fig_excess)
 
-
 def main():
-    st.info("""This function fits a Poisson and a quasi-Poisson model to observed death data from 2015 to 2019, and then predicts 
-    expected deaths for the year 2020 based on the fitted models. It calculates excess deaths by comparing observed deaths 
-    to the expected deaths from both models.
+    st.info("""This function fits a Poisson model to observed death data from 2015 to 2019, and then predicts 
+    expected deaths for the years 2020-2024 based on the fitted models. It calculates excess deaths by comparing observed deaths 
+    to the expected deaths from both models. 
     """)
     
-    
+
     serienames_ = [
         "m_v_0_999",
         "m_v_0_64",
@@ -364,21 +321,33 @@ def main():
         "v_80_999",
     ]
 
-    series_name = st.sidebar.selectbox("Leeftijden", serienames_, 0)
+    series_name = "m_v_0_999" # st.sidebar.selectbox("Leeftijden", serienames_, 0)
+    take_factor_in_account = True #  st.sidebar.selectbox("Take Demographic factors in account", [True,False], 1)
+    # before the Poisson model could take into account changes over time, I used a factor to multiply the baseline with.
+    # For not changing the code totally, I just set take_factor_in_account on True
+
+    # These changes allow our model to capture not just seasonal and weekly patterns, 
+    # but also overall trends in the data over time. This means it can account for gradual changes 
+    # in death rates that occur from year to year, beyond just the seasonal fluctuations. 
+    # Some important considerations:
+    # 
+    # This model assumes that any trend observed in the training data (2015-2019) 
+    # continues linearly into the future. This may not always be a valid assumption, 
+    # especially over long time periods or during unusual events (like a pandemic).
     
-  
-    df_data = get_sterfte_data_fixed()
+    df_data = get_sterftedata()
     
+    df_data["year"] = df_data["jaar"]
     df_data = df_data.sort_values(by=["year", "week"])
-    df_data["observed_deaths"]= df_data[f"totaal_{series_name}"]
-    df_data["Overledenen_1"] = df_data[f"totaal_{series_name}"]
+    df_data["observed_deaths"]= df_data[f"{series_name}"]
+    df_data["Overledenen_1"] = df_data[f"{series_name}"]
     df_data["jaar"] = df_data["year"]
     df_data["weeknr"] = (
         df_data["jaar"].astype(str) + "_" + df_data["week"].astype(str).str.zfill(2)
     )
    
     df_data = adjust_overledenen(df_data)
-    do_poisson(df_data)
+    perform_poisson_analysis(df_data, take_factor_in_account)
     
 if __name__ == "__main__":
     import datetime

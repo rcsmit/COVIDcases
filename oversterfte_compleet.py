@@ -902,7 +902,7 @@ def get_data_for_series(df_, seriename):
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
     # som_2015_2019 = 0
-    noemer = 149832
+    noemer = 149832 # average deaths per year 2015-2019
     for y in range(2015, 2020):
         df_year = df[(df["jaar"] == y)]
         # som = df_year["m_v_0_999"].sum()
@@ -939,6 +939,17 @@ def get_data_for_series(df_, seriename):
             2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
             2024: 157846 / noemer,
         }
+
+#           # 2015	16,9	0,5
+            # 2016	17	0,6
+            # 2017	17,1	0,6
+            # 2018	17,2	0,6
+            # 2019	17,3	0,6
+            # 2020	17,4	0,7
+            # 2021	17,5	0,4
+            # 2022	17,6	0,7
+            # 2023	17,8	1,3
+            # 2024	17,9	0,7
     # avg_overledenen_2015_2019 = (som_2015_2019/5)
     # st.write(avg_overledenen_2015_2019)
     # Loop through the years 2014 to 2024 and apply the factors
@@ -1774,6 +1785,8 @@ def get_sterftedata(seriename="m_v_0_999"):
         """# Adjust "Overledenen_1" based on the week number
         # if week = 0, overledenen_l : add to week 52 of the year before
         # if week = 53: overleden_l : add to week 1 to the year after
+
+        TODO: integrate chagnes from calculate_baselines.py
         """
 
         for index, row in df.iterrows():
