@@ -139,7 +139,7 @@ def perform_poisson_analysis(df: pd.DataFrame, take_factor_into_account: bool) -
     fig_observed = go.Figure()
     fig_excess = go.Figure()
     expected_deaths_added = False
-
+    st.subheader("Oversterfte:")
     for year in range(2015, 2025):
         data_year = prepare_year_data(df, year)
         #factor = DEMOGRAPHIC_FACTORS[year] if take_factor_into_account else 1
@@ -334,7 +334,7 @@ def main():
     # This model assumes that any trend observed in the training data (2015-2019) 
     # continues linearly into the future. This may not always be a valid assumption, 
     # especially over long time periods or during unusual events (like a pandemic).
-    
+
     df_data = get_sterftedata()
     
     df_data["year"] = df_data["jaar"]
@@ -349,6 +349,7 @@ def main():
     df_data = adjust_overledenen(df_data)
     perform_poisson_analysis(df_data, take_factor_in_account)
     
+    st.info("Script: https://github.com/rcsmit/COVIDcases/blob/main/calculate_baselines.py")
 if __name__ == "__main__":
     import datetime
 
