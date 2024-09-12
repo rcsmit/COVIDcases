@@ -515,7 +515,7 @@ def main():
     main_claude_method3()
     main_chatgpt_method3()
 
-
+    st.info("Script: https://github.com/rcsmit/COVIDcases/blob/main/logistic_regression.py")
 if __name__ == "__main__":
     print("Go-----------------")
     main()
