@@ -16,7 +16,7 @@ def process_csv(url, sex):
     df['geslacht'] = sex
     return df
 
-def main_old(): 
+def main_old(mortality_data,population_data): 
     st.subheader("Annual Mortality Projection Method") 
     st.info("""
     We calculate the number of deaths for each year by multiplying the population 
@@ -90,7 +90,7 @@ def project_population(start_year, end_year,   population_data,  mortality_data)
         current_population = next_population[['Year', 'Age', 'Sex', 'Population']]
 
     return pd.concat(results)
-def main_new():
+def main_new(mortality_data,population_data):
     # Run the projection from 2020 to 2030
     projected_population = project_population(2020, 2025, population_data, mortality_data)
     st.subheader("Cohort Survival Method")
@@ -118,25 +118,14 @@ def main_new():
 
 def main():
     st.header("AG Table Mortality Forecast")
-    main_old()
-    main_new()
-    st.info("Script: https://github.com/rcsmit/COVIDcases/blob/main/agtable_mortality.py")
+    
 
-# URLs of the CSV files
-male_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_mannen.csv"
-female_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_vrouwen.csv"
-bevolking_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv"
-# Function to fetch and process CSV data
+    # URLs of the CSV files
+    male_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_mannen.csv"
+    female_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_vrouwen.csv"
+    bevolking_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv"
+    # Function to fetch and process CSV data
 
-if __name__ == "__main__":
-    import datetime
-
-    print(
-        f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------"
-    )
-
-
-   
 
 
     male_data = process_csv(male_url, 'M')
@@ -152,6 +141,17 @@ if __name__ == "__main__":
     # Fetch and process population data
     population_data =  pd.read_csv(bevolking_url, delimiter=";",)
     population_data = population_data.rename(columns={'leeftijd': 'Age','jaar':'Year', 'geslacht': 'Sex', 'aantal': 'Population'})
+
+    main_old(mortality_data,population_data)
+    main_new(mortality_data,population_data)
+    st.info("Script: https://github.com/rcsmit/COVIDcases/blob/main/agtable_mortality.py")
+
+if __name__ == "__main__":
+    import datetime
+
+    print(
+        f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------"
+    )
 
 
     main()
