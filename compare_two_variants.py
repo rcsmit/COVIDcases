@@ -15,9 +15,9 @@ import numpy as np
 import matplotlib.dates as mdates
 import datetime as dt
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 from scipy.integrate import odeint
 import pandas as pd
 
@@ -52,7 +52,8 @@ def make_plot(x,A,B,title, voorvoegsel_label, label1, label2, showlogyaxis):
         plt.gca().set_title(titlex , fontsize=10)
 
     # POS TESTS /day ################################
-    with _lock:
+    # with _lock:
+    if 1==1:
         fig1, ax = plt.subplots()
         plt.plot(x, A, label=f"{voorvoegsel_label} {label1}", color = 'blue' , linestyle='--')
         plt.plot(x, B, label=f"{voorvoegsel_label} {label2}", color='orange', linestyle='--')

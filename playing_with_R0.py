@@ -15,10 +15,10 @@ import numpy as np
 import matplotlib.dates as mdates
 import datetime as dt
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 from scipy.integrate import odeint
 import pandas as pd
 
@@ -59,7 +59,8 @@ def main_mathematisch(numberofpositivetests, NUMBEROFDAYS, datediff, Tg_A, R0, R
             plt.gca().set_title(titlex , fontsize=10)
 
         # POS TESTS /day ################################
-        with _lock:
+        # with _lock:
+        if 1==1:
             fig1, ax = plt.subplots()
 
             for a in datareeksen:
