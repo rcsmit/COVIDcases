@@ -26,8 +26,8 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import streamlit as st
 import plotly.express as px
 
@@ -129,7 +129,8 @@ def vaccinatiegraad():
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
     """Scatterplot maken
     """
-    with _lock:
+    #with _lock:
+    if 1==1:
         fig1xy,ax = plt.subplots()
         try:
             x_ = np.array(df_temp[what_to_show_l].astype('float64') )
