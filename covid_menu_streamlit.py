@@ -128,7 +128,7 @@ def main():
                 st.stop()
             try:
                 module.main()
-                st.info(f"SCRIPT: {m}")
+                st.info(f"SCRIPT: https://github.com/rcsmit/COVIDcases/blob/main/{m}.py")
             except Exception as e:
                 st.error(f"Function 'main()' in module '{m}' not found or error in the script")
                 st.warning(f"{e}")
