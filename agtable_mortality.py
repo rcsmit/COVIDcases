@@ -122,6 +122,12 @@ def main():
     main_new()
     st.info("Script: https://github.com/rcsmit/COVIDcases/blob/main/agtable_mortality.py")
 
+# URLs of the CSV files
+male_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_mannen.csv"
+female_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_vrouwen.csv"
+bevolking_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv"
+# Function to fetch and process CSV data
+
 if __name__ == "__main__":
     import datetime
 
@@ -130,12 +136,7 @@ if __name__ == "__main__":
     )
 
 
-    # URLs of the CSV files
-    male_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_mannen.csv"
-    female_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel2020_vrouwen.csv"
-    bevolking_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv"
-    # Function to fetch and process CSV data
-
+   
 
 
     male_data = process_csv(male_url, 'M')
