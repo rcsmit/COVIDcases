@@ -6,8 +6,8 @@ from scipy import stats
 #from scipy.stats import weibull_min
 import pandas as pd
 from statistics import mean
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 import streamlit as st
 import random
 from itertools import cycle
@@ -120,7 +120,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  show_cat, categor
         show_cat ([type]): [description]
         categoryfield ([type]): [description]
     """
-    with _lock:
+    # with _lock:
+    if 1==1:
         fig1xy,ax = plt.subplots()
         try:
 
