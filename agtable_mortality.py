@@ -25,18 +25,18 @@ def main_old(mortality_data,population_data):
     the total deaths are summed for each year
     """)  
     # Process both CSV files
-    male_data = process_csv(male_url, 'M')
-    female_data = process_csv(female_url, 'F')
+    # male_data = process_csv(male_url, 'M')
+    # female_data = process_csv(female_url, 'F')
 
-    # Combine the data
-    mortality_data = pd.concat([male_data, female_data], ignore_index=True)
-    mortality_data['jaar'] = mortality_data['jaar'].astype(int)
-    mortality_data['leeftijd'] = mortality_data['leeftijd'].astype(int)
+    # # Combine the data
+    # mortality_data = pd.concat([male_data, female_data], ignore_index=True)
+    # mortality_data['jaar'] = mortality_data['jaar'].astype(int)
+    # mortality_data['leeftijd'] = mortality_data['leeftijd'].astype(int)
 
-    population_data =  pd.read_csv(bevolking_url, delimiter=";",)
-    # Convert 'jaar' and 'leeftijd' to int
-    population_data['jaar'] = population_data['jaar'].astype(int)
-    population_data['leeftijd'] = population_data['leeftijd'].astype(int)
+    # population_data =  pd.read_csv(bevolking_url, delimiter=";",)
+    # # Convert 'jaar' and 'leeftijd' to int
+    # population_data['jaar'] = population_data['jaar'].astype(int)
+    # population_data['leeftijd'] = population_data['leeftijd'].astype(int)
     # Reorder columns
     
     # Merge mortality and population data
