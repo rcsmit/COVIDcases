@@ -58,8 +58,8 @@ def read():
 
     #url_pop="C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\pop_size_age_NL.csv"
     url_pop = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/pop_size_age_NL.csv"
-    df= pd.read_csv(url, delimiter=',', error_bad_lines=False)
-    df_pop = pd.read_csv(url_pop, delimiter=',', error_bad_lines=False)
+    df= pd.read_csv(url, delimiter=',')
+    df_pop = pd.read_csv(url_pop, delimiter=',')
 
 
     df = df[df["Agegroup"] != "<50"]
