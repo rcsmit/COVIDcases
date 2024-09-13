@@ -269,16 +269,22 @@ def get_df_combined(
         )
         df["land"] = land  # Add a column to distinguish the countries
         df_list.append(df)
-
+    
     df_combined = pd.concat(df_list)
+    
+    df_combined_gevr_jaar =  df_combined[ df_combined["jaar"] == gevraagde_jaar].copy(deep=True)
+    df_combined_gevr_jaar = df_combined_gevr_jaar[df_combined_gevr_jaar["geslacht"] != "T"]
+   
+    df_combined_gevr_jaar=df_combined_gevr_jaar[["age_sex", "season", "OBS_VALUE"]]
+    
     df_combined = df_combined[
         (df_combined["jaar"] >= start) & (df_combined["jaar"] < 2020)
     ]
 
     # Assuming df_combined is your dataframe
     df_combined["jaar"] = pd.to_numeric(df_combined["jaar"])
-
-    return df_combined, df_bevolking_gevraagde_jaar
+   
+    return df_combined, df_combined_gevr_jaar, df_bevolking_gevraagde_jaar
 
 def make_plot(predictions_gevraagde_jaar, start, gevraagde_jaar):
     """Make a plot with the deaths in the past and the predicted value
@@ -309,7 +315,7 @@ def make_plot(predictions_gevraagde_jaar, start, gevraagde_jaar):
     # Show the plot
     st.plotly_chart(fig)
 def bereken_verwachte_sterfte(
-    countries: list[str], start: int, gevraagde_jaar: int, regresion_type: str, split_season: bool, to_plot: bool = False
+    countries: list[str], start: int, gevraagde_jaar: int,  regresion_type: str, split_season: bool, to_plot: bool = False
      ) -> tuple[float, float]:
     """
     Calculate the expected mortality for the requested year using linear regression.
@@ -329,7 +335,7 @@ def bereken_verwachte_sterfte(
     """
     # Get data for all selected countries and concatenate them
 
-    df_combined, df_bevolking_gevraagde_jaar = get_df_combined(
+    df_combined,df_combined_gevr_jaar,  df_bevolking_gevraagde_jaar = get_df_combined(
         countries, start, gevraagde_jaar, split_season
     )
 
@@ -373,6 +379,13 @@ def bereken_verwachte_sterfte(
     endresult_gevraagde_jaar = pd.merge(
         result_gevraagde_jaar, df_bevolking_gevraagde_jaar, on=["age_sex"], how="outer"
     )
+   
+    endresult_gevraagde_jaar = pd.merge(endresult_gevraagde_jaar, df_combined_gevr_jaar,on=["age_sex", "season"])
+    
+   
+
+    #endresult_gevraagde_jaar = pd.merge(endresult_gevraagde_jaar, df_combined_gevr_jaar,on="age_sex")
+    
     endresult_gevraagde_jaar = endresult_gevraagde_jaar[
         endresult_gevraagde_jaar["geslacht"] != "T"
     ]
@@ -384,19 +397,29 @@ def bereken_verwachte_sterfte(
         / 100_000,
         1,
     )
-    if split_season:
-        # Calculate the sum for winter and summer separately
-        winter_deaths = endresult_gevraagde_jaar[
-            endresult_gevraagde_jaar["season"] == "winter"
-        ]["aantal_overleden_voorspelling"].sum()
-        summer_deaths = endresult_gevraagde_jaar[
-            endresult_gevraagde_jaar["season"] == "summer"
-        ]["aantal_overleden_voorspelling"].sum()
+    endresult_gevraagde_jaar["oversterfte"] = round(endresult_gevraagde_jaar["OBS_VALUE"]-
+        endresult_gevraagde_jaar["aantal_overleden_voorspelling"] )
+   
+    # if split_season:
+    #     # Calculate the sum for winter and summer separately
+    #     winter_deaths = endresult_gevraagde_jaar[
+    #         endresult_gevraagde_jaar["season"] == "winter"
+    #     ]["aantal_overleden_voorspelling"].sum()
+    #     summer_deaths = endresult_gevraagde_jaar[
+    #         endresult_gevraagde_jaar["season"] == "summer"
+    #     ]["aantal_overleden_voorspelling"].sum()
 
-        # Sum total deaths for the requested year
-        verw_overleden = int(winter_deaths + summer_deaths)
-    else:
-        verw_overleden = endresult_gevraagde_jaar["aantal_overleden_voorspelling"].sum()
+    #     # Sum total deaths for the requested year
+    #     verw_overleden = int(winter_deaths + summer_deaths)
+    # else:
+
+
+    
+
+
+
+    verw_overleden = endresult_gevraagde_jaar["aantal_overleden_voorspelling"].sum()
+    oversterfte = endresult_gevraagde_jaar["oversterfte"].sum()
     bevolkingsgrootte = (
         df_bevolking_gevraagde_jaar["aantal"].sum() / 2
     )  # divide by 2 due to 'T' values
@@ -409,10 +432,12 @@ def bereken_verwachte_sterfte(
     if to_plot:
         # Plot the results with Plotly
         make_plot(predictions_gevraagde_jaar, start, gevraagde_jaar)
-        st.write(endresult_gevraagde_jaar)
+    
+
+
 
     # Return the total expected deaths and population size
-    return verw_overleden, bevolkingsgrootte
+    return verw_overleden, oversterfte, bevolkingsgrootte
 
 def bereken_verwachte_sterfte_simpel(
     countries: list[str], start: int, gevraagde_jaar: int, regresion_type: str, split_season: bool, to_plot: bool = False
@@ -435,22 +460,47 @@ def bereken_verwachte_sterfte_simpel(
     """
     # Get data for all selected countries and concatenate them
 
-    df_combined, df_bevolking_gevraagde_jaar = get_df_combined(
+    df_combined, df_combined_gevr_jaar, df_bevolking_gevraagde_jaar = get_df_combined(
         countries, start, gevraagde_jaar, split_season
     )
-   
+ 
     # Calculate average per100k for each age_group
-    average_per100k = df_combined.groupby('age_group',observed=False)['per100k'].mean().reset_index()
+    average_per100k = df_combined.groupby('age_sex',observed=False)['per100k'].mean().reset_index()
 
     # Rename the column for clarity
-    average_per100k.columns = ['age_group', 'average_per100k']
-    combined = pd.merge(average_per100k,df_bevolking_gevraagde_jaar,on="age_group")
+    average_per100k.columns = ['age_sex', 'average_per100k']
+    combined = pd.merge(average_per100k,df_bevolking_gevraagde_jaar,on="age_sex")
+    combined = pd.merge(combined, df_combined_gevr_jaar,on="age_sex")
     combined["verw_overleden"] = combined["average_per100k"] * combined["aantal"] / 100000
-    totaal_verw_overleden = int(combined["verw_overleden"].sum()/2)
-    bevolkingsgrootte = combined["aantal"].sum()/2
     
-    return totaal_verw_overleden,bevolkingsgrootte
+    combined["oversterfte"] = combined["verw_overleden"] - combined["OBS_VALUE"]
+  
     
+    totaal_verw_overleden = int(combined["verw_overleden"].sum())
+    totaal_oversterfte = int(combined["oversterfte"].sum())
+    bevolkingsgrootte = combined["aantal"].sum()
+    
+    return totaal_verw_overleden,totaal_oversterfte,bevolkingsgrootte
+    
+def calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,split_season):
+    tabel = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
+    tabel_verw_overl = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
+    tabel_oversterfte = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
+    # Vul de DataFrame met verwachte overlijdenscijfers
+    for start in start_jaren:
+        for gevraagde_jaar in gevraagde_jaren:
+            verw_overleden, oversterfte, bevolkingsgrootte = bereken_verwachte_sterfte(
+                countries, start, gevraagde_jaar, regresion_type, split_season
+            )
+            tabel_verw_overl.loc[gevraagde_jaar, start] = verw_overleden
+            tabel_oversterfte.loc[gevraagde_jaar, start] =oversterfte
+        col1,col2 = st.columns(2)
+        with col1:
+            st.subheader("Verwachte overlijden")
+            st.write(tabel_verw_overl)
+        with col2:
+            st.subheader("Verwachte oversterfte")
+            st.write(tabel_oversterfte)
 
 
 def main():
@@ -482,51 +532,42 @@ def main():
 
     start_jaren = [2015]
     tabel = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
+    tabel_verw_overl = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
+    tabel_oversterfte = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
     st.subheader("Easy methode")
     st.write("Gemiddelde overlijdens per groep per 100k, vermenigvuldigd met groepsgrootte van het doeljaar")
     for start in start_jaren:
             for gevraagde_jaar in gevraagde_jaren:
-                verw_overleden, bevolkingsgrootte = bereken_verwachte_sterfte_simpel(
+                verw_overleden, oversterfte, bevolkingsgrootte = bereken_verwachte_sterfte_simpel(
                     countries, start, gevraagde_jaar, regresion_type, False
                 )
                 #st.write(f"{gevraagde_jaar} - {int(verw_overleden)} - {int(bevolkingsgrootte)}")
-                tabel.loc[gevraagde_jaar, start] = verw_overleden
-    st.write(tabel)
+                tabel_verw_overl.loc[gevraagde_jaar, start] = verw_overleden
+                tabel_oversterfte.loc[gevraagde_jaar, start] =oversterfte
+    col1x,col2x = st.columns(2)
+    with col1x:
+        st.write("Verwachte overlijdens")
+        st.write(tabel_verw_overl)
+    with col2x:
+        st.write("Verwachte oversterfte")
+        st.write(tabel_oversterfte)
 
-
-
-
-    col1, col2 = st.columns(2)
-    with col1:
+    col1a, col2a = st.columns(2)
+    with col1a:
 
         st.subheader("Zonder splitsing")
         # Maak een lege DataFrame met de gevraagde jaren als index en startjaren als kolommen
-        
-        # Vul de DataFrame met verwachte overlijdenscijfers
-        for start in start_jaren:
-            for gevraagde_jaar in gevraagde_jaren:
-                verw_overleden, bevolkingsgrootte = bereken_verwachte_sterfte(
-                    countries, start, gevraagde_jaar, regresion_type, False
-                )
-                tabel.loc[gevraagde_jaar, start] = verw_overleden
-
-        st.write(tabel)
-    with col2:
+        calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,False)
+           
+    with col2a:
         st.subheader("Met splitsing")
+        calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,True)
 
-       
-        # Vul de DataFrame met verwachte overlijdenscijfers
-        for start in start_jaren:
-            for gevraagde_jaar in gevraagde_jaren:
-                verw_overleden, bevolkingsgrootte = bereken_verwachte_sterfte(
-                    countries, start, gevraagde_jaar, regresion_type, True
-                )
-                tabel.loc[gevraagde_jaar, start] = verw_overleden
-
-        st.write(tabel)
 
     st.info(
-        """Door CBS gebruikt:
+        """
+        
+            Door CBS gebruikt:
 
             2020: 153402  |
             2021: 154887 |
