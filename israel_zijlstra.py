@@ -38,7 +38,7 @@ def read():
     url_data = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/israel_zijlstra/israel_zijlstra_mastersheet.csv"
     url_populatie = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/israel_zijlstra/populatie_grootte.csv"
     #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\in\\schoonmaaktijden.csv",
-    df_data = pd.read_csv(url_data, delimiter=',', error_bad_lines=False)
+    df_data = pd.read_csv(url_data, delimiter=',')
     df_populatie = pd.read_csv(url_populatie, delimiter=',')
     df = pd.merge(df_data, df_populatie, how="outer", on="Age_group" )
     #df = df[:-1]  #remove last row which appears to be a Nan
