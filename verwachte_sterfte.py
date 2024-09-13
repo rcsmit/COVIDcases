@@ -567,14 +567,23 @@ def main():
     st.info(
         """
         
-            Door CBS gebruikt:
+            Baseline door CBS gebruikt:
 
             2020: 153402  |
             2021: 154887 |
             2022: 155494 |
             2023: 156666 
            
+            Oversterfte CBS moethode
+            2020: 13765	
+            2021: 15297	
+            2022: 14182	
+            2023: 12343
 
+            Oversterfte CBS officieel (https://www.cbs.nl/nl-nl/nieuws/2023/04/2022-derde-jaar-op-rij-met-oversterfte)
+            2020	15,276
+            2021	16,085
+            2022*	14,445
            Door Bonne Klok geschat 166100
             """
     )

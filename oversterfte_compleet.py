@@ -913,6 +913,32 @@ def get_data_for_series(df_, seriename):
         # https://opendata.cbs.nl/statline/#/CBS/nl/dataset/85753NED/table?dl=A787C
         # Define the factors for each year
         
+
+        # 2.5.1 Verwachte sterfte en oversterfte
+        # De oversterfte is het verschil tussen het waargenomen aantal overledenen en een verwacht 
+        # aantal overledenen in dezelfde periode. Het verwachte aantal overledenen wanneer er geen 
+        # COVID-19-epidemie zou zijn geweest, wordt geschat op basis van de waargenomen sterfte in 
+        # 2015–2019 in twee stappen. Eerst wordt voor elk jaar de sterfte per week bepaald.
+        # Vervolgens wordt per week de gemiddelde sterfte in die week en de zes omliggende weken bepaald. 
+        # Deze gemiddelde sterfte per week levert een benadering van de verwachte wekelijkse sterfte. 
+        # Er is dan nog geen rekening gehouden met de ontwikkeling van de bevolkingssamenstelling. 
+
+        # Daarom is de sterfte per week nog herschaald naar de verwachte totale sterfte voor het jaar. 
+        # Het verwachte aantal overledenen in het hele jaar wordt bepaald op basis van de prognoses 
+        # die het CBS jaarlijks maakt. Deze prognoses geven de meest waarschijnlijke toekomstige 
+        # ontwikkelingen van de bevolking en de sterfte. De prognoses houden rekening met het feit 
+        # dat de bevolking continu verandert door immigratie en vergrijzing. Het CBS gebruikt voor 
+        # de prognose van de leeftijds- en geslachtsspecifieke sterftekansen een extrapolatiemodel 
+        # (L. Stoeldraijer, van Duin et al., 2013): er wordt van uitgegaan dat de toekomstige trends 
+        # een voortzetting zijn van de trends uit het verleden. In het model wordt niet alleen 
+        # uitgegaan van de trends in Nederland, maar ook van de meer stabiele trends in andere 
+        # West-Europese landen. Tijdelijke versnellingen en vertragingen die voorkomen in de 
+        # Nederlandse trends hebben zo een minder groot effect op de toekomstverwachtingen. 
+        # Het model houdt ook rekening met het effect van rookgedrag op de sterfte, wat voor 
+        # Nederland met name belangrijk is om de verschillen tussen mannen en vrouwen in sterftetrends 
+        # goed te beschrijven.
+        # https://www.cbs.nl/nl-nl/longread/rapportages/2023/oversterfte-en-doodsoorzaken-in-2020-tot-en-met-2022?onepage=true
+        # Op basis van de geprognosticeerde leeftijds- en geslachtsspecifieke sterftekansen en de verwachte bevolkingsopbouw in dat jaar, wordt het verwachte aantal overledenen naar leeftijd en geslacht berekend voor een bepaald jaar. Voor 2020 is de verwachte sterfte 153 402, voor 2021 is deze 154 887 en voor 2022 is dit 155 493. 
         # Op basis van de geprognosticeerde leeftijds- en geslachtsspecifieke sterftekansen en de verwachte
         #  bevolkingsopbouw in dat jaar, wordt het verwachte aantal overledenen naar leeftijd en geslacht 
         # berekend voor een bepaald jaar. Voor 2020 is de verwachte sterfte 153 402, 
