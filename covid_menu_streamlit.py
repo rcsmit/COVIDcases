@@ -78,6 +78,7 @@ def main():
             ["[48] Verwachte sterfte", "verwachte_sterfte"],
             ["[49] Logistic regression", "logistic_regression"],
             ["[50] Calculate baselines (Poisson)", "calculate_baselines"],
+             ["[51] AG table mortality", "agtable_mortality"],
             ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
