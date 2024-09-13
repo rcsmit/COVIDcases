@@ -282,7 +282,7 @@ def main():
     st.subheader("Absolute numbers")
     line_chart (df, "cases", True, "#", sma_wdw,log_y)
     line_chart (df, "Hospital_admission", True, "#", sma_wdw,log_y)
-    line_chart (df, "Deceased", True, "#, sma_wdw,log_y")
+    line_chart (df, "Deceased", True, "#", sma_wdw,log_y)
 
 if __name__ == "__main__":
     caching.clear_cache()
