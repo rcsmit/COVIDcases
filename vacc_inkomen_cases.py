@@ -62,7 +62,7 @@ def mask_data(df,from_,until_, datefield):
     df = df.loc[mask]
     return df
 
-@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def main_week_data(from_, until_):
     """Het maken van weekcijfers en gemiddelden tbv cases_hospital_decased_NL.py
     """
@@ -72,6 +72,8 @@ def main_week_data(from_, until_):
     if platform.processor() != "":
         url1 = "C:\\Users\\rcxsm\\Downloads\\COVID-19_aantallen_gemeente_per_dag.csv"
     else:
+
+
         url1 = "https://data.rivm.nl/covid-19/COVID-19_aantallen_gemeente_per_dag.csv"
     datefield="Date_of_publication"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
@@ -91,14 +93,14 @@ def main_week_data(from_, until_):
     # df = df.last(n_days)
     print ("line 35")
     print (df)
-    df = df.groupby(["Municipality_code"] ).sum().reset_index()
+    df = df.groupby(["Municipality_code"] ).sum(numeric_only=True).reset_index()
     #df_week = df.groupby([  pd.Grouper(key='Date_statistics', freq='W'), "Agegroup",] ).sum().reset_index()
     print ("line 40")
     print (df)
 
     return df
 
-@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def read(inwonersgrens, from_,until_):
     # url_yorick = "https://raw.githubusercontent.com/YorickBleijenberg/COVID_data_RIVM_Netherlands/master/vaccination/2021-09-08_vac.cities.csv"
     # df_yorick = pd.read_csv(url_yorick, delimiter=';', decimal=",", encoding="ISO-8859-1")
@@ -199,13 +201,30 @@ def read(inwonersgrens, from_,until_):
 
 
 def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
+    """_summary_
+
+    Args:
+        df_temp (_type_): _description_
+        what_to_show_l (_type_): _description_
+        what_to_show_r (_type_): _description_
+        how (_type_): pyplot | plotly
+        what (_type_): _description_
+    """    
     """Scatterplot maken
     """
+    st.write(df_temp)
+    print (df_temp.dtypes)
+
+        # Get the maximum value of 'volledige.vaccinatie'
+    df_temp_ = df_temp.loc[df_temp.groupby(
+            [ 'Gemeentenaam']
+        )[ what_to_show_r].idxmax()]
+
     # with _lock:
     fig1xy,ax = plt.subplots()
 
-    x_ = np.array(df_temp[what_to_show_l])
-    y_ = np.array(df_temp[what_to_show_r])
+    x_ = np.array(df_temp_[what_to_show_l])
+    y_ = np.array(df_temp_[what_to_show_r])
     #obtain m (slope) and b(intercept) of linear regression line
     idx = np.isfinite(x_) & np.isfinite(y_)
     m, b = np.polyfit(x_[idx], y_[idx], 1)
@@ -218,8 +237,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
     show_cat = False
     if show_cat == True:
         # TOFIX
-        cat_ = df_temp['provincie']
-        cat_col = df_temp['provincie'].astype('category')
+        cat_ = df_temp_['provincie']
+        cat_col = df_temp_['provincie'].astype('category')
         cat_col_ = cat_col.cat.codes
         scatter = plt.scatter(x_, y_, c = cat_col_, label=cat_)
         legend1 = ax.legend(*scatter.legend_elements(), loc="best")
@@ -231,10 +250,10 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
         elif how == "plotly":
             if what == "verkiezingen":
 
-                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='perc_stemmen', text="partij", trendline="ols")
+                fig1xy = px.scatter(df_temp_, x=what_to_show_l, y=what_to_show_r, size='perc_stemmen', text="partij", trendline="ols")
 
             else:
-                fig1xy = px.scatter(df_temp, x=what_to_show_l, y=what_to_show_r, size='inwoners_2021', trendline="ols",
+                fig1xy = px.scatter(df_temp_, x=what_to_show_l, y=what_to_show_r, size='inwoners_2021', trendline="ols",
                     hover_name="Gemeentenaam", hover_data=["provincie"])
 
 
@@ -305,16 +324,17 @@ def make_corr_tabel(df, partijen, uitslag):
         corr_vv = round(df[p].corr(df['volledige.vaccinatie']),2)
         corr_inc = round(df[p].corr(df['Total_reported_per_inwoner_period']),2)
 
-        corr_tabel = corr_tabel.append(
-                    {
-                        "partij": p,
-                        "corr_vaccinatie": corr_vv,
-                        "corr_incidentie": corr_inc,
+       # Assuming corr_tabel is a dataframe and you want to append a row
+        new_row = pd.DataFrame(
+            {
+                "partij": [p],
+                "corr_vaccinatie": [corr_vv],
+                "corr_incidentie": [corr_inc],
+            }
+        )
 
-
-                    },
-                    ignore_index=True,
-                )
+        # Use pd.concat() to append the new row to corr_tabel
+        corr_tabel = pd.concat([corr_tabel, new_row], ignore_index=True)
     corr_tabel= pd.merge(
                 corr_tabel, uitslag, how="outer", left_on="partij", right_on="partij"
             )

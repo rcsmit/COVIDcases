@@ -10,6 +10,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, confusion_matrix
 import statsmodels.api as sm
 
+
+# https://timeseriesreasoning.com/contents/estimation-of-vaccine-efficacy-using-logistic-regression/
+# https://timeseriesreasoning.com/contents/survival-analysis/
 # Generate dummy data
 np.random.seed(42)
 
