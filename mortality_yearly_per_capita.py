@@ -47,7 +47,7 @@ def get_bevolking(country):
 
 
     # Group by year, gender, and age_group and sum the counts
-    grouped_data = data.groupby(['jaar', 'geslacht', 'age_group'])['aantal'].sum().reset_index()
+    grouped_data = data.groupby(['jaar', 'geslacht', 'age_group'], observed=False)['aantal'].sum().reset_index()
 
     # Save the resulting data to a new CSV file
     # grouped_data.to_csv('grouped_population_by_age_2010_2024.csv', index=False, sep=';')
@@ -114,8 +114,7 @@ def get_sterfte(country="NL"):
     return df__
 
 def plot(df, category, value_field, countries):
-    st.subheader(category)
-    
+       
     # Filter the data
     df_before_2020 = df[df["jaar"] < 2020]
     df_2020_and_up = df[df["jaar"] >= 2020]
@@ -156,12 +155,19 @@ def plot(df, category, value_field, countries):
          # Add the trendline to the plot
         fig.add_trace(go.Scatter(x=df_country_before_2020["jaar"], y=trendline, 
                                  mode='lines', name=f'Trendline {country} till 2019', line=dict(color=trendline_color)))
-
+        fig.update_layout(
+                title=category,
+                xaxis_title="Year",
+                yaxis_title=value_field,
+            )
     
         # Calculate R² value
         r2 = r2_score(y, trendline)
-        trendline_info += f"{country}\nTrendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}\nR² value: {r2:.4f}\n\n"
+        # trendline_info += f"{country}\nTrendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}\nR² value: {r2:.4f}\n\n"
 
+        # Adjusted code with .iloc for position-based access
+        trendline_info += f"{country}\nTrendline formula: y = {model.params.iloc[1]:.4f}x + {model.params.iloc[0]:.4f}\nR² value: {r2:.4f}\n\n"
+    
         # # Print the formula and R² value
         # st.write(f"Trendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}")
         # st.write(f"R² value: {r2:.4f}")
@@ -243,4 +249,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print ("gooo")
     main()

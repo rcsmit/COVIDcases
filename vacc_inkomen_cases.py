@@ -216,9 +216,13 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, how, what):
     print (df_temp.dtypes)
 
         # Get the maximum value of 'volledige.vaccinatie'
-    df_temp_ = df_temp.loc[df_temp.groupby(
-            [ 'Gemeentenaam']
-        )[ what_to_show_r].idxmax()]
+
+    if what == "verkiezingen":
+        df_temp_ = df_temp
+    else:
+        df_temp_ = df_temp.loc[df_temp.groupby(
+                [ 'Gemeentenaam']
+            )[ what_to_show_r].idxmax()]
 
     # with _lock:
     fig1xy,ax = plt.subplots()
