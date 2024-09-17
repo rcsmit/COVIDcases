@@ -14,7 +14,7 @@ try:
 except:
     pass
 
-def get_bevolking(country):
+def get_bevolking(country, opdeling):
     if country == "NL":
         if platform.processor() != "":
             file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\bevolking_leeftijd_NL.csv"
@@ -64,17 +64,45 @@ def get_bevolking(country):
     # Calculate totals per year and gender (geslacht)
     totals = grouped_data.groupby(['jaar', 'geslacht'], observed=False)['aantal'].sum().reset_index()
 
+
     # Assign 'Total' as the age group for these sums
     totals['age_group'] = 'TOTAL'
-    totals['age_sex'] = totals['geslacht'].astype(str) + "_TOTAL"
+    totals['age_sex'] = "TOTAL_" + totals['geslacht'].astype(str)
 
     # Concatenate the original grouped data with the totals
     final_data = pd.concat([grouped_data, totals], ignore_index=True)
+  
+
+    def add_custom_age_group(data, min_age, max_age):
+        # Find the age group labels that fit within the specified min and max age
+        valid_age_groups = [f'Y{i}-{i+4}' for i in range(min_age, max_age + 1, 5) if i < 90]
+        
+        # Include edge cases for Y_LT5 and Y_GE90 if they fall within the range
+        if min_age <= 4:
+            valid_age_groups.append('Y_LT5')
+        if max_age >= 90:
+            valid_age_groups.append('Y_GE90')
+
+        # Filter the grouped data based on these age groups and sum
+        custom_age_group = data[data['age_group'].isin(valid_age_groups)].groupby(['jaar', 'geslacht'], observed=False)['aantal'].sum().reset_index()
+
+        # Assign the label for the new age group
+        custom_age_group['age_group'] = f'Y{min_age}-{max_age}'
+        custom_age_group['age_sex'] = f'Y{min_age}-{max_age}_' + custom_age_group['geslacht'].astype(str)
+
+        return custom_age_group
+    # Concatenate the original grouped data with the totals
+
+    for i in opdeling:
+        
+        custom_age_group = add_custom_age_group(data, i[0], i[1])
+        final_data = pd.concat([final_data, custom_age_group], ignore_index=True)
 
     return final_data
 
 
-def get_sterfte(country="NL"):
+
+def get_sterfte(opdeling,country="NL"):
     """_summary_
 
     Returns:
@@ -104,23 +132,61 @@ def get_sterfte(country="NL"):
             )  
    
     df_=df_[df_["geo"] == country]
-    
+
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
+
+    
+    # Function to extract age_low and age_high based on patterns
+    def extract_age_ranges(age):
+        if age == "TOTAL":
+            return 999, 999
+        elif age == "UNK":
+            return 9999, 9999
+        elif age == "Y_LT5":
+            return 0, 4
+        elif age == "Y_GE90":
+            return 90, 120
+        else:
+            # Extract the numeric part from the pattern 'Y10-14'
+            parts = age[1:].split('-')
+            return int(parts[0]), int(parts[1])
+
+    # Apply the function to create the new columns
+    df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
+
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
 
-    df_bevolking = get_bevolking(country)
-    
-    summed_per_year = df_.groupby(["jaar", 'age_sex'])['OBS_VALUE'].sum() # .reset_index()
 
+    def add_custom_age_group_deaths(df_, min_age, max_age):
+        # Filter the data based on the dynamic age range
+        df_filtered = df_[(df_['age_low'] >= min_age) & (df_['age_high'] <= max_age)]
+
+        # Group by TIME_PERIOD (week), sex, and sum the deaths (OBS_VALUE)
+        totals = df_filtered.groupby(['TIME_PERIOD', 'sex'], observed=False)['OBS_VALUE'].sum().reset_index()
+
+        # Assign a new label for the age group (dynamic)
+        totals['age'] = f'Y{min_age}-{max_age}'
+        totals["age_sex"] = totals["age"] + "_" +totals["sex"]
+        totals["jaar"] = (totals["TIME_PERIOD"].str[:4]).astype(int)
+        return totals
+    
+    for i in opdeling:
+        custom_age_group = add_custom_age_group_deaths(df_, i[0], i[1])
+        df_ = pd.concat([df_, custom_age_group], ignore_index=True)
+
+  
+   
+    df_bevolking = get_bevolking(country, opdeling)
+
+    summed_per_year = df_.groupby(["jaar", 'age_sex'])['OBS_VALUE'].sum() # .reset_index()
+  
     df__ = pd.merge(summed_per_year, df_bevolking, on=['jaar', 'age_sex'], how='outer')
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["OBS_VALUE"].notna()]
     df__ = df__[df__["jaar"] != 2024]
     df__["per100k"] = df__["OBS_VALUE"]/df__["aantal"]*100000
-   
-
-
+    
     return df__
 
 def plot(df, category, value_field, countries):
@@ -158,30 +224,34 @@ def plot(df, category, value_field, countries):
         X = df_country_before_2020["jaar"]
         y = df_country_before_2020[value_field]
         X = sm.add_constant(X)  # Adds a constant term to the predictor
+      
+        try:
+            model = sm.OLS(y, X).fit()
+            trendline = model.predict(X)
 
-        model = sm.OLS(y, X).fit()
-        trendline = model.predict(X)
+            # Add the trendline to the plot
+            fig.add_trace(go.Scatter(x=df_country_before_2020["jaar"], y=trendline, 
+                                    mode='lines', name=f'Trendline {country} till 2019', line=dict(color=trendline_color)))
+            # Calculate R² value
+            r2 = r2_score(y, trendline)
+            # trendline_info += f"{country}\nTrendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}\nR² value: {r2:.4f}\n\n"
 
-         # Add the trendline to the plot
-        fig.add_trace(go.Scatter(x=df_country_before_2020["jaar"], y=trendline, 
-                                 mode='lines', name=f'Trendline {country} till 2019', line=dict(color=trendline_color)))
+            # Adjusted code with .iloc for position-based access
+            trendline_info += f"{country}\nTrendline formula: y = {model.params.iloc[1]:.4f}x + {model.params.iloc[0]:.4f}\nR² value: {r2:.4f}\n\n"
+        
+            # # Print the formula and R² value
+            # st.write(f"Trendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}")
+            # st.write(f"R² value: {r2:.4f}")
+        except:
+            pass
+       
+    
+        
         fig.update_layout(
                 title=category,
                 xaxis_title="Year",
                 yaxis_title=value_field,
             )
-    
-        # Calculate R² value
-        r2 = r2_score(y, trendline)
-        # trendline_info += f"{country}\nTrendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}\nR² value: {r2:.4f}\n\n"
-
-        # Adjusted code with .iloc for position-based access
-        trendline_info += f"{country}\nTrendline formula: y = {model.params.iloc[1]:.4f}x + {model.params.iloc[0]:.4f}\nR² value: {r2:.4f}\n\n"
-    
-        # # Print the formula and R² value
-        # st.write(f"Trendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}")
-        # st.write(f"R² value: {r2:.4f}")
-
         # Show the plot
     st.plotly_chart(fig)
     with st.expander("Trendline info"):
@@ -192,19 +262,65 @@ def plot_wrapper(df, t2, value_field, countries):
     if len(df_) > 0:
         plot(df_, t2, value_field, countries)
     else:
-        st.info("No data")
+        st.info(f"No data - {t2}")
 
 
 def main():
-    st.title("Overlijdens in leeftijdsgroepen")
+    st.title("Deaths in age groups ")
     
     # Let the user select one or both countries
-    countries = st.multiselect("Country [NL | BE]", ["NL", "BE"], default=["NL", "BE"])
+    countries = ["NL"] # st.multiselect("Country [NL | BE]", ["NL", "BE"], default=["NL", "BE"])
     
+    def ends_in_4_9_or_120(number):
+    # Check if the number ends in 4 or 9, or is exactly 120
+        return number % 10 in {4, 9} or number == 120
+
+    def ends_in_5_0_or_120(number):
+    # Check if the number ends in 4 or 9, or is exactly 120
+        return number % 10 in {5, 0} or number == 120
     # Get data for all selected countries and concatenate them
     df_list = []
+    col1,col2,col3,col4 = st.columns(4)
+    with col1:
+        b1,b2 = st.columns(2)
+        with b1:
+            l1 = st.number_input("low1", 0,120,0)
+        with b2:
+            h1 = st.number_input("high1", 0,120,14)
+    with col2:
+        c1,c2 = st.columns(2)
+        with c1:
+            l2 = st.number_input("low2", 0,120,15)
+        with c2:
+            h2 = st.number_input("high2", 0,120,64)
+    with col3:
+        d1,d2 = st.columns(2)
+        with d1:
+            l3 = st.number_input("low3", 0,120,65)
+        with d2:
+            h3 = st.number_input("high3", 0,120,79)
+    with col4:
+        e1,e2 = st.columns(2)
+        with e1:
+            l4 = st.number_input("low4", 0,120,80)
+        with e2:
+            h4 = st.number_input("high4", 0,120,120)
+
+    opdeling = [[l1,h1],[l2,h2],[l3,h3],[l4,h4]]
+    fout = False
+    for l in [l1,l2,l3,l4]:
+        if not ends_in_5_0_or_120(l):
+            st.error(f"low number **{l}** is not compatible")
+            fout = True
+    for h in [h1,h2,h3,h4]:
+        if not ends_in_4_9_or_120(h):
+            st.error(f"high number **{h}** is not compatible")
+            fout = True
+    if fout:
+        st.info("Please correct values")
+        st.stop()
     for country in countries:
-        df = get_sterfte(country)
+        df = get_sterfte(opdeling, country)
         df["country"] = country  # Add a column to distinguish the countries
         df_list.append(df)
     
@@ -212,8 +328,9 @@ def main():
     
     # Plot the data for both countries
     to_do = unique_values = df_combined["age_sex"].unique()
-    labels = ['TOTAL']+['Y_LT5'] + [f'Y{i}-{i+4}' for i in range(5, 90, 5)] + ['Y_GE90']
-    
+    #labels = ['TOTAL']+["Y0-19"]+["Y20-64"]+["Y65-79"]+["Y80-120"] + ['Y_LT5'] + [f'Y{i}-{i+4}' for i in range(5, 90, 5)] + ['Y_GE90']
+    labels = ['TOTAL'] + [f'Y{start}-{end}' for start, end in opdeling] + ['Y_LT5'] + [f'Y{i}-{i+4}' for i in range(5, 90, 5)] + ['Y_GE90']
+  
     colx, coly = st.columns(2)
     with colx:
         value_field = st.selectbox("Value field (per 100.000 | absolute value)", ["per100k", "OBS_VALUE"], 0)
