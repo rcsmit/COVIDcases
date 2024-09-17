@@ -61,7 +61,17 @@ def get_bevolking(country):
         grouped_data.replace(f'90-999_{s}',f'Y_GE90_{s}', inplace=True)
     
 
-    return grouped_data
+    # Calculate totals per year and gender (geslacht)
+    totals = grouped_data.groupby(['jaar', 'geslacht'], observed=False)['aantal'].sum().reset_index()
+
+    # Assign 'Total' as the age group for these sums
+    totals['age_group'] = 'TOTAL'
+    totals['age_sex'] = totals['geslacht'].astype(str) + "_TOTAL"
+
+    # Concatenate the original grouped data with the totals
+    final_data = pd.concat([grouped_data, totals], ignore_index=True)
+
+    return final_data
 
 
 def get_sterfte(country="NL"):
