@@ -929,7 +929,9 @@ def get_data_for_series(df_, seriename):
         # ontwikkelingen van de bevolking en de sterfte. De prognoses houden rekening met het feit 
         # dat de bevolking continu verandert door immigratie en vergrijzing. Het CBS gebruikt voor 
         # de prognose van de leeftijds- en geslachtsspecifieke sterftekansen een extrapolatiemodel 
-        # (L. Stoeldraijer, van Duin et al., 2013): er wordt van uitgegaan dat de toekomstige trends 
+        # (L. Stoeldraijer, van Duin et al., 2013
+        # https://pure.rug.nl/ws/portalfiles/portal/13869387/stoeldraijer_et_al_2013_DR.pdf
+        # ): er wordt van uitgegaan dat de toekomstige trends 
         # een voortzetting zijn van de trends uit het verleden. In het model wordt niet alleen 
         # uitgegaan van de trends in Nederland, maar ook van de meer stabiele trends in andere 
         # West-Europese landen. Tijdelijke versnellingen en vertragingen die voorkomen in de 

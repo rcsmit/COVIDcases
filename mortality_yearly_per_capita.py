@@ -202,7 +202,7 @@ def main():
     
     # Plot the data for both countries
     to_do = unique_values = df_combined["age_sex"].unique()
-    labels = ['Y_LT5'] + [f'Y{i}-{i+4}' for i in range(5, 90, 5)] + ['Y_GE90']
+    labels = ['TOTAL']+['Y_LT5'] + [f'Y{i}-{i+4}' for i in range(5, 90, 5)] + ['Y_GE90']
     
     colx, coly = st.columns(2)
     with colx:

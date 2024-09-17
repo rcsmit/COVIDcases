@@ -134,7 +134,7 @@ def determine_season(adjusted_weeknr: int) -> str:
 
 
 @st.cache_data()
-def get_sterfte(gevraagde_jaar: int, land: str, split_season: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
+def get_sterfte(gevraagde_jaar: int, land: str, split_season: bool, log_transform:bool) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Retrieve mortality data for a specific country and year, merge with population data, and calculate 
     deaths per 100k inhabitants.
@@ -200,7 +200,7 @@ def get_sterfte(gevraagde_jaar: int, land: str, split_season: bool) -> tuple[pd.
 
     return df__, df_bevolking_gevraagde_jaar
 
-def perform_lineair_regression(group_data: pd.DataFrame, gevraagde_jaar: int, regresion_type: str = "ols") -> np.ndarray:
+def perform_lineair_regression(group_data: pd.DataFrame, gevraagde_jaar: int, log_transform: bool, regresion_type: str = "ols") -> np.ndarray:
     """
     Perform linear regression on the group data and predict mortality rates for the requested year.
 
@@ -208,7 +208,7 @@ def perform_lineair_regression(group_data: pd.DataFrame, gevraagde_jaar: int, re
         group_data (pd.DataFrame): The group data (mortality and population).
         gevraagde_jaar (int): The year for which mortality is predicted.
         regresion_type (str, optional): The type of regression to use ("ols", "huber", or "ransac"). Defaults to "huber".
-
+        log_transform : do lineair regression on log transformed values
     Returns:
         np.ndarray: Predicted mortality rate per 100k for the requested year.
 
@@ -218,8 +218,12 @@ def perform_lineair_regression(group_data: pd.DataFrame, gevraagde_jaar: int, re
     """
     # Define X (independent variable) and y (dependent variable)
     X = group_data["jaar"].values.reshape(-1, 1)
-    y = group_data["per100k"]
 
+    
+    if log_transform:
+        y = np.log(group_data["per100k"])  # Log-transform y to stabilize variance and deal with potential skewness
+    else:
+        y = group_data["per100k"]
     if regresion_type == "ols":
         # Create and fit the linear regression model
         model = LinearRegression()
@@ -240,11 +244,16 @@ def perform_lineair_regression(group_data: pd.DataFrame, gevraagde_jaar: int, re
     else:
         st.error(f"Error in regression type {regresion_type}")
         st.stop()
+
+    if log_transform:
+        # Exponentiate the predicted log-value to return it to the original scale
+        predicted_value = np.exp(predicted_value)
+
     return predicted_value
 
 
 def get_df_combined(
-    countries: list[str], start: int, gevraagde_jaar: int, split_season: bool
+    countries: list[str], start: int, gevraagde_jaar: int, split_season: bool, log_transform: bool
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Combine mortality and population data for multiple countries, filtered by start year, 
@@ -255,6 +264,7 @@ def get_df_combined(
         start (int): The start year for the linear regression.
         gevraagde_jaar (int): The requested year for prediction.
         split_season (bool): Whether to split the data by season.
+        log_transform : do lineair regression on log transformed values
 
     Returns:
         tuple[pd.DataFrame, pd.DataFrame]:
@@ -265,7 +275,7 @@ def get_df_combined(
     df_list = []
     for land in countries:
         df, df_bevolking_gevraagde_jaar = get_sterfte(
-            gevraagde_jaar, land, split_season
+            gevraagde_jaar, land, split_season, log_transform
         )
         df["land"] = land  # Add a column to distinguish the countries
         df_list.append(df)
@@ -315,7 +325,7 @@ def make_plot(predictions_gevraagde_jaar, start, gevraagde_jaar):
     # Show the plot
     st.plotly_chart(fig)
 def bereken_verwachte_sterfte(
-    countries: list[str], start: int, gevraagde_jaar: int,  regresion_type: str, split_season: bool, to_plot: bool = False
+    countries: list[str], start: int, gevraagde_jaar: int,  regresion_type: str, split_season: bool, log_transform: bool, to_plot: bool = False
      ) -> tuple[float, float]:
     """
     Calculate the expected mortality for the requested year using linear regression.
@@ -325,6 +335,7 @@ def bereken_verwachte_sterfte(
         start (int): The start year for the linear regression.
         gevraagde_jaar (int): The year for which the expected mortality is predicted.
         split_season (bool): Whether to split the data by season.
+        log_transform : do lineair regression on log transformed values
         regresion_type(string): Regression type
         to_plot (bool, optional): Whether to generate a plot. Defaults to False.
 
@@ -336,7 +347,7 @@ def bereken_verwachte_sterfte(
     # Get data for all selected countries and concatenate them
 
     df_combined,df_combined_gevr_jaar,  df_bevolking_gevraagde_jaar = get_df_combined(
-        countries, start, gevraagde_jaar, split_season
+        countries, start, gevraagde_jaar, split_season, log_transform
     )
 
     # Initialize an empty list to store results
@@ -346,7 +357,7 @@ def bereken_verwachte_sterfte(
     for (age_sex_group, season), group_data in df_combined.groupby(
         ["age_sex", "season"],observed=False
     ):
-        predicted_value = perform_lineair_regression(group_data, gevraagde_jaar, regresion_type)
+        predicted_value = perform_lineair_regression(group_data, gevraagde_jaar, log_transform, regresion_type)
 
         # Append the result as a dictionary
         results.append(
@@ -440,7 +451,7 @@ def bereken_verwachte_sterfte(
     return verw_overleden, oversterfte, bevolkingsgrootte
 
 def bereken_verwachte_sterfte_simpel(
-    countries: list[str], start: int, gevraagde_jaar: int, regresion_type: str, split_season: bool, to_plot: bool = False
+    countries: list[str], start: int, gevraagde_jaar: int, regresion_type: str, split_season: bool, log_transform: bool, to_plot: bool = False
      ) -> tuple[float, float]:
     """
     Calculate the expected mortality for the requested year using the average of 2015-2019.
@@ -461,7 +472,7 @@ def bereken_verwachte_sterfte_simpel(
     # Get data for all selected countries and concatenate them
 
     df_combined, df_combined_gevr_jaar, df_bevolking_gevraagde_jaar = get_df_combined(
-        countries, start, gevraagde_jaar, split_season
+        countries, start, gevraagde_jaar, split_season, log_transform
     )
  
     # Calculate average per100k for each age_group
@@ -482,7 +493,7 @@ def bereken_verwachte_sterfte_simpel(
     
     return totaal_verw_overleden,totaal_oversterfte,bevolkingsgrootte
     
-def calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,split_season):
+def calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,split_season, log_transform):
     tabel = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
     tabel_verw_overl = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
     tabel_oversterfte = pd.DataFrame(index=gevraagde_jaren, columns=start_jaren)
@@ -490,7 +501,7 @@ def calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start,
     for start in start_jaren:
         for gevraagde_jaar in gevraagde_jaren:
             verw_overleden, oversterfte, bevolkingsgrootte = bereken_verwachte_sterfte(
-                countries, start, gevraagde_jaar, regresion_type, split_season
+                countries, start, gevraagde_jaar, regresion_type, split_season, log_transform
             )
             tabel_verw_overl.loc[gevraagde_jaar, start] = verw_overleden
             tabel_oversterfte.loc[gevraagde_jaar, start] =oversterfte
@@ -523,6 +534,7 @@ def main():
     # Let the user select one or both countries
     countries = ["NL"]  # st.multiselect("land [NL | BE]", ["NL", "BE"], default=["NL"])
     regresion_type =  st.selectbox("Regression type [ols|huber|ransac]", ["ols","huber","ransac"],0)
+    log_transform =  st.selectbox("Log transform number of deaths [True|False]", [True, False],1)
     # start = st.number_input("Startjaar voor lineaire regressie", 2000, 2020, 2015)
 
     # gevraagde_jaar = st.number_input("Verwachting bereken voor jaar", 2021,2030,2024)
@@ -539,7 +551,7 @@ def main():
     for start in start_jaren:
             for gevraagde_jaar in gevraagde_jaren:
                 verw_overleden, oversterfte, bevolkingsgrootte = bereken_verwachte_sterfte_simpel(
-                    countries, start, gevraagde_jaar, regresion_type, False
+                    countries, start, gevraagde_jaar, regresion_type, False, log_transform
                 )
                 #st.write(f"{gevraagde_jaar} - {int(verw_overleden)} - {int(bevolkingsgrootte)}")
                 tabel_verw_overl.loc[gevraagde_jaar, start] = verw_overleden
@@ -557,11 +569,11 @@ def main():
 
         st.subheader("Zonder splitsing")
         # Maak een lege DataFrame met de gevraagde jaren als index en startjaren als kolommen
-        calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,False)
+        calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,False,log_transform)
            
     with col2a:
         st.subheader("Met splitsing")
-        calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,True)
+        calculate_oversterfte_lin_regr(start_jaren,gevraagde_jaren,countries, start, gevraagde_jaar, regresion_type,True, log_transform)
 
 
     st.info(
