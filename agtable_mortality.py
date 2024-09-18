@@ -103,7 +103,7 @@ def main_old(mortality_data,population_data):
     # st.table(merged_data[['Age', 'age_group']].drop_duplicates())
 
     # Step 2: Group by Year, Sex, and Age Group, summing the expected deaths
-    grouped_data = merged_data.groupby(['Year', 'Sex', 'age_group'])['verw_overl_avg'].sum().reset_index()
+    grouped_data = merged_data.groupby(['Year', 'Sex', 'age_group'], observed=False)['verw_overl_avg'].sum().reset_index()
 
     
     # Step 2: Pivot the data
@@ -111,7 +111,7 @@ def main_old(mortality_data,population_data):
                                         columns=['age_group', 'Sex'],
                                         values='verw_overl_avg',
                                         aggfunc='sum',
-                                        fill_value=0)
+                                        fill_value=0,  observed=False)
 
     # Reset index to turn MultiIndex into columns and add totals
     pivot_table = pivot_table.reset_index()
@@ -138,7 +138,7 @@ def main_old(mortality_data,population_data):
     st.write(pivot_table_2)
 
     # Step 2: Group by age group and sum the expected deaths for all years and all sexes combined
-    grouped_data = merged_data.groupby('age_group')['verw_overl_avg'].sum().reset_index()
+    grouped_data = merged_data.groupby('age_group', observed=False)['verw_overl_avg'].sum().reset_index()
 
     # Step 3: Add totals for all age groups
     grouped_data.loc['Total'] = grouped_data.sum(numeric_only=True)
