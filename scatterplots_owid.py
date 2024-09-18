@@ -1,4 +1,4 @@
-from numpy.core.numeric import NaN
+#from numpy.core.numeric import NaN
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

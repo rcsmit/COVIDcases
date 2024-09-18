@@ -71,7 +71,7 @@ def main():
             ["[41] Disabled by Long covid" , "disabled_by_longcovid"],
             ["[42] Oversterfte 5yrs groeps Eurostat week" , "oversterfte_eurostats"],
             ["[43] Oversterfte 5yrs groeps Eurostat maand" , "oversterfte_eurostats_maand"],
-            ["[44] Rioolwaarde vs ziekenhuis" , "rioolwater_vs_ziekenhuis"],
+            ["[xx] Rioolwaarde vs ziekenhuis" , "rioolwater_vs_ziekenhuis"],
             ["[45] Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"],
             ["[46] Mortality yearly per capita", "mortality_yearly_per_capita"],
             ["[47] Deltavax", "deltavax"],
