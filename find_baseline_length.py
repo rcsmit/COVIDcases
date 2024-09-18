@@ -333,7 +333,12 @@ def main():
     #     # st.write(f"Forecast for next 4 years:")
     #     # st.write(result['forecast'])
         
-
+    st.info("""
+    
+            Inspired by mortality.watch. They use a linear regression model  (fable::TSLM + trend()) 
+            with a seasonal parameter added for sub-year resolutions. In Python it equivalents with 
+            SARIMAX, but this is very slow and thus ommited
+            """)
 
 if __name__ == "__main__":
     st.write ("gooo")
