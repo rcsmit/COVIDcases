@@ -378,14 +378,17 @@ def add_column_levit(df, what_to_display):
             else:
                 log_factor_ = 0
 
-            log_factor_df = log_factor_df.append(
+            #Create a DataFrame for the new row
+            new_row = pd.DataFrame(
                 {
-                    "date_log_factor": date_,
-                    "waarde": df.iloc[i]["what_to_display_cumm"],
-                    "log_exp_gr_factor_": log_factor_,
-                },
-                ignore_index=True,
+                    "date_log_factor": [date_],
+                    "waarde": [df.iloc[i]["what_to_display_cumm"]],
+                    "log_exp_gr_factor_": [log_factor_],
+                }
             )
+
+            # Concatenate the new row with the existing DataFrame
+            log_factor_df = pd.concat([log_factor_df, new_row], ignore_index=True)
     log_factor_df["log_exp_gr_factor"] = log_factor_df["log_exp_gr_factor_"].rolling(window=3, center=False).mean()
 
     log_factor_df = log_factor_df.fillna(0)
