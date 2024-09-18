@@ -16,3 +16,4 @@ cbsodata
 bs4
 lxml
 eurostat
+isoweek
