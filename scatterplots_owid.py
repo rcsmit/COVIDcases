@@ -14,13 +14,13 @@ from datetime import datetime, timedelta
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
 import json
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
 import platform
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
 import streamlit as st
@@ -356,7 +356,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,  categoryfield, ho
     if len(df_temp) == 0:
         st.error("No data")
         return
-    with _lock:
+    #with _lock:
+    if 1==1:
         fig1xy,ax = plt.subplots()
         m,b,r2 = find_slope_sklearn(df_temp, what_to_show_l_calc, what_to_show_r_calc, False, log_x, log_y)
 
