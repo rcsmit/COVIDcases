@@ -19,10 +19,10 @@ from pandas import read_csv, Timestamp, Timedelta, date_range
 from matplotlib.pyplot import subplots
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.dates import ConciseDateFormatter, AutoDateLocator
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 from scipy import stats
 
 import imageio
@@ -289,7 +289,8 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title, what_to_display
     # st.write("line 258")
     # df_as_str = df.astype(str)
     # st.write(df_as_str)
-    with _lock:
+    #with _lock:
+    if 1==1:
         #fig1y = plt.figure()
 
         fig1yz, ax = subplots()
@@ -334,7 +335,8 @@ def make_graph_delta(df, animated,i, total, showlogyaxis, title, what_to_display
     return filename
 
 def make_graph_cumm(df, what_to_display):
-    with _lock:
+    if 1==1:
+    #with _lock:
         fig1yza, ax = subplots()
         ax3 = ax.twinx()
         ax.set_title('Cummulative cases and growth COVID-19 à la Levitt')
