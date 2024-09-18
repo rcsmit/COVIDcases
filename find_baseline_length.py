@@ -282,7 +282,7 @@ def main_(df):
                 if result is not None:
                     # Store results using a tuple of (jurisdiction, age, method) as the key
                     results[(jurisdiction, age, method)] = result
-                    st.write(f"Processed {jurisdiction}, {age}, {method}, {result}")
+                    # st.write(f"Processed {jurisdiction}, {age}, {method}, {result}")
         except Exception as e:
             # Catch any exception and return a detailed error message
             st.write(f"Error processing {jurisdiction}, {age}, {method}: {str(e)}")
@@ -292,7 +292,7 @@ def main_(df):
 
 # Assuming `results` is your dictionary from the model with (jurisdiction, age) as keys
 def results_to_dataframe(results):
-    st.write (results)
+    
     # Initialize a list to hold rows for the dataframe
     rows = []
     
@@ -341,5 +341,5 @@ def main():
             """)
 
 if __name__ == "__main__":
-    st.write ("gooo")
+   
     main()
