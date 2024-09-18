@@ -6,8 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+# from matplotlib.backends.backend_agg import RendererAgg
+# _lock = RendererAgg.lock
 #from streamlit import caching
 from sklearn.metrics import r2_score
 
@@ -142,7 +142,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,   categoryfield, h
         correlation_sp = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='spearman'), 3) #gebruikt door HJ Westeneng, rangcorrelatie
         correlation_p = round(df_temp[what_to_show_l].corr(df_temp[what_to_show_r], method='pearson'), 3)
 
-        with _lock:
+        # with _lock:
+        if 1==1:
             fig1xy,ax = plt.subplots()
             try:
 
