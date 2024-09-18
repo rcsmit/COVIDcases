@@ -313,7 +313,7 @@ def plot(df, category, value_field, countries):
             )
         # Show the plot
     st.plotly_chart(fig)
-    with st.expander("Trendline/oversterfte info"):
+    with st.expander(f"Trendline/oversterfte info - {category}"):
         st.write(trendline_info)
         #if value_field == 'OBS_VALUE':
         st.write(df_diff) 
@@ -433,7 +433,7 @@ def main():
     st.info("Bevolkingsgrootte NL: https://opendata.cbs.nl/#/CBS/nl/dataset/03759ned/table?dl=39E0B")
     st.info("Bevolkingsgrootte BE:https://ec.europa.eu/eurostat/databrowser/view/demo_pjan__custom_12780094/default/table?lang=en")
     st.info("Sterfte: https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
-
+    st.info("See also https://www.mortality.watch/explorer/?c=NLD&t=cmr&e=1&df=2010&dt=2023&ag=all&ce=0&st=1&pi=0&p=1")
 
 
 if __name__ == "__main__":

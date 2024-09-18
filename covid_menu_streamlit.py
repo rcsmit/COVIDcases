@@ -79,6 +79,7 @@ def main():
             ["[49] Logistic regression", "logistic_regression"],
             ["[50] Calculate baselines (Poisson)", "calculate_baselines"],
              ["[51] AG table mortality", "agtable_mortality"],
+              ["[52] Find baseline length", "find_base_line_length"],
             ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
