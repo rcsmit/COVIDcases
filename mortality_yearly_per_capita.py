@@ -6,7 +6,7 @@ import eurostat
 import platform
 import streamlit as st
 import plotly.express as px
-
+import numpy as np
 import statsmodels.api as sm
 from sklearn.metrics import r2_score
 try:
@@ -185,7 +185,7 @@ def get_sterfte(opdeling,country="NL"):
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["OBS_VALUE"].notna()]
     df__ = df__[df__["jaar"] != 2024]
-    df__["per100k"] = df__["OBS_VALUE"]/df__["aantal"]*100000
+    df__["per100k"] = round(df__["OBS_VALUE"]/df__["aantal"]*100000,1)
     
     return df__
 
@@ -211,7 +211,8 @@ def plot(df, category, value_field, countries):
     
         df_country_before_2020 = df_before_2020[df_before_2020["country"] == country]
         df_country_2020_and_up = df_2020_and_up[df_2020_and_up["country"] == country]
-
+        sd = df_country_before_2020[value_field].std()
+       
         # Plot before 2020
         fig.add_trace(go.Scatter(x=df_country_before_2020["jaar"], y=df_country_before_2020[value_field], 
                                  mode='markers', name=f'{country} - Before 2020', marker=dict(color=color_before_2020)))
@@ -224,14 +225,54 @@ def plot(df, category, value_field, countries):
         X = df_country_before_2020["jaar"]
         y = df_country_before_2020[value_field]
         X = sm.add_constant(X)  # Adds a constant term to the predictor
-      
+        # Define the extended range of years
+        extended_years = np.arange(df_country_before_2020["jaar"].min(), 2025)
+
         try:
             model = sm.OLS(y, X).fit()
             trendline = model.predict(X)
+             
+            # Create a DataFrame for the extended years
+            extended_X = sm.add_constant(extended_years)
+            
+              # Predict the trendline and bounds for the extended years
+            trendline_extended = model.predict(extended_X)
+            upper_bound_extended = trendline_extended + 2 * sd
+            lower_bound_extended = trendline_extended - 2 * sd
+             # Calculate the upper and lower bounds of the shaded area
+            upper_bound = trendline + 2 * sd
+            lower_bound = trendline - 2 * sd
 
+            # Add the shaded area to the plot
+            fig.add_trace(go.Scatter(
+                x=df_country_before_2020["jaar"].tolist() + df_country_before_2020["jaar"].tolist()[::-1],
+                y=upper_bound.tolist() + lower_bound.tolist()[::-1],
+                fill='toself',
+                fillcolor='rgba(128, 128, 128, 0.3)',  # Adjust the color and opacity as needed
+                line=dict(color='rgba(255,255,255,0)'),  # Invisible line
+                name=f'±2 SD {country} till 2019'
+            ))
             # Add the trendline to the plot
             fig.add_trace(go.Scatter(x=df_country_before_2020["jaar"], y=trendline, 
                                     mode='lines', name=f'Trendline {country} till 2019', line=dict(color=trendline_color)))
+             # Add the shaded area to the plot
+            fig.add_trace(go.Scatter(
+                x=np.concatenate([extended_years, extended_years[::-1]]),
+                y=np.concatenate([upper_bound_extended, lower_bound_extended[::-1]]),
+                fill='toself',  # Corrected fill mode
+                fillcolor='rgba(128, 128, 128, 0.3)',  # Adjust the color and opacity as needed
+                line=dict(color='rgba(255,255,255,0)'),  # Invisible line
+                name=f'±2 SD {country} until 2024'
+            ))
+
+            # Add the trendline to the plot
+            fig.add_trace(go.Scatter(
+                x=extended_years,
+                y=trendline_extended,
+                mode='lines',
+                name=f'Trendline {country} until 2024',
+                line=dict(color=trendline_color)
+            ))
             # Calculate R² value
             r2 = r2_score(y, trendline)
             # trendline_info += f"{country}\nTrendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}\nR² value: {r2:.4f}\n\n"
@@ -242,10 +283,28 @@ def plot(df, category, value_field, countries):
             # # Print the formula and R² value
             # st.write(f"Trendline formula: y = {model.params[1]:.4f}x + {model.params[0]:.4f}")
             # st.write(f"R² value: {r2:.4f}")
+
+                       
         except:
             pass
        
-    
+        if value_field == 'OBS_VALUE':
+            df_diff = pd.merge(df_country_2020_and_up, pd.DataFrame({
+                    'jaar': extended_years,
+                    'predicted_deaths': trendline_extended
+                    }), on='jaar')
+        else:
+            df_diff = pd.merge(df_country_2020_and_up, pd.DataFrame({
+                    'jaar': extended_years,
+                    'predicted_per100k': trendline_extended
+                    }), on='jaar')
+        if value_field == 'per100k':
+            df_diff['predicted_deaths'] = df_diff['predicted_per100k']*df_diff['aantal']/100000
+
+        df_diff['oversterfte'] = round(df_diff['OBS_VALUE'] - df_diff['predicted_deaths']) 
+        df_diff['aantal']=round(df_diff['aantal'])
+        df_diff['perc'] = round(((df_diff['OBS_VALUE'] - df_diff['predicted_deaths'])/df_diff['predicted_deaths'])*100,1)
+        df_diff = df_diff[['jaar', 'aantal', 'per100k', 'oversterfte', 'perc']]
         
         fig.update_layout(
                 title=category,
@@ -254,8 +313,10 @@ def plot(df, category, value_field, countries):
             )
         # Show the plot
     st.plotly_chart(fig)
-    with st.expander("Trendline info"):
+    with st.expander("Trendline/oversterfte info"):
         st.write(trendline_info)
+        #if value_field == 'OBS_VALUE':
+        st.write(df_diff) 
 
 def plot_wrapper(df, t2, value_field, countries):
     df_ = df[df["age_sex"] == t2]
