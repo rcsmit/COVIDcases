@@ -647,6 +647,7 @@ def loglognormal(df, what_to_display):
     #https://replit.com/@jsalsman/COVID19USlognormals
     st.subheader("Log Normal")
     df = df.set_index(DATEFIELD)
+  
     firstday = df.index[0] + Timedelta('1d')
     nextday = df.index[-1] + Timedelta('1d')
     lastday = df.index[-1] + Timedelta(TOTAL_DAYS_IN_GRAPH - len(df), 'd') # extrapolate
@@ -664,9 +665,12 @@ def loglognormal(df, what_to_display):
             - Timestamp(firstday)) // Timedelta('1d'),
             (Timestamp(lastday) + Timedelta('1d')
             - Timestamp(firstday)) // Timedelta('1d')) # day-of-year ints
-        indates = date_range(df.index[0], df.index[-1])
+        
+        df_with_index_as_column = df.reset_index(drop=False)
+        
+        indates =  df.index #date_range(df.index[0], df.index[-1])
         exdates = date_range(nextday, lastday)
-
+      
         ax.scatter(indates, yi, color="#00b3b3", label='Infected')
         #ax.scatter(indates, yd, color="#00b3b3", label='Dead')
 
@@ -725,7 +729,7 @@ def loglognormal(df, what_to_display):
 
 
 ###################################################################
-@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def getdata():
     if platform.processor() != "":
         #url1 = "C:\\Users\\rcxsm\\Documents\\phyton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data.csv"

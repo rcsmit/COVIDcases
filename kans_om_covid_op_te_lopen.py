@@ -1,9 +1,9 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from helpers import cell_background_helper
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 
 def bereken_kans_periode (kans_jaar, periode):
     return (1-(kans_jaar/100))**periode
@@ -39,11 +39,12 @@ def main():
     df_legenda.set_index('jaren', inplace=True)
     with col1:
         st.write (f"Kans om >=1 keer COVID op te lopen in x jaar:" )
-        st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"kwartiel", 100,None)).set_precision(1))
+        st.write (df_legenda) #.styler) #.format(None, na_rep="-").applymap(lambda x:  cell_background_helper(x,"kwartiel", 100,None)).set_precision(1))
+
 
     with col2:
-
-        with _lock:
+        if 1==1:
+        # with _lock:
             fig1x = plt.figure()
             ax = fig1x.add_subplot(111)
             plt.plot(x_ax,y_ax)
@@ -64,9 +65,13 @@ def main():
     st.markdown(toelichting, unsafe_allow_html=True)
 
     st.write ("Info over de parameters en berekening: https://twitter.com/roelgrif/status/1433215517901344771")
-    st.write ("Sourcecode: https://github.com/rcsmit/COVIDcases/blob/main/kans_om_covid_op_te_lopen.py")
-    st.write(b)
-main()
+    
+    # st.write(b)
 
+
+
+if __name__ == "__main__":
+    main()
+  
 
 

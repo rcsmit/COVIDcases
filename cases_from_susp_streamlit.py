@@ -1,27 +1,41 @@
 import streamlit as st
 import pandas as pd
 
+# FORMULAS AND VALUES TO MAKE A SIR MODEL FOR THE NETHERLANDS
+# SOURCE : RIVM https://www.rivm.nl/sites/default/files/2021-03/Modellingresults%20COVID19%20vaccination%20version1.0%2020210324_0.pdf
+# retreived 21st of April 2021
+# Copied by René SMIT
+# Fouten voorbehouden
+
+
 def calculate_aantallen(ziek, header, h_, ic_opn, ifr_, long_covid):
     st.subheader ("Aantallen")
     df_calculated = pd.DataFrame()
+    # Initialize an empty list to collect rows
+    rows = []
     for i in range(len(ziek)):
 
-        df_calculated = df_calculated.append(
-            {
-                "_agegroup": header[i],
-                "_ziek": round(ziek[i] ),
-                "hosp": round( ziek[i] *h_[i]),
-                "ic" :  round(ziek[i] *  ic_opn[i]),
-                "overl" : round( ziek[i] *  ifr_[i]),
-                "long covid":  round(ziek[i]  * long_covid[i])
-            },
-            ignore_index=True,
-        )
+
+
+        # Assuming this code is inside a loop where i is defined
+        rows.append({
+            "_agegroup": header[i],
+            "_ziek": round(ziek[i]),
+            "hosp": round(ziek[i] * h_[i]),
+            "ic": round(ziek[i] * ic_opn[i]),
+            "overl": round(ziek[i] * ifr_[i]),
+            "long covid": round(ziek[i] * long_covid[i])
+        })
+
+        # After the loop, create a DataFrame from the collected rows
+    df_calculated = pd.DataFrame(rows)
+
     df_calculated.loc['Totaal']= df_calculated.sum()
     df_calculated.loc['Totaal', "_agegroup"] = ""
     df_calculated=df_calculated.astype(str)
     st.write (df_calculated)
 
+def main():
 
     st.title( "Wat gebeurt er als je alles open gooit")
     st.write ("Dit is een simpel scriptje wat een bierviltjes berekening maakt om te zien wat er gebeurt als je alles open gooit zonder maatregelen." )
@@ -210,7 +224,7 @@ def calculate_aantallen(ziek, header, h_, ic_opn, ifr_, long_covid):
     st.write ("Ter vergelijk: Normaal overlijden er per jaar ca. 5000 mensen  onder de 50 en 20.000 onder de 65. Er zijn ca 40.000 ziekenhuisbedden in NL en 2000 IC bedden. ")
     st.write ("Het aantal acceptabele ziekenhuis- en IC opnames, overlijdens en long covid gevallen is een morele en politieke keuze")
 
-def main():
-    st.write("OUT OF ORDER")
+# def main():
+#     st.write("OUT OF ORDER")
 if __name__ == "__main__":
     main()

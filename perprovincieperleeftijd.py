@@ -1,31 +1,31 @@
 import pandas as pd
-import numpy as np
+# import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-import matplotlib.dates as mdates
+# import matplotlib as mpl
+# import matplotlib.dates as mdates
 
 # import seaborn as sn
-from scipy import stats
-import datetime as dt
-from datetime import datetime, timedelta
+# from scipy import stats
+# import datetime as dt
+# from datetime import datetime, timedelta
 
-import json
-from matplotlib.backends.backend_agg import RendererAgg
-from matplotlib.font_manager import FontProperties
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
-import matplotlib.ticker as ticker
-import math
+# import json
+# from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.font_manager import FontProperties
+# from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
+# import matplotlib.ticker as ticker
+# import math
 
-_lock = RendererAgg.lock
-from scipy.signal import savgol_filter
+# _lock = RendererAgg.lock
+# from scipy.signal import savgol_filter
 import streamlit as st
-import urllib
-import urllib.request
-from pathlib import Path
+# import urllib
+# import urllib.request
+# from pathlib import Path
 #from streamlit import caching
-from inspect import currentframe, getframeinfo
+# from inspect import currentframe, getframeinfo
 
-import covid_dashboard_rcsmit
+# import covid_dashboard_rcsmit
 
 def save_df(df, name):
     """  _ _ _ """
@@ -40,7 +40,7 @@ def save_df(df, name):
 
     print("--- Saving " + name_ + " ---")
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def download_data_file(url, filename, delimiter_, fileformat):
     """Download the external datafiles
     IN :  url : the url
@@ -115,7 +115,8 @@ def show_graph(df_new):
                     .rolling(window=7, center=True)
                     .mean()
                 )
-    with _lock:
+    # with _lock:
+    if 1==1:
         fig1y = plt.figure()
         ax = fig1y.add_subplot(111)
         #for l in ages_to_show_in_graph:
@@ -134,12 +135,11 @@ def show_graph(df_new):
         ax =  df_new["rolling"].plot( label = "label")
         ax.yaxis.grid(True, which="major", alpha=0.4)
 
-        ax.set_xticklabels(df_new["date"], fontsize=6, rotation=90)
+        # ax.set_xticklabels(df_new["date"], fontsize=6, rotation=90)
         ax.text(1, 1.1, 'Created by Rene Smit — @rcsmit',
                     transform=ax.transAxes, fontsize='xx-small', va='top', ha='right')
         plt.title(f"gevallen per province per agegroup\nper 100k inwoners" , fontsize=10)
         plt.tight_layout()
-        plt.show()
         st.pyplot(fig1y)
 
 
@@ -174,7 +174,7 @@ def groupeer_data():
 def main():
     local = True
     if local:
-        df = download_data_file("https://raw.githubusercontent.com/rcsmit/COVIDcases/main/cases_per_age_per_province.csv", "cases_per_age_per_province", ",",  "csv")
+        df = download_data_file("https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/cases_per_age_per_province.csv", "cases_per_age_per_province", ",",  "csv")
     else:
         df = groupeer_data()
 

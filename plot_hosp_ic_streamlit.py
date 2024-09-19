@@ -33,15 +33,17 @@ def save_df(df, name):
         df ([dataframe]): [df-naam]
         name ([filename]): [bestandsnaam]
     """
+    try:
+        OUTPUT_DIR = (
+            "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
+        )
+        name_ = OUTPUT_DIR + name + ".csv"
+        compression_opts = dict(method=None, archive_name=name_)
+        df.to_csv(name_, index=False, compression=compression_opts)
 
-    OUTPUT_DIR = (
-          "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
-    )
-    name_ = OUTPUT_DIR + name + ".csv"
-    compression_opts = dict(method=None, archive_name=name_)
-    df.to_csv(name_, index=False, compression=compression_opts)
-
-    print("--- Saving " + name_ + " ---")
+        print("--- Saving " + name_ + " ---")
+    except:
+        print ("ERROR SAVING")
 
 def smooth(df, columnlist):
     columnlist_sma_df = []
@@ -291,6 +293,7 @@ def show_stack(df, c1,titel,absolute_or_relative):
 
 def agg_ages(df):
     # make age groups
+    df["0-14"] = df["0-4"] + df["5-9"] + df["10-14"]
     df["0-29"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"]
     df["30-49"] = df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"]
     df["50-69"] = df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"]
@@ -318,7 +321,7 @@ def agg_ages(df):
     df["TOTAAL"] = df["0-14"] + df["15-19"] + df["20-24"] + df["25-29"] + df["30-34"] + df["35-39"] + df["40-44"] + df["45-49"] + df["50-54"] + df["55-59"] + df["60-64"] + df["65-69"] + df["70-74"] + df["75-79"] +  df["80-84"] + df["85-89"] +  df["90+"]+ df["Unknown"]
     return df
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def load_data():
     url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
     return pd.read_csv(url1, delimiter=";", low_memory=False)
@@ -516,7 +519,7 @@ def do_the_rudi(df):
     # calculate the sum
     df = df.drop(columns="index", axis=1)
 
-    df["sum"] = df. sum(axis=1)
+    df["sum"] = df.select_dtypes(include="number").sum(axis=1)
 
     # make a new df with the fraction, row-wize  df_fractions A
     nr_of_columns = len (df.columns)
@@ -605,7 +608,7 @@ def main():
     if until_ == "2023-08-23":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
+            
             st.success("Cache is cleared, please reload to scrape new values")
     global WDW2
     WDW2 = st.sidebar.slider("Window smoothing curves (weeks)", 1, 8, 1)
@@ -732,16 +735,21 @@ def main():
             st.write (df_pivot_hospital_basic)
 
             df_new = do_the_rudi(df_pivot_hospital_basic)
+            st.write("Calculate the fractions per age group. Calculate the difference related to day 0 as a % of day 0.")
+            st.write(df_new)
 
-
-            st.write(df_new.style.format(None, na_rep="-").applymap(color_value).set_precision(2))
-
-            #st.dataframe(df_new.style.applymap(color_value))
+            
+            # st.write(
+            #         df_new.style.format(na_rep="-", float_format="%.2f").applymap(color_value)
+            #     )
+            # #st.dataframe(df_new.style.applymap(color_value))
     else:
             st.subheader("Ziekenhuisopnames (aantallen)")
             st.write(df_pivot_ic_basic)
             df_new = do_the_rudi(df_pivot_ic_basic)
-            st.dataframe(df_new.style.applymap(color_value))
+            st.write("Calculate the fractions per age group. Calculate the difference related to day 0 as a % of day 0.")
+            st.write(df_new)
+            #st.dataframe(df_new.style.applymap(color_value))
 
     tekst = (
         "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"

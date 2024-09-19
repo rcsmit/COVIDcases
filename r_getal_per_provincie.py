@@ -32,7 +32,7 @@ import platform
 ###################################################################
 
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_data():
     """Get the data from various sources
     In : -
@@ -45,12 +45,16 @@ def get_data():
 
         with st.spinner(f"Downloading...(it will take some time!)"):
             if platform.processor() != "":
-                url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
-                url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
-
+                #url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+                
+                url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\COVID-19_casus_landelijk_2021.csv"
+                print (url1)
+                #url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
+                url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/COVID-19_casus_landelijk_2021.csv"
+            
             else:
-                url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
-
+                #url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
+                url1= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/COVID-19_casus_landelijk_2021.csv"
             df = pd.read_csv(url1, delimiter=";", low_memory=False)
 
         df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
@@ -101,6 +105,7 @@ def get_data():
 
         df, smoothed_columns = smooth_columnlist(df_pivot, columnlist, t, WDW2, centersmooth)
         df, column_list_r_smoothened=  add_walking_r(df, smoothed_columns, "date", t,WDW2, tg, d)
+       
         df, column_list_r_smoothened_moved =  move_column(df, column_list_r_smoothened, -8)
         lijst.extend(column_list_r_smoothened_moved)
 
@@ -519,6 +524,7 @@ def main():
     global show_R_value_graph, show_R_value_RIVM, centersmooth
     global OUTPUT_DIR
     global INPUT_DIR
+
     init()
 
 
@@ -535,6 +541,7 @@ def main():
 
 
     st.title("COVID cases en Re-getal per provincie")
+    st.warning("Static data, only the first 300k rows of cases_landelijk.csv")
     # st.header("")
     st.subheader("Under construction - Please send feedback to @rcsmit")
 
@@ -545,33 +552,33 @@ def main():
     DATE_FORMAT = "%m/%d/%Y"
     start_ = "2021-01-01"
     today = datetime.today().strftime("%Y-%m-%d")
-    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+    # from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
 
-    try:
-        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
-    except:
-        st.error("Please make sure that the startdate is in format yyyy-mm-dd")
-        st.stop()
+    # try:
+    #     FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
+    # except:
+    #     st.error("Please make sure that the startdate is in format yyyy-mm-dd")
+    #     st.stop()
 
-    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+    # until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
 
-    try:
-        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
-    except:
-        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
-        st.stop()
+    # try:
+    #     UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
+    # except:
+    #     st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+    #     st.stop()
 
-    if FROM >= UNTIL:
-        st.warning("Make sure that the end date is not before the start date")
-        st.stop()
+    # if FROM >= UNTIL:
+    #     st.warning("Make sure that the end date is not before the start date")
+    #     st.stop()
 
-    if until_ == "2023-08-23":
-        st.sidebar.error("Do you really, really, wanna do this?")
-        if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
-            st.success("Cache is cleared, please reload to scrape new values")
+    # if until_ == "2023-08-23":
+    #     st.sidebar.error("Do you really, really, wanna do this?")
+    #     if st.sidebar.button("Yes I'm ready to rumble"):
+           
+    #         st.success("Cache is NOT cleared")
 
-    df = select_period(df, "date", FROM, UNTIL)
+    df = select_period(df, "date") #, FROM, UNTIL)
     options = ["total cases", "R numbers", "cases per 100k inwoners"]
     menu_choice = st.sidebar.radio("What to show",options, index=1)
 

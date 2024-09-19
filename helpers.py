@@ -173,8 +173,8 @@ def select_period_input_cache():
     if until_ == "2023-08-23":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
-            st.success("Cache is cleared, please reload to scrape new values")
+         
+            st.success("Cache is NOT cleared")
 
 def select_period_input():
 
@@ -538,7 +538,7 @@ def add_walking_r(df, smoothed_columns, datefield, how_to_smooth, window_smooth,
         sliding_r_df = pd.DataFrame(
             {"date_sR": [], column_name_R: []}
         )
-
+        rows = []
 
         for i in range(len(df)):
             if df.iloc[i][base] != None:
@@ -552,14 +552,17 @@ def add_walking_r(df, smoothed_columns, datefield, how_to_smooth, window_smooth,
                 else:
                     slidingR_ = None
 
-                sliding_r_df = sliding_r_df.append(
-                    {
-                        "date_sR": date_,
-                        column_name_R: slidingR_
+                # Initialize an empty list to collect rows
+                
 
-                    },
-                    ignore_index=True,
-                )
+                # Assuming you are inside a loop where date_ and slidingR_ are defined
+                rows.append({
+                    "date_sR": date_,
+                    column_name_R: slidingR_
+                })
+
+                # After the loop, create a DataFrame from the collected rows
+        sliding_r_df = pd.DataFrame(rows)
 
         sliding_r_df[column_name_r_smoothened] = round(
             sliding_r_df.iloc[:, 1].rolling(window=WDW2, center=True).mean(), 2
@@ -567,16 +570,18 @@ def add_walking_r(df, smoothed_columns, datefield, how_to_smooth, window_smooth,
 
 
         sliding_r_df = sliding_r_df.reset_index()
+        
         df = pd.merge(
-            df,
-            sliding_r_df,
-            how="outer",
-            left_on=datefield,
-            right_on="date_sR",
-            #left_index=True,
-        )
+                df,
+                sliding_r_df,
+                how="outer",
+                left_on=datefield,
+                right_on="date_sR",
+                suffixes=('_left', '_right')  # Specify suffixes for duplicate columns
+            )
         column_list_r_smoothened.append(column_name_r_smoothened)
-
+        # Drop the unwanted columns
+        df = df.drop(columns=['index', 'date_sR'], errors='ignore')
 
         sliding_r_df = sliding_r_df.reset_index()
     return df, column_list_r_smoothened
@@ -731,7 +736,7 @@ def find_color_x(firstday, showoneday, showday):
     return color_x
 
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def getdata_knmi():
     with st.spinner(f"GETTING ALL DATA ..."):
         #url =  "https://www.daggegevens.knmi.nl/klimatologie/daggegevens?stns=251&vars=TEMP&start=18210301&end=20210310"

@@ -13,78 +13,46 @@ import numpy as np
 from plotly.subplots import make_subplots
 import platform
 import plotly.express as px
-
 def main():
-    population_input = st.sidebar.number_input("Population", 0, 1_000_000_000, 100)
-    infected_input = st.sidebar.number_input("Infected per year (%)", 0, 100, 8) / 100
+    year_,lc_,disabled_=[],[],[]
+    population_input = st.sidebar.number_input("Population", 0, 1_000_000_000, 10000)
+    infected_input = st.sidebar.number_input("Infected per year (%)", 0, 100, 40) / 100
     disabled_input = st.sidebar.number_input("Risk of Long covid (%)", 0, 100, 20) / 100
-    recovered_input = st.sidebar.number_input("Recovered per year (%)", 0, 100, 50) / 100
-    number_of_years_input = st.sidebar.number_input("Number of years", 0, 100, 2) 
-    number_of_runs_input = st.sidebar.number_input("Number of runs", 0, 100, 1) 
-    year_, infected_,lc_, disabled_ = [],[],[],[]
+    recovered_input = st.sidebar.number_input("Recovered per year (%)", 0, 100, 90) / 100
+    number_of_years_input = st.sidebar.number_input("Number of years", 0, 100, 10) 
     
-    disabled_bootstraps = []
-    long_covid_bootstraps = []
-    for h in range(number_of_runs_input):
-        for i in range(1,number_of_years_input):
-            
-            
+    for i in range(1, number_of_years_input + 1):  # Iterate over years
+        disabled_bootstraps = []
+        long_covid_bootstraps = []
+        
+        for h in range(100):  # Run 100 simulations per year
             disabled = np.array([])
             population = np.zeros(population_input)
             
-            #for j in range(i):
-            infected = np.random.choice(range(len(population)),size=int(infected_input*len(population)),replace=False)  # i aantal willekeurige nummers, worden indexes
-            # st.write(" infected")
-            # st.write(infected)
-            # infect_mask = np.zeros(len(population))
-            # infect_mask[infected] = 1
-            # st.write("population[infected]")  # i maal een 0 - 
-
-            # st.write(population[infected])  # i maal een 0
-            population[infected] = population[infected]-1   # i maal -1. de hokjes met de index van inffected woren -1
-            # st.write(population[infected])
-            # -1 is infected, 0 is niet infected
-            runif = np.random.uniform(size=len(population)) # populatie aantal willekeurig nummer tussen 0 en 1
-            # st.write(runif)
-            #p = weibull_min.cdf(x=np.abs(population), c=2, scale=6)
-            #population = np.where((runif<=p)&(population<0),population+100,population)
-            population = np.where((runif<=(1-disabled_input)),population+100,population) # positive number means covid
-            # +100 is long covid, +0 is geen long covid
-
-                                    # geen longcovid +0    # long covid +100
-            # ifnected -1           -1                       99
-            # not infected 0         0                       100
+            for j in range(i):  # Loop over each year of infection
+                infected = np.random.choice(range(len(population)), size=int(infected_input * len(population)), replace=False)
+                
+                population[infected] -= 1  # Infected individuals become -1
+                
+                # Calculate probability using Weibull distribution
+                runif = np.random.uniform(size=len(population))
+                p = weibull_min.cdf(x=np.abs(population), c=2, scale=6)
+                population = np.where((runif <= p) & (population < 0), population + 100, population)
             
-
-            # st.write("np.where((runif<=disabled_input),population+100,population) ")
-            # st.write(population)   #-1, 99,100  of 0  -1 als de cijfer is in infected
-                # 
-            # runif = np.random.uniform(size=len(population))
-            # population = np.where((runif>=0.5)&(population>0),population-100,population)
+            # Disable individuals who did not recover with probability 0.9 (like original)
+            runif = np.random.uniform(size=len(population))
+            del_mask = (population > 0) & (runif >= recovered_input)  # Fixed 90% recovery rate
+            disabled = np.append(disabled, population[del_mask])
+            population = population[~del_mask]  # Remove disabled individuals from the population
             
-            runif = np.random.uniform(size=len(population))  # populatie aantal willekeurig nummer tussen 0 en 1
-            # st.write("runif")
-            # st.write(runif)
-            del_mask = (population>0) & (runif>=(recovered_input)) #& (infect_mask==1)  #p maal boolean
-            # st.write("del_mask = (population>0) & (runif>=(recovered_input))")
-            # st.write(del_mask)
-            # st.write("population[del_mask]")
-            # st.write(population[del_mask])
-            disabled = np.append(disabled,population[del_mask])
-            # st.write("disabled = np.append(disabled,population[del_mask])")
-            # st.write(disabled)
-            population = population[~del_mask]
-            # st.writse(population)
-            st.write(f"JAAR {i} - LEN POPULATION {len(population)}")
-            long_covid_bootstraps.append(np.sum(disabled>0)+np.sum(population>0))
-            disabled_bootstraps.append(len(disabled))
-        year_.append(i)
-
+            long_covid_bootstraps.append(np.sum(disabled > 0) + np.sum(population > 0))  # Track long COVID cases
+            disabled_bootstraps.append(len(disabled))  # Track disabled individuals
         
-        lc_.append (np.mean(long_covid_bootstraps)/population_input)
-        disabled_.append(np.mean(disabled_bootstraps)/population_input)
-        st.write(f"Year: {i} | LC%: {np.mean(long_covid_bootstraps)/population_input} | Disabled by LC%: {np.mean(disabled_bootstraps)/population_input}")
-
+        # Display results for the current year, averaged over 100 simulations
+        st.write(f"Year: {i} - LC%: {round(np.mean(long_covid_bootstraps) / 100,1)} - Disabled by LC%: {round(np.mean(disabled_bootstraps) / 100,1)}")
+        year_.append(i)
+        lc_.append(np.mean(long_covid_bootstraps) / population_input)
+        disabled_.append(np.mean(disabled_bootstraps) / population_input)
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace( go.Scatter(x=year_,
                             name='long covid',
@@ -105,5 +73,35 @@ def main():
     st.write("based on https://twitter.com/MathStuart/status/1558485615930445826")
     st.write("pythonized by https://twitter.com/koehlepe/status/1558593601013252096")
 
+    #koehlepe()
+def koehlepe():
+    # originele script
+
+    for i in range(1,number_of_years_input+1):
+        disabled_bootstraps = []
+        long_covid_bootstraps = []
+        for h in range(100):
+            disabled = np.array([])
+            population = np.zeros(population_input)
+            for j in range(i):
+                
+                infected = np.random.choice(range(len(population)),size=int(infected_input*len(population)),replace=False)
+                # infect_mask = np.zeros(len(population))
+                # infect_mask[infected] = 1
+                population[infected] = population[infected]-1
+                runif = np.random.uniform(size=len(population))
+                p = weibull_min.cdf(x=np.abs(population), c=2, scale=6)
+                population = np.where((runif<=p)&(population<0),population+100,population)
+                #population = np.where((runif<=p),population+100,population)
+                # runif = np.random.uniform(size=len(population))
+                # population = np.where((runif>=0.5)&(population>0),population-100,population)
+                runif = np.random.uniform(size=len(population))
+                del_mask = (population>0) & (runif>=recovered_input) #& (infect_mask==1)
+                disabled = np.append(disabled,population[del_mask])
+                population = population[~del_mask]
+            long_covid_bootstraps.append(np.sum(disabled>0)+np.sum(population>0))
+            disabled_bootstraps.append(len(disabled))
+        st.write(f"Year: {i} - LC%: {np.mean(long_covid_bootstraps)/100.0} - Disabled by LC%: {np.mean(disabled_bootstraps)/100.0}")
+        
 if __name__ == "__main__":
     main()

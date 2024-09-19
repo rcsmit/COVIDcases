@@ -126,7 +126,8 @@ def fit_the_values(country_, y_values , total_days, graph, output):
 
 
         if graph == True:
-            with _lock:
+            #with _lock:
+            if 1==1:
                 fig1x = plt.figure()
                 plt.plot(
                         x_values_extra,
@@ -199,10 +200,12 @@ def select_period(df, show_from, show_until):
 
 
 ###################################################################
-@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def getdata():
     if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\owid-covid-data.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data.csv"
+       
+
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
 

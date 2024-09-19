@@ -28,9 +28,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import platform
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 import streamlit as st
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
+
+
 #from streamlit import caching
 from helpers import *
 
@@ -42,7 +44,8 @@ def make_age_graph(df, d, columns_original,  titel):
     if d is None:
         st.warning("Choose ages to show")
         st.stop()
-    with _lock:
+    # with _lock:
+    if 1==1:
         color_list = [    "#3e5c76",  # blue 6,
                         "#ff6666",  # reddish 0
                         "#ac80a0",  # purple 1
@@ -99,13 +102,15 @@ def make_age_graph(df, d, columns_original,  titel):
 
 
 ###################################################################
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def load_data():
     with st.spinner(f"Downloading...(it will take some time!)"):
         if platform.processor() != "":
-            url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+            url1 = "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\COVID-19_casus_landelijk_2021.csv"
         else:
-            url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
+            # url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
+            url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/COVID-19_casus_landelijk_2021.csv"
+    
 
         df = pd.read_csv(url1, delimiter=";", low_memory=False)
         df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
@@ -120,31 +125,31 @@ def main():
     start_ = "2021-05-01"
     today = datetime.today().strftime("%Y-%m-%d")
     global from_, FROM, UNTIL
-    from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
+    # from_ = st.sidebar.text_input("startdate (yyyy-mm-dd)", start_)
 
-    try:
-        FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
-    except:
-        st.error("Please make sure that the startdate is valid and/or in format yyyy-mm-dd")
-        st.stop()
+    # try:
+    #     FROM = dt.datetime.strptime(from_, "%Y-%m-%d").date()
+    # except:
+    #     st.error("Please make sure that the startdate is valid and/or in format yyyy-mm-dd")
+    #     st.stop()
 
-    until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
+    # until_ = st.sidebar.text_input("enddate (yyyy-mm-dd)", today)
 
-    try:
-        UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
-    except:
-        st.error("Please make sure that the enddate is in format yyyy-mm-dd")
-        st.stop()
+    # try:
+    #     UNTIL = dt.datetime.strptime(until_, "%Y-%m-%d").date()
+    # except:
+    #     st.error("Please make sure that the enddate is in format yyyy-mm-dd")
+    #     st.stop()
 
-    if FROM >= UNTIL:
-        st.warning("Make sure that the end date is not before the start date")
-        st.stop()
+    # if FROM >= UNTIL:
+    #     st.warning("Make sure that the end date is not before the start date")
+    #     st.stop()
 
-    if until_ == "2023-08-23":
-        st.sidebar.error("Do you really, really, wanna do this?")
-        if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
-            st.success("Cache is cleared, please reload to scrape new values")
+    # if until_ == "2023-08-23":
+    #     st.sidebar.error("Do you really, really, wanna do this?")
+    #     if st.sidebar.button("Yes I'm ready to rumble"):
+    #         caching.clear_cache()
+    #         st.success("Cache is cleared, please reload to scrape new values")
 
     df.rename(
         columns={
@@ -154,7 +159,7 @@ def main():
     )
     # df_hospital = df[df["Hospital_admission"] == "Yes"].copy(deep=False)
     # df_deceased = df[df["Deceased"] == "Yes"].copy(deep=False)
-    df = select_period(df,"Date_statistics", FROM, UNTIL)
+    df = select_period(df,"Date_statistics")#, FROM, UNTIL)
     df_pivot = (
         pd.pivot_table(
             df,
@@ -201,7 +206,7 @@ def main():
         "Date_statistics_type",
         "Sex",
         "Province",
-        "Hospital_admission",
+        
         "Deceased",
         "Week_of_death",
         "Municipal_health_service",
@@ -254,4 +259,5 @@ def main():
     st.write("Attentie: DIt is het R getal op basis van moment van rapportage. RIVM berekent het R getal over het moment van besmetting of eerste symptomen")
 
 
-main()
+if __name__ == "__main__":
+    main()

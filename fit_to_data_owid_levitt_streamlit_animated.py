@@ -389,6 +389,7 @@ def add_column_levit(df, what_to_display):
 
             # Concatenate the new row with the existing DataFrame
             log_factor_df = pd.concat([log_factor_df, new_row], ignore_index=True)
+    #st.write(log_factor_df)
     log_factor_df["log_exp_gr_factor"] = log_factor_df["log_exp_gr_factor_"].rolling(window=3, center=False).mean()
 
     log_factor_df = log_factor_df.fillna(0)
@@ -407,11 +408,11 @@ def add_column_levit(df, what_to_display):
 
     return df
 ###################################################################
-@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def getdata():
     if platform.processor() != "":
         #url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
-        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input_local\\owid-covid-data_20211202.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_20211202.csv" 
     else:
         url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
         #url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
@@ -438,8 +439,10 @@ def main():
 
 
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\output\\levitt2021"
+        "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\output"
     )
+
+    
 
     df_complete_country, FROM, UNTIL, what_to_display, datediff, showlogyaxis, optimim, make_animation, title, total_days_in_graph, y_limit = sidebar_input(df)
 

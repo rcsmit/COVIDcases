@@ -62,7 +62,7 @@ def move_column(df, column_, days):
 def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, window, centersmooth,what_to_show):
 
     df_inwoners = df_inwoners[df_inwoners["regio_type"] == "VR"]
-    df_inwoners = df_inwoners.groupby(df_inwoners["rwzi_code"]).mean().reset_index()
+    df_inwoners = df_inwoners.groupby(df_inwoners["rwzi_code"]).mean(numeric_only=True).reset_index()
     
     df_inwoners["aandeel_maal_inwoners"]= df_inwoners["aandeel"] * df_inwoners["inwoners"]/100
     df_rioolwaterdata["Date_measurement"] = pd.to_datetime(
@@ -86,7 +86,7 @@ def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, windo
     # compression_opts = dict(method=None, archive_name=name_)
     # df_riool_rivm.to_csv(name_, index=False, compression=compression_opts)
     df_lcps["date"] = pd.to_datetime(df_lcps["date"], format="%Y-%m-%d")
-    st.write(df_lcps) 
+ 
     df_totaal = pd.merge(df_rioolwaterdata, df_lcps, how="outer", left_on="Date_measurement", right_on = "date")
     df_totaal = pd.merge(df_totaal, df_rioolwaterdata_simpel, how="outer", left_on="date", right_on="Date_measurement")
     
@@ -98,7 +98,7 @@ def transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, windo
     df_totaal = df_totaal[df_totaal["date_rivm"] != 0]
     df_totaal["date"] = df_totaal["date_rivm"] 
     df_totaal["date"] = pd.to_datetime(df_totaal["date"], format="%Y-%m-%d")
-    st.write (df_totaal)
+   
     df_totaal = df_totaal.sort_values(by='date') 
     print (df_totaal.dtypes)
     for t in ["result", what_to_show,"RNA_flow_per_100000_simpel", "RNA_flow_per_100000_simpel_gedeeld_door_aantal","value_rivm_official"]:
@@ -222,7 +222,8 @@ def make_annotations(fig1):
                 fillcolor="green", opacity=0.25)
     fig1.add_vrect(x0='2022-09-19', x1="2022-09-20",
                 annotation_text="Start Herhaalprik", annotation_position="top left",
-                fillcolor="green", opacity=0.25)    
+                fillcolor="green", opacity=0.25) 
+       
 def make_graphs(df_totaal, new_column, which_riooldeeltjes):
     title_1 = (f"{new_column} en Gemiddeld aantal virusdeeltjes [(per 100.000 inwoners)  x 100 miljard] door de tijd heen")
     title_1b= (f"rioolwaardes vs {new_column}")
@@ -318,6 +319,7 @@ def main():
     FROM, UNTIL, days_move_columns, window, centersmooth,what_to_show,which_riooldeeltjes = interface()
     df_inwoners, df_rioolwaterdata, df_lcps,df_riool_rivm = get_data()
     df_totaal = transform_data(df_inwoners, df_rioolwaterdata, df_riool_rivm, df_lcps, window, centersmooth,what_to_show)
+   
     df_totaal = select_period_oud(df_totaal, "date", FROM, UNTIL)
     what_to_show_sma = what_to_show +"_sma"
     df_totaal, new_column = move_column(df_totaal, what_to_show_sma , days_move_columns)

@@ -11,7 +11,7 @@ import pandas as pd
 import streamlit as st
 #from streamlit import caching
 
-@st.cache()
+@st.cache_data()
 def get_contact_matrix(moment,contact_type):
     """Get the contactmatrix
 
@@ -33,7 +33,7 @@ def get_contact_matrix(moment,contact_type):
     df = df.rename(columns={'cont_age':'contact_age'})
 
     df_first =  df[(df['survey'] == moment) & (df['contact_type'] == contact_type)]
-    df_first_pivot =  df_first.pivot_table(index='contact_age', columns='participant_age', values="m_est", margins = True, aggfunc=sum)
+    df_first_pivot =  df_first.pivot_table(index='contact_age', columns='participant_age', values="m_est", margins = True, aggfunc="sum")
 
     # drop first row and column (TOFIX : combine 0-5 and 5-10)
     df_first_pivot =df_first_pivot.iloc[: , 1:]

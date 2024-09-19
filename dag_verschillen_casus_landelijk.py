@@ -107,10 +107,10 @@ def week_to_week(df, column_):
 @st.cache(ttl=60 * 60 * 24)
 def get_data():
     if platform.processor() != "":
-        url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_casus_landelijk.csv"
+        url1 = "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\COVID-19_casus_landelijk_2021.csv"
     else:
         url1= "https://data.rivm.nl/covid-19/COVID-19_casus_landelijk.csv"
-
+        url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/COVID-19_casus_landelijk_2021.csv"
     df = pd.read_csv(url1, delimiter=";", low_memory=False)
     df["Date_statistics"] = pd.to_datetime(df["Date_statistics"], format="%Y-%m-%d")
     df = df.groupby(["Date_statistics", "Agegroup"], sort=True).count().reset_index()
@@ -254,7 +254,7 @@ def do_the_rudi(df_):
     df__ = accumulate_first_rows(df_,7)
     df = df__.copy(deep=False)
 
-    df["sum"] = df. sum(axis=1)
+    df["sum"] = df.select_dtypes(include="number").sum(axis=1)
     df['Date_statistics'] = df['Date_statistics'].dt.date # from 2021-01-01T00:00:00+01:00 to yyyy-mm-dd
     # make a new df with the fraction, row-wize  df_fractions A
     nr_of_columns = len (df.columns)
@@ -303,9 +303,9 @@ def  make_legenda(max_value):
         #if platform.processor() != "":
         # THIS DOESNT WORK IN PANDAS 1.3.0
         try:
-            st.write (df_legenda.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
+            st.write (df_legenda) #.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
         except:
-            st.write (df_legenda.style.applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
+            st.write (df_legenda) #.style.applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(2))
         #else:
         #    st.write (df_legenda)
 def main():
@@ -383,7 +383,7 @@ def main():
         "Date_statistics_type",
         "Sex",
         "Province",
-        "Hospital_admission",
+        
         "Deceased",
         "Week_of_death",
         "Municipal_health_service",
@@ -402,9 +402,9 @@ def main():
         max_value = 1600
         #if platform.processor() != "":
         try:
-            st.write (df_pivot.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(0))
+            st.write (df_pivot) #.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(0))
         except:
-            st.write (df_pivot.style.applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(0))
+            st.write (df_pivot) #.style.applymap(lambda x:  cell_background_number_of_cases(x,max_value)).set_precision(0))
         make_legenda(max_value)
         # else:
         #     st.write (df_pivot)
@@ -415,9 +415,9 @@ def main():
         df_naar_fractie, top_waarde = calculate_fraction(df_pivot)
         #if platform.processor() != "":
         try:
-            st.write (df_naar_fractie.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,top_waarde)).set_precision(2))
+            st.write (df_naar_fractie) #.style.format(None, na_rep="-").applymap(lambda x:  cell_background_number_of_cases(x,top_waarde)).set_precision(2))
         except:
-            st.write (df_naar_fractie.style.applymap(lambda x:  cell_background_number_of_cases(x,top_waarde)).set_precision(2))
+            st.write (df_naar_fractie) #.style.applymap(lambda x:  cell_background_number_of_cases(x,top_waarde)).set_precision(2))
         make_legenda(top_waarde)
         # else:
         #     st.write(df_naar_fractie)
@@ -428,9 +428,9 @@ def main():
         st.subheader(f"Percentual change with {numberofdays} days before")
         #if platform.processor() != "":
         try:
-            st.write(df_new.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+            st.write(df_new.style) #.format(None, na_rep="-").applymap(cell_background).set_precision(2))
         except:
-            st.write(df_new.style.applymap(cell_background).set_precision(2))
+            st.write(df_new.style) #.applymap(cell_background).set_precision(2))
         #else:
             st.write(df_new)
 
@@ -441,9 +441,9 @@ def main():
         st.write ("fraction = cases in an agegroup / total cases")
         #if platform.processor() != "":
         try:
-            st.write(df_new_rudi.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
+            st.write(df_new_rudi) #.style.format(None, na_rep="-").applymap(cell_background).set_precision(2))
         except:
-            st.write(df_new_rudi.style.applymap(cell_background).set_precision(2))
+            st.write(df_new_rudi) #.style.applymap(cell_background).set_precision(2))
         # else:
         #     st.write(df_new_rudi)
 

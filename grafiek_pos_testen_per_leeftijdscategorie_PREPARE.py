@@ -20,21 +20,24 @@ import numpy as np
 #from labellines import *  #https://stackoverflow.com/questions/16992038/inline-labels-in-matplotlib
 import streamlit as st
 #from streamlit import caching
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from datetime import datetime
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
+
 def save_df(df,name):
     """  _ _ _ """
-    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\'
+    OUTPUT_DIR = 'C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\output\\'
 
     name_ =  OUTPUT_DIR + name+'.csv'
     compression_opts = dict(method=None,
                             archive_name=name_)
-    df.to_csv(name_, index=False,
-            compression=compression_opts)
+    try:
+        df.to_csv(name_, index=False,
+                compression=compression_opts)
 
-    print ("--- Saving "+ name_ + " ---" )
-
+        print ("--- Saving "+ name_ + " ---" )
+    except:
+        print("NOT saved")
 def read_df():
     # Local file
     #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
@@ -106,7 +109,23 @@ def regroup_df(kids_split_up):
             p =df.loc[i, "totaal_pos"]
             t = df.loc[i, "totaal_getest"]
             m = df.loc[i, "methode"]
-            df_new = df_new.append({ 'date': d, 'cat_oud': c_o, 'cat_nieuw': c,  "positief_testen": p,"totaal_testen":t, "methode": m}, ignore_index= True)
+            
+                        # Initialize an empty list to collect rows
+            rows = []
+
+            # Assuming this code is inside a loop where d, c_o, c, p, t, and m are defined
+            rows.append({
+                'date': d,
+                'cat_oud': c_o,
+                'cat_nieuw': c,
+                'positief_testen': p,
+                'totaal_testen': t,
+                'methode': m
+            })
+
+            # After the loop, create a DataFrame from the collected rows
+            df_new = pd.DataFrame(rows)
+
             c_o,c,p,t,m = None,None,None,None,None
 
     df_new = df_new.groupby(['date','cat_nieuw'], sort=True).sum().reset_index()

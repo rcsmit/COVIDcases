@@ -90,7 +90,7 @@ def find_correlation_pair(df, first, second):
     return c
 
 
-@st.cache(ttl=60 * 60 * 24, suppress_st_warning=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_data():
     """Get the data from various sources
     In : -
@@ -104,7 +104,7 @@ def get_data():
                  data = [
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input_local\\owid-covid-data.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\python_scripts\\covid19_seir_models\\COVIDcases\input\\owid-covid-data_20211202.csv",
                     "name": "owid",
                     "delimiter": ",",
                     "key": "date",
@@ -427,10 +427,10 @@ def init():
     global OUTPUT_DIR
 
     INPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\"
+        "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\"
     )
     OUTPUT_DIR = (
-        "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\output\\"
+        "C:\\Users\\rcxsm\\Documents\\python_scripts\\output\\"
     )
 
     # GLOBAL SETTINGS

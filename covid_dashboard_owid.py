@@ -13,13 +13,13 @@ import datetime as dt
 from datetime import datetime, timedelta
 
 import json
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 import matplotlib.ticker as ticker
 import math
 import platform
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 from scipy.signal import savgol_filter
 from sklearn.metrics import r2_score
 import streamlit as st
@@ -70,7 +70,7 @@ def download_data_file(url, filename, delimiter_, fileformat):
         return df_temp
 
 
-@st.cache(ttl=60 * 60 * 24, suppress_st_warning=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_data():
     """Get the data from various sources
     In : -
@@ -84,7 +84,7 @@ def get_data():
                  data = [
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input_local\\owid-covid-data.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data.csv",
                     "name": "owid",
                     "delimiter": ",",
                     "key": "date",
@@ -98,7 +98,7 @@ def get_data():
 
 
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input_local\\waze_mobility.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\waze_mobility.csv",
                     "name": "waze",
                     "delimiter": ",",
                     "key": "date",
@@ -110,7 +110,7 @@ def get_data():
                     "where_criterium": "country"
                 },
                 {
-                    "url": "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input_local\\google_mob_world.csv",
+                    "url": "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\google_mob_world.csv",
                     "name": "googlemobility",
                     "delimiter": ",",
                     "key": "date",
@@ -143,7 +143,6 @@ def get_data():
                     "where_field": None,
                     "where_criterium": None
                 },
-
 
                 {
                     "url": "https://raw.githubusercontent.com/ActiveConclusion/COVID19_mobility/master/waze_reports/waze_mobility.csv",
@@ -268,14 +267,14 @@ def get_data():
 def prepare_google_mob_worlddata():
     """ Bringing back a file of 549 MB to 9 MB. Works only locally"""
     # original location  https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
-    url = "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input\\Global_Mobility_Report.csv"
+    url = "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\input\\Global_Mobility_Report.csv"
 
     df = pd.read_csv(url, delimiter=",", low_memory=False)
     print (df)
     #df = df.loc[df['sub_region_1'] == None]
     df = df[df.sub_region_1.isnull()]
     print (df)
-    name_ = "C:\\Users\\rcxsm\\Documents\pyhton_scripts\\covid19_seir_models\\input\\google_mob_world.csv"
+    name_ = "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\input\\google_mob_world.csv"
     compression_opts = dict(method=None, archive_name=name_)
     df.to_csv(name_, index=False, compression=compression_opts)
     print("--- Saving " + name_ + " ---")
@@ -404,11 +403,12 @@ def save_df(df, name):
     """  _ _ _ """
     name_ = OUTPUT_DIR + name + ".csv"
     compression_opts = dict(method=None, archive_name=name_)
-    df.to_csv(name_, index=False, compression=compression_opts)
+    try:
+        df.to_csv(name_, index=False, compression=compression_opts)
 
-    print("--- Saving " + name_ + " ---")
-
-
+        print("--- Saving " + name_ + " ---")
+    except:
+        print("--- ERROR IN Saving " + name_ + " ---")
 ##########################################################
 def correlation_matrix(df, werkdagen, weekend_):
     """  _ _ _ """
@@ -497,7 +497,8 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t):
     aantal = len(what_to_show_l_)
     # SHOW A GRAPH IN TIME / DAY
 
-    with _lock:
+    #with _lock:
+    if 1==1:
         fig1x = plt.figure()
         ax = fig1x.add_subplot(111)
         # Some nice colors chosen with coolors.com
@@ -965,7 +966,8 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
         what_to_show_r = what_to_show_r
     else:
         what_to_show_r = [what_to_show_r]
-    with _lock:
+    #with _lock:
+    if 1==1:
             fig1xy = plt.figure()
             ax = fig1xy.add_subplot(111)
             # st.write (x_)
@@ -986,29 +988,39 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r, smoothed):
 
 
             y_ = np.array(df_temp[what_to_show_r])
+           
+            if (len(x_)==0) or (len(y_)==0): 
+                st.error("No data")
+                st.stop()
 
+            try:
+                #obtain m (slope) and b(intercept) of linear regression line
+                idx = np.isfinite(x_) & np.isfinite(y_)
+                m, b = np.polyfit(x_[idx], y_[idx], 1)
+                model = np.polyfit(x_[idx], y_[idx], 1)
 
+                predict = np.poly1d(model)
+                r2 = r2_score  (y_[idx], predict(x_[idx]))
+                #print (r2)
+                #m, b = np.polyfit(x_, y_, 1)
+                # print (m,b)
 
-            #obtain m (slope) and b(intercept) of linear regression line
-            idx = np.isfinite(x_) & np.isfinite(y_)
-            m, b = np.polyfit(x_[idx], y_[idx], 1)
-            model = np.polyfit(x_[idx], y_[idx], 1)
+                #add linear regression line to scatterplot
+                plt.plot(x_, m*x_+b, 'r')
+                corr_info = f"Correlation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}"
 
-            predict = np.poly1d(model)
-            r2 = r2_score  (y_[idx], predict(x_[idx]))
-            #print (r2)
-            #m, b = np.polyfit(x_, y_, 1)
-            # print (m,b)
-
-            #add linear regression line to scatterplot
-            plt.plot(x_, m*x_+b, 'r')
+            except:
+                
+                corr_info = ""
             plt.xlabel (what_to_show_l[0])
             plt.ylabel (what_to_show_r[0])
             if smoothed:
-                title_scatter = (f"Smoothed: {what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-            else:
-                title_scatter = (f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\nCorrelation = {find_correlation_pair(df_temp, what_to_show_l, what_to_show_r)}\ny = {round(m,2)}*x + {round(b,2)} | r2 = {round(r2,4)}")
-
+                title_scatter = f"Smoothed: {what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\n{corr_info}"
+                                 
+            else:              
+                title_scatter = f"{what_to_show_l[0]} -  {what_to_show_r[0]}\n({FROM} - {UNTIL})\n{corr_info}"
+                                 
+                                 
             plt.title(title_scatter)
 
 

@@ -22,10 +22,10 @@ import numpy as np
 #from labellines import *  #https://stackoverflow.com/questions/16992038/inline-labels-in-matplotlib
 import streamlit as st
 #from streamlit import caching
-from matplotlib.backends.backend_agg import RendererAgg
+# from matplotlib.backends.backend_agg import RendererAgg
 from datetime import datetime
 import grafiek_pos_testen_per_leeftijdscategorie_PREPARE
-_lock = RendererAgg.lock
+# _lock = RendererAgg.lock
 import perprovincieperleeftijd
 
 def save_df(df,name):
@@ -35,12 +35,14 @@ def save_df(df,name):
     name_ =  OUTPUT_DIR + name+'.csv'
     compression_opts = dict(method=None,
                             archive_name=name_)
-    df.to_csv(name_, index=False,
-            compression=compression_opts)
+    try:
+        df.to_csv(name_, index=False,
+                compression=compression_opts)
 
-    print ("--- Saving "+ name_ + " ---" )
-
-@st.cache(ttl=60 * 60 * 24)
+        print ("--- Saving "+ name_ + " ---" )
+    except:
+        print("NOT saved")
+@st.cache_data(ttl=60 * 60 * 24)
 def read_df( kids_split_up):
     # Local file
     # url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\covid19_seir_models\input\pos_test_leeftijdscat_wekelijks.csv"
@@ -101,8 +103,8 @@ def generate_aantallen_gemeente_per_dag_grouped_per_day():
 
 def read_cases_day():
     #url = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\input\\COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
-    url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
-    df_new   = pd.read_csv(url, sep=",", delimiter=",", low_memory=False)
+    url= "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv"
+    df_new   = pd.read_csv(url,  delimiter=",", low_memory=False)
     df_new["Date_of_publication"]=pd.to_datetime(df_new["Date_of_publication"], format='%Y-%m-%d')
 
     df_new = df_new.groupby([pd.Grouper(key='Date_of_publication', freq='W-TUE')]).sum().reset_index().sort_values('Date_of_publication')
@@ -136,7 +138,8 @@ def show_graph_ages_percentage(df_new, ages_to_show_in_graph, what_to_show_l, wh
             )
 
 
-    with _lock:
+    # with _lock:
+    if 1==1:
         fig1y = plt.figure()
         ax = fig1y.add_subplot(111)
         #for l in ages_to_show_in_graph:
@@ -210,7 +213,6 @@ def show_graph_ages_percentage(df_new, ages_to_show_in_graph, what_to_show_l, wh
                 handles.append(h)
                 labels.append(l)
         plt.legend(handles,labels)
-
         plt.show()
         st.pyplot(fig1y)
 
@@ -327,8 +329,8 @@ def main_ages_percentage():
     if show_until == "2023-08-23":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
-            st.success("Cache is cleared, please reload to scrape new values")
+            
+            st.success("Cache is NOT cleared")
     # try:
     #     show_until = dt.datetime.strptime(until_, "%Y-%m-%d").date()
     # except:
@@ -404,4 +406,8 @@ def main():
         main_ages_percentage()
     else:
         perprovincieperleeftijd.main_per_province_per_leeftijd()
-main()
+
+
+
+if __name__ == "__main__":
+    main()

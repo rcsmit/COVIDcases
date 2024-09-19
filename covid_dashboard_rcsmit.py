@@ -33,7 +33,7 @@ from inspect import currentframe, getframeinfo
 from helpers import *
 import covid_dashboard_show_toelichting_footer
 ###################################################################
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def download_data_file(url, filename, delimiter_, fileformat):
     """Download the external datafiles
     IN :  url : the url
@@ -73,7 +73,7 @@ def download_data_file(url, filename, delimiter_, fileformat):
         return df_temp
 
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_data():
     """Get the data from various sources
     In : -
@@ -101,15 +101,15 @@ def get_data():
             #     "groupby": "Date_of_publication",
             #     "fileformat": "csv",
             # },
-            {
-                "url": "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json",
-                "name": "rioolwater",
-                "delimiter": ",",
-                "key": "Date_measurement",
-                "dateformat": "%Y-%m-%d",
-                "groupby": "Date_measurement",
-                "fileformat": "json",
-            },
+            # {
+            #     "url": "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.json",
+            #     "name": "rioolwater",
+            #     "delimiter": ",",
+            #     "key": "Date_measurement",
+            #     "dateformat": "%Y-%m-%d",
+            #     "groupby": "Date_measurement",
+            #     "fileformat": "json",
+            # },
             # {
             #     "url": "https://hospital_intake_rivm.nu/wp-content/uploads/covid-19.csv",
             #     "name": "hospital_intake_rivm",
@@ -296,7 +296,7 @@ def get_data():
                 st.stop()
             if data[d]["groupby"] != None:
                 if df_ungrouped is not None:
-                    df_ungrouped = df_ungrouped.append(df_temp_x, ignore_index=True)
+                    df_ungrouped = pd.concat([df_ungrouped, df_temp_x], ignore_index=True)
                     print(df_ungrouped.dtypes)
                     print(firstkey_ungrouped)
                     print(newkey)
@@ -405,6 +405,15 @@ def extra_calculations(df):
     IN  : df
     OUT : df with extra columns"""
     #st.write(df.dtypes)
+
+    df["new.deaths"] = df[[
+            "deceased_50-59", 
+            "deceased_60-69", 
+            "deceased_70-79", 
+            "deceased_80-89", 
+            "deceased_90+", 
+            "deceased_<50"
+        ]].sum(axis=1)
     df["Percentage_positive"] = round(
         (df["Tested_positive"] / df["Tested_with_result"] * 100), 2
     )
@@ -412,42 +421,45 @@ def extra_calculations(df):
     #st.write(df.dtypes)
     try:
         df["RNA_per_reported"] = round(
-            ((df["RNA_flow_per_100000"] / 1e15) / df["positivetests"] * 100), 2
+            ((df["RNA_flow_per_100000"] / 1e15) / df["Tested_positive"] * 100), 2
         )
     except:
         pass
-    df["reported_corrected"] = round(
-        (df["positivetests"] * (df["Percentage_positive"] / 12.8)), 2
-    # 12.8 is percentage positief getest in week 1-2021
-    )
+    try:
+        df["reported_corrected"] = round(
+            (df["Tested_positive"] * (df["Percentage_positive"] / 12.8)), 2
+        # 12.8 is percentage positief getest in week 1-2021
+        )
+    except:
+        pass
 
-    df["reported_div_tested"] =  round((df["positivetests"] / df["Tested_with_result"]),4)
-    df["positivetests_moved_12"] = df["positivetests"].shift(12)
-    df["positivetests_moved_-12"] = df["positivetests"].shift(-12)
-    df["positivetests_moved_6"] = df["positivetests"].shift(6)
-    df["Reported_min_positive"] = df["positivetests"]-df["Tested_positive"]
-    df["positivetests_moved_14"] = df["positivetests"].shift(14)
+    df["reported_div_tested"] =  round((df["Tested_positive"] / df["Tested_with_result"]),4)
+    df["Tested_positive_moved_12"] = df["Tested_positive"].shift(12)
+    df["Tested_positive_moved_-12"] = df["Tested_positive"].shift(-12)
+    df["Tested_positive_moved_6"] = df["Tested_positive"].shift(6)
+    df["Reported_min_positive"] = df["Tested_positive"]-df["Tested_positive"]
+    df["Tested_positive_moved_14"] = df["Tested_positive"].shift(14)
     df["hosp_adm_per_reported"] = round(
-            ((df["Kliniek_Nieuwe_Opnames_COVID_Nederland"] ) / df["positivetests"] * 100), 2
+            ((df["kliniek_opnames_covid"] ) / df["Tested_positive"] * 100), 2
         )
 
     df["IC_adm_per_reported"] = round(
-            ((df["IC_Nieuwe_Opnames_COVID_Nederland"] ) / df["positivetests"] * 100), 2
+            ((df["IC_opnames_covid"] ) / df["Tested_positive"] * 100), 2
         )
     df["new.deaths_per_reported"] = round(
-            ((df["new.deaths"] ) / df["positivetests"] * 100), 2)
+            ((df["new.deaths"] ) / df["Tested_positive"] * 100), 2)
     df["hosp_adm_per_reported_moved_6"] = round(
-            ((df["Kliniek_Nieuwe_Opnames_COVID_Nederland"] ) / df["positivetests_moved_6"] * 100), 2
+            ((df["kliniek_opnames_covid"] ) / df["Tested_positive_moved_6"] * 100), 2
         )
     df["hosp_adm_per_reported_moved_12"] = round(
-            ((df["Kliniek_Nieuwe_Opnames_COVID_Nederland"] ) / df["positivetests_moved_12"] * 100), 2
+            ((df["kliniek_opnames_covid"] ) / df["Tested_positive_moved_12"] * 100), 2
         )
     df["hosp_adm_per_reported_moved_-12"] = round(
-            ((df["Kliniek_Nieuwe_Opnames_COVID_Nederland"] ) / df["positivetests_moved_-12"] * 100), 2
+            ((df["kliniek_opnames_covid"] ) / df["Tested_positive_moved_-12"] * 100), 2
         )
 
     df["IC_adm_per_reported_moved_6"] = round(
-            ((df["IC_Nieuwe_Opnames_COVID_Nederland"] ) / df["positivetests_moved_6"] * 100), 2
+            ((df["IC_opnames_covid"] ) / df["Tested_positive_moved_6"] * 100), 2
         )
     try:
         df["prev_div_days_contagious"] = round ((df["prev_avg"] ) / number_days_contagious)
@@ -459,16 +471,16 @@ def extra_calculations(df):
     df["new.deaths_per_prev_div_days_contagious"] = ( df["new.deaths"] / df["prev_div_days_contagious"] )*100
 
     df["new.deaths_per_reported_moved_14"] = round(
-            ((df["new.deaths"] ) / df["positivetests_moved_14"] * 100), 2)
+            ((df["new.deaths"] ) / df["Tested_positive_moved_14"] * 100), 2)
 
 
-    df["positivetests_cumm"] = df["positivetests"].cumsum()
-    df["positivetests_log10"] = np.log10(df["positivetests"])
-    df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["positivetests_cumm"]
+    df["Tested_positive_cumm"] = df["Tested_positive"].cumsum()
+    df["Tested_positive_log10"] = np.log10(df["Tested_positive"])
+    df["onderrapportagefactor"] = df["prev_div_days_contagious_cumm"] / df["Tested_positive_cumm"]
     df["new.deaths_cumm"] = df["new.deaths"].cumsum()
     df["new.deaths_cumm_div_prev_div_days_contagious_cumm"] =  df["new.deaths_cumm"] / df["prev_div_days_contagious_cumm"]  * 100
-    df["IC_Nieuwe_Opnames_COVID_Nederland_cumm"] = df["IC_Nieuwe_Opnames_COVID_Nederland"].cumsum()
-    df["Kliniek_Nieuwe_Opnames_COVID_Nederland_cumm"] = df["Kliniek_Nieuwe_Opnames_COVID_Nederland"].cumsum()
+    df["IC_opnames_covid_cumm"] = df["IC_opnames_covid"].cumsum()
+    df["kliniek_opnames_covid_cumm"] = df["kliniek_opnames_covid"].cumsum()
     #df["total_vaccinations_diff"]=df["total_vaccinations"].diff()
     df["people_vaccinated_diff"]=df["people_vaccinated"].diff()
     df["people_fully_vaccinated_diff"]= df["people_fully_vaccinated"].diff()
@@ -489,16 +501,16 @@ def extra_calculations(df):
     return df
 
 def extra_calculations_period(df):
-    df["positivetests_cumm_period"] = df["positivetests"].cumsum()
+    df["Tested_positive_cumm_period"] = df["Tested_positive"].cumsum()
     df["new.deaths_cumm_period"] = df["new.deaths"].cumsum()
-    df["IC_Nieuwe_Opnames_COVID_Nederland_cumm_period"] = df["IC_Nieuwe_Opnames_COVID_Nederland"].cumsum()
-    df["Kliniek_Nieuwe_Opnames_COVID_Nederland_cumm_period"] = df["Kliniek_Nieuwe_Opnames_COVID_Nederland"].cumsum()
+    df["IC_opnames_covid_cumm_period"] = df["IC_opnames_covid"].cumsum()
+    df["kliniek_opnames_covid_cumm_period"] = df["kliniek_opnames_covid"].cumsum()
     df["prev_div_days_contagious_cumm_period"] = df["prev_div_days_contagious"].cumsum()
     df["new.deaths_cumm_period_div_prev_div_days_contagious_cumm_period"] =  df["new.deaths_cumm_period"] / df["prev_div_days_contagious_cumm_period"]  * 100
     first_value_transit = df["transit_stations"].values[0]  # first value in the chosen period
     df["Rt_corr_transit_period"] =df["Rt_avg"] * (1/ (1-( 1* (df["transit_stations"] - first_value_transit)/first_value_transit) ))
     df["reported_corrected2"] = round(
-        (df["positivetests"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
+        (df["Tested_positive"] * (df["Percentage_positive"] / df["Percentage_positive"].values[0])), 2
     )
 
     return df
@@ -567,15 +579,19 @@ def calculate_cases(df, ry1, ry2, total_cases_0, sec_variant, extra_days):
         day_ = day.strftime("%Y-%m-%d")  # FROM object TO string
         day__ = dt.datetime.strptime(day_, "%Y-%m-%d")  # from string to daytime
 
-        df_calculated = df_calculated.append(
-            {
-                "date_calc": day_,
-                "variant_1": round(pt1),
-                "variant_2": round(pt2),
-                "variant_12": round(pt1 + pt2),
-            },
-            ignore_index=True,
+        df_calculated = pd.concat(
+            [
+                df_calculated,
+                pd.DataFrame({
+                    "date_calc": [day_],
+                    "variant_1": [round(pt1)],
+                    "variant_2": [round(pt2)],
+                    "variant_12": [round(pt1 + pt2)],
+                })
+            ],
+            ignore_index=True
         )
+
 
         temp_1 = pt1
         temp_2 = pt2
@@ -691,14 +707,18 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
                 else:
                     slidingR_ = None
                 slidingR_sec = None  # slidingR_sec = round(math.exp((tg *(math.log(df.iloc[i][base])- math.log(df.iloc[i-d2][base])))/d2),2)
-                sliding_r_df = sliding_r_df.append(
-                    {
-                        "date_sR": date_,
-                        column_name_R: slidingR_,
-                        column_name_R_sec: slidingR_sec,
-                    },
-                    ignore_index=True,
+                sliding_r_df = pd.concat(
+                    [
+                        sliding_r_df,
+                        pd.DataFrame({
+                            "date_sR": [date_],
+                            column_name_R: [slidingR_],
+                            column_name_R_sec: [slidingR_sec],
+                        })
+                    ],
+                    ignore_index=True
                 )
+
         #st.warning(column_name_r_smoothened)
         sliding_r_df = sliding_r_df.fillna(0)
         #st.write (df[column_name_r_smoothened])
@@ -838,11 +858,14 @@ def last_manipulations(df, what_to_drop, drop_last):
 
 def save_df(df, name):
     """  _ _ _ """
-    name_ = OUTPUT_DIR + name + ".csv"
-    compression_opts = dict(method=None, archive_name=name_)
-    df.to_csv(name_, index=False, compression=compression_opts)
+    try:
+        name_ = OUTPUT_DIR + name + ".csv"
+        compression_opts = dict(method=None, archive_name=name_)
+        df.to_csv(name_, index=False, compression=compression_opts)
 
-    print("--- Saving " + name_ + " ---")
+        print("--- Saving " + name_ + " ---")
+    except:
+        print ("File not saved")
 
 
 ##########################################################
@@ -868,7 +891,7 @@ def correlation_matrix(df, werkdagen, weekend_):
 
     # MAKE A SCATTERPLOT
 
-    # sn.regplot(y="Rt_avg", x="Kliniek_Nieuwe_Opnames_COVID_Nederland", data=df)
+    # sn.regplot(y="Rt_avg", x="kliniek_opnames_covid", data=df)
     # plt.show()
 
 
@@ -1764,6 +1787,7 @@ def main():
     global INPUT_DIR
     init()
 
+    st.warning("OLD / NON UPDATED INFO")
     df_getdata, df_ungrouped_, UPDATETIME = get_data()
     df = df_getdata.copy(deep=False)
     df_ungrouped = df_ungrouped_.copy(deep=False)
@@ -1778,10 +1802,10 @@ def main():
             "Hospital_admission_x": "hospital_intake_rivm",
             "IC_admission": "IC_admission_RIVM",
             "Hospital_admission_y": "Hospital_admission_GGD",
-            #"Kliniek_Nieuwe_Opnames_COVID_Nederland_x": "Hospital_admission_hospital_intake_rivm",
+            #"kliniek_opnames_covid_x": "Hospital_admission_hospital_intake_rivm",
             #   "value"                             : "IC_opnames_NICE",
-            "IC_Nieuwe_Opnames_COVID_Nederland_x": "IC_Nieuwe_Opnames_COVID_Nederland",
-            "IC_Nieuwe_Opnames_COVID_Nederland_y": "IC_Nieuwe_Opnames_COVID_Nederland",
+            "IC_opnames_covid_x": "IC_opnames_covid",
+            "IC_opnames_covid_y": "IC_opnames_covid",
             "IC_Bedden_COVID_x": "IC_Bedden_COVID",
             "IC_Bedden_Non_COVID_x":"IC_Bedden_Non_COVID",
             "Kliniek_Bedden_Nederland":"Kliniek_Bedden_Nederland",
@@ -1805,13 +1829,13 @@ def main():
         # "IC_Bedden_COVID",
         # "IC_Bedden_Non_COVID",
         # "Kliniek_Bedden",
-        # "IC_Nieuwe_Opnames_COVID_Nederland",
+        # "IC_opnames_covid",
         # "IC_admission_RIVM",
         # "IC_Intake_Proven",
         # "hospital_intake_rivm",
         # "Hospital_admission_hospital_intake_rivm",
         # "Hospital_admission_GGD",
-        # "positivetests",
+        # "Tested_positive",
         # "new.deaths",
         "Rt_avg",
         "Tested_with_result",
@@ -1859,14 +1883,14 @@ def main():
         "new.deaths_per_reported_moved_14",
 
 
-        "positivetests_cumm",
-        "Kliniek_Nieuwe_Opnames_COVID_Nederland_cumm",
+        "Tested_positive_cumm",
+        "kliniek_opnames_covid_cumm",
         "new.deaths_cumm",
-        "IC_Nieuwe_Opnames_COVID_Nederland_cumm",
-        "positivetests_cumm_period",
-        "Kliniek_Nieuwe_Opnames_COVID_Nederland_cumm_period",
+        "IC_opnames_covid_cumm",
+        "Tested_positive_cumm_period",
+        "kliniek_opnames_covid_cumm_period",
         "new.deaths_cumm_period",
-        "IC_Nieuwe_Opnames_COVID_Nederland_cumm_period",
+        "IC_opnames_covid_cumm_period",
         "prev_div_days_contagious",
         "prev_div_days_contagious_cumm",
         "prev_div_days_contagious_cumm_period",
@@ -1877,7 +1901,7 @@ def main():
         "reported_corrected",
         "reported_corrected2",
         "onderrapportagefactor",
-        "positivetests_log10",
+        "Tested_positive_log10",
         "Rt_corr_transit",
         "Rt_corr_transit_period"
     ]
@@ -1921,12 +1945,12 @@ def main():
     if until_ == "2023-08-23":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
-            st.success("Cache is cleared, please reload to scrape new values")
+
+            st.error("Cache is  NOT cleared")
 
 
 
-    mzelst =  ["cases","hospitalization","deaths","positivetests","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected",
+    mzelst =  ["cases","hospitalization","deaths","Tested_positive","hospital_intake_rivm","Hospital_Intake_Proven","Hospital_Intake_Suspected",
         "IC_Intake_Proven","IC_Intake_Suspected","IC_Current","ICs_Used","IC_Cumulative","Hospital_Currently","IC_Deaths_Cumulative",
         "IC_Discharge_Cumulative","IC_Discharge_InHospital","Hospital_Cumulative","Hospital_Intake","IC_Intake","Hosp_Intake_Suspec_Cumul",
         "IC_Intake_Suspected_Cumul","IC_Intake_Proven_Cumsum","new.infection","corrections.cases","net.infection","new.hospitals",
@@ -1934,7 +1958,7 @@ def main():
         "growth_infections","infections.today.nursery","infections.total.nursery","deaths.today.nursery","deaths.total.nursery",
         "mutations.locations.nursery","total.current.locations.nursery","values.tested_total","values.infected","values.infected_percentage",
         "pos.rate.3d.avg","pos.rate.7d.avg","IC_Bedden_COVID_Nederland","IC_Bedden_COVID_Internationaal","IC_Bedden_Non_COVID_Nederland",
-        "Kliniek_Bedden_Nederland","IC_Nieuwe_Opnames_COVID_Nederland","Kliniek_Nieuwe_Opnames_COVID_Nederland","Totaal_Bezetting",
+        "Kliniek_Bedden_Nederland","IC_opnames_covid","kliniek_opnames_covid","Totaal_Bezetting",
         "IC_Opnames_7d","Kliniek_Opnames_7d","Totaal_opnames","Totaal_opnames_7d","Totaal_IC","IC_opnames_14d","Kliniek_opnames_14d",
         "OMT_Check_IC","OMT_Check_Kliniek","Kliniek_Bedden_7d","IC_Bedden_7d","Totaal_Bedden_7d","IC_Bedden_14d","Kliniek_Bedden_14d",
         "Totaal_Bedden_14d","OMT_Check_IC_Bezetting","OMT_Check_Kliniek_Bezetting","OMT_Check_Totaal_Bezetting"]
@@ -1948,15 +1972,15 @@ def main():
     st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
 
-    # df,newcolumns = week_to_week(df,["positivetests"])
+    # df,newcolumns = week_to_week(df,["Tested_positive"])
 
     # show_R_value_graph, show_R_value_RIVM, show_scenario = False, False, False
     # WDW2=7
     # st.write(df.dtypes)
 
     w2w = [
-        "positivetests",
-        "Kliniek_Nieuwe_Opnames_COVID_Nederland",
+        "Tested_positive",
+        "kliniek_opnames_covid",
         "new.deaths",
     #     "spec_humidity_knmi_derived"
     ]
@@ -1967,8 +1991,8 @@ def main():
 
 
     #st.write(get_duplicate_cols(df))
-    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, ["positivetests", "Kliniek_Nieuwe_Opnames_COVID_Nederland"], 7)
-    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df,["positivetests", "Kliniek_Nieuwe_Opnames_COVID_Nederland"], 14)
+    df, newcolumns_w2w7, newcolumns2_w2w7 = week_to_week(df, ["Tested_positive", "kliniek_opnames_covid"], 7)
+    df, newcolumns_w2w14, newcolumns2_w2w14 = week_to_week(df,["Tested_positive", "kliniek_opnames_covid"], 14)
     lijst.extend(newcolumns_w2w7) # percentage
     lijst.extend(newcolumns2_w2w7) # index
 
@@ -2016,10 +2040,10 @@ def main():
 
     if how_to_display != "bar":
         what_to_show_day_l = st.sidebar.multiselect(
-            "What to show left-axis (multiple possible)", lijst, ["positivetests"]
+            "What to show left-axis (multiple possible)", lijst, ["Tested_positive"]
         )
         what_to_show_day_r = st.sidebar.multiselect(
-            "What to show right-axis (multiple possible)", lijst, ["Kliniek_Nieuwe_Opnames_COVID_Nederland"]
+            "What to show right-axis (multiple possible)", lijst, ["kliniek_opnames_covid"]
         )
         if what_to_show_day_l == None:
             st.warning("Choose something")
@@ -2033,14 +2057,14 @@ def main():
         what_to_show_day_l = st.sidebar.selectbox(
             "What to show left-axis (bar -one possible)", lijst, index=4
         )
-        # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["positivetests"]  )
+        # what_to_show_day_l = st.sidebar.multiselect('What to show left-axis (multiple possible)', lijst, ["Tested_positive"]  )
 
         showR = st.sidebar.selectbox("Show R number", [True, False], index=0)
         if what_to_show_day_l == []:
             st.error("Choose something for the left-axis")
         if showR == False:
             what_to_show_day_r = st.sidebar.multiselect(
-                "What to show right-axis (multiple possible)", lijst, ["positivetests"]
+                "What to show right-axis (multiple possible)", lijst, ["Tested_positive"]
             )
             show_R_value_graph = False
             show_R_value_RIVM = False
@@ -2158,6 +2182,27 @@ def main():
         st.error("Choose something for the left-axis")
         st.stop()
 
+    
+    # Assuming what_to_show_day_l and what_to_show_day_r are lists or sets
+    what_to_show_day_l_set = set(what_to_show_day_l)
+    what_to_show_day_r_set = set(what_to_show_day_r)
+
+    # Check if items are in df.columns
+    columns_in_df = set(df.columns)
+
+    # Find missing items from both lists
+    l_missing = what_to_show_day_l_set.difference(columns_in_df)
+    r_missing = what_to_show_day_r_set.difference(columns_in_df)
+
+    # Warning for missing items in what_to_show_day_l
+    if l_missing:
+        st.warning(f"The following items from what_to_show_day_l are not in the dataframe columns: {', '.join(l_missing)}")
+        st.stop()
+    # Warning for missing items in what_to_show_day_r
+    if r_missing:
+        st.warning(f"The following items from what_to_show_day_r are not in the dataframe columns: {', '.join(r_missing)}")
+        st.stop()
+
     if what_to_show_day_l is not None:
 
         if week_or_day == "day":
@@ -2249,7 +2294,7 @@ def main():
         find_lag_time(df, what_to_show_day_l, what_to_show_day_r, -31,31)
     # correlation_matrix(df,werkdagen, weekend_)
 
-    @st.cache
+    @st.cache_data()
     def convert_df(df):
         # IMPORTANT: Cache the conversion to prevent computation on every rerun
         return df.to_csv().encode('utf-8')

@@ -44,7 +44,7 @@ def download_data_file(url, filename, delimiter_, fileformat):
         return df_temp
 
 
-@st.cache(ttl=60 * 60 * 24, suppress_st_warning=True)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_data():
     """Get the data from various sources
     In : -
@@ -239,8 +239,8 @@ def main():
     if  what_to_show_left == "Clear_cache":
         st.sidebar.error("Do you really, really, wanna do this?")
         if st.sidebar.button("Yes I'm ready to rumble"):
-            caching.clear_cache()
-            st.success("Cache is cleared, please reload to scrape new values")
+            #caching.clear_cache()
+            st.success("Cache is NOT cleared")
         st.stop()
 
     what_to_show_right = st.sidebar.selectbox("Y as", columnlist, index=425)

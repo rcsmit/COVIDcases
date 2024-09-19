@@ -5,7 +5,7 @@ import datetime as dt
 from datetime import datetime
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
-# from matplotlib.ticker import MultipleLocator
+from matplotlib.ticker import MultipleLocator
 # _lock = RendererAgg.lock
 import streamlit as st
 #from streamlit import caching
@@ -14,7 +14,7 @@ from helpers import *
 
 ###################################################################
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def get_data():
     """Get the data
     In : -
@@ -68,21 +68,21 @@ def graph_day(df, what_to_show_l, title):
         n += 1
 
     plt.title(title, fontsize=10)
-
-    # show every 10th date on x axis
-    a__ = (max(df_temp["date"].tolist())).date() - (
-        min(df_temp["date"].tolist())
-    ).date()
-    freq = int(a__.days / 10)
-    ax.xaxis.set_major_locator(MultipleLocator(freq))
+    if len(df_temp)>0:
+        # show every 10th date on x axis
+        a__ = (max(df_temp["date"].tolist())).date() - (
+            min(df_temp["date"].tolist())
+        ).date()
+        freq = int(a__.days / 10)
+        ax.xaxis.set_major_locator(MultipleLocator(freq))
     ax.set_xticks(df_temp["date"].index)
     ax.set_xticklabels(df_temp["date"].dt.date, fontsize=6, rotation=90)
     xticks = ax.xaxis.get_major_ticks()
 
 
-    # for i, tick in enumerate(xticks):
-    #     if i % 10 != 0:
-    #         tick.label1.set_visible(False)
+    for i, tick in enumerate(xticks):
+        if i % 10 != 0:
+            tick.label1.set_visible(False)
     plt.xticks()
 
     # layout of the x-axis
@@ -116,7 +116,7 @@ def graph_day(df, what_to_show_l, title):
     )
     st.pyplot(fig1x)
 
-def main_oud():
+def main():
     """  _ _ _ """
 
     df_getdata, UPDATETIME = get_data()
@@ -136,7 +136,7 @@ def main_oud():
 
     graph_day(
         df,
-        ["RNA_per_ml", "RNA_flow_per_100000"], title
+        ["RNA_flow_per_100000"], title
     )
     st.write(df)
 
@@ -169,7 +169,7 @@ def main_oud():
         unsafe_allow_html=True,
     )
 
-def main():
+def main_():
     st.write ("Out of order")
 
 if __name__ == "__main__":

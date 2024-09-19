@@ -4,7 +4,7 @@ import requests
 from datetime import datetime
 import pandas as pd
 import platform
-
+import streamlit as st
 
 def get_normal_date(unixdate):
     """ Convert the unixdate in a normal readable date
@@ -30,7 +30,7 @@ def load_data_from_csv():
         file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaardes_official_rivm.csv"
     df_ = pd.read_csv(
         file,
-        delimiter=";",
+        delimiter=",",
         low_memory=False,
         )
     
@@ -76,23 +76,24 @@ def scrape_data_from_site():
     return total_df
 
 def make_grouped_df(total_df):
-    
     total_df["date_rivm"] =  pd.to_datetime(total_df["date_rivm"] , format="%Y-%m-%d")
     total_df['year_number'] = total_df['date_rivm'].dt.isocalendar().year
     total_df['week_number'] = total_df['date_rivm'].dt.isocalendar().week
     total_df["weeknr"] = total_df["year_number"].astype(str) +"_" + total_df["week_number"].astype(str).str.zfill(2)
     total_df["value_rivm_official_sma"] =  total_df["value_rivm_official"].rolling(window = 5, center = False).mean().round(1)
-    df_grouped = total_df.groupby([total_df["weeknr"]], sort=True).mean().reset_index() #.round(1)
-   
+    
+    # Group the dataframe by 'weeknr' and calculate the mean for numeric columns
+    df_grouped = total_df.groupby("weeknr", sort=True).mean(numeric_only=True).reset_index()  # Use numeric_only in mean, not groupby
+
     return df_grouped
 
 def scrape_rioolwater():
     """Scrape rioolwaterdata van de RIVM site. Dit is verpakt in een stuk javascript met JSON
     """    
-    try:
-        total_df = scrape_data_from_site()
-    except:
-        total_df = load_data_from_csv()
+    # try:
+    #     total_df = scrape_data_from_site()
+    # except:
+    total_df = load_data_from_csv()
 
     df_grouped = make_grouped_df(total_df)
    

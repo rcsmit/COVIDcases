@@ -30,7 +30,7 @@ from plotly.subplots import make_subplots
 from scipy.stats import fisher_exact
 
 # na 21/8 zelfde waardes voor de vaccinaties voor 90+ aangehoude
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def read():
     sheet_id = "104fiQWDNmLP73CBEo5Lu-fXeTOYiTx_7PZb0N-b3joE"
     sheet_name = "mastersheet"
