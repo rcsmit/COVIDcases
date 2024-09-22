@@ -616,7 +616,7 @@ def interface():
     yaxis_to_zero = st.sidebar.selectbox("Y as beginnen bij 0", [False, True], index = 0)
     if (how == "year_minus_avg") or (how == "p_score"):
         rightax = st.sidebar.selectbox("Right-ax", ["boosters", "herhaalprik", None], index = 1, key = "aa")
-        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "aa")
+        mergetype = st.sidebar.selectbox("How to merge", ["inner", "outer"], index = 0, key = "bb")
         show_scatter = st.sidebar.selectbox("Show_scatter", [False, True], index = 0)
     else:
         rightax, mergetype, show_scatter = None, None, None
