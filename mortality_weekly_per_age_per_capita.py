@@ -52,34 +52,39 @@ def main():
     merged_df = merged_df.sort_values(by=['year', 'week'], ascending=[True, True])
     merged_df['TIME_PERIOD'] = merged_df['year'].astype(str)+' - '+merged_df['week'].astype(str)
     print (merged_df)
-    # Create the plot
-    fig = go.Figure()
 
-    # Plot each age group for total population
-    for age in merged_df[merged_df['sex'] == 'T']['age'].unique():
-        age_data = merged_df[(merged_df['age'] == age) & (merged_df['sex'] == 'T')]
-        fig.add_trace(go.Scatter(
-            x=age_data['TIME_PERIOD'],
-            #x=age_data['week'] + (age_data['year'] - age_data['year'].min()) * 52,
-            y=age_data['deaths_per_100k'],
-            mode='lines',
-            name=age
-        ))
+    for sex in ["T", "M", "F"]:
+        sex_mapping = {'M': 'Male', 'F': 'Female', 'T': 'Total'}
+        sex_ = sex_mapping.get(sex, 'unknown')  # 'unknown' can be a default value for unrecognized sex codes
 
-    # Update layout
-    fig.update_layout(
-        title='Deaths per 100,000 People by Age Group per Week (Total Population)',
-        xaxis_title='Week (cumulative across years)',
-        yaxis_title='Deaths per 100,000 People (log scale)',
-        yaxis_type="log",
-        legend_title='Age Group',
-        height=600,
-        width=1000
-    )
+        # Create the plot
+        fig = go.Figure()
 
-    # Show the plot
+        # Plot each age group for total population
+        for age in merged_df[merged_df['sex'] == sex]['age'].unique():
+            age_data = merged_df[(merged_df['age'] == age) & (merged_df['sex'] == sex)]
+            fig.add_trace(go.Scatter(
+                x=age_data['TIME_PERIOD'],
+                #x=age_data['week'] + (age_data['year'] - age_data['year'].min()) * 52,
+                y=age_data['deaths_per_100k'],
+                mode='lines',
+                name=age
+            ))
 
-    st.plotly_chart(fig)
+
+        # Update layout
+        fig.update_layout(
+            title=f'Deaths per 100,000 People by Age Group per Week ({sex_} Population)',
+            xaxis_title='Week (cumulative across years)',
+            yaxis_title='Deaths per 100,000 People (log scale)',
+            yaxis_type="log",
+            legend_title='Age Group',
+           
+        )
+
+        # Show the plot
+
+        st.plotly_chart(fig)
 
 
 if __name__ == "__main__":
