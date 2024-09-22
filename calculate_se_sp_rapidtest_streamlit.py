@@ -375,7 +375,7 @@ def interface_test_results():
 def interface_left_bar():
     prevalentie = st.sidebar.number_input('prevalence testpopulation in %',0.0,100.0, 1.0, format="%.4f")
     number_of_tested_people =  (st.sidebar.number_input('Number of tested people',None,None, 100_000))
-    alpha =  (st.sidebar.number_input('Number of tested people',None,None, 0.05))
+    alpha =  (st.sidebar.number_input('Alpha',None,None, 0.05))
         
     st.sidebar.write("Attention: too small numbers give erorrs (Division by zero)")
     return prevalentie,number_of_tested_people, alpha
@@ -385,6 +385,78 @@ def interface_left_bar():
 def main():
     
     st.title(" Calculating Sensitivity and Specificity of Rapid tests")
+    what_to_do = st.sidebar.selectbox("What to do [Sens./Spec. | Diseas prob.]", ["se_sp", "bayes"],0)
+    if what_to_do == "se_sp":
+        main_se_sp()
+    else:
+        main_bayes()
+
+
+def main_bayes():
+    # https://chatgpt.com/c/66f06f0e-acd0-8004-9990-8cd0ec0d268f
+    
+
+
+    # Function to calculate the probability using Bayes' Theorem
+    def calculate_probability(prevalence, false_positive_rate, sensitivity):
+        # Convert percentages to decimal for calculations
+        prevalence /= 100
+        false_positive_rate /= 100
+        sensitivity /= 100
+        
+        # Calculate P(Pos)
+        P_pos = (sensitivity * prevalence) + (false_positive_rate * (1 - prevalence))
+        
+        # Calculate P(Disease | Pos)
+        P_disease_given_pos = (sensitivity * prevalence) / P_pos
+        
+        # Convert result back to percentage
+        return P_disease_given_pos * 100
+
+    # Streamlit app
+    st.subheader("Disease Probability Calculator")
+    # Calculate probability when the button is pressed
+     # Inputs from user
+    prevalence = st.sidebar.number_input("Prevalence of Disease (%)", min_value=0.0, max_value=100.0, value=0.1, step=0.01)
+    false_positive_rate = st.sidebar.number_input("False Positive Rate (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1)
+    sensitivity = st.sidebar.number_input("Sensitivity of the Test (%)", min_value=0.0, max_value=100.0, value=100.0, step=0.1)
+
+
+    probability = calculate_probability(prevalence, false_positive_rate, sensitivity)
+    st.info(f"The probability that a person actually has the disease given a positive test result is **{probability:.2f}%**.")
+    
+    # Explanation of the problem
+    st.markdown(r"""    ### Problem Explanation:""")
+    st.markdown(r"""    Suppose you are conducting a test for a disease with a certain **prevalence** in the population. The test has a **false positive rate** (the probability that a healthy person tests positive) and a **sensitivity** (the probability that a sick person tests positive). Given a positive test result, we want to know the probability that the person actually has the disease.""")
+    st.markdown(r"""""")
+    st.markdown(r"""    We use **Bayes' Theorem** to compute this:""")
+    st.markdown(r"""""")
+    
+    st.latex(r"""    P(\text{{Disease}} | \text{{Positive}}) = \frac{P(\text{{Positive}} | \text{{Disease}}) \times P(\text{{Disease}})}{P(\text{{Positive}})}""")
+    st.markdown(r"""""")
+   
+    st.write("  Where:")  
+    st.write("- P(Positive | Disease) is the sensitivity of the test.")
+    st.write("- P(Disease) is the prevalence of the disease.")
+    st.write("- P(Positive | No Disease) is the false positive rate.")
+    st.write("- P(Positive) is the overall probability of a positive test, which combines both true positives and false positives.")
+    st.markdown(r"""    """)
+  
+    st.latex(r"""    P(\text{{Positive}}) = P(\text{{Positive}} | \text{{Disease}}) \times P(\text{{Disease}}) + P(\text{{Positive}} | \text{{No Disease}}) \times P(\text{{No Disease}})""")
+   
+    st.markdown(r"""""")
+    st.markdown(r"""    We will calculate the probability that a person who tests positive actually has the disease using these inputs.""")
+    st.markdown(r"""    """)
+
+           
+    # Additional explanation on the result
+    st.markdown("""
+    #### Additional Explanation:
+    The result tells you the likelihood that the person has the disease if they test positive. Even with a high sensitivity, if the prevalence of the disease is very low and the false positive rate is not negligible, the actual probability that a positive result indicates disease can still be quite low. This is because, in a large population of healthy people, even a small false positive rate can lead to many false positives.
+    """)
+
+def main_se_sp():
+
     tp, fp, fn, tn = interface_test_results()
     prevalentie, number_of_tested_people, alpha = interface_left_bar()
 

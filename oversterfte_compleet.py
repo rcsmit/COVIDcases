@@ -776,28 +776,6 @@ def get_herhaalprik():
     return df_
 
 
-def get_kobak():
-    """Load the csv with the excess mortality as calculated by Ariel Karlinsky and Dmitry Kobak
-    https://elifesciences.org/articles/69336#s4
-    https://github.com/dkobak/excess-mortality/
-    Returns:
-        _type_: _description_
-    """
-
-    # if platform.processor() != "":
-    #     # C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv
-
-    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\excess-mortality-timeseries_NL_kobak.csv"
-    # else:
-    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/excess-mortality-timeseries_NL_kobak.csv"
-    df_ = pd.read_csv(
-        file,
-        delimiter=",",
-        low_memory=False,
-    )
-
-    return df_
-
 
 def get_herfstprik():
     """_summary_
@@ -1729,6 +1707,9 @@ def footer():
     st.write("P score = (verschil - gemiddelde) / gemiddelde, gesmooth over 6 weken")
     st.info("Karlinsky & Kobak: https://elifesciences.org/articles/69336#s4")
     st.info("Steigstra: https://twitter.com/SteigstraHerman/status/1801641074336706839")
+
+
+
 def get_kobak():
     """Load the csv with the baselines as calculated by Ariel Karlinsky and Dmitry Kobak
     https://elifesciences.org/articles/69336#s4
@@ -2011,7 +1992,7 @@ def make_df_quantile(series_name, df_data):
 
 
 def predict(X, verbose=False, excess_begin=None):
-    """Function to predict the baseline with linear regression
+    """Function to predict the baseline with linear regression - Karlinksy & Kobak
        Source: https://github.com/dkobak/excess-mortality/blob/main/all-countries.ipynb
 
     Args:
@@ -2179,7 +2160,8 @@ def show_plot(df, df_covid, df_kobak_github):
 def do_kobak_vs_cbs(df_deaths):
 
     """Main function
-
+        Calculate the baseline with the function of Karlinksy & Kobak
+        (and compare with CBS and their own results)
     Results :
         df_kobak_calculated (df): df with the calculated values of the Kobak baseline
         df_covid (df): df with the calcualted values with the CBS method

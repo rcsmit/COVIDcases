@@ -1,19 +1,36 @@
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-
+import plotly.express as px
 # 
 
 # https://claude.ai/chat/467c298a-027f-49ac-ae9e-9bd43ef92d8e
 # https://chatgpt.com/c/66f0053e-79bc-8004-9e84-b77b055c4de1
+
+
+def plot_deaths_per_100k_per_year(df, age_group, sex):
+    # Filter the DataFrame based on the selected age group and sex
+    df_filtered = df[(df['age_group'] == age_group) & (df['geslacht'] == sex)]
+   
+    fig = px.line(
+        df_filtered,
+        x='week',             # X-axis: weeks
+        y='deaths_per_100k',   # Y-axis: deaths per 100k
+        color='year',          # Different line for each year
+        title=f'Deaths per 100k for {age_group} ({sex}) by Week',
+        labels={'week': 'Week', 'deaths_per_100k': 'Deaths per 100k'},
+    )
+    
+    # Show the plot
+    st.plotly_chart(fig)
+
 
 def main():
     st.subheader("Weekly mortality/100k")
     st.info("reproducing https://x.com/dimgrr/status/1837603581962453167")
     # Load the data
     # Note: Replace these with the actual file paths on your system
-    population_df = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv', sep=';')
-    deaths_df = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_NL.csv', sep=',')
+    population_df, deaths_df = get_data()
 
     # Define age bins and labels
     bins = list(range(0, 95, 5)) + [1000]  # [0, 5, 10, ..., 90, 1000]
@@ -51,19 +68,26 @@ def main():
     merged_df['deaths_per_100k'] = (merged_df['OBS_VALUE'] / merged_df['aantal']) * 100000
     merged_df = merged_df.sort_values(by=['year', 'week'], ascending=[True, True])
     merged_df['TIME_PERIOD'] = merged_df['year'].astype(str)+' - '+merged_df['week'].astype(str)
-    print (merged_df)
+
+    print (merged_df.dtypes)
 
     for sex in ["T", "M", "F"]:
         sex_mapping = {'M': 'Male', 'F': 'Female', 'T': 'Total'}
         sex_ = sex_mapping.get(sex, 'unknown')  # 'unknown' can be a default value for unrecognized sex codes
 
         # Create the plot
-        fig = go.Figure()
+        make_plot(merged_df, sex, sex_)
+    
+    # Example usage:
+    plot_deaths_per_100k_per_year(merged_df, 'Y_GE90', 'M')
+
+def make_plot(merged_df, sex, sex_):
+    fig = go.Figure()
 
         # Plot each age group for total population
-        for age in merged_df[merged_df['sex'] == sex]['age'].unique():
-            age_data = merged_df[(merged_df['age'] == age) & (merged_df['sex'] == sex)]
-            fig.add_trace(go.Scatter(
+    for age in merged_df[merged_df['sex'] == sex]['age'].unique():
+        age_data = merged_df[(merged_df['age'] == age) & (merged_df['sex'] == sex)]
+        fig.add_trace(go.Scatter(
                 x=age_data['TIME_PERIOD'],
                 #x=age_data['week'] + (age_data['year'] - age_data['year'].min()) * 52,
                 y=age_data['deaths_per_100k'],
@@ -73,18 +97,25 @@ def main():
 
 
         # Update layout
-        fig.update_layout(
+    fig.update_layout(
             title=f'Deaths per 100,000 People by Age Group per Week ({sex_} Population)',
             xaxis_title='Week (cumulative across years)',
             yaxis_title='Deaths per 100,000 People (log scale)',
             yaxis_type="log",
             legend_title='Age Group',
-           
         )
 
         # Show the plot
 
-        st.plotly_chart(fig)
+    st.plotly_chart(fig)
+    return 
+
+
+@st.cache_data()
+def get_data():
+    population_df = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv', sep=';')
+    deaths_df = pd.read_csv('https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_NL.csv', sep=',')
+    return population_df,deaths_df
 
 
 if __name__ == "__main__":
