@@ -227,7 +227,7 @@ def plot_age_sex_scatter(df, what, age_sex_group):
 def main():
 
     st.subheader("Herhaalprikken vs sterfte")
-    st.info("Reproductie van https://twitter.com/dimgrr/status/1620775536795746308 maar ook voor leeftijdsgroepen. Tevens sterfte vs RNA deeltjes in rioolwater weergegeven.")
+    st.info("Reproductie van https://twitter.com/dimgrr/status/1620775536795746308 maar ook voor leeftijdsgroepen. Tevens sterfte vs RNA deeltjes in rioolwater weergegeven. Weeknummers zijn van 2022")
     opdeling = [[0,49], [50,64], [65,79], [80,89], [90,120], [0,120]]
     df_sterfte = get_sterfte(opdeling)
     
