@@ -65,7 +65,7 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
     # Fit the dummy exponential data
     pars, cov = curve_fit(f=exponential, xdata=x_, ydata=y_, p0=[0, 0], bounds=(-np.inf, np.inf), maxfev=20000)
 
-    trendline, extended_years, trendline_extended,r2 = fit_and_predict(df_before_2020, x_, y_)
+    trendline, extended_years, trendline_extended= fit_and_predict(df_before_2020, x_, y_)
    
     if value_field == 'OBS_VALUE':
         df_before_2020['predicted_deaths'] = trendline
@@ -96,7 +96,7 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
     df_diff = do_calculations_df_diff(pars, df_diff) 
     
  
-    plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff,r2, age_group, sexe)
+    plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe)
 
     if value_field =="per100k":
         st.subheader("**From per 100k transformation back to Absolute Numbers**")
@@ -166,11 +166,11 @@ def fit_and_predict(df_before_2020: pd.DataFrame, x_: pd.Series, y_: pd.Series) 
     extended_X = sm.add_constant(extended_years)
     # Predict the trendline and bounds for the extended years
     trendline_extended = model.predict(extended_X)
-    r2 = round(r2_score(y_, trendline),2)
-    return trendline,extended_years,trendline_extended, r2
+    
+    return trendline,extended_years,trendline_extended
 
 
-def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, trendline: np.ndarray, extended_years: np.ndarray, trendline_extended: np.ndarray, df_diff: pd.DataFrame,r2:float, age_group: str, sexe: str, ) -> None:
+def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, trendline: np.ndarray, extended_years: np.ndarray, trendline_extended: np.ndarray, df_diff: pd.DataFrame,age_group: str, sexe: str, ) -> None:
     """
     Plot the fitting results, including data before and after 2020, trendlines, and exponential fits.
 
@@ -211,21 +211,29 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
 
     
     fig.add_trace(go.Scatter(x=df_before_2020["jaar"], y=trendline, 
-                                    mode='lines', name=f'Trendline  till 2019', line=dict(color="green")))
+                                    mode='lines', name=f'Trendline OLS till 2019', line=dict(color="green")))
     
     
     fig.add_trace(go.Scatter(
                     x=extended_years,
                     y=trendline_extended,
                     mode='lines',
-                    name=f'Trendline  until 2024',
+                    name=f'Trendline OLS until 2024',
                     line=dict(color="green")
                 ))
     
     #add the fitted curve
     fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff["fitted_curve"], mode='lines', marker=dict(color='yellow'), name='Fitted Exponential Curve'))
+    # Exclude the last four values
+    df_filtered = df_diff[:-4]  # Slices the DataFrame to exclude the last 4 rows
+
+    # Calculate R² score
+    r2_a = round(r2_score(df_filtered[value_field], trendline),4)
+    r2_b = round(r2_score(df_filtered[value_field], df_filtered["fitted_curve"]),4)
+
+    
     fig.update_layout(
-                title=f"{age_group} - {sexe} | {value_field} | r2 = {r2}",
+                title=f"{age_group} - {sexe} | {value_field} | r2 : green  {r2_a}- yellow {r2_b}",
                 xaxis_title="Year",
                 yaxis_title=value_field,
             )
@@ -266,7 +274,7 @@ def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: p
     fig.add_trace(go.Scatter(
             x=df_diff["jaar"],
             y=df_diff["predicted_deaths"],
-            name=f'trendline',
+            name=f'trendline OLS',
             marker=dict(color='green')  
         ))
         #add the fitted curve
@@ -279,9 +287,10 @@ def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: p
     df_filtered = df_diff[:-4]  # Slices the DataFrame to exclude the last 4 rows
 
     # Calculate R² score
-    r2 = round(r2_score(df_filtered["OBS_VALUE"], df_filtered["predicted_deaths"]),2)
+    r2 = round(r2_score(df_filtered["OBS_VALUE"], df_filtered["predicted_deaths"]),4)
+    r2_b = round(r2_score(df_filtered["OBS_VALUE"], df_filtered["fitted_aantal"]),4)
     fig.update_layout(
-                title=f"{age_group} - {sexe} | Deaths Transformed from relatieve back to absolute numbers | r2 (lineaire fitting) = {r2}",
+                title=f"{age_group} - {sexe} | Deaths Transformed from relatieve back to absolute numbers | r2 green: {r2} | yellow: {r2_b}",
                 xaxis_title="Year",
                 yaxis_title="Deaths",
             )
