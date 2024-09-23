@@ -116,9 +116,9 @@ def show_excess_mortality(value_field: str, df_diff: pd.DataFrame) -> None:
     Returns:
         None
     """
-    st.write(f"{value_field} - Excess mortality lineair {round(df_diff[df_diff['jaar'].between(2020, 2023)]["oversterfte"].sum())}")
+    st.write(f"{value_field} - Excess mortality lineair {round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte'].sum())}")
     if value_field =="per100k":
-        st.write(f"{value_field} - Excess mortality exponential {round(df_diff[df_diff['jaar'].between(2020, 2023)]["oversterfte_expon"].sum())}")
+        st.write(f"{value_field} - Excess mortality exponential {round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon'].sum())}")
     else:
         st.write(f"{value_field} - Excess mortality exponential {round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon_totals'].sum())}")
 
@@ -273,8 +273,15 @@ def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: p
         #fig.add_trace(go.Scatter(x=x_fit, y=y_fit, mode='lines', marker=dict(color='yellow'), name='Fitted Curve'))
     df_diff["fitted_aantal"] = df_diff["fitted_curve"] * df_diff["aantal"]/100000
     fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff["fitted_aantal"], mode='lines', marker=dict(color='yellow'), name='Fitted Exponential  Curve'))
+    
+
+    # Exclude the last four values
+    df_filtered = df_diff[:-4]  # Slices the DataFrame to exclude the last 4 rows
+
+    # Calculate R² score
+    r2 = round(r2_score(df_filtered["OBS_VALUE"], df_filtered["predicted_deaths"]),2)
     fig.update_layout(
-                title=f"{age_group} - {sexe} | Deaths Transformed from relatieve back to absolute numbers ",
+                title=f"{age_group} - {sexe} | Deaths Transformed from relatieve back to absolute numbers | r2 (lineaire fitting) = {r2}",
                 xaxis_title="Year",
                 yaxis_title="Deaths",
             )
