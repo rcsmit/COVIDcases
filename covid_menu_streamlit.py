@@ -82,6 +82,7 @@ def main():
             ["[52] Find baseline length", "find_baseline_length"],
             ["[52] Mortality/week/100k","mortality_weekly_per_age_per_capita"],
             ["[53] Herhaalprik","herhaalprik"],
+            ["[54] Herhaalprik","fit_mortality"],
             ]
     
 

@@ -29,6 +29,9 @@ def get_rioolwater():
 
         # Group by 'year' and 'week', then sum 'RNA_flow_per_100000'
         df = df.groupby(['jaar', 'week'], as_index=False)['RNA_flow_per_100000'].sum()
+
+        # OLS goes wrong with high numbers
+        # https://github.com/statsmodels/statsmodels/issues/9258
         df['RNA_flow_per_100000'] = df['RNA_flow_per_100000'] / 10**17
         return df
 def get_herhaalprik():
