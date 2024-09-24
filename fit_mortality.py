@@ -473,7 +473,7 @@ def main() -> None:
                             ['start_year', 'model', 'value_field'],
                             ['start_year', 'value_field', 'model']
                         ]
-        columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
+    columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
     if what_to_do == "selection":
         age_groups_selected = [st.sidebar.selectbox("age group", age_groups)]
         start_years = [st.sidebar.number_input("Fitting from year",2000,2019,2010)]
