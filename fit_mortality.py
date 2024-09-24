@@ -463,7 +463,6 @@ def main() -> None:
     df = get_data() 
     age_groups  = df["age_group"].unique().tolist()  #[:5] 
    
-
     what_to_do = st.sidebar.selectbox("What to do [selection|akk]", ["selection", "all"],0)
     sexe = st.sidebar.selectbox("Sexe [T|M|V]", ["T","M","V"],0)
     if what_to_do == "selection":
