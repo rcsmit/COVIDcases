@@ -9,6 +9,7 @@ import numpy as np
 import statsmodels.api as sm
 from sklearn.metrics import r2_score
 
+
 # Function to calculate the exponential with constants a and b
 def exponential(x: np.ndarray, a: float, b: float) -> np.ndarray:
     """
@@ -45,9 +46,8 @@ def get_data() -> pd.DataFrame:
     return df
 
 
-def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int) -> None:
-    """
-    Main analysis function: performs exponential and linear curve fitting, projections, and plotting.
+def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool) -> tuple[float, float]:  
+    """Main analysis function: performs exponential and linear curve fitting, projections, and plotting.
 
     Args:
         df (pd.DataFrame): Input DataFrame containing mortality data.
@@ -55,9 +55,10 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
         age_group (str): Age group for analysis.
         sexe (str): Gender category ('T', 'M', 'V').
         START_YEAR (int): Year from which to start the analysis.
-
+        verbose (bool) : show graphs
     Returns:
-        None
+        excess_mortality_lineair
+        excess_mortality_exponential
     """
     df_before_2020, df_2020_and_up = prepare_data(df, age_group, sexe, START_YEAR)
     x_=df_before_2020["jaar"]
@@ -95,33 +96,37 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
 
     df_diff = do_calculations_df_diff(pars, df_diff) 
     
- 
-    plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe)
+    if verbose:
+        plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe)
 
-    if value_field =="per100k":
-        st.subheader("**From per 100k transformation back to Absolute Numbers**")
-        plot_group_size(df_diff,  age_group, sexe)
-        plot_transformed_to_absolute(df_before_2020, df_2020_and_up, df_diff, age_group, sexe)
+        if value_field =="per100k":
+            st.subheader("**From per 100k transformation back to Absolute Numbers**")
+            plot_group_size(df_diff,  age_group, sexe)
+            plot_transformed_to_absolute(df_before_2020, df_2020_and_up, df_diff, age_group, sexe)
         
-    show_excess_mortality(value_field, df_diff)
-
-def show_excess_mortality(value_field: str, df_diff: pd.DataFrame) -> None:
+    excess_mortality_lineair, excess_mortality_exponential = show_excess_mortality(value_field, df_diff, verbose)
+    return  excess_mortality_lineair, excess_mortality_exponential
+def show_excess_mortality(value_field: str, df_diff: pd.DataFrame, verbose: bool) -> None:
     """
     Display the excess mortality figures based on the chosen fitting method (linear/exponential).
 
     Args:
         value_field (str): Field used in the analysis ('OBS_VALUE' or 'per100k').
         df_diff (pd.DataFrame): DataFrame containing observed and predicted mortality data.
-
+        verbose (bool) : give output
     Returns:
         None
     """
-    st.write(f"{value_field} - Excess mortality lineair {round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte'].sum())}")
+    excess_mortality_lineair = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte'].sum())
     if value_field =="per100k":
-        st.write(f"{value_field} - Excess mortality exponential {round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon'].sum())}")
+        excess_mortality_exponential = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon'].sum())
     else:
-        st.write(f"{value_field} - Excess mortality exponential {round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon_totals'].sum())}")
-
+        excess_mortality_exponential = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon_totals'].sum())
+    
+    if verbose:
+        st.write(f"{value_field} - Excess mortality lineair {excess_mortality_lineair}")
+        st.write(f"{value_field} - Excess mortality exponential {excess_mortality_exponential}")
+    return excess_mortality_lineair, excess_mortality_exponential
 def do_calculations_df_diff(pars: np.ndarray, df_diff: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate excess mortality, fitted curves, and other metrics for the given DataFrame.
@@ -343,6 +348,87 @@ def prepare_data(df: pd.DataFrame, age_group: str, sexe: str, START_YEAR: int) -
     df_2020_and_up = df[df["jaar"] >= 2020]
     return df_before_2020,df_2020_and_up
 
+@st.cache_data()
+def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_years: list[int], sexe: str, verbose: bool) -> pd.DataFrame: 
+    """
+    Calculate excess mortality using both linear and exponential models for each age group, 
+    value field, and start year combination. The function caches the result to optimize performance 
+    for repeated calculations in Streamlit.
+
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        The dataframe containing mortality and population data.
+    age_groups_selected : list
+        A list of age groups for which to calculate the excess mortality.
+    start_years : list
+        A list of starting years for which the models should be calculated.
+    sexe : str
+        The sex category to filter the dataframe (e.g., 'M' for male, 'F' for female).
+    verbose : bool
+        If True, print detailed progress information during the calculation.
+
+    Returns:
+    --------
+    df_results : pd.DataFrame
+        A dataframe containing the results of excess mortality calculations for both 
+        linear and exponential models. Each row includes the start year, model type 
+        (linear or exponential), value field (e.g., 'OBS_VALUE', 'per100k'), age group, 
+        and calculated excess mortality.
+
+    Notes:
+    ------
+    The value fields 'OBS_VALUE' and 'per100k' are calculated for each model, age group and start year.
+    """
+    # Define the start years for subcolumns
+    counter = 0
+    total = 2* len(age_groups_selected)*len(start_years)
+
+    # Initialize DataFrames to store the results
+    results = []
+   
+    
+    for value_field in ["OBS_VALUE", "per100k"]:
+
+        
+        # Initialize an empty list to hold result rows
+        
+
+        # Loop through each age group
+        for age_group in age_groups_selected:
+
+            
+            # Loop through each start year and calculate the results
+            for START_YEAR in start_years:
+                print (f"{counter+1}/{total} | {value_field=} - {age_group=} { START_YEAR=}")
+                excess_mortality_lineair, excess_mortality_exponential = main_(df, value_field, age_group, sexe, START_YEAR, verbose)
+                
+                # Append results for lineair model
+                results.append({
+                    "start_year": START_YEAR,
+                    "model": "lineair",
+                    "value_field": value_field,
+                    "age_group": age_group,
+                    "excess_mortality": excess_mortality_lineair
+                })
+
+                # Append results for exponential model
+                results.append({
+                    "start_year": START_YEAR,
+                    "model": "exponential",
+                    "value_field": value_field,
+                    "age_group": age_group,
+                    "excess_mortality": excess_mortality_exponential
+                })
+                counter +=1
+
+    # Convert results to DataFrame
+    df_results = pd.DataFrame(results)
+
+        
+   
+    return df_results
+    
 def main() -> None:
     """
     Main function for the Streamlit application that analyzes mortality data using linear and 
@@ -375,16 +461,48 @@ def main() -> None:
             
             Inspired by https://twitter.com/rcsmit/status/1838204715424755786 """)
     df = get_data() 
-    age_groups  = df["age_group"].unique().tolist()
+    age_groups  = df["age_group"].unique().tolist()  #[:5] 
    
-    age_group = st.sidebar.selectbox("age group", age_groups)
+
+    what_to_do = st.sidebar.selectbox("What to do [selection|akk]", ["selection", "all"],0)
     sexe = st.sidebar.selectbox("Sexe [T|M|V]", ["T","M","V"],0)
-    START_YEAR = st.sidebar.number_input("Fitting from year",2000,2019,2010)
-    for value_field in ["OBS_VALUE", "per100k"]:
+    if what_to_do == "selection":
+        age_groups_selected = [st.sidebar.selectbox("age group", age_groups)]
+        start_years = [st.sidebar.number_input("Fitting from year",2000,2019,2010)]
+        verbose=True
+    else:
+        start_years = [2000, 2010, 2015]
+        verbose = False
+        age_groups_selected = age_groups
+        possible_columns = [
+                            ['model', 'value_field', 'start_year'],
+                            ['model', 'start_year', 'value_field'],
+                            ['value_field', 'model', 'start_year'],
+                            ['value_field', 'start_year', 'model'],
+                            ['start_year', 'model', 'value_field'],
+                            ['start_year', 'value_field', 'model']
+                        ]
+        columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
+    
+    
+    df_results = calculate_results(df,age_groups_selected, start_years, sexe, verbose)
+     # Pivot the DataFrame to create a multi-level column structure
+    df_pivot = df_results.pivot_table(
+        index='age_group',
+        columns=columns,
+        values='excess_mortality'
+    )
 
-        st.subheader(f"Value field {value_field}")
-        main_(df,value_field,age_group, sexe,START_YEAR)
+    # # Flatten the multi-level columns for easier display
+    # df_pivot.columns = [f"{year} | {model} | {field}" for year, model, field in df_pivot.columns]
 
+    
+    for col in df_pivot.columns:
+        df_pivot[col] = df_pivot[col].astype(str)
+    # Display the results as a table in Streamlit
+    st.subheader("Excess Mortality Comparison")
+    st.dataframe(df_pivot)
+       
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")

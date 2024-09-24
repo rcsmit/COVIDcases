@@ -460,7 +460,7 @@ def main():
                 t2 = f"{t}_F"
                 plot_wrapper(df_combined, t2, value_field, countries)
     else:
-        y = st.selectbox("Which category (T=all, M=Male, F=Female)", ["T", "M", "F"], 1)
+        y = st.selectbox("Which category (T=all, M=Male, F=Female)", ["T", "M", "F"], 0)
         for x in labels:
             col1, col2, col3 = st.columns(3)
             t2 = f"{x}_{y}"
