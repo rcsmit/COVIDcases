@@ -465,15 +465,7 @@ def main() -> None:
    
     what_to_do = st.sidebar.selectbox("What to do [selection|akk]", ["selection", "all"],0)
     sexe = st.sidebar.selectbox("Sexe [T|M|V]", ["T","M","V"],0)
-    if what_to_do == "selection":
-        age_groups_selected = [st.sidebar.selectbox("age group", age_groups)]
-        start_years = [st.sidebar.number_input("Fitting from year",2000,2019,2010)]
-        verbose=True
-    else:
-        start_years = [2000, 2010, 2015]
-        verbose = False
-        age_groups_selected = age_groups
-        possible_columns = [
+    possible_columns = [
                             ['model', 'value_field', 'start_year'],
                             ['model', 'start_year', 'value_field'],
                             ['value_field', 'model', 'start_year'],
@@ -482,6 +474,15 @@ def main() -> None:
                             ['start_year', 'value_field', 'model']
                         ]
         columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
+    if what_to_do == "selection":
+        age_groups_selected = [st.sidebar.selectbox("age group", age_groups)]
+        start_years = [st.sidebar.number_input("Fitting from year",2000,2019,2010)]
+        verbose=True
+    else:
+        start_years = [2000, 2010, 2015]
+        verbose = False
+        age_groups_selected = age_groups
+        
     
     
     df_results = calculate_results(df,age_groups_selected, start_years, sexe, verbose)
