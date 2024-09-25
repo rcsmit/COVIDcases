@@ -240,16 +240,32 @@ def main():
     df_data = pd.merge(df_sterfte, df_herhaalprik, on=["jaar","week", "age_sex"], how ="outer")
     df_data = pd.merge(df_data, df_rioolwater,  on=["jaar","week"], how = "left")
        
-    for what in ["aantal_prikken", "RNA_flow_per_100000"]:
-        st.subheader(f"Sterfte vs {what}")
+    #for what in ["aantal_prikken", "RNA_flow_per_100000"]:
+        
         # Call the function for each unique age_sex group
-        for age_sex_group in df_data['age_sex'].unique():
-            col1,col2= st.columns(2)
-            with col1:
-                plot_age_sex_scatter(df_data, what, age_sex_group)
-            # Call the function for each unique age_sex group
-            with col2:
-                plot_age_sex_line(df_data, what, age_sex_group)
+    for age_sex_group in df_data['age_sex'].unique():
+
+        col1,col2,col3,col4= st.columns4)
+        what = "aantal_prikken"
+        with col1:
+            st.write(what)
+            plot_age_sex_scatter(df_data, what, age_sex_group)
+        # Call the function for each unique age_sex group
+        with col2:
+            st.write(what)
+
+            plot_age_sex_line(df_data, what, age_sex_group)
+
+        what =  "RNA_flow_per_100000"
+        with col3:
+            st.write(what)
+
+            plot_age_sex_scatter(df_data, what, age_sex_group)
+        # Call the function for each unique age_sex group
+        with col4:
+            st.write(what)
+
+            plot_age_sex_line(df_data, what, age_sex_group)
 
     st.info("De waarde voor rioolwater is gedeeld door 10^17 om de correlatie en R2 te kunnen berekenen")
 if __name__ == "__main__":
