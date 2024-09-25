@@ -84,7 +84,7 @@ def main():
             ["[53] Herhaalprik","herhaalprik"],
             ["[54] Fit Mortality","fit_mortality"],
             ["[55] Bayes Mortality Vaccination","bayes_vaccination"],
-            
+        
             ]
 
 
