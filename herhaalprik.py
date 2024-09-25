@@ -189,7 +189,7 @@ def plot_age_sex_line(df, what, age_sex_group):
 
     # Set plot title
     fig.update_layout(
-        title_text=f"Line Graph for {age_sex_group}",
+        title_text=f"{what} for {age_sex_group} (2022)",
         showlegend=True
     )
 
@@ -216,7 +216,7 @@ def plot_age_sex_scatter(df, what, age_sex_group):
     
     # Create scatter plot with trendline
     fig = px.scatter(df_filtered, x=what, y='OBS_VALUE',
-                     title=f"Scatter plot for {age_sex_group}<br>corr = {correlation}<br>R² = {r_squared:.4f}",
+                     title=f"{what} for {age_sex_group}<br>corr = {correlation}<br>R² = {r_squared:.4f}",
                      labels={what: what, 'OBS_VALUE': 'OBS_VALUE'},
                      trendline="ols", trendline_color_override='red')
 
@@ -248,23 +248,19 @@ def main():
         col1,col2,col3,col4= st.columns(4)
         what = "aantal_prikken"
         with col1:
-            st.write(what)
             plot_age_sex_scatter(df_data, what, age_sex_group)
         # Call the function for each unique age_sex group
         with col2:
-            st.write(what)
-
+            
             plot_age_sex_line(df_data, what, age_sex_group)
 
         what =  "RNA_flow_per_100000"
         with col3:
-            st.write(what)
-
+            
             plot_age_sex_scatter(df_data, what, age_sex_group)
         # Call the function for each unique age_sex group
         with col4:
-            st.write(what)
-
+            
             plot_age_sex_line(df_data, what, age_sex_group)
 
     st.info("De waarde voor rioolwater is gedeeld door 10^17 om de correlatie en R2 te kunnen berekenen")
