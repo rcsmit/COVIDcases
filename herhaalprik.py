@@ -245,7 +245,7 @@ def main():
         # Call the function for each unique age_sex group
     for age_sex_group in df_data['age_sex'].unique():
 
-        col1,col2,col3,col4= st.columns4)
+        col1,col2,col3,col4= st.columns(4)
         what = "aantal_prikken"
         with col1:
             st.write(what)
