@@ -83,6 +83,8 @@ def main():
             ["[52] Mortality/week/100k","mortality_weekly_per_age_per_capita"],
             ["[53] Herhaalprik","herhaalprik"],
             ["[54] Fit Mortality","fit_mortality"],
+            ["[55] Bayes Mortality Vaccination","bayes_vaccination"],
+            
             ]
 
 

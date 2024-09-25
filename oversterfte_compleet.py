@@ -719,7 +719,6 @@ def verwachte_sterfte_rivm(df, series_naam):
         df_compleet = pd.concat([df_compleet, df_do_lin_regression])
     return df_compleet
 
-
 def get_boosters():
     """_summary_
 
@@ -2267,6 +2266,7 @@ def main():
 
         df_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
         df_merged = make_df_merged(df_data, df_rivm, series_name)
+        # df_merged.to_csv(f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\df_merged_{series_name}.csv")
         if series_name == "m_v_0_999":
             plot_graph_rivm(df_rivm, series_name, False)
             comparison(df_merged, series_name, smooth)
