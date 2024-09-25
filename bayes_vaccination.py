@@ -219,7 +219,7 @@ def main():
     st.subheader("COVID-19 vaccinations and mortality - a Bayesian analysis")
     st.info("""Meester et al. Replicating COVID-19 vaccinations and mortality - a Bayesian analysis
             https://web.archive.org/web/20221202174753/https://www.researchgate.net/publication/357032975_COVID-19_vaccinations_and_mortality_-_a_Bayesian_analysis""")
-    
+    st.warning("Kritiek: https://x.com/pjvanerp/status/1521558560974557184")
     # Display the merged dataframe
     st.write(df_merged)
     make_graph(df_merged)
