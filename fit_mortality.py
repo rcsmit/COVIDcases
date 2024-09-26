@@ -145,6 +145,7 @@ def show_excess_mortality(value_field: str, df_diff: pd.DataFrame, verbose: bool
     else:
         excess_mortality_secondary = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon_totals'].sum())
     
+    
     if verbose:
         st.write(f"{value_field} - Excess mortality lineair {excess_mortality_lineair} | {round(excess_mortality_lineair/4)} per year")
         st.write(f"{value_field} - Excess mortality {secondary_choice} {excess_mortality_secondary} | {round(excess_mortality_secondary/4)} per year")
