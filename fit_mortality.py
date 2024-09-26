@@ -13,7 +13,7 @@ from sklearn.metrics import r2_score
 # Function to calculate the exponential with constants a and b
 def exponential(x: np.ndarray, a: float, b: float) -> np.ndarray:
     """
-    Calculate the exponential function.
+    Calculate the exponential function. Remove/add underscore in function name as needed
 
     Args:
         x (np.ndarray): Input array (independent variable).
@@ -25,6 +25,20 @@ def exponential(x: np.ndarray, a: float, b: float) -> np.ndarray:
     """
     return a*np.exp(b*x)
 
+
+def quadratic (x: np.ndarray, a: float, b: float, c:float) -> np.ndarray:
+    """
+    Calculate the quadratic function. Remove/add underscore in function name as needed
+
+    Args:
+        x (np.ndarray): Input array (independent variable).
+        a (float): Coefficient for exponential.
+        b (float): Exponent.
+
+    Returns:
+        np.ndarray: The result of a * exp(b * x).
+    """
+    return a*x**2 +b*x+c 
 
 
 
@@ -46,8 +60,8 @@ def get_data() -> pd.DataFrame:
     return df
 
 
-def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool) -> tuple[float, float]:  
-    """Main analysis function: performs exponential and linear curve fitting, projections, and plotting.
+def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool, secondary_choice:str) -> tuple[float, float]:  
+    """Main analysis function: performs secondary (exponential or quadratic) and linear curve fitting, projections, and plotting.
 
     Args:
         df (pd.DataFrame): Input DataFrame containing mortality data.
@@ -58,14 +72,21 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
         verbose (bool) : show graphs
     Returns:
         excess_mortality_lineair
-        excess_mortality_exponential
+        excess_mortality_secondary
     """
     df_before_2020, df_2020_and_up = prepare_data(df, age_group, sexe, START_YEAR)
     x_=df_before_2020["jaar"]
     y_ = df_before_2020[value_field]
-    # Fit the dummy exponential data
-    pars, cov = curve_fit(f=exponential, xdata=x_, ydata=y_, p0=[0, 0], bounds=(-np.inf, np.inf), maxfev=20000)
-
+    # Fit the dummy secondary data
+    if secondary_choice == "quadratic":
+        p0 = [0,0,0]  # adapt to the number of arguments of the as secondary function 
+        pars, cov = curve_fit(f=quadratic, xdata=x_, ydata=y_, p0=p0, bounds=(-np.inf, np.inf), maxfev=20000)
+    elif secondary_choice=="exponential":
+        p0 = [0,0,]  # adapt to the number of arguments of the as secondary function 
+        pars, cov = curve_fit(f=exponential, xdata=x_, ydata=y_, p0=p0, bounds=(-np.inf, np.inf), maxfev=20000)
+    else:
+        st.warning(f"Error in secondary choice {secondary_choice}. line 88")
+        st.stop()
     trendline, extended_years, trendline_extended= fit_and_predict(df_before_2020, x_, y_)
    
     if value_field == 'OBS_VALUE':
@@ -94,45 +115,46 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
     if value_field == 'per100k':
         df_diff['predicted_deaths'] = df_diff['predicted_per100k']*df_diff['aantal']/100000
 
-    df_diff = do_calculations_df_diff(pars, df_diff) 
+    df_diff = do_calculations_df_diff(pars, df_diff, secondary_choice) 
     
     if verbose:
-        plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe)
+        plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe, secondary_choice)
 
         if value_field =="per100k":
             st.subheader("**From per 100k transformation back to Absolute Numbers**")
             plot_group_size(df_diff,  age_group, sexe)
-            plot_transformed_to_absolute(df_before_2020, df_2020_and_up, df_diff, age_group, sexe)
+            plot_transformed_to_absolute(df_before_2020, df_2020_and_up, df_diff, age_group, sexe, secondary_choice)
         
-    excess_mortality_lineair, excess_mortality_exponential = show_excess_mortality(value_field, df_diff, verbose)
-    return  excess_mortality_lineair, excess_mortality_exponential
-def show_excess_mortality(value_field: str, df_diff: pd.DataFrame, verbose: bool) -> None:
+    excess_mortality_lineair, excess_mortality_secondary = show_excess_mortality(value_field, df_diff, verbose,secondary_choice)
+    return  excess_mortality_lineair, excess_mortality_secondary
+def show_excess_mortality(value_field: str, df_diff: pd.DataFrame, verbose: bool, secondary_choice:str) -> None:
     """
-    Display the excess mortality figures based on the chosen fitting method (linear/exponential).
+    Display the excess mortality figures based on the chosen fitting method (linear/secondary).
 
     Args:
         value_field (str): Field used in the analysis ('OBS_VALUE' or 'per100k').
         df_diff (pd.DataFrame): DataFrame containing observed and predicted mortality data.
         verbose (bool) : give output
+        secondary_choice (str):
     Returns:
         None
     """
     excess_mortality_lineair = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte'].sum())
     if value_field =="per100k":
-        excess_mortality_exponential = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon'].sum())
+        excess_mortality_secondary = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon'].sum())
     else:
-        excess_mortality_exponential = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon_totals'].sum())
+        excess_mortality_secondary = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte_expon_totals'].sum())
     
     if verbose:
-        st.write(f"{value_field} - Excess mortality lineair {excess_mortality_lineair}")
-        st.write(f"{value_field} - Excess mortality exponential {excess_mortality_exponential}")
-    return excess_mortality_lineair, excess_mortality_exponential
-def do_calculations_df_diff(pars: np.ndarray, df_diff: pd.DataFrame) -> pd.DataFrame:
+        st.write(f"{value_field} - Excess mortality lineair {excess_mortality_lineair} | {round(excess_mortality_lineair/4)} per year")
+        st.write(f"{value_field} - Excess mortality {secondary_choice} {excess_mortality_secondary} | {round(excess_mortality_secondary/4)} per year")
+    return excess_mortality_lineair, excess_mortality_secondary
+def do_calculations_df_diff(pars: np.ndarray, df_diff: pd.DataFrame, secondary_choice:str) -> pd.DataFrame:
     """
     Calculate excess mortality, fitted curves, and other metrics for the given DataFrame.
 
     Args:
-        pars (np.ndarray): Parameters of the exponential fit.
+        pars (np.ndarray): Parameters of the secondary fit.
         df_diff (pd.DataFrame): DataFrame with observed and predicted mortality data.
 
     Returns:
@@ -142,7 +164,13 @@ def do_calculations_df_diff(pars: np.ndarray, df_diff: pd.DataFrame) -> pd.DataF
     df_diff['oversterfte'] = round(df_diff['OBS_VALUE'] - df_diff['predicted_deaths']) 
     df_diff['aantal']=round(df_diff['aantal'])
     df_diff['percentage'] = round(((df_diff['OBS_VALUE'] - df_diff['predicted_deaths'])/df_diff['predicted_deaths'])*100,1)
-    df_diff['fitted_curve'] = exponential(df_diff["jaar"], *pars)
+    if secondary_choice =="exponential":
+        df_diff['fitted_curve'] = exponential(df_diff["jaar"], *pars)
+    elif secondary_choice=="quadratic":
+        df_diff['fitted_curve'] = quadratic(df_diff["jaar"], *pars)
+    else:
+        st.warning(f"Error in secondary choice {secondary_choice}")
+        st.stop()
     df_diff['fitted_curve_transf_absolut'] = df_diff['fitted_curve'] *df_diff['aantal'] /100000
     df_diff['oversterfte_expon_totals'] = df_diff['OBS_VALUE'] -  df_diff['fitted_curve']
     df_diff['oversterfte_expon'] = round(df_diff['OBS_VALUE'] - df_diff['fitted_curve_transf_absolut'])
@@ -175,9 +203,9 @@ def fit_and_predict(df_before_2020: pd.DataFrame, x_: pd.Series, y_: pd.Series) 
     return trendline,extended_years,trendline_extended
 
 
-def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, trendline: np.ndarray, extended_years: np.ndarray, trendline_extended: np.ndarray, df_diff: pd.DataFrame,age_group: str, sexe: str, ) -> None:
+def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, trendline: np.ndarray, extended_years: np.ndarray, trendline_extended: np.ndarray, df_diff: pd.DataFrame,age_group: str, sexe: str, secondary_choice:str) -> None:
     """
-    Plot the fitting results, including data before and after 2020, trendlines, and exponential fits.
+    Plot the fitting results, including data before and after 2020, trendlines, and secondary fits.
 
     Args:
         value_field (str): The field used for plotting (e.g., 'OBS_VALUE', 'per100k').
@@ -190,7 +218,7 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
         r2(float): R2 score of the trendline
         age_group (str): Age group
         sexe (str): Gender category ('T', 'M', 'V').
-
+        secondary_choice (str): type of fitting for the 2nd choice [exponential|quadratic]
     Returns:
         None
     """
@@ -228,14 +256,13 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
                 ))
     
     #add the fitted curve
-    fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff["fitted_curve"], mode='lines', marker=dict(color='yellow'), name='Fitted Exponential Curve'))
+    fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff["fitted_curve"], mode='lines', marker=dict(color='yellow'), name=f'Fitted {secondary_choice} Curve'))
     # Exclude the last four values
     df_filtered = df_diff[:-4]  # Slices the DataFrame to exclude the last 4 rows
 
     # Calculate R² score
     r2_a = round(r2_score(df_filtered[value_field], trendline),4)
     r2_b = round(r2_score(df_filtered[value_field], df_filtered["fitted_curve"]),4)
-
     
     fig.update_layout(
                 title=f"{age_group} - {sexe} | {value_field} | r2 : green  {r2_a}- yellow {r2_b}",
@@ -244,9 +271,9 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
             )
     st.plotly_chart(fig)
 
-def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, df_diff: pd.DataFrame, age_group: str, sexe: str) -> None:
+def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, df_diff: pd.DataFrame, age_group: str, sexe: str, secondary_choice:str) -> None:
     """
-    Plot the observed deaths and predicted deaths from both trendline and exponential curve.
+    Plot the observed deaths and predicted deaths from both trendline and secondary curve.
 
     Args:
         df_before_2020 (pd.DataFrame): DataFrame containing data before 2020.
@@ -254,6 +281,7 @@ def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: p
         df_diff (pd.DataFrame): DataFrame with calculated fields, including predicted deaths and fitted curves.
         age_group (str): Age group 
         sexe (str): Gender category ('T', 'M', 'V').
+        secondary_choice (str): type of fitting for the 2nd choice [exponential|quadratic]
     Returns:
         None
     """
@@ -285,8 +313,7 @@ def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: p
         #add the fitted curve
         #fig.add_trace(go.Scatter(x=x_fit, y=y_fit, mode='lines', marker=dict(color='yellow'), name='Fitted Curve'))
     df_diff["fitted_aantal"] = df_diff["fitted_curve"] * df_diff["aantal"]/100000
-    fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff["fitted_aantal"], mode='lines', marker=dict(color='yellow'), name='Fitted Exponential  Curve'))
-    
+    fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff["fitted_aantal"], mode='lines', marker=dict(color='yellow'), name=f'Fitted {secondary_choice} Curve'))
 
     # Exclude the last four values
     df_filtered = df_diff[:-4]  # Slices the DataFrame to exclude the last 4 rows
@@ -349,9 +376,9 @@ def prepare_data(df: pd.DataFrame, age_group: str, sexe: str, START_YEAR: int) -
     return df_before_2020,df_2020_and_up
 
 @st.cache_data()
-def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_years: list[int], sexe: str, verbose: bool) -> pd.DataFrame: 
+def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_years: list[int], sexe: str, verbose: bool, secondary_choice:str) -> pd.DataFrame: 
     """
-    Calculate excess mortality using both linear and exponential models for each age group, 
+    Calculate excess mortality using both linear and secondary models for each age group, 
     value field, and start year combination. The function caches the result to optimize performance 
     for repeated calculations in Streamlit.
 
@@ -372,8 +399,8 @@ def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_ye
     --------
     df_results : pd.DataFrame
         A dataframe containing the results of excess mortality calculations for both 
-        linear and exponential models. Each row includes the start year, model type 
-        (linear or exponential), value field (e.g., 'OBS_VALUE', 'per100k'), age group, 
+        linear and secondary models. Each row includes the start year, model type 
+        (linear or secondary), value field (e.g., 'OBS_VALUE', 'per100k'), age group, 
         and calculated excess mortality.
 
     Notes:
@@ -401,7 +428,7 @@ def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_ye
             # Loop through each start year and calculate the results
             for START_YEAR in start_years:
                 print (f"{counter+1}/{total} | {value_field=} - {age_group=} { START_YEAR=}")
-                excess_mortality_lineair, excess_mortality_exponential = main_(df, value_field, age_group, sexe, START_YEAR, verbose)
+                excess_mortality_lineair, excess_mortality_secondary = main_(df, value_field, age_group, sexe, START_YEAR, verbose, secondary_choice)
                 
                 # Append results for lineair model
                 results.append({
@@ -412,13 +439,13 @@ def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_ye
                     "excess_mortality": excess_mortality_lineair
                 })
 
-                # Append results for exponential model
+                # Append results for secondary model
                 results.append({
                     "start_year": START_YEAR,
-                    "model": "exponential",
+                    "model": secondary_choice,
                     "value_field": value_field,
                     "age_group": age_group,
-                    "excess_mortality": excess_mortality_exponential
+                    "excess_mortality": excess_mortality_secondary
                 })
                 counter +=1
 
@@ -432,7 +459,7 @@ def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_ye
 def main() -> None:
     """
     Main function for the Streamlit application that analyzes mortality data using linear and 
-    exponential fitting models.
+    secondary fitting models.
 
     Args:
         None
@@ -440,14 +467,14 @@ def main() -> None:
     Returns:
         None
     """
-    st.subheader("Mortality Analysis Using Exponential Curve Fitting and Trendline Projection")
+    st.subheader("Mortality Analysis Using secondary Curve Fitting and Trendline Projection")
     st.info("""
             This Streamlit application analyzes mortality data for specific age 
             and sex groups using historical trends. The script leverages both linear 
-            and exponential curve fitting to predict future mortality rates and 
+            and secondary curve fitting to predict future mortality rates and 
             over-mortality for the years 2020 and beyond. 
             
-            * Fitting the Model on Absolute Figures: We first apply exponential curve 
+            * Fitting the Model on Absolute Figures: We first apply secondary curve 
             fitting to the absolute mortality figures (total number of deaths) for the 
             years before 2020. This helps us understand the overall trend.
 
@@ -482,10 +509,11 @@ def main() -> None:
         start_years = [2000, 2010, 2015]
         verbose = False
         age_groups_selected = age_groups
+    secondary_choice = st.sidebar.selectbox("Secondary choice [exponential|quadratic]", ["exponential","quadratic"],0)
         
     
     
-    df_results = calculate_results(df,age_groups_selected, start_years, sexe, verbose)
+    df_results = calculate_results(df,age_groups_selected, start_years, sexe, verbose, secondary_choice)
      # Pivot the DataFrame to create a multi-level column structure
     df_pivot = df_results.pivot_table(
         index='age_group',
