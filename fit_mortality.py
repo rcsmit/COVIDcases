@@ -371,6 +371,7 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
     r2_a = round(r2_score(df_filtered[value_field], trendline),4)
     r2_b = round(r2_score(df_filtered[value_field], df_filtered["fitted_curve"]),4)
     
+    
     fig.update_layout(
                 title=f"{age_group} - {sexe} | {value_field} | {doordsoorzaak_keuze} | r2 : green  {r2_a}- yellow {r2_b}",
                 xaxis_title="Year",
