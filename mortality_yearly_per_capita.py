@@ -39,7 +39,7 @@ def get_bevolking(country, opdeling):
     
     # Define age bins and labels
     bins = list(range(0, 95, 5)) + [1000]  # [0, 5, 10, ..., 90, 1000]
-    labels = [f'Y{i}-{i+4}' for i in range(0, 90, 5)] + ['90-999']
+    labels = [f'Y{i}-{i+4}' for i in range(0, 90, 5)] + ['Y90-120']
 
 
     # Create a new column for age bins
@@ -58,7 +58,7 @@ def get_bevolking(country, opdeling):
     
     for s in ["M", "F", "T"]:
         grouped_data.replace(f'Y0-4_{s}', f'Y_LT5_{s}', inplace=True)
-        grouped_data.replace(f'90-999_{s}',f'Y_GE90_{s}', inplace=True)
+        grouped_data.replace(f'Y90-120_{s}',f'Y_GE90_{s}', inplace=True)
     
 
     # Calculate totals per year and gender (geslacht)
