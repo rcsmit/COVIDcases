@@ -93,8 +93,8 @@ def get_doodsoorzaken() -> pd.DataFrame:
         '0 jaar': 'Y0-4',
 
         
-        '90 tot 95 jaar':"90-999",
-        '95 jaar of ouder':"90-999"
+        '90 tot 95 jaar':"Y90-120",
+        '95 jaar of ouder':"Y90-120"
     })
 
     # Functie om leeftijdsintervallen te hernoemen
@@ -113,7 +113,7 @@ def get_doodsoorzaken() -> pd.DataFrame:
     # Hernoemen van de kolom 'Leeftijd' naar 'age_group'
     df = df.rename(columns={'Leeftijd': 'age_group'})
     # Groeperen op 'ID', 'Sexe', 'age_group', 'Perioden', en 'doodsoorzaak' en 'OBS_VALUE' optellen
-    df = df.groupby(['ID', 'Sexe', 'age_group', 'Perioden', 'doodsoorzaak'], as_index=False)['OBS_VALUE'].sum()
+    df = df.groupby(['Sexe', 'age_group', 'Perioden', 'doodsoorzaak'], as_index=False)['OBS_VALUE'].sum()
     df = df.rename(columns={'Perioden': 'jaar'})
     df = df.rename(columns={'Sexe': 'geslacht'})
     df["jaar"]= df["jaar"].astype(int)
@@ -366,11 +366,14 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
     fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff["fitted_curve"], mode='lines', marker=dict(color='yellow'), name=f'Fitted {secondary_choice} Curve'))
     # Exclude the last four values
     df_filtered = df_diff[:-4]  # Slices the DataFrame to exclude the last 4 rows
+    
 
     # Calculate R² score
-    r2_a = round(r2_score(df_filtered[value_field], trendline),4)
-    r2_b = round(r2_score(df_filtered[value_field], df_filtered["fitted_curve"]),4)
-    
+    try:
+        r2_a = round(r2_score(df_filtered[value_field], trendline),4)
+        r2_b = round(r2_score(df_filtered[value_field], df_filtered["fitted_curve"]),4)
+    except:
+        r2_a,r2_b=None,None
 
     fig.update_layout(
                 title=f"{age_group} - {sexe} | {value_field} | {doordsoorzaak_keuze} | r2 : green  {r2_a}- yellow {r2_b}",
