@@ -371,13 +371,8 @@ def plot_wrapper(df, t2, value_field, countries):
     else:
         st.info(f"No data - {t2}")
 
-
-def main():
-    st.title("Deaths in age groups ")
-    
-    # Let the user select one or both countries
-    countries = ["NL"] # st.multiselect("Country [NL | BE]", ["NL", "BE"], default=["NL", "BE"])
-    
+   
+def interface_opdeling():
     def ends_in_4_9_or_120(number):
     # Check if the number ends in 4 or 9, or is exactly 120
         return number % 10 in {4, 9} or number == 120
@@ -386,7 +381,7 @@ def main():
     # Check if the number ends in 4 or 9, or is exactly 120
         return number % 10 in {5, 0} or number == 120
     # Get data for all selected countries and concatenate them
-    df_list = []
+    
     col1,col2,col3,col4 = st.columns(4)
     with col1:
         b1,b2 = st.columns(2)
@@ -413,7 +408,7 @@ def main():
         with e2:
             h4 = st.number_input("high4", 0,120,120)
 
-    opdeling = [[l1,h1],[l2,h2],[l3,h3],[l4,h4]]
+    
     fout = False
     for l in [l1,l2,l3,l4]:
         if not ends_in_5_0_or_120(l):
@@ -426,6 +421,19 @@ def main():
     if fout:
         st.info("Please correct values")
         st.stop()
+
+    opdeling = [[l1,h1],[l2,h2],[l3,h3],[l4,h4]]
+    return opdeling
+
+def main():
+    st.title("Deaths in age groups ")
+    
+    # Let the user select one or both countries
+    countries = ["NL"] # st.multiselect("Country [NL | BE]", ["NL", "BE"], default=["NL", "BE"])
+ 
+    opdeling = interface_opdeling()
+
+    df_list = []
     for country in countries:
         df = get_sterfte(opdeling, country)
         df["country"] = country  # Add a column to distinguish the countries
