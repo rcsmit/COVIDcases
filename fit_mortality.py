@@ -678,7 +678,7 @@ def main() -> None:
         df =  df_doodsoorzaken[df_doodsoorzaken["doodsoorzaak"] == doordsoorzaak_keuze]
     age_groups  = df["age_group"].unique().tolist()#[:2] 
    
-    age_groups = ["Y70-74"]
+    #age_groups = ["Y70-74"]
     what_to_do = st.sidebar.selectbox("What to do [selection|all]", ["selection", "all"],0)
     sexe = st.sidebar.selectbox("Sexe [T|M|V]", ["T","M","V"],0)
     possible_columns = [
