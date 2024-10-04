@@ -1,5 +1,6 @@
 from fit_to_data_streamlit import *
 from mortality_yearly_per_capita import get_sterfte, get_bevolking, interface_opdeling
+#from oversterfte_compleet import
 import streamlit as st
 from scipy.optimize import curve_fit
 import pandas as pd
@@ -9,40 +10,167 @@ import numpy as np
 import statsmodels.api as sm
 from sklearn.metrics import r2_score
 import cbsodata
+import numpy as np
 
-# Function to calculate the exponential with constants a and b
+#def get_cbs_data():
+
+
+    
+@st.cache_data(ttl=60 * 60 * 24)
+def get_sterftedata():
+    """Get and manipulate data of the deaths
+
+    Args:
+        seriename (str, optional): _description_. Defaults to "m_v_0_999".
+    """
+
+    def manipulate_data_df(data):
+        """Filters out week 0 and 53 and makes a category column (eg. "M_V_0_999")"""
+
+        # data = data[~data['week'].isin([0, 53])] #filter out week 2020-53
+        data["weeknr"] = (
+            data["jaar"].astype(str) + "_" + data["week"].astype(str).str.zfill(2)
+        )
+
+        data["sex"] = data["Geslacht"].replace(
+            ["Totaal mannen en vrouwen"], "T"
+        )
+        data["sexe"] = data["Geslacht"].replace(["Mannen"], "M")
+        data["sexe"] = data["Geslacht"].replace(["Vrouwen"], "F")
+        data["age"] = data["LeeftijdOp31December"].replace(
+            ["Totaal leeftijd"], "TOTAL"
+        )
+        data["age"] = data["LeeftijdOp31December"].replace(
+            ["0 tot 65 jaar"], "Y0_64"
+        )
+        data["age"] = data["LeeftijdOp31December"].replace(
+            ["65 tot 80 jaar"], "Y65_79"
+        )
+        data["age"] = data["LeeftijdOp31December"].replace(
+            ["80 jaar of ouder"], "Y80_999"
+        )
+        
+        return data
+
+ 
+
+    data_ruw = pd.DataFrame(cbsodata.get_data("70895ned"))
+
+
+    data_ruw[["jaar", "week"]] = data_ruw.Perioden.str.split(
+        " week ",
+        expand=True,
+    )
+    data_ruw = manipulate_data_df(data_ruw)
+    data_ruw["jaar"] = data_ruw["jaar"].astype(int)
+   
+
+    print (data_ruw)
+    data_bevolking = pd.DataFrame(cbsodata.get_data("03759ned"))
+    print (data_bevolking)
+
+
 def exponential(x: np.ndarray, a: float, b: float) -> np.ndarray:
     """
-    Calculate the exponential function. Remove/add underscore in function name as needed
+    Calculate the exponential function.
 
     Args:
         x (np.ndarray): Input array (independent variable).
-        a (float): Coefficient for exponential.
-        b (float): Exponent.
+        a (float): Amplitude of the exponential function.
+        b (float): Growth rate.
 
     Returns:
         np.ndarray: The result of a * exp(b * x).
     """
-    return a*np.exp(b*x)
+    return a * np.exp(b * x)
 
-
-def quadratic (x: np.ndarray, a: float, b: float, c:float) -> np.ndarray:
+def quadratic(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
     """
-    Calculate the quadratic function. Remove/add underscore in function name as needed
+    Calculate the quadratic function.
 
     Args:
         x (np.ndarray): Input array (independent variable).
-        a (float): Coefficient for exponential.
-        b (float): Exponent.
+        a (float): Coefficient of x^2.
+        b (float): Coefficient of x.
+        c (float): Constant term.
 
     Returns:
-        np.ndarray: The result of a * exp(b * x).
+        np.ndarray: The result of a * x^2 + b * x + c.
     """
-    return a*x**2 +b*x+c 
+    return a * x**2 + b * x + c 
 
+def gompertz(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
+    """
+    Calculate the Gompertz function.
 
+    Args:
+        x (np.ndarray): Input array (independent variable).
+        a (float): Upper asymptote.
+        b (float): Growth displacement.
+        c (float): Growth rate.
 
+    Returns:
+        np.ndarray: The result of a * exp(-b * exp(-c * x)).
+    """
+    return a * np.exp(-b * np.exp(-c * x))
 
+def first_derivative_gompertz(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
+    """
+    Calculate the first derivative of the Gompertz function.
+
+    Args:
+        x (np.ndarray): Input array (independent variable).
+        a (float): Upper asymptote.
+        b (float): Growth displacement.
+        c (float): Growth rate.
+
+    Returns:
+        np.ndarray: The result of the first derivative of the Gompertz function.
+    """
+    return a * b * c * np.exp(b * (-1 * np.exp(-c * x)) - c * x)
+
+def gaussian(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
+    """
+    Calculate the Gaussian function.
+
+    Args:
+        x (np.ndarray): Input array (independent variable).
+        a (float): Amplitude.
+        b (float): Mean (center of the peak).
+        c (float): Standard deviation (width of the curve).
+
+    Returns:
+        np.ndarray: The result of a * exp(-((x - b)^2) / c).
+    """
+    return a * np.exp(-((x - b) ** 2) / c)
+
+def linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """
+    Calculate the linear function.
+
+    Args:
+        x (np.ndarray): Input array (independent variable).
+        a (float): y-intercept.
+        b (float): Slope.
+
+    Returns:
+        np.ndarray: The result of a + (b * x).
+    """
+    return a + (b * x)
+
+def exponential_2(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """
+    Calculate an alternative exponential function.
+
+    Args:
+        x (np.ndarray): Input array (independent variable).
+        a (float): Initial value.
+        b (float): Growth rate.
+
+    Returns:
+        np.ndarray: The result of a * ((1 + b)^x).
+    """
+    return a * ((1 + b)**x)
 
 @st.cache_data()
 def get_data(opdeling) -> pd.DataFrame:
@@ -60,6 +188,8 @@ def get_data(opdeling) -> pd.DataFrame:
 @st.cache_data()
 def get_doodsoorzaken_cbs():
     data = pd.DataFrame(cbsodata.get_data('7052_95'))
+    # data = pd.DataFrame(cbsodata.get_data('7233'))
+    
     return data
 
 @st.cache_data()
@@ -223,20 +353,75 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
 
     # Fit the dummy secondary data
     for secondary_choice in secondary_choice_:
-        if secondary_choice == "quadratic":
-            p0 = [0,0,0]  # adapt to the number of arguments of the as secondary function 
-            pars, cov = curve_fit(f=quadratic, xdata=x_, ydata=y_, p0=p0, bounds=(-np.inf, np.inf), maxfev=20000)
-        elif secondary_choice=="exponential":
-            p0 = [0,0,]  # adapt to the number of arguments of the as secondary function 
-            pars, cov = curve_fit(f=exponential, xdata=x_, ydata=y_, p0=p0, bounds=(-np.inf, np.inf), maxfev=20000)
-        else:
-            st.warning(f"Error in secondary choice {secondary_choice}. line 88")
-            st.stop()
+        try:
+         
+            # Dictionary to store function-specific information
+            function_info = {
+                "quadratic": {
+                    "func": quadratic,
+                    "p0": [1, 1, 1],
+                    "equation": "a*x^2 + b*x + c",
+                    "params": ["a", "b", "c"]
+                },
+                "exponential": {
+                    "func": exponential,
+                    "p0": [1, 1],
+                    "equation": "a * exp(b*x)",
+                    "params": ["a", "b"]
+                },
+                "gompertz": {
+                    "func": gompertz,
+                    "p0": [1, 1, 1],
+                    "equation": "a * exp(-b * exp(-c * x))",
+                    "params": ["a", "b", "c"]
+                },
+                "first_derivative_gompertz": {
+                    "func": first_derivative_gompertz,
+                    "p0": [1, 1, 1],
+                    "equation": "a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)",
+                    "params": ["a", "b", "c"]
+                },
+                "gaussian": {
+                    "func": gaussian,
+                    "p0": lambda x: [1, np.mean(x), np.std(x)],
+                    "equation": "a * exp(-((x - b)^2) / c)",
+                    "params": ["a", "b", "c"]
+                },
+                "linear": {
+                    "func": linear,
+                    "p0": [1, 1],
+                    "equation": "a + b*x",
+                    "params": ["a", "b"]
+                },
+                "exponential_2": {
+                    "func": exponential_2,
+                    "p0": [1, 1],
+                    "equation": "a * ((1 + b)^x)",
+                    "params": ["a", "b"]
+                }
+            }
 
-        df_diff = do_calculations_df_diff_secondary_choice(pars, cov, df_diff, secondary_choice) 
-    
+            if secondary_choice in function_info:
+                info = function_info[secondary_choice]
+                p0 = info["p0"](x_) if callable(info["p0"]) else info["p0"]
+                
+                pars, cov = curve_fit(f=info["func"], xdata=x_, ydata=y_, p0=p0, bounds=(-np.inf, np.inf), maxfev=20000)
+                
+                param_str = ", ".join(f"{param} = {value:.4f}" for param, value in zip(info["params"], pars))
+                result_str = f"{secondary_choice} - {info['equation']} | {param_str}" 
+                st.write(result_str)
+            else:
+                st.warning(f"Error in secondary choice {secondary_choice}.")
+                st.stop()
+
+            df_diff = do_calculations_df_diff_secondary_choice(pars, cov, df_diff, secondary_choice) 
+       
+        except Exception as error:
+            print (f"No fitting possible for {secondary_choice} - {error}")
 
     if verbose:
+    
+
         plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe, secondary_choice_, doordsoorzaak_keuze)
 
         if value_field =="per100k":
@@ -245,6 +430,8 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
             plot_transformed_to_absolute(df_before_2020, df_2020_and_up, df_diff, age_group, sexe, secondary_choice_,doordsoorzaak_keuze)
         
     excess_mortality_lineair, excess_mortality_secondary_ = show_excess_mortality(value_field, df_diff, verbose,secondary_choice_)
+    
+        
     return  excess_mortality_lineair, excess_mortality_secondary_
 def show_excess_mortality(value_field: str, df_diff: pd.DataFrame, verbose: bool, secondary_choice_:list[str]) -> None:
     """
@@ -258,17 +445,23 @@ def show_excess_mortality(value_field: str, df_diff: pd.DataFrame, verbose: bool
     Returns:
         None
     """
+    st.write('blablabbla')
     excess_mortality_lineair = round(df_diff[df_diff['jaar'].between(2020, 2023)]['oversterfte'].sum())
     if verbose:
         st.write(f"{value_field} - Excess mortality lineair {excess_mortality_lineair} | {round(excess_mortality_lineair/4)} per year")
     excess_mortality_secondary_ = []
     for secondary_choice in secondary_choice_:
-        if value_field =="per100k":
-            excess_mortality_secondary = round(df_diff[df_diff['jaar'].between(2020, 2023)][f'oversterfte_expon_{secondary_choice}'].sum())
-        else:
-            excess_mortality_secondary = round(df_diff[df_diff['jaar'].between(2020, 2023)][f'oversterfte_expon_totals_{secondary_choice}'].sum())
+        try:
+            if value_field =="per100k":
+                excess_mortality_secondary = round(df_diff[df_diff['jaar'].between(2020, 2023)][f'oversterfte_expon_{secondary_choice}'].sum())
+            else:
+                excess_mortality_secondary = round(df_diff[df_diff['jaar'].between(2020, 2023)][f'oversterfte_expon_totals_{secondary_choice}'].sum())
+        except:
+            excess_mortality_secondary = None
         if verbose:
-            st.write(f"{value_field} - Excess mortality {secondary_choice} {excess_mortality_secondary} | {round(excess_mortality_secondary/4)} per year")
+            if excess_mortality_secondary is not None:
+                excess_per_year = None if excess_mortality_secondary == None else round(excess_mortality_secondary/4)
+                st.write(f"{value_field} - Excess mortality {secondary_choice} {excess_mortality_secondary} | {excess_per_year} per year")
     excess_mortality_secondary_.append(excess_mortality_secondary)
     return excess_mortality_lineair, excess_mortality_secondary_
 
@@ -304,17 +497,27 @@ def do_calculations_df_diff_secondary_choice(pars: np.ndarray,pcov:np.ndarray, d
     # st.write(pcov)
     perr = 0# np.sqrt(np.diag(pcov))
     n_std = 0.0  # 95% confidence interval
-    
-    if secondary_choice == "exponential":
-        df_diff[f'fitted_curve_{secondary_choice}'] = exponential(df_diff["jaar"], *pars)
-        df_diff[f'y_fit_upper_{secondary_choice}'] = exponential(df_diff["jaar"], *(pars + n_std * perr))
-        df_diff[f'y_fit_lower_{secondary_choice}'] = exponential(df_diff["jaar"], *(pars - n_std * perr))
-    elif secondary_choice == "quadratic":
-        df_diff[f'fitted_curve_{secondary_choice}'] = quadratic(df_diff["jaar"], *pars)
-        df_diff[f'y_fit_upper_{secondary_choice}'] = quadratic(df_diff["jaar"], *(pars + n_std * perr))
-        df_diff[f'y_fit_lower_{secondary_choice}'] = quadratic(df_diff["jaar"], *(pars - n_std * perr))
+
+    # Dictionary mapping function names to their corresponding functions
+    function_map = {
+        "exponential": exponential,
+        "quadratic": quadratic,
+        "gompertz": gompertz,
+        "first_derivative_gompertz": first_derivative_gompertz,
+        "gaussian": gaussian,
+        "linear": linear,
+        "exponential_2": exponential_2
+    }
+
+    if secondary_choice in function_map:
+        func = function_map[secondary_choice]
+        
+        # Calculate fitted curve and confidence intervals
+        df_diff[f'fitted_curve_{secondary_choice}'] = func(df_diff["jaar"], *pars)
+        df_diff[f'y_fit_upper_{secondary_choice}'] = func(df_diff["jaar"], *(pars + n_std * perr))
+        df_diff[f'y_fit_lower_{secondary_choice}'] = func(df_diff["jaar"], *(pars - n_std * perr))
     else:
-        st.write(f"error in secondary choice |{secondary_choice}| line 317")
+        st.write(f"Error in secondary choice |{secondary_choice}|")
         st.stop()
     df_diff[f'fitted_curve_transf_absolut_{secondary_choice}'] = df_diff[f'fitted_curve_{secondary_choice}'] *df_diff['aantal'] /100000
     df_diff[f'oversterfte_expon_totals_{secondary_choice}'] = df_diff['OBS_VALUE'] -  df_diff[f'fitted_curve_{secondary_choice}']
@@ -337,6 +540,7 @@ def fit_and_predict(df_before_2020: pd.DataFrame, x_: pd.Series, y_: pd.Series) 
         tuple: trendline for historical data, extended years, trendline for extended period.
     """
     X = sm.add_constant(x_)  # Adds a constant term to the predictor
+   
     model = sm.OLS(y_, X).fit()
     trendline = model.predict(X)
     extended_years = np.arange(df_before_2020["jaar"].min(), 2024)
@@ -423,18 +627,22 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
 
     
     title=f"{age_group} - {sexe} | {value_field} | {doordsoorzaak_keuze}"
-               
-    r2 = round(r2_score(df_filtered[value_field], trendline),4)
-    print (r2)
-    title += f"| r2 OLS: {r2} "
-
-    colors = ["purple", "yellow"]
+    try:           
+        r2 = round(r2_score(df_filtered[value_field], trendline),4)
+        print (r2)
+        title += f"| r2 OLS: {r2} "
+    except:
+        # pass 
+        title += f"| r2 OLS: n/a "
+    colors = ['orange', 'purple', 'cyan', 'magenta', 'yellow', 'brown', 'pink']
     for i,secondary_choice in enumerate(secondary_choice_):
-        fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff[f"fitted_curve_{secondary_choice}"], mode='lines', line=dict(color=colors[i]), name=f'Fitted {secondary_choice} Curve'))
-        r2_b = round(r2_score(df_filtered[value_field], df_filtered[f"fitted_curve_{secondary_choice}"]),4)
-        title += f"| r2 {secondary_choice}: {r2_b} "
-
-   
+        try:
+            r2_b = round(r2_score(df_filtered[value_field], df_filtered[f"fitted_curve_{secondary_choice}"]),4)
+            title += f"| r2 {secondary_choice}: {r2_b}<br> "
+            fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff[f"fitted_curve_{secondary_choice}"], mode='lines', line=dict(color=colors[i]), name=f'Fitted {secondary_choice} Curve'))
+        except:
+            pass 
+            #st.write(f"{secondary_choice}: n/a ")
     # except:
     #     r2_a,r2_b=None,None
 
@@ -492,14 +700,19 @@ def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: p
     title=f"{age_group} - {sexe} | {doordsoorzaak_keuze} |Deaths Transformed from relatieve back to absolute numbers " 
     r2 = round(r2_score(df_filtered["OBS_VALUE"], df_filtered["predicted_deaths"]),4)
     title += f"| r2 OLS: {r2} "
-    colors = ["purple", "yellow"]
+    colors = ['orange', 'purple', 'cyan', 'magenta', 'yellow', 'brown', 'pink']
+
     for i,secondary_choice in enumerate(secondary_choice_):
+        try:
+            df_diff[f"fitted_aantal_{secondary_choice}"] = df_diff[f"fitted_curve_{secondary_choice}"] * df_diff["aantal"]/100000
+            fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff[f"fitted_aantal_{secondary_choice}"], mode='lines', line=dict(color=colors[i]), name=f'Fitted {secondary_choice} Curve'))
 
-        df_diff[f"fitted_aantal_{secondary_choice}"] = df_diff[f"fitted_curve_{secondary_choice}"] * df_diff["aantal"]/100000
-        fig.add_trace(go.Scatter(x=df_diff["jaar"], y=df_diff[f"fitted_aantal_{secondary_choice}"], mode='lines', line=dict(color=colors[i]), name=f'Fitted {secondary_choice} Curve'))
+            r2_b = round(r2_score(df_diff["OBS_VALUE"], df_diff[f"fitted_aantal_{secondary_choice}"]),4)
+            title += f"| r2 {secondary_choice}: {r2_b} "
+        except Exception as error:
+            print(f"{secondary_choice} : graphline failed|Deaths Transformed from relatieve back to absolute numbers {error} ")
+    
 
-        r2_b = round(r2_score(df_diff["OBS_VALUE"], df_diff[f"fitted_aantal_{secondary_choice}"]),4)
-        title += f"| r2 {secondary_choice}: {r2_b} "
     # Calculate R² score
     
     fig.update_layout(
@@ -556,8 +769,8 @@ def prepare_data(df: pd.DataFrame, age_group: str, sexe: str, START_YEAR: int) -
     df_2020_and_up = df[df["jaar"] >= 2020]
     return df_before_2020,df_2020_and_up
 
-@st.cache_data()
-def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_years: list[int], sexe: str, verbose: bool, secondary_choice_: list[str], show_confidence_intervals: bool,doordsoorzaak_keuze:str) -> pd.DataFrame:
+#@st.cache_data()
+def calculate_results(df: pd.DataFrame, age_groups_selected_: list[str], start_years: list[int], sexe: str, verbose: bool, secondary_choice_: list[str], show_confidence_intervals: bool,doordsoorzaak_keuze:str) -> pd.DataFrame:
 #def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_years: list[int], sexe: str, verbose: bool, secondary_choice:str) -> pd.DataFrame: 
     """
     Calculate excess mortality using both linear and secondary models for each age group, 
@@ -593,14 +806,21 @@ def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_ye
     """
     # Define the start years for subcolumns
     counter = 0
-    total = 2* len(age_groups_selected)*len(start_years)
+    total = 2* len(age_groups_selected_)*len(start_years)
 
     # Initialize DataFrames to store the results
     results = []
-   
+    
     
     for value_field in ["OBS_VALUE", "per100k"]:
-        for age_group in age_groups_selected:
+        #for age_group in age_groups_selected_:
+        if type(age_groups_selected_) == list:
+            pass
+        else:
+            age_groups_selected_ = [age_groups_selected_]
+        
+        for age_group in age_groups_selected_:
+            st.subheader(age_group)
             for START_YEAR in start_years:
                 print(f"{counter+1}/{total} | {value_field=} - {age_group=} { START_YEAR=}")
                 excess_mortality_lineair, excess_mortality_secondary_ = main_(df, value_field, age_group, sexe, START_YEAR, verbose, secondary_choice_, show_confidence_intervals,doordsoorzaak_keuze)
@@ -667,20 +887,21 @@ def main() -> None:
     st.info("https://rene-smit.com/low-excess-mortality-observed-using-quadratic-fitting-in-mortality-trend-analysis/")
     # choice = st.sidebar.selectbox("Overlijdens of doodsoorzaken",["overlijdens", "doodsoorzaken"],0)
     #opdeling = [[0,49], [50,64], [65,79], [80,89], [90,120],[80,120], [0,120]]
-    opdeling = interface_opdeling()
+    opdeling = [[0,120], [0,64],[65,79],[80,120]] + interface_opdeling() 
     df_doodsoorzaken = get_doodsoorzaken(opdeling)
     doodsoorzaken   = ["ALLE DOODSOORZAKEN"] + df_doodsoorzaken["doodsoorzaak"].unique().tolist()  
-    doordsoorzaak_keuze =  st.sidebar.selectbox("Doodsoorzaak",doodsoorzaken,0)
-    if doordsoorzaak_keuze =="ALLE DOODSOORZAKEN":
+    doodsoorzaak_keuze =  st.sidebar.selectbox("Doodsoorzaak",doodsoorzaken,0)
+    if doodsoorzaak_keuze =="ALLE DOODSOORZAKEN":
         df = get_data(opdeling) 
-        doordsoorzaak_keuze=""
+        doodsoorzaak_keuze=""
     else:  
-        df =  df_doodsoorzaken[df_doodsoorzaken["doodsoorzaak"] == doordsoorzaak_keuze]
-    age_groups  = df["age_group"].unique().tolist()#[:2] 
+        df =  df_doodsoorzaken[df_doodsoorzaken["doodsoorzaak"] == doodsoorzaak_keuze]
+    age_groups_ = df["age_group"].unique().tolist() #[:2]
+    age_groups  = ["ALLE LEEFTIJDEN IN EEN LOOP"] +age_groups_
    
     #age_groups = ["Y70-74"]
     what_to_do = st.sidebar.selectbox("What to do [selection|all]", ["selection", "all"],0)
-    sexe = st.sidebar.selectbox("Sexe [T|M|V]", ["T","M","V"],0)
+    sexe = st.sidebar.selectbox("Sexe [T|M|F]", ["T","M","F"],0)
     possible_columns = [
                             ['model', 'value_field', 'start_year'],
                             ['model', 'start_year', 'value_field'],
@@ -691,23 +912,36 @@ def main() -> None:
                         ]
     columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
     if what_to_do == "selection":
-        age_groups_selected = [st.sidebar.selectbox("age group", age_groups)]
+        age_groups_selected = [st.sidebar.selectbox("age group", age_groups,1)]
         start_years = [st.sidebar.number_input("Fitting from year",2000,2019,2010)]
         verbose=True
-        secondary_choice_ = st.sidebar.multiselect("Secondary choice [exponential|quadratic]", ["exponential","quadratic"],["exponential","quadratic"])
-    
+        secondary_choice_ = st.sidebar.multiselect(
+            "Secondary choice",
+            ["exponential", "quadratic", "gompertz", "first_derivative_gompertz", "gaussian", "linear", "exponential_2"],
+            ["exponential", "quadratic", "gompertz", "first_derivative_gompertz", "gaussian"]
+            
+        )
     else:
         start_years = [2000, 2010, 2015]
         verbose = False
-        age_groups_selected = age_groups
+        age_groups_selected = age_groups_
         secondary_choice_ = [st.sidebar.selectbox("Secondary choice [exponential|quadratic]", ["exponential","quadratic"],1)]
     # Add this line to create the new selectbox
     show_confidence_intervals = st.sidebar.checkbox("Show confidence intervals", value=False)
-   
-    
     
     #df_results = calculate_results(df,age_groups_selected, start_years, sexe, verbose, secondary_choice)
-    df_results = calculate_results(df, age_groups_selected, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doordsoorzaak_keuze)
+    if age_groups_selected[0] == "ALLE LEEFTIJDEN IN EEN LOOP":
+        st.write(age_groups_)
+        for age_groups_selected_x in age_groups_:
+            
+            df_results_ = calculate_results(df, age_groups_selected_x, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze)
+   
+    else:
+        
+        for age_groups_selected_x in age_groups_selected:
+            age_groups_selected_y = [age_groups_selected_x]
+            
+            df_results = calculate_results(df, age_groups_selected_y, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze)
    
      # Pivot the DataFrame to create a multi-level column structure
     df_pivot = df_results.pivot_table(
@@ -727,7 +961,12 @@ def main() -> None:
     st.dataframe(df_pivot)
    
 if __name__ == "__main__":
+    import os
     import datetime
-    print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
-    main()
+    os.system('cls')
+
+    print(f"--------------{datetime.datetime.now()}-------------------------")
+
     
+    main()
+    #get_sterftedata()
