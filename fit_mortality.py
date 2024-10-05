@@ -99,6 +99,21 @@ def quadratic(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
     """
     return a * x**2 + b * x + c 
 
+def logistic(x: np.ndarray, a: float, b: float, c: float, d: float) -> np.ndarray:
+    """
+    Calculate the logistic grwoth function.
+
+    Args:
+        x (np.ndarray): Input array (independent variable).
+        a (float): Coefficient of x^2.
+        b (float): Coefficient of x.
+        c (float): Constant term.
+        d
+    Returns:
+        np.ndarray: The result of 
+    """
+    return a+ ((b-a)/(1+((x/c)**d)))
+
 def gompertz(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
     """
     Calculate the Gompertz function.
@@ -356,7 +371,7 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
         df_diff['predicted_deaths'] = df_diff['predicted_per100k']*df_diff['aantal']/100000
     
     df_diff = do_calculations_df_diff_lineair( df_diff) 
-    result_str =""
+    result_str =[]
     # Fit the dummy secondary data
     for secondary_choice in secondary_choice_:
         try:
@@ -404,6 +419,12 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
                     "p0": [1, 1],
                     "equation": "a * ((1 + b)^x)",
                     "params": ["a", "b"]
+                },
+                 "logistic": {
+                    "func": logistic,
+                    "p0": [1, 1,1,1],
+                    "equation": "a+ ((b-a)/(1+((x/c)**d)))",
+                    "params": ["a", "b","c","d"]
                 }
             }
 
@@ -414,7 +435,7 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
                 pars, cov = curve_fit(f=info["func"], xdata=x_, ydata=y_, p0=p0, bounds=(-np.inf, np.inf), maxfev=20000)
                 
                 param_str = ", ".join(f"{param} = {value:.4f}" for param, value in zip(info["params"], pars))
-                result_str += f"{secondary_choice} - {info['equation']} | {param_str}\n" 
+                result_str.append(f"*{secondary_choice}* - {info['equation']} | {param_str}")
                 
             else:
                 st.warning(f"Error in secondary choice {secondary_choice}.")
@@ -440,7 +461,8 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
                 plot_transformed_to_absolute(df_before_2020, df_2020_and_up, df_diff, age_group, sexe, secondary_choice_,doordsoorzaak_keuze)
                 show_result_str = True
         if show_result_str :
-            st.write(result_str)  
+            for r in result_str:
+                st.write(r)  
         else:
             verbose=False  
         excess_mortality_lineair, excess_mortality_secondary_ = show_excess_mortality(value_field, df_diff, verbose,secondary_choice_)
@@ -520,7 +542,8 @@ def do_calculations_df_diff_secondary_choice(pars: np.ndarray,pcov:np.ndarray, d
         "first_derivative_gompertz": first_derivative_gompertz,
         "gaussian": gaussian,
         "linear": linear,
-        "exponential_2": exponential_2
+        "exponential_2": exponential_2,
+        "logistic":logistic,
     }
 
     if secondary_choice in function_map:
@@ -607,17 +630,17 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
     ))
 
     
-    fig.add_trace(go.Scatter(x=df_before_2020["jaar"], y=trendline, 
-                                    mode='lines', name=f'Trendline OLS till 2019', line=dict(color="green")))
+    # fig.add_trace(go.Scatter(x=df_before_2020["jaar"], y=trendline, 
+    #                                 mode='lines', name=f'Trendline OLS till 2019', line=dict(color="green")))
     
     
-    fig.add_trace(go.Scatter(
-                    x=extended_years,
-                    y=trendline_extended,
-                    mode='lines',
-                    name=f'Trendline OLS until 2024',
-                    line=dict(color="green")
-                ))
+    # fig.add_trace(go.Scatter(
+    #                 x=extended_years,
+    #                 y=trendline_extended,
+    #                 mode='lines',
+    #                 name=f'Trendline OLS until 2024',
+    #                 line=dict(color="green")
+    #             ))
     
     # fig.add_trace(go.Scatter(
     #     x=df_diff["jaar"],
@@ -973,7 +996,7 @@ def main() -> None:
         verbose=True
         secondary_choice_ = st.sidebar.multiselect(
             "Secondary choice",
-            ["exponential", "quadratic", "gompertz", "first_derivative_gompertz", "gaussian", "linear", "exponential_2"],
+            [ "linear","exponential", "quadratic", "gompertz", "first_derivative_gompertz", "gaussian", "exponential_2", "logistic"],
             sec_choice_def
             
         )
