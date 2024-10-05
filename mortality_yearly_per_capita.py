@@ -44,7 +44,7 @@ def get_bevolking(country, opdeling):
 
     # Create a new column for age bins
     data['age_group'] = pd.cut(data['leeftijd'], bins=bins, labels=labels, right=False)
-
+   
 
     # Group by year, gender, and age_group and sum the counts
     grouped_data = data.groupby(['jaar', 'geslacht', 'age_group'], observed=False)['aantal'].sum().reset_index()

@@ -286,9 +286,14 @@ def get_doodsoorzaken(opdeling) -> pd.DataFrame:
         #totals["jaar"] = (totals["TIME_PERIOD"].str[:4]).astype(int)
         return totals
     
+    df_custom_age_groups = pd.Dataframe()
+
+
     for i in opdeling:
         custom_age_group = add_custom_age_group_deaths(df, i[0], i[1])
-        df = pd.concat([df, custom_age_group], ignore_index=True)
+        df_custom_age_groups = pd.concat([df_custom_age_groups, custom_age_group], ignore_index=True)
+
+    df = pd.concat([df_custom_age_groups, df], ignore_index=True)
 
    
     df_eind = pd.merge(df, df_bevolking, on=['geslacht', 'age_group', 'jaar'], how = "left")
