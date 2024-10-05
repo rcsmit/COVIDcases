@@ -639,7 +639,7 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
     #add the fitted curve
     df_filtered = df_diff[:-4]  # Slices the DataFrame to exclude the last 4 rows
 
-    
+
     title=f"{age_group} - {sexe} | {value_field} | {doordsoorzaak_keuze}"
     # try:           
     #     r2 = round(r2_score(df_filtered[value_field], trendline),4)
