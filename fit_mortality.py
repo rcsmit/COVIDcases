@@ -319,7 +319,7 @@ def get_doodsoorzaken(opdeling) -> pd.DataFrame:
     df_eind["per100k"] = round(df_eind["OBS_VALUE"]/df_eind["aantal"]*100000,1) 
     
     return df_eind 
-def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool, secondary_choice_: list[str], show_confidence_intervals: bool, doordsoorzaak_keuze:str, what_to_plot:list[str]) -> tuple[float, float]:
+def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool, secondary_choice_: list[str], show_confidence_intervals: bool, doordsoorzaak_keuze:str, what_to_plot:list[str], scaled:bool) -> tuple[float, float]:
 #def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool, secondary_choice:str) -> tuple[float, float]:  
     """Main analysis function: performs secondary (exponential or quadratic) and linear curve fitting, projections, and plotting.
 
@@ -334,6 +334,7 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
         show_confidence_intervals
         doordsoorzaak_keuze
         what_to_plot
+        scaled
     Returns:
         excess_mortality_lineair
         excess_mortality_secondary
@@ -449,7 +450,11 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
     if verbose:
         show_result_str = False
         if ( ((value_field == 'OBS_VALUE') and ("OBS_VALUE" in what_to_plot)) or ((value_field == 'per100k') and ("per100k" in what_to_plot))):
-            plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe, secondary_choice_, doordsoorzaak_keuze)
+            if not scaled:
+                plot_fitting_on_value_field(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe, secondary_choice_, doordsoorzaak_keuze)
+            else:
+                plot_fitting_on_value_field_scaled(value_field, df_before_2020, df_2020_and_up, trendline, extended_years, trendline_extended, df_diff, age_group, sexe, secondary_choice_, doordsoorzaak_keuze)
+            
             show_result_str = True
         if value_field =="per100k":
             if ("number_of_people" in what_to_plot) or "100k_to_population" in what_to_plot:
@@ -690,6 +695,83 @@ def plot_fitting_on_value_field(value_field: str, df_before_2020: pd.DataFrame, 
             )
     st.plotly_chart(fig)
 
+def plot_fitting_on_value_field_scaled(value_field: str, df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, trendline: np.ndarray, extended_years: np.ndarray, trendline_extended: np.ndarray, df_diff: pd.DataFrame, age_group: str, sexe: str, secondary_choice_: list[str], doordsoorzaak_keuze: str) -> None:
+    """
+    Plot the fitting results, including data before and after 2020, trendlines, and secondary fits.
+
+    Args:
+        value_field (str): The field used for plotting (e.g., 'OBS_VALUE', 'per100k').
+        df_before_2020 (pd.DataFrame): DataFrame containing data before 2020.
+        df_2020_and_up (pd.DataFrame): DataFrame containing data from 2020 and onwards.
+        trendline (np.ndarray): Linear trendline fitted on data before 2020.
+        extended_years (np.ndarray): Array of extended years for future projections.
+        trendline_extended (np.ndarray): Linear trendline extended to future years.
+        df_diff (pd.DataFrame): DataFrame with all data points and predictions.
+        age_group (str): Age group.
+        sexe (str): Gender category ('T', 'M', 'V').
+        secondary_choice_ (list[str]): Types of fitting for the secondary choices [exponential|quadratic].
+        doordsoorzaak_keuze (str): Cause of death choice.
+        
+    Returns:
+        None
+    """
+    
+    
+    
+
+    # Add additional trendlines for secondary fits
+    colors = ['orange', 'purple', 'cyan', 'magenta', 'yellow', 'brown', 'pink']
+    value_curve = df_diff[value_field]
+    for i, secondary_choice in enumerate(secondary_choice_):
+        fig = go.Figure()
+        try:
+            # Calculate the fitted curve and scale it
+            
+            fitted_curve = df_diff[f"fitted_curve_{secondary_choice}"]
+           
+            values = ((value_curve-fitted_curve) / fitted_curve) 
+            
+            years = df_diff["jaar"]
+             # Filter for positive and negative values
+            positive_years = [years[i] for i in range(len(values)) if values[i] >= 0]
+            positive_values = [value for value in values if value >= 0]
+            
+            negative_years = [years[i] for i in range(len(values)) if values[i] < 0]
+            negative_values = [value for value in values if value < 0]
+
+            # Plot positive bars
+            fig.add_trace(go.Bar(
+                x=positive_years,
+                y=positive_values,
+                name='Positive Values',
+                marker=dict(color='blue'),
+                showlegend=True
+            ))
+
+            # Plot negative bars (inverted for visual effect)
+            fig.add_trace(go.Bar(
+                x=negative_years,
+                y=[value for value in negative_values],  # Negate the values for downward bars
+                name='Negative Values',
+                marker=dict(color='red'),
+                showlegend=True
+            ))
+        except KeyError:
+            pass  # Skip if fitted curve does not exist
+
+        # Set the plot title and labels
+        title = f"{age_group} - {sexe} | {value_field} | {doordsoorzaak_keuze} | {secondary_choice}"
+        fig.update_layout(
+            title=title,
+            xaxis_title="Year",
+            yaxis_title="Relative Value (Base = Trendline)",
+            yaxis_tickformat='.0%',  # Format y-axis as percentages
+        )
+
+        # Show the plot
+        st.plotly_chart(fig)
+
+
 
 def plot_transformed_to_absolute(df_before_2020: pd.DataFrame, df_2020_and_up: pd.DataFrame, df_diff: pd.DataFrame, age_group: str, sexe: str, secondary_choice_:list[str], doordsoorzaak_keuze:str) -> None:
     """
@@ -807,7 +889,7 @@ def prepare_data(df: pd.DataFrame, age_group: str, sexe: str, START_YEAR: int) -
     return df_before_2020,df_2020_and_up
 
 #@st.cache_data()
-def calculate_results(df: pd.DataFrame, age_groups_selected_: list[str], start_years: list[int], sexe: str, verbose: bool, secondary_choice_: list[str], show_confidence_intervals: bool,doordsoorzaak_keuze:str, what_to_plot:list[str]) -> pd.DataFrame:
+def calculate_results(df: pd.DataFrame, age_groups_selected_: list[str], start_years: list[int], sexe: str, verbose: bool, secondary_choice_: list[str], show_confidence_intervals: bool,doordsoorzaak_keuze:str, what_to_plot:list[str], scaled) -> pd.DataFrame:
 #def calculate_results(df: pd.DataFrame, age_groups_selected: list[str], start_years: list[int], sexe: str, verbose: bool, secondary_choice:str) -> pd.DataFrame: 
     """
     Calculate excess mortality using both linear and secondary models for each age group, 
@@ -861,7 +943,7 @@ def calculate_results(df: pd.DataFrame, age_groups_selected_: list[str], start_y
             
             for START_YEAR in start_years:
                 print(f"{counter+1}/{total} | {value_field=} - {age_group=} { START_YEAR=}")
-                excess_mortality_lineair, excess_mortality_secondary_ = main_(df, value_field, age_group, sexe, START_YEAR, verbose, secondary_choice_, show_confidence_intervals,doordsoorzaak_keuze, what_to_plot)
+                excess_mortality_lineair, excess_mortality_secondary_ = main_(df, value_field, age_group, sexe, START_YEAR, verbose, secondary_choice_, show_confidence_intervals,doordsoorzaak_keuze, what_to_plot, scaled)
                 #excess_mortality_lineair, excess_mortality_secondary = main_(df, value_field, age_group, sexe, START_YEAR, verbose, secondary_choice)
                 
                 # Append results for lineair model
@@ -1009,14 +1091,19 @@ def main() -> None:
         age_groups_selected = age_groups_sorted
         secondary_choice_ = [st.sidebar.selectbox("Secondary choice [exponential|quadratic]", ["exponential","quadratic"],1)]
     # Add this line to create the new selectbox
-    show_confidence_intervals = st.sidebar.checkbox("Show confidence intervals", value=False)
     what_to_plot =  st.sidebar.multiselect("What to plot",["OBS_VALUE","per100k","number_of_people","100k_to_population"],what_to_plot_def)
+    show_confidence_intervals = st.sidebar.checkbox("Show confidence intervals", value=False)
+    
+    if ("OBS_VALUE" in what_to_plot) or ("per100k" in what_to_plot):
+        scaled = st.sidebar.checkbox("Show relative values", [False, True],0)    
+    else:
+        scaled = False
     #df_results = calculate_results(df,age_groups_selected, start_years, sexe, verbose, secondary_choice)
     if age_groups_selected[0] == "ALLE LEEFTIJDEN IN EEN LOOP":
         
         for age_groups_selected_x in age_groups_:
             st.subheader(age_groups_selected_x)
-            df_results = calculate_results(df, age_groups_selected_x, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot)
+            df_results = calculate_results(df, age_groups_selected_x, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot, scaled)
    
     else:
         
@@ -1024,7 +1111,7 @@ def main() -> None:
             st.subheader(age_groups_selected_x)
             age_groups_selected_y = [age_groups_selected_x]
             
-            df_results = calculate_results(df, age_groups_selected_y, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot)
+            df_results = calculate_results(df, age_groups_selected_y, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot, scaled)
    
      # Pivot the DataFrame to create a multi-level column structure
     df_pivot = df_results.pivot_table(

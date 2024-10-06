@@ -35,6 +35,25 @@ def get_bevolking(country, opdeling):
         low_memory=False,
     )
    
+    
+    # Sorteren op leeftijd (en eventueel op geslacht en jaar)
+    df_bevolking = data.sort_values(by=['geslacht', 'jaar', 'leeftijd'])
+
+    # Hernoemen van 'aantal' naar 'aantal_original'
+    df_bevolking.rename(columns={'aantal': 'aantal_original'}, inplace=True)
+
+    # Aantal verschuiven om de waarde voor de volgende leeftijd (x+1) te krijgen
+    df_bevolking['aantal_shifted'] = df_bevolking['aantal_original'].shift(-1)
+
+    # Corrected aantal: als leeftijd < 99, gemiddelde van aantal_original en aantal_shifted
+    # Anders blijft aantal gelijk aan aantal_original
+    df_bevolking['aantal'] = df_bevolking.apply(
+        lambda row: row['aantal_original'] if row['leeftijd'] >= 99 else (row['aantal_original'] + row['aantal_shifted']) / 2,
+        axis=1
+    )
+
+    # Verwijderen van kolom 'aantal_shifted' omdat deze niet meer nodig is
+    df_bevolking.drop(columns=['aantal_shifted'], inplace=True)
     data['leeftijd'] = data['leeftijd'].astype(int)
     
     # Define age bins and labels

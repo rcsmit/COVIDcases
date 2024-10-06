@@ -84,6 +84,7 @@ def main():
             ["[54] Herhaalprik","herhaalprik"],
             ["[55] Fit Mortality","fit_mortality"],
             ["[56] Bayes Mortality Vaccination","bayes_vaccination"],
+            ["[57] Sterfte/rioolw./vaccins","correlatie_sterfte_rioolwater_vaccins"],
         
             ]
 

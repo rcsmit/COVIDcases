@@ -25,7 +25,7 @@ def get_rioolwater():
         df['jaar'] = df['Date_measurement'].dt.year
         df['week'] = df['Date_measurement'].dt.isocalendar().week
         
-        df=df[ (df["jaar"] == 2022) & (df["week"] >= 9)& (df["week"] <= 29)]
+        # df=df[ (df["jaar"] == 2022) & (df["week"] >= 9)& (df["week"] <= 29)]
 
         # Group by 'year' and 'week', then sum 'RNA_flow_per_100000'
         df = df.groupby(['jaar', 'week'], as_index=False)['RNA_flow_per_100000'].sum()
