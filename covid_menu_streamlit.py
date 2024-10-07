@@ -82,7 +82,7 @@ def main():
             ["[52] Find baseline length", "find_baseline_length"],
             ["[53] Mortality/week/100k","mortality_weekly_per_age_per_capita"],
             ["[54] Herhaalprik","herhaalprik"],
-            ["[55] Fit Mortality","fit_mortality"],
+            ["[55] Fit Mortality/causes death","fit_mortality"],
             ["[56] Bayes Mortality Vaccination","bayes_vaccination"],
             ["[57] Sterfte/rioolw./vaccins","correlatie_sterfte_rioolwater_vaccins"],
         
