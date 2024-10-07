@@ -43,18 +43,18 @@ def get_rioolwater_oud() -> pd.DataFrame:
         return df
 
 
-def get_hart_vaat():
+def get_maandelijkse_overlijdens(oorzaak):
 
     if platform.processor() != "":
-        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_hart_vaat_ziektes.csv"
+        file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\overlijdens_{oorzaak}.csv"
     else:
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_hart_vaat_ziektes.csv"
+        file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_{oorzaak}.csv"
  
     # Load the CSV file
     df = pd.read_csv(file)
 
     # Melt the dataframe
-    df_melted = df.melt(id_vars=['maand'], var_name='year', value_name='OBS_VALUE_hart_vaat')
+    df_melted = df.melt(id_vars=['maand'], var_name='year', value_name=f'OBS_VALUE_{oorzaak}')
 
     # Map Dutch month names to their numerical equivalent
     month_map = {
@@ -68,7 +68,7 @@ def get_hart_vaat():
     df_melted['YearMonth'] = df_melted['year'] + '-' + df_melted['month']
 
     # Drop extra columns and keep only relevant ones
-    df_melted_clean = df_melted[['YearMonth', 'OBS_VALUE_hart_vaat']]
+    df_melted_clean = df_melted[['YearMonth', f'OBS_VALUE_{oorzaak}']]
     return df_melted_clean
 @st.cache_data()
 def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.DataFrame:
@@ -355,11 +355,22 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
     # st.write("**DATA**")
     # st.write(df_standardized)
     # st.write(f"Length : {len(df_standardized)}")
+    
+    
+    # try:    
+    #     # Voeg een sinus- en cosinusfunctie toe om seizoensinvloeden te modelleren
+    #     df_standardized['sin_time'] = np.sin(2 * np.pi * df_standardized['week']/ 52)
+    #     df_standardized['cos_time'] = np.cos(2 * np.pi * df_standardized['week'] / 52)
+    # except:
+    #     df_standardized['sin_time'] = np.sin(2 * np.pi * df_standardized['maand']/ 12)
+    #     df_standardized['cos_time'] = np.cos(2 * np.pi * df_standardized['maand'] / 12)
+    # with statsmodels
+    
+    #x_values = x_values +  ['sin_time', 'cos_time']
+
     x = df_standardized[x_values]
     y = df_standardized[y_value_]
 
-   
-    # with statsmodels
     if intercept:
         x= sm.add_constant(x) # adding a constant
 
@@ -425,7 +436,29 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
             line=dict(color='blue')
         )
     )
+    # try:
+    #     fig.add_trace(
+    #         go.Scatter(
+    #             x=df[x],
+    #             y=df["sin_time"],
+    #             mode='lines',
+    #             name="sin_time",
+            
+    #         )
+    #     )
 
+    #     fig.add_trace(
+    #         go.Scatter(
+    #             x=df[x],
+    #             y=df["cos_time"],
+    #             mode='lines',
+    #             name="cos_time",
+                
+    #         )
+    #     )
+
+    # except:
+    #     pass
     # Add RNA_flow_per_100000 as the second line on the right y-axis
     fig.add_trace(
         go.Scatter(
@@ -498,8 +531,9 @@ def main():
         df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
 
         if age_sex == "TOTAL_T":
-            st.subheader("TOTAL overlijdens hart en vaatziekten vs rioolwater en vaccinaties")
-            analyse_hart_vaat_overlijdens(age_sex, df_result, "YearMonth")
+            for oorzaak in ["hart_vaat_ziektes","covid",  "ademhalingsorganen","accidentele_val","wegverkeersongevallen", "nieuwvormingen"]:
+                st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
+                analyse_maandelijkse_overlijdens(oorzaak,age_sex, df_result, "YearMonth")
       
         df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str)
         #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].shift(-2)
@@ -525,27 +559,39 @@ def main():
     st.info("https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea")
     st.info("https://www.rivm.nl/corona/actueel/weekcijfers")
 
-def analyse_hart_vaat_overlijdens(age_sex, df_result, time_period):
+def analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, time_period):
     
     df_result_month = from_week_to_month(df_result)
-    df_hartvaat = get_hart_vaat()
-    st.write(df_result_month)
+    df_hartvaat = get_maandelijkse_overlijdens(oorzaak)
+    
     df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth") 
-    perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses","OBS_VALUE_hart_vaat")
+    df_month["maand"] = (df_month["YearMonth"].str[5:]).astype(int)
+ 
+    perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}")
 
-def perform_analyse(age_sex, df_month, time_period,x1,x2,y):
+def perform_analyse(age_sex, df, time_period,x1,x2,y):
+    # Voeg een sinus- en cosinusfunctie toe om seizoensinvloeden te modelleren
+    try:           
+        df['sin_time'] = np.sin(2 * np.pi * df['maand']/ 12)
+        df['cos_time'] = np.cos(2 * np.pi * df['maand'] / 12)
+
+    except:
+       
+        df['sin_time'] = np.sin(2 * np.pi * df['week']/ 52)
+        df['cos_time'] = np.cos(2 * np.pi * df['week'] / 52)
+        
     x_values = [x1,x2]
     y_value_ = y
-    multiple_linear_regression(df_month,x_values,y_value_)
+    multiple_linear_regression(df,x_values,y_value_)
    
     col1,col2=st.columns(2)
     with col1:
-        line_plot_2_axis(df_month, time_period,y_value_, x1,age_sex)
-        make_scatterplot(df_month, y_value_, x1,age_sex)
+        line_plot_2_axis(df, time_period,y_value_, x1,age_sex)
+        make_scatterplot(df, y_value_, x1,age_sex)
   
     with col2:
-        line_plot_2_axis(df_month, time_period,y_value_, x2,age_sex)
-        make_scatterplot(df_month, y_value_, x2,age_sex)
+        line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
+        make_scatterplot(df, y_value_, x2,age_sex)
 
 if __name__ == "__main__":
     import os
