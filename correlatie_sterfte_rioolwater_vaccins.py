@@ -197,8 +197,8 @@ def get_rioolwater():
     return df
 
 # Function to convert date to YearWeekISO
-def date_to_yearweekiso(date_str):
-    date = dt.datetime.strptime(date_str, '%Y-%m-%d')
+def date_to_yearweekiso(date):
+    #date = dt.datetime.strptime(date_str, '%Y-%m-%d')
     # Convert to YearWeekISO format (ISO year and ISO week)
     return date.strftime('%G-W%V')
 
@@ -217,14 +217,37 @@ def get_vaccinaties_owid():
     )
 
     df['age_sex'] ='TOTAL_T'
+
+
+    # Convert 'datum' to datetime if it's not already
+    df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
+
+    # Get the range of dates from the minimum date in the 'datum' column to today
+    start_date = df['datum'].min()
+    end_date = dt.datetime.now()
+
+    # Create a date range
+    date_range = pd.date_range(start=start_date, end=end_date)
+
+    # Create a DataFrame from the date range
+    date_df = pd.DataFrame(date_range, columns=['datum'])
+
+    # Merge the original dataframe with the new date dataframe to fill in missing dates
+    df_filled = pd.merge(date_df, df, on='datum', how='left')
+    df_filled["TotalDoses"] = df_filled["TotalDoses"].fillna(0)
+    df_filled["age_sex"] = df_filled["age_sex"].fillna("TOTAL_T")
+    
+    # If you want to keep any existing data in df, you can use:
+    df_filled = pd.concat([df, df_filled]).drop_duplicates(subset='datum').sort_values('datum').reset_index(drop=True)
+
     # Apply the conversion function to the 'datum' column
-    df['YearWeekISO'] = df['datum'].apply(date_to_yearweekiso)
+    df_filled['YearWeekISO'] = df_filled['datum'].apply(date_to_yearweekiso)
 
-    df["jaar"] = (df["YearWeekISO"].str[:4]).astype(int)
-    df["week"] = (df["YearWeekISO"].str[6:]).astype(int)
-    df = df.groupby(['jaar','week','YearWeekISO']).sum(numeric_only=True).reset_index()
-
-    return df
+    df_filled["jaar"] = (df_filled["YearWeekISO"].str[:4]).astype(int)
+    df_filled["week"] = (df_filled["YearWeekISO"].str[6:]).astype(int)
+    df_filled = df_filled.groupby(['jaar','week','YearWeekISO']).sum(numeric_only=True).reset_index()
+    
+    return df_filled
 
 @st.cache_data()
 def get_vaccinaties():
@@ -249,6 +272,9 @@ def get_vaccinaties():
 
     df["jaar"] = (df["YearWeekISO"].str[:4]).astype(int)
     df["week"] = (df["YearWeekISO"].str[6:]).astype(int)
+
+
+
     return df
 
 def compare_vaccinations(df_vaccinaties):
@@ -332,8 +358,7 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
     x = df_standardized[x_values]
     y = df_standardized[y_value_]
 
-    w = df_standardized["Population"]
-
+   
     # with statsmodels
     if intercept:
         x= sm.add_constant(x) # adding a constant
@@ -453,9 +478,10 @@ def main():
     df = get_sterfte(opdeling)
     rioolwater = get_rioolwater()
     df_vaccinaties =get_vaccinaties()
-
-    # compare_rioolwater(rioolwater)
-    # compare_vaccinations(df_vaccinaties)
+    df_vaccinaties_owid =get_vaccinaties_owid()
+    df_vaccinaties_owid["age_sex"] = "TOTAL_T"
+    compare_rioolwater(rioolwater)
+    compare_vaccinations(df_vaccinaties)
 
     df_to_use_total_t =df[df["age_sex"] == "TOTAL_T"].copy(deep=True)
 
@@ -467,56 +493,28 @@ def main():
         df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
 
         df_result = pd.merge(df_to_use,rioolwater,on=["jaar", "week"], how="inner")
-        df_result = pd.merge(df_result, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
+        df_result = pd.merge(df_result, df_vaccinaties_owid, on=["jaar", "week","age_sex"], how="inner")
 
         df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
 
         if age_sex == "TOTAL_T":
-            st.subheader("TOTAL overlijdens haart en vaatziekten vs rioolwater en vaccinaties")
-            df_result_month = from_week_to_month(df_result)
-            df_hartvaat = get_hart_vaat()
-            df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth")
-           
-            x_values = ["RNA_flow_per_100000","TotalDoses"]
-            y_value_ = "OBS_VALUE_hart_vaat"
-            multiple_linear_regression(df_month,x_values,y_value_)
-            timeperiod = "YearMonth"
-            col1,col2=st.columns(2)
-            with col1:
-                line_plot_2_axis(df_month, timeperiod,y_value_, "RNA_flow_per_100000",age_sex)
-                make_scatterplot(df_month, y_value_, "RNA_flow_per_100000",age_sex)
-  
-            with col2:
-                line_plot_2_axis(df_month, timeperiod,y_value_, "TotalDoses",age_sex)
-                make_scatterplot(df_month, y_value_, "TotalDoses",age_sex)
+            st.subheader("TOTAL overlijdens hart en vaatziekten vs rioolwater en vaccinaties")
+            analyse_hart_vaat_overlijdens(age_sex, df_result, "YearMonth")
       
-           
-            
         df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str)
         #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].shift(-2)
 
         monthly=False
         if monthly==True:
             df_result = from_week_to_month(df_result)
-            timeperiod = "YearMonth"
+            time_period = "YearMonth"
         else:
-            timeperiod = "YearWeekISO"
+            time_period = "YearWeekISO"
 
         #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].rolling(window=5).mean()
         if len(df_result)>0:
             st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
-
-            x_values = ["RNA_flow_per_100000","TotalDoses"]
-            y_value_ = "OBS_VALUE"
-            multiple_linear_regression(df_result,x_values,y_value_)
-            col1,col2=st.columns(2)
-            with col1:
-                line_plot_2_axis(df_result, timeperiod,"OBS_VALUE", "RNA_flow_per_100000",age_sex)
-                make_scatterplot(df_result, "OBS_VALUE", "RNA_flow_per_100000",age_sex)
-  
-            with col2:
-                line_plot_2_axis(df_result, timeperiod,"OBS_VALUE", "TotalDoses",age_sex)
-                make_scatterplot(df_result, "OBS_VALUE", "TotalDoses",age_sex)
+            perform_analyse(age_sex, df_result, time_period,"RNA_flow_per_100000","TotalDoses", "OBS_VALUE")
         else:
             pass
             #st.write("No records")
@@ -526,6 +524,28 @@ def main():
     st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
     st.info("https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea")
     st.info("https://www.rivm.nl/corona/actueel/weekcijfers")
+
+def analyse_hart_vaat_overlijdens(age_sex, df_result, time_period):
+    
+    df_result_month = from_week_to_month(df_result)
+    df_hartvaat = get_hart_vaat()
+    st.write(df_result_month)
+    df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth") 
+    perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses","OBS_VALUE_hart_vaat")
+
+def perform_analyse(age_sex, df_month, time_period,x1,x2,y):
+    x_values = [x1,x2]
+    y_value_ = y
+    multiple_linear_regression(df_month,x_values,y_value_)
+   
+    col1,col2=st.columns(2)
+    with col1:
+        line_plot_2_axis(df_month, time_period,y_value_, x1,age_sex)
+        make_scatterplot(df_month, y_value_, x1,age_sex)
+  
+    with col2:
+        line_plot_2_axis(df_month, time_period,y_value_, x2,age_sex)
+        make_scatterplot(df_month, y_value_, x2,age_sex)
 
 if __name__ == "__main__":
     import os
