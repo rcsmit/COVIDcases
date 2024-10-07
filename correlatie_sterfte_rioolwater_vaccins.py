@@ -1,10 +1,10 @@
 from mortality_yearly_per_capita import get_bevolking
 import streamlit as st
-
+from typing import List, Tuple
 import pandas as pd
 import platform
 
-import datetime as dt 
+import datetime as dt
 import pandas as pd
 import streamlit as st
 import numpy as np
@@ -15,23 +15,23 @@ from scipy.stats import linregress
 import statsmodels.api as sm
 from scipy import stats
 
-
-
 @st.cache_data()
-def get_rioolwater_oud():
-    """Get the data
-    In : -
-    Out : df        : dataframe
-         UPDATETIME : Date and time from the last update"""
+def get_rioolwater_oud() -> pd.DataFrame:
+    """
+    Fetch and process historical wastewater data.
+
+    Returns:
+        pd.DataFrame: Processed wastewater data with year, week, and RNA flow per 100,000 people.
+    """
     with st.spinner("GETTING ALL DATA ..."):
         url1 = "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.csv"
         df = pd.read_csv(url1, delimiter=";", low_memory=False)
         df["Date_measurement"] = pd.to_datetime(df["Date_measurement"], format="%Y-%m-%d")
-        
+
         # Create 'year' and 'week' columns from the 'Date_measurement' column
         df['jaar'] = df['Date_measurement'].dt.year
         df['week'] = df['Date_measurement'].dt.isocalendar().week
-        
+
         # df=df[ (df["jaar"] == 2022) & (df["week"] >= 9)& (df["week"] <= 29)]
 
         # Group by 'year' and 'week', then sum 'RNA_flow_per_100000'
@@ -41,21 +41,52 @@ def get_rioolwater_oud():
         # https://github.com/statsmodels/statsmodels/issues/9258
         df['RNA_flow_per_100000'] = df['RNA_flow_per_100000'] / 10**17
         return df
-    
 
+
+def get_hart_vaat():
+
+    if platform.processor() != "":
+        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_hart_vaat_ziektes.csv"
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_hart_vaat_ziektes.csv"
+ 
+    # Load the CSV file
+    df = pd.read_csv(file)
+
+    # Melt the dataframe
+    df_melted = df.melt(id_vars=['maand'], var_name='year', value_name='OBS_VALUE_hart_vaat')
+
+    # Map Dutch month names to their numerical equivalent
+    month_map = {
+        "Januari": "01", "Februari": "02", "Maart": "03", "April": "04", 
+        "Mei": "05", "Juni": "06", "Juli": "07", "Augustus": "08", 
+        "September": "09", "Oktober": "10", "November": "11", "December": "12"
+    }
+
+    # Apply mapping and create YearMonth column in the format YYYY-MM
+    df_melted['month'] = df_melted['maand'].map(month_map)
+    df_melted['YearMonth'] = df_melted['year'] + '-' + df_melted['month']
+
+    # Drop extra columns and keep only relevant ones
+    df_melted_clean = df_melted[['YearMonth', 'OBS_VALUE_hart_vaat']]
+    return df_melted_clean
 @st.cache_data()
-def get_sterfte(opdeling,country="NL"):
-    """_summary_
+def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.DataFrame:
+    """
+    Fetch and process mortality data for a given country.
+
+    Args:
+        opdeling (List[Tuple[int, int]]): List of age ranges to process.
+        country (str, optional): Country code. Defaults to "NL".
 
     Returns:
-        _type_: _description_
+        pd.DataFrame: Processed mortality data.
     """
     # Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
-          
 
-    if country == "NL": 
+    if country == "NL":
         if platform.processor() != "":
             file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
         else:
@@ -66,20 +97,28 @@ def get_sterfte(opdeling,country="NL"):
         else:
             file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_BE.csv"
     else:
-        st.error(f"Error in country {country}")          
+        st.error(f"Error in country {country}")
     df_ = pd.read_csv(
         file,
         delimiter=",",
             low_memory=False,
-            )  
-   
+            )
+
     df_=df_[df_["geo"] == country]
 
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
 
-    
     # Function to extract age_low and age_high based on patterns
-    def extract_age_ranges(age):
+    def extract_age_ranges(age: str) -> Tuple[int, int]:
+        """
+        Extract age ranges from age string.
+
+        Args:
+            age (str): Age string.
+
+        Returns:
+            Tuple[int, int]: Lower and upper age range.
+        """
         if age == "TOTAL":
             return 999, 999
         elif age == "UNK":
@@ -100,7 +139,19 @@ def get_sterfte(opdeling,country="NL"):
     df_["week"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
 
     df_ = df_[df_["sex"] == "T"]
-    def add_custom_age_group_deaths(df_, min_age, max_age):
+
+    def add_custom_age_group_deaths(df: pd.DataFrame, min_age: int, max_age: int) -> pd.DataFrame:
+        """
+        Add custom age group deaths to the dataframe.
+
+        Args:
+            df (pd.DataFrame): Input dataframe.
+            min_age (int): Minimum age for the group.
+            max_age (int): Maximum age for the group.
+
+        Returns:
+            pd.DataFrame: Dataframe with added custom age group.
+        """
         # Filter the data based on the dynamic age range
         df_filtered = df_[(df_['age_low'] >= min_age) & (df_['age_high'] <= max_age)]
 
@@ -113,29 +164,25 @@ def get_sterfte(opdeling,country="NL"):
         totals["jaar"] = (totals["TIME_PERIOD"].str[:4]).astype(int)
         totals["week"] = (totals["TIME_PERIOD"].str[6:]).astype(int)
         return totals
-    
+
     for i in opdeling:
         custom_age_group = add_custom_age_group_deaths(df_, i[0], i[1])
         df_ = pd.concat([df_, custom_age_group], ignore_index=True)
 
-  
-   
     df_bevolking = get_bevolking("NL", opdeling)
 
-    
     df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["OBS_VALUE"].notna()]
     df__ = df__[df__["jaar"] != 2024]
     df__["per100k"] = round(df__["OBS_VALUE"]/df__["aantal"]*100000,1)
-    
-    return df__
 
+    return df__
 
 #@st.cache_data()
 def get_rioolwater():
     # https://www.rivm.nl/corona/actueel/weekcijfers
-    
+
     if platform.processor() != "":
         file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwater_2024okt.csv"
     else:
@@ -143,14 +190,41 @@ def get_rioolwater():
     df = pd.read_csv(
         file,
         delimiter=";",
-        
+
         low_memory=False,
     )
-  
-    
+
     return df
 
+# Function to convert date to YearWeekISO
+def date_to_yearweekiso(date_str):
+    date = dt.datetime.strptime(date_str, '%Y-%m-%d')
+    # Convert to YearWeekISO format (ISO year and ISO week)
+    return date.strftime('%G-W%V')
 
+@st.cache_data()
+def get_vaccinaties_owid():
+    # https://ourworldindata.org/grapher/daily-covid-19-vaccination-doses?tab=chart&country=~NLD
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\vaccinations_OWOD_NL_daily.csv"
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/vaccinations_OWOD_NL_daily.csv"
+    df = pd.read_csv(
+        file,
+        delimiter=",",
+
+        low_memory=False,
+    )
+
+    df['age_sex'] ='TOTAL_T'
+    # Apply the conversion function to the 'datum' column
+    df['YearWeekISO'] = df['datum'].apply(date_to_yearweekiso)
+
+    df["jaar"] = (df["YearWeekISO"].str[:4]).astype(int)
+    df["week"] = (df["YearWeekISO"].str[6:]).astype(int)
+    df = df.groupby(['jaar','week','YearWeekISO']).sum(numeric_only=True).reset_index()
+
+    return df
 
 @st.cache_data()
 def get_vaccinaties():
@@ -163,29 +237,62 @@ def get_vaccinaties():
     df = pd.read_csv(
         file,
         delimiter=",",
-        
+
         low_memory=False,
     )
-  
-    
+
     df['age_sex'] =df['age_sex']+'_T'
 
     df = df.groupby(['YearWeekISO', 'age_sex']).sum(numeric_only=True).reset_index()
-    df['TotalDoses'] = df[['FirstDose', 'SecondDose', 'DoseAdditional1', 'DoseAdditional2', 
+    df['TotalDoses'] = df[['FirstDose', 'SecondDose', 'DoseAdditional1', 'DoseAdditional2',
                        'DoseAdditional3', 'DoseAdditional4', 'DoseAdditional5', 'UnknownDose']].sum(axis=1)
 
     df["jaar"] = (df["YearWeekISO"].str[:4]).astype(int)
     df["week"] = (df["YearWeekISO"].str[6:]).astype(int)
     return df
 
+def compare_vaccinations(df_vaccinaties):
+    st.subheader("Compare vaccinations EDCD - OWID")
+    df_vaccinaties_owid = get_vaccinaties_owid()
 
+    df_vaccinaties_total = df_vaccinaties[df_vaccinaties['age_sex']=="TOTAL_T"]
 
-def multiple_lineair_regression(df,x_values,y_value_):
-    """Calculates multiple lineair regression. User can choose the Y value and the X values
+    df_v = pd.merge(df_vaccinaties_total, df_vaccinaties_owid, on="YearWeekISO")
+    df_v["week"] = df_v["week_x"]
+    df_v["jaar"] = df_v["jaar_x"]
+
+    line_plot_2_axis(df_v,"YearWeekISO","TotalDoses_x","TotalDoses_y","TOTAL_T")
+
+    df_v_month = from_week_to_month(df_v)
+    line_plot_2_axis(df_v_month,"YearMonth","TotalDoses_x","TotalDoses_y","TOTAL_T")
+
+def compare_rioolwater(rioolwater):
+    st.subheader("compare the rioolwater given by RIVM (x)  and calculated from the file with various meetpunten (y)")
+    rioolwater_oud =  get_rioolwater_oud()
+
+    # compare the rioolwater given by RIVM and calculated from the file with various meetpunten
+
+    rw = pd.merge(rioolwater,rioolwater_oud, on=["jaar", "week"])
+    rw = from_week_to_month(rw)
+    line_plot_2_axis(rw,"YearMonth","RNA_flow_per_100000_x","RNA_flow_per_100000_y","TOTAL")
+
+def from_week_to_month(rw):
+    rw["YearWeekISO"] = rw["jaar"].astype(int).astype(str) + "-W"+ rw["week"].astype(int).astype(str)
+
+    # Apply the conversion function to the YearWeekISO column
+    rw['YearMonth'] = rw['YearWeekISO'].apply(yearweek_to_yearmonth)
+    rw = rw.groupby(['YearMonth'], as_index=False).sum( numeric_only=True)
+    return rw
+
+def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: str):
+    """
+    Perform multiple linear regression and display results.
 
     Args:
-        df_ (df): df with info
-    """    
+        df (pd.DataFrame): Input dataframe.
+        x_values (List[str]): List of independent variable column names.
+        y_value (str): Dependent variable column name.
+    """
     st.subheader("Multiple Lineair Regression")
     standard=  False#  st.sidebar.checkbox("Standardizing dataframe", True)
     intercept=  True# st.sidebar.checkbox("Intercept", False)
@@ -195,28 +302,26 @@ def multiple_lineair_regression(df,x_values,y_value_):
     else:
         df = df.dropna(subset=x_values)
         df = df.dropna(subset=y_value_)
-    
-   
+
     if standard:
         # https://stackoverflow.com/questions/50842397/how-to-get-standardised-beta-coefficients-for-multiple-linear-regression-using
         df = df.select_dtypes(include=[np.number]).dropna().apply(stats.zscore)
         df = df[x_values].dropna().apply(stats.zscore)
         numeric_columns = df.select_dtypes(include=[np.number])
-        
+
         # # Apply Z-score normalization to the selected columns
         df = numeric_columns.apply(stats.zscore)
 
-                
         # Select numeric columns for Z-score normalization
         numeric_columns = df.select_dtypes(include=[np.number])
-    
+
         # Exclude 'country' and 'population' from Z-score normalization
         #columns_to_exclude = ['population']
         #numeric_columns = numeric_columns.drop(columns=columns_to_exclude)
-  
+
         # # Apply Z-score normalization to the selected columns
         z_scored_df = numeric_columns.apply(stats.zscore)
-   
+
         # Add 'country' and 'population' columns back to the Z-scored DataFrame
         df_standardized =   pd.concat([df, z_scored_df], axis=1)
     else:
@@ -226,15 +331,15 @@ def multiple_lineair_regression(df,x_values,y_value_):
     # st.write(f"Length : {len(df_standardized)}")
     x = df_standardized[x_values]
     y = df_standardized[y_value_]
-  
+
     w = df_standardized["Population"]
-    
+
     # with statsmodels
     if intercept:
         x= sm.add_constant(x) # adding a constant
-    
+
     model = sm.OLS(y, x).fit()
-    #predictions = model.predict(x) 
+    #predictions = model.predict(x)
     st.write("**OUTPUT ORDINARY LEAST SQUARES**")
     print_model = model.summary()
     st.write(print_model)
@@ -244,26 +349,22 @@ def multiple_lineair_regression(df,x_values,y_value_):
     # print_wls_model = wls_model.summary()
     # st.write(print_wls_model)
 
-
-def make_scatterplot(df, x, y,age_sex):
-    """Makes a scatterplot
+def make_scatterplot(df: pd.DataFrame, x: str, y: str, age_sex: str):
+    """
+    Create and display a scatterplot.
 
     Args:
-        df_ (df): the dataframe
-        x (str): column used for x axis
-        y (str): column used for y axis
-        show_log_x (bool): _description_
-        show_log_y (bool): _description_
-        trendline_per_continent (bool): Do we want a trendline per continent
-    """    
+        df (pd.DataFrame): Input dataframe.
+        x (str): X-axis column name.
+        y (str): Y-axis column name.
+        age_sex (str): Age and sex group.
+    """
     st.subheader("Scatterplot")
-   
 
     slope, intercept, r_value, p_value, std_err = linregress(df[x], df[y])
     r_squared = r_value ** 2
     # Calculate correlation coefficient
     correlation_coefficient = np.corrcoef(df[x], df[y])[0, 1]
-    
 
     title_ = f"{age_sex} - {x} vs {y} [n = {len(df)}]"
     r_sq_corr = f'R2 = {r_squared:.2f} / Corr coeff = {correlation_coefficient:.2f}'
@@ -272,8 +373,18 @@ def make_scatterplot(df, x, y,age_sex):
 
     # Show the plot
     st.plotly_chart(fig)
-def line_plot_2_axis(df,x,y1,y2,age_sex):
-        
+
+def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
+    """
+    Create and display a line plot with two y-axes.
+
+    Args:
+        df (pd.DataFrame): Input dataframe.
+        x (str): X-axis column name.
+        y1 (str): First y-axis column name.
+        y2 (str): Second y-axis column name.
+        age_sex (str): Age and sex group.
+    """
     import plotly.graph_objects as go
 
     # Create a figure
@@ -282,9 +393,9 @@ def line_plot_2_axis(df,x,y1,y2,age_sex):
     # Add OBS_VALUE as the first line on the left y-axis
     fig.add_trace(
         go.Scatter(
-            x=df[x], 
-            y=df[y1], 
-            mode='lines', 
+            x=df[x],
+            y=df[y1],
+            mode='lines',
             name=y1,
             line=dict(color='blue')
         )
@@ -293,9 +404,9 @@ def line_plot_2_axis(df,x,y1,y2,age_sex):
     # Add RNA_flow_per_100000 as the second line on the right y-axis
     fig.add_trace(
         go.Scatter(
-            x=df[x], 
-            y=df[y2], 
-            mode='lines', 
+            x=df[x],
+            y=df[y2],
+            mode='lines',
             name=y2,
             line=dict(color='red'),
             yaxis='y2'
@@ -318,15 +429,21 @@ def line_plot_2_axis(df,x,y1,y2,age_sex):
     # Show the figure
     st.plotly_chart(fig)
 
+def yearweek_to_yearmonth(yearweek: str) -> str:
+    """
+    Convert YearWeekISO to YearMonth format.
 
-# Function to convert YearWeekISO to YearMonth
-def yearweek_to_yearmonth(yearweek):
+    Args:
+        yearweek (str): Year and week in ISO format (e.g., "2023-W01").
+
+    Returns:
+        str: Year and month in format "YYYY-MM".
+    """
     year, week = yearweek.split('-W')
     # Calculate the Monday of the given ISO week
     date = dt.datetime.strptime(f'{year} {week} 1', '%G %V %u')
     # Extract year and month from the date
     return date.strftime('%Y-%m')
-
 
 def main():
 
@@ -334,71 +451,82 @@ def main():
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
     df = get_sterfte(opdeling)
-    
     rioolwater = get_rioolwater()
+    df_vaccinaties =get_vaccinaties()
+
+    # compare_rioolwater(rioolwater)
+    # compare_vaccinations(df_vaccinaties)
+
+    df_to_use_total_t =df[df["age_sex"] == "TOTAL_T"].copy(deep=True)
+
     
 
-    compare_rioolwater(rioolwater)
-
-    df_vaccinaties =get_vaccinaties() 
     
-    age_sex_list   = df["age_sex"].unique().tolist()  
+    age_sex_list   = df["age_sex"].unique().tolist()
     for age_sex in age_sex_list:
         df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
-        
+
         df_result = pd.merge(df_to_use,rioolwater,on=["jaar", "week"], how="inner")
         df_result = pd.merge(df_result, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
-        
+
         df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
+
+        if age_sex == "TOTAL_T":
+            st.subheader("TOTAL overlijdens haart en vaatziekten vs rioolwater en vaccinaties")
+            df_result_month = from_week_to_month(df_result)
+            df_hartvaat = get_hart_vaat()
+            df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth")
+           
+            x_values = ["RNA_flow_per_100000","TotalDoses"]
+            y_value_ = "OBS_VALUE_hart_vaat"
+            multiple_linear_regression(df_month,x_values,y_value_)
+            timeperiod = "YearMonth"
+            col1,col2=st.columns(2)
+            with col1:
+                line_plot_2_axis(df_month, timeperiod,y_value_, "RNA_flow_per_100000",age_sex)
+                make_scatterplot(df_month, y_value_, "RNA_flow_per_100000",age_sex)
+  
+            with col2:
+                line_plot_2_axis(df_month, timeperiod,y_value_, "TotalDoses",age_sex)
+                make_scatterplot(df_month, y_value_, "TotalDoses",age_sex)
+      
+           
+            
         df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str)
-        monthly=True
+        #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].shift(-2)
+
+        monthly=False
         if monthly==True:
             df_result = from_week_to_month(df_result)
             timeperiod = "YearMonth"
         else:
             timeperiod = "YearWeekISO"
-        
+
         #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].rolling(window=5).mean()
         if len(df_result)>0:
-            st.subheader(age_sex)
-           
-            x_values = ["RNA_flow_per_100000","TotalDoses"]  
+            st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
+
+            x_values = ["RNA_flow_per_100000","TotalDoses"]
             y_value_ = "OBS_VALUE"
-            multiple_lineair_regression(df_result,x_values,y_value_)
+            multiple_linear_regression(df_result,x_values,y_value_)
             col1,col2=st.columns(2)
             with col1:
                 line_plot_2_axis(df_result, timeperiod,"OBS_VALUE", "RNA_flow_per_100000",age_sex)
                 make_scatterplot(df_result, "OBS_VALUE", "RNA_flow_per_100000",age_sex)
-                
+  
             with col2:
                 line_plot_2_axis(df_result, timeperiod,"OBS_VALUE", "TotalDoses",age_sex)
                 make_scatterplot(df_result, "OBS_VALUE", "TotalDoses",age_sex)
         else:
             pass
             #st.write("No records")
+    
+
     st.subheader("Data sources")
-    st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")   
+    st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
     st.info("https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea")
     st.info("https://www.rivm.nl/corona/actueel/weekcijfers")
 
-def compare_rioolwater(rioolwater):
-    rioolwater_oud =  get_rioolwater_oud()
-
-    # compare the rioolwater given by RIVM and calculated from the file with various meetpunten
-
-    rw = pd.merge(rioolwater,rioolwater_oud, on=["jaar", "week"])
-    rw = from_week_to_month(rw)
-
-    st.write(rw)
-    line_plot_2_axis(rw,"YearMonth","RNA_flow_per_100000_x","RNA_flow_per_100000_y",None)
-
-def from_week_to_month(rw):
-    rw["YearWeekISO"] = rw["jaar"].astype(int).astype(str) + "-W"+ rw["week"].astype(int).astype(str)
-    
-    # Apply the conversion function to the YearWeekISO column
-    rw['YearMonth'] = rw['YearWeekISO'].apply(yearweek_to_yearmonth)
-    rw = rw.groupby(['YearMonth'], as_index=False).sum( numeric_only=True)
-    return rw
 if __name__ == "__main__":
     import os
     import datetime
