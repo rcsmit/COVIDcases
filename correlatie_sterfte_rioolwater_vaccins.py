@@ -296,6 +296,7 @@ def compare_rioolwater(rioolwater):
     st.subheader("compare the rioolwater given by RIVM (x)  and calculated from the file with various meetpunten (y)")
     rioolwater_oud =  get_rioolwater_oud()
 
+
     # compare the rioolwater given by RIVM and calculated from the file with various meetpunten
 
     rw = pd.merge(rioolwater,rioolwater_oud, on=["jaar", "week"])
