@@ -1003,7 +1003,7 @@ def main() -> None:
             relative numbers, we transform these results back into absolute figures 
             (total deaths) for easier interpretation and comparison with actual data.
             
-            Inspired by https://twitter.com/rcsmit/status/1838204715424755786 """)
+            Inspired by https://twitter.com/HansV_16/status/1838178383835848708 """)
     st.info("https://rene-smit.com/low-excess-mortality-observed-using-quadratic-fitting-in-mortality-trend-analysis/")
     # choice = st.sidebar.selectbox("Overlijdens of doodsoorzaken",["overlijdens", "doodsoorzaken"],0)
     #opdeling = [[0,49], [50,64], [65,79], [80,89], [90,120],[80,120], [0,120]]
