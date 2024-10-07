@@ -10,8 +10,28 @@ from plotly.subplots import make_subplots
 # https://chatgpt.com/c/66f0a0c4-5ac4-8004-b47f-e121ccd1eaea
 
 
-@st.cache_data()
+
+#@st.cache_data()
 def get_rioolwater():
+    # https://www.rivm.nl/corona/actueel/weekcijfers
+    
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwater_2024okt.csv"
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2024okt.csv"
+    df = pd.read_csv(
+        file,
+        delimiter=";",
+        
+        low_memory=False,
+    )
+  
+    
+    return df
+
+
+@st.cache_data()
+def get_rioolwater_oud():
     """Get the data
     In : -
     Out : df        : dataframe

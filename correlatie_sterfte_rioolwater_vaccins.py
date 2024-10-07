@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 import platform
 
+import datetime as dt 
 import pandas as pd
 import streamlit as st
 import numpy as np
@@ -13,6 +14,35 @@ import plotly.express as px
 from scipy.stats import linregress
 import statsmodels.api as sm
 from scipy import stats
+
+
+
+@st.cache_data()
+def get_rioolwater_oud():
+    """Get the data
+    In : -
+    Out : df        : dataframe
+         UPDATETIME : Date and time from the last update"""
+    with st.spinner("GETTING ALL DATA ..."):
+        url1 = "https://data.rivm.nl/covid-19/COVID-19_rioolwaterdata.csv"
+        df = pd.read_csv(url1, delimiter=";", low_memory=False)
+        df["Date_measurement"] = pd.to_datetime(df["Date_measurement"], format="%Y-%m-%d")
+        
+        # Create 'year' and 'week' columns from the 'Date_measurement' column
+        df['jaar'] = df['Date_measurement'].dt.year
+        df['week'] = df['Date_measurement'].dt.isocalendar().week
+        
+        # df=df[ (df["jaar"] == 2022) & (df["week"] >= 9)& (df["week"] <= 29)]
+
+        # Group by 'year' and 'week', then sum 'RNA_flow_per_100000'
+        df = df.groupby(['jaar', 'week'], as_index=False)['RNA_flow_per_100000'].sum()
+
+        # OLS goes wrong with high numbers
+        # https://github.com/statsmodels/statsmodels/issues/9258
+        df['RNA_flow_per_100000'] = df['RNA_flow_per_100000'] / 10**17
+        return df
+    
+
 @st.cache_data()
 def get_sterfte(opdeling,country="NL"):
     """_summary_
@@ -288,25 +318,47 @@ def line_plot_2_axis(df,x,y1,y2,age_sex):
     # Show the figure
     st.plotly_chart(fig)
 
+
+# Function to convert YearWeekISO to YearMonth
+def yearweek_to_yearmonth(yearweek):
+    year, week = yearweek.split('-W')
+    # Calculate the Monday of the given ISO week
+    date = dt.datetime.strptime(f'{year} {week} 1', '%G %V %u')
+    # Extract year and month from the date
+    return date.strftime('%Y-%m')
+
+
 def main():
 
     st.subheader("Relatie sterfte/rioolwater/vaccins")
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
     df = get_sterfte(opdeling)
+    
     rioolwater = get_rioolwater()
     
+
+    compare_rioolwater(rioolwater)
+
     df_vaccinaties =get_vaccinaties() 
     
     age_sex_list   = df["age_sex"].unique().tolist()  
     for age_sex in age_sex_list:
         df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
         
-        
         df_result = pd.merge(df_to_use,rioolwater,on=["jaar", "week"], how="inner")
         df_result = pd.merge(df_result, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
+        
         df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
-        df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "_"+ df_result["week"].astype(int).astype(str)
+        df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str)
+        monthly=True
+        if monthly==True:
+            df_result = from_week_to_month(df_result)
+            timeperiod = "YearMonth"
+        else:
+            timeperiod = "YearWeekISO"
+        
+        #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].rolling(window=5).mean()
         if len(df_result)>0:
             st.subheader(age_sex)
            
@@ -315,11 +367,11 @@ def main():
             multiple_lineair_regression(df_result,x_values,y_value_)
             col1,col2=st.columns(2)
             with col1:
-                line_plot_2_axis(df_result, "YearWeekISO","OBS_VALUE", "RNA_flow_per_100000",age_sex)
+                line_plot_2_axis(df_result, timeperiod,"OBS_VALUE", "RNA_flow_per_100000",age_sex)
                 make_scatterplot(df_result, "OBS_VALUE", "RNA_flow_per_100000",age_sex)
                 
             with col2:
-                line_plot_2_axis(df_result, "YearWeekISO","OBS_VALUE", "TotalDoses",age_sex)
+                line_plot_2_axis(df_result, timeperiod,"OBS_VALUE", "TotalDoses",age_sex)
                 make_scatterplot(df_result, "OBS_VALUE", "TotalDoses",age_sex)
         else:
             pass
@@ -328,6 +380,25 @@ def main():
     st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")   
     st.info("https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea")
     st.info("https://www.rivm.nl/corona/actueel/weekcijfers")
+
+def compare_rioolwater(rioolwater):
+    rioolwater_oud =  get_rioolwater_oud()
+
+    # compare the rioolwater given by RIVM and calculated from the file with various meetpunten
+
+    rw = pd.merge(rioolwater,rioolwater_oud, on=["jaar", "week"])
+    rw = from_week_to_month(rw)
+
+    st.write(rw)
+    line_plot_2_axis(rw,"YearMonth","RNA_flow_per_100000_x","RNA_flow_per_100000_y",None)
+
+def from_week_to_month(rw):
+    rw["YearWeekISO"] = rw["jaar"].astype(int).astype(str) + "-W"+ rw["week"].astype(int).astype(str)
+    
+    # Apply the conversion function to the YearWeekISO column
+    rw['YearMonth'] = rw['YearWeekISO'].apply(yearweek_to_yearmonth)
+    rw = rw.groupby(['YearMonth'], as_index=False).sum( numeric_only=True)
+    return rw
 if __name__ == "__main__":
     import os
     import datetime
