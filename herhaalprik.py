@@ -201,7 +201,7 @@ def plot_age_sex_line(df, what, age_sex_group):
     )
 
     # Set x-axis title
-    fig.update_xaxes(title_text="Week")
+    fig.update_xaxes(title_text="Week (2022)")
 
     # Set y-axis titles
     fig.update_yaxes(title_text=what, secondary_y=False)
@@ -283,7 +283,7 @@ def main():
             
             plot_age_sex_line(df_data, what, age_sex_group)
 
-    st.info("De waarde voor rioolwater is gedeeld door 10^17 om de correlatie en R2 te kunnen berekenen")
+    st.info("De waarde voor rioolwater = gemiddelde virusvracht x 100 mliljard per 100.000 inwoners : https://www.rivm.nl/corona/actueel/weekcijfers")
 if __name__ == "__main__":
     import datetime
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
