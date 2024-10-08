@@ -419,7 +419,8 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
     # residuals = [float(r.split()[1]) for r in data["Residuals"].split('\n') if r]
 
     # Stap 4: Omzetten naar een DataFrame
-    y_value_x =  f"{data["Y value"]}_{age_sex}"
+    xx=data["Y value"]
+    y_value_x =  f"{xx}_{age_sex}"
     df = pd.DataFrame({
         "Y value":y_value_x,
         # "Coefficients": pd.Series(coefficients),
