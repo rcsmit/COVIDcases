@@ -602,7 +602,6 @@ def main():
                     results.append(df_iteration)
         df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str)
         
-
         monthly=False
         if monthly==True:
             df_result = from_week_to_month(df_result, "sum")
