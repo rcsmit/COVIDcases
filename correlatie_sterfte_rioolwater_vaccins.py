@@ -438,6 +438,7 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
 
     return df
 
+
 def make_scatterplot(df: pd.DataFrame, x: str, y: str, age_sex: str):
     """
     Create and display a scatterplot.
