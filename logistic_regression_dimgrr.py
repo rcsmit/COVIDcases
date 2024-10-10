@@ -91,12 +91,17 @@ def chatgpt_statsmodels():
    
     # Predicting the probabilities of death (Overleden = 1) for the dummy individuals
     predicted_probabilities = result.predict(dummy_df)
-    print (predicted_probabilities)
-    # Showing the predicted probabilities for the 5 dummy individuals
-    for i, prob in enumerate(predicted_probabilities, start=1):
-        print(f"Individual {i} - Probability of Death: {prob:.4f}")
 
+    # Showing the predicted probabilities for the 5 dummy individuals
+
+    p=[]
+    for i, prob in enumerate(predicted_probabilities, start=1):
+        p.append(round(prob))
+        #print(f"Individual {i} - Probability of Death: {prob:.4f}")
+    print (p)
 def claude_ai():
+
+    # https://claude.ai/chat/83047b13-f069-4530-8c56-cbf65bd991e2
     import numpy as np
 
     # Data
