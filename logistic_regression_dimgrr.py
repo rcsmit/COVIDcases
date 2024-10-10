@@ -88,7 +88,7 @@ def chatgpt_statsmodels():
     dummy_df['Diastolic (mmHg)'] = pd.to_numeric(dummy_df['Diastolic (mmHg)'])
     # Adding a constant (intercept) to the dummy data
     dummy_df = sm.add_constant(dummy_df)
-    print (dummy_df)
+   
     # Predicting the probabilities of death (Overleden = 1) for the dummy individuals
     predicted_probabilities = result.predict(dummy_df)
     print (predicted_probabilities)
@@ -96,54 +96,7 @@ def chatgpt_statsmodels():
     for i, prob in enumerate(predicted_probabilities, start=1):
         print(f"Individual {i} - Probability of Death: {prob:.4f}")
 
-def claudeai():
-    print ("CLAUDE AI")
-    #https://claude.ai/chat/83047b13-f069-4530-8c56-cbf65bd991e2
-    import numpy as np
-
-    # Data
-    Xm2 = np.array([
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [65, 72, 50, 45, 80, 60, 55, 68, 49, 75],
-        [175, 168, 180, 160, 170, 165, 178, 172, 169, 160],
-        [80, 72, 90, 60, 75, 85, 70, 78, 65, 68],
-        [120, 130, 140, 110, 150, 135, 125, 140, 120, 145],
-        [80, 85, 90, 70, 95, 88, 80, 85, 75, 90]
-    ])
-
-    Y = np.array([0, 1, 0, 0, 1, 0, 0, 1, 0, 1])
-    theta = np.array([1, 1, 1, 1, 1, 1])
-
-    def sigmoid(x):
-        return 1 / (1 + np.exp(-x))
-
-    def pretzel(x):
-        mean = np.mean(x, axis=1, keepdims=True)
-        range = np.max(x, axis=1, keepdims=True) - np.min(x, axis=1, keepdims=True)
-        
-        # Add a small epsilon to avoid division by zero
-        epsilon = 1e-8
-        range = np.maximum(range, epsilon)
-        
-        return (x - mean) / range
-
-    # Normalize Xm2
-    xmN = pretzel(Xm2)
-
-    # Training loop
-    for _ in range(100000):
-        z = np.dot(theta, xmN)
-        h = sigmoid(z)
-        gradient = np.dot(xmN, (h - Y)) / Xm2.shape[1]
-        theta = theta - 0.003 * gradient.flatten()
-
-    print("Final theta:", theta)
-
-    # Predictions
-    predictions = sigmoid(np.dot(theta, xmN)) > 0.5
-    print("Predictions:", predictions.astype(int))
-    print("Actual Y:   ", Y)
-def c2():
+def claude_ai():
     import numpy as np
 
     # Data
@@ -171,15 +124,15 @@ def c2():
     # Normalize Xm2
     xmN = pretzel(Xm2.T).T
 
-    def training_step(theta, xmN, Y):
+    def training_step(theta, Xm2, xmN, Y):
         h = sigmoid(np.dot(theta, xmN))
-        gradient = np.dot(xmN, (h - Y)) / Xm2.shape[1]
+        gradient = np.dot(Xm2, (h - Y)) / Xm2.shape[1]
         theta = theta - 0.003 * gradient
         return theta
 
     # Training loop
     for _ in range(100000):
-        theta = training_step(theta, xmN, Y)
+        theta = training_step(theta, Xm2, xmN, Y)
 
     print("Final theta:", " ".join(f"{t:.8f}" for t in theta))
 
@@ -191,10 +144,8 @@ if __name__ == "__main__":
     print("Go-----------------")
    
 
-    # chatgpt_statsmodels()
+    chatgpt_statsmodels()
 
     print ("Expected output 0.8808215577 87.35167466 ¯10.09665304 ¯28.85232926 60.99310998 10.85689242")
-    claudeai()
-    c2()
-
+    claude_ai()
   
