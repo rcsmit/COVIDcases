@@ -1,6 +1,10 @@
 import pandas as pd
 import statsmodels.api as sm
 
+# reproducing https://twitter.com/dimgrr/status/1844338823184146803
+
+# another example : https://www.kaggle.com/code/anshigupta01/diabetes-prediction-eda-models
+
 # Creating the initial data
 data = {
     'Persoon': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -43,12 +47,20 @@ import numpy as np
 # Assuming the logistic regression model from the previous step has been fitted and is stored in 'result'
 
 # Creating 5 dummy individuals with specified values for the independent variables
-dummy_data = {
+dummy_data_ = {
     'Leeftijd (jaar)': [65, 50, 70, 40, 55],
     'Lengte (cm)': [180, 165, 175, 160, 170],
     'Gewicht (kg)': [80, 68, 85, 60, 75],
     'Systolic (mmHg)': [120, 140, 130, 110, 135],
     'Diastolic (mmHg)': [80, 90, 85, 70, 88]
+}
+
+dummy_data = {
+    'Leeftijd (jaar)': [85, 90, 90, 80, 85],
+    'Lengte (cm)': [180, 165, 175, 160, 170],
+    'Gewicht (kg)': [80, 98, 105, 80, 95],
+    'Systolic (mmHg)': [120, 180, 160, 110, 135],
+    'Diastolic (mmHg)': [80, 120, 85, 120, 128]
 }
 
 # Creating a dataframe for the dummy individuals
