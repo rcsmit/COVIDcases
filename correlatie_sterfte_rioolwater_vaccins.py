@@ -296,7 +296,7 @@ def compare_vaccinations(df_vaccinaties):
     st.subheader("Compare vaccinations EDCD - OWID")
     df_vaccinaties_owid = get_vaccinaties_owid()
 
-    df_vaccinaties_total = df_vaccinaties[df_vaccinaties['age_sex']=="TOTAL_T"]
+    df_vaccinaties_total = df_vaccinaties[df_vaccinaties['age_sex']=="TOTAL_T"].copy(deep=True)
 
     df_v = pd.merge(df_vaccinaties_total, df_vaccinaties_owid, on="YearWeekISO")
     df_v["week"] = df_v["week_x"]
@@ -306,6 +306,24 @@ def compare_vaccinations(df_vaccinaties):
 
     df_v_month = from_week_to_month(df_v,"sum")
     line_plot_2_axis(df_v_month,"YearMonth","TotalDoses_x","TotalDoses_y","TOTAL_T")
+
+    df_vaccinaties_ = df_vaccinaties[df_vaccinaties["age_sex"] == "TOTAL_T"].copy(deep=True)
+    #df_grouped = df_vaccinaties.groupby(['YearWeekISO', 'age_sex']).sum(numeric_only=True).reset_index()
+    df_grouped = df_vaccinaties_.groupby(['YearWeekISO'])[['FirstDose', 'SecondDose', 'DoseAdditional1', 'DoseAdditional2',
+                       'DoseAdditional3', 'DoseAdditional4', 'DoseAdditional5', 'UnknownDose']].sum(numeric_only=True).reset_index()
+
+    import plotly.express as px
+
+    # Melt the dataframe to get columns as separate entries for plotting
+    df_melted = df_grouped.melt(id_vars=['YearWeekISO'], var_name='column', value_name='value')
+
+
+    # Create a line plot
+    fig = px.line(df_melted, x='YearWeekISO', y='value', color='column', 
+                labels={'value': 'Value', 'YearWeekISO': 'Week'}, 
+                title='Vaccination Data Over Time')
+
+    st.plotly_chart(fig)
 
 def compare_rioolwater(rioolwater):
     st.subheader("compare the rioolwater given by RIVM (x)  and calculated from the file with various meetpunten (y)")
@@ -475,9 +493,9 @@ def make_scatterplot(df: pd.DataFrame, x: str, y: str, age_sex: str):
     title_ = f"{age_sex} - {x} vs {y} [n = {len(df)}]"
     r_sq_corr = f'R2 = {r_squared:.2f} / Corr coeff = {correlation_coefficient:.2f}'
     try:
-        fig = px.scatter(df, x=x, y=y,  hover_data=['jaar','week'],   title=f'{title_} || {r_sq_corr}')
+        fig = px.scatter(df, x=x, y=y,  hover_data=['jaar','week'],   title=f'{title_} ||<br> {r_sq_corr}')
     except:
-        fig = px.scatter(df, x=x, y=y,    title=f'{title_} || {r_sq_corr}')
+        fig = px.scatter(df, x=x, y=y,    title=f'{title_} ||<br> {r_sq_corr}')
     fig.add_trace(px.line(x=df[x], y=slope * df[x] + intercept, line_shape='linear').data[0])
 
     # Show the plot
@@ -619,12 +637,13 @@ def main():
     st.subheader("Relatie sterfte/rioolwater/vaccins")
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
+    (jaar_min, jaar_max) = st.slider("years", 2020,2024,(2021, 2023))
     df = get_sterfte(opdeling)
     rioolwater = get_rioolwater()
     df_vaccinaties =get_vaccinaties()
     df_vaccinaties_owid =get_vaccinaties_owid()
     #df_oversterfte = get_oversterfte()
-    df_vaccinaties_owid["age_sex"] = "TOTAL_T"
+    #df_vaccinaties_owid["age_sex"] = "TOTAL_T"
     with st.expander("Rioolwater"):
         compare_rioolwater(rioolwater)
     with st.expander("Vaccinations"):
@@ -633,17 +652,23 @@ def main():
     results = []
     #y_value = st.selectbox("x_value", ["OBS_VALUE", "oversterfte", "p_socre"],0 )
     y_value = "OBS_VALUE"
+   
+    
+    #df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
+
+    df_result_ = pd.merge(df,rioolwater,on=["jaar", "week"], how="inner")
+    
+    df_result__ = pd.merge(df_result_, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
+    
+    #df_result = pd.merge(df_result, df_oversterfte, on=["jaar", "week","age_sex"], how="inner")
+
+    df_result_ = df_result__[(df_result__["jaar"]>=jaar_min) & (df_result__["jaar"]<=jaar_max) ]
+    
     age_sex_list   = df["age_sex"].unique().tolist()
     
     for age_sex in age_sex_list:
-        df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
-
-        df_result = pd.merge(df_to_use,rioolwater,on=["jaar", "week"], how="inner")
         
-        df_result = pd.merge(df_result, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
-        
-        #df_result = pd.merge(df_result, df_oversterfte, on=["jaar", "week","age_sex"], how="inner")
-        df_result = df_result[df_result["age_sex"] == age_sex]
+        df_result = df_result_[df_result_["age_sex"] == age_sex].copy(deep=True)
         df_result["TotalDoses"].fillna(0)
         
         #df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
@@ -679,7 +704,7 @@ def main():
                 results.append(df_iteration)
         else:
             pass
-            #st.write("No records")
+            print (f"No records {age_sex}")
     
     # Als de loop klaar is, concateneer alle DataFrames in één DataFrame
     df_complete = pd.concat(results, ignore_index=True)

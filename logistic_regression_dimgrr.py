@@ -4,6 +4,21 @@ import statsmodels.api as sm
 # reproducing https://twitter.com/dimgrr/status/1844338823184146803
 
 # another example : https://www.kaggle.com/code/anshigupta01/diabetes-prediction-eda-models
+
+import numpy as np
+
+# Data
+Xm2 = np.array([
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [65, 72, 50, 45, 80, 60, 55, 68, 49, 75],
+    [175, 168, 180, 160, 170, 165, 178, 172, 169, 160],
+    [80, 72, 90, 60, 75, 85, 70, 78, 65, 68],
+    [120, 130, 140, 110, 150, 135, 125, 140, 120, 145],
+    [80, 85, 90, 70, 95, 88, 80, 85, 75, 90]
+])
+
+
+
 def chatgpt_statsmodels():
     print ("USE OF STATSMODELS")
     # https://chatgpt.com/c/67082efc-8a44-8004-b070-c47794980ae5
@@ -99,20 +114,15 @@ def chatgpt_statsmodels():
         p.append(round(prob))
         #print(f"Individual {i} - Probability of Death: {prob:.4f}")
     print (p)
+
+    return result.params
+
+  
+
 def claude_ai():
 
     # https://claude.ai/chat/83047b13-f069-4530-8c56-cbf65bd991e2
-    import numpy as np
-
-    # Data
-    Xm2 = np.array([
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [65, 72, 50, 45, 80, 60, 55, 68, 49, 75],
-        [175, 168, 180, 160, 170, 165, 178, 172, 169, 160],
-        [80, 72, 90, 60, 75, 85, 70, 78, 65, 68],
-        [120, 130, 140, 110, 150, 135, 125, 140, 120, 145],
-        [80, 85, 90, 70, 95, 88, 80, 85, 75, 90]
-    ])
+    
 
     Y = np.array([0, 1, 0, 0, 1, 0, 0, 1, 0, 1])
     theta = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
@@ -145,12 +155,29 @@ def claude_ai():
     predictions = sigmoid(np.dot(theta, xmN)) > 0.5
     print("Predictions:", predictions.astype(int))
     print("Actual Y:   ", Y)
+    return theta
 if __name__ == "__main__":
     print("Go-----------------")
    
 
-    chatgpt_statsmodels()
-
+  
+    coeffs = chatgpt_statsmodels()
     print ("Expected output 0.8808215577 87.35167466 ¯10.09665304 ¯28.85232926 60.99310998 10.85689242")
-    claude_ai()
+    theta = claude_ai()
+
+
+   
+
+    # To make our theta more comparable, we might need to adjust for feature scaling
+    # This is an approximation, assuming 'pretzel' function normalizes features
+    feature_means = np.mean(Xm2, axis=1)
+    feature_ranges = np.max(Xm2, axis=1) - np.min(Xm2, axis=1)
+    
+    adjusted_theta = theta / feature_ranges
+    adjusted_theta[0] = theta[0] - np.sum(theta * feature_means / feature_ranges)
+
+    print("Adjusted theta (approximate comparison to statsmodels):")
+    print(adjusted_theta)
+    print ("Expectations")
+    print (coeffs)
   
