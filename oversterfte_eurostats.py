@@ -39,20 +39,19 @@ def get_sterfte(country):
     # Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
-    do_local = False
+    do_local = True
     if do_local:
         st.warning("STATIC DATA dd 23/06/2024")
         if platform.processor() != "":
-            file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
+            file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
         
         else:
-            file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
+            file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_NL.csv"
                   
         #file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
         df_ = pd.read_csv(
             file,
             delimiter=",",
-            low_memory=False,
             )  
      
     else:
@@ -62,15 +61,15 @@ def get_sterfte(country):
         except:
             st.warning("STATIC DATA dd 23/06/2024")
             if platform.processor() != "":
-                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_new.csv"
+                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
             
             else:
-                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_new.csv"
+                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_NL.csv"
                 
             df_ = pd.read_csv(
                 file,
                 delimiter=",",
-                low_memory=False,
+                low_memory=True,
                 )
 
     
@@ -79,14 +78,17 @@ def get_sterfte(country):
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
-    
+  
     df_bevolking = get_bevolking()
     
-    df__= df_.merge(df_bevolking, on="age_sex", how="outer")
+    df__= df_.merge(df_bevolking, on=["age_sex","jaar"], how="inner")
     df__["per100k"] = df__["OBS_VALUE"] / df__["aantal"]
     
     df__.columns = df__.columns.str.replace('jaar_x', 'jaar', regex=False)
     #df__.to_csv(r"C:\Users\rcxsm\Documents\endresult.csv")
+
+    df__ =  df__.drop(columns=['DATAFLOW', 'LAST UPDATE', 'freq'])
+    df__ = df__[df__["jaar"]>=2014]
     return df__
 
 def get_boosters():
@@ -144,16 +146,16 @@ def get_bevolking():
     data['leeftijd'] = data['leeftijd'].astype(int)
     #st.write(data)
 
-
+    data = data[data["jaar"]>=2014]
+   
 
     # Define age bins and labels
     bins = list(range(0, 95, 5)) + [1000]  # [0, 5, 10, ..., 90, 1000]
-    labels = [f'Y{i}-{i+4}' for i in range(0, 90, 5)] + ['90-999']
-
-
+    labels = [f'Y{i}-{i+4}' for i in range(0, 90, 5)] + ['Y90-120']
+   
     # Create a new column for age bins
     data['age_group'] = pd.cut(data['leeftijd'], bins=bins, labels=labels, right=False)
-
+   
 
     # Group by year, gender, and age_group and sum the counts
     grouped_data = data.groupby(['jaar', 'geslacht', 'age_group'])['aantal'].sum().reset_index()
@@ -164,13 +166,12 @@ def get_bevolking():
     # print("Grouping complete and saved to grouped_population_by_age_2010_2024.csv")
     grouped_data["age_sex"] = grouped_data['age_group'].astype(str) +"_"+grouped_data['geslacht'].astype(str)
     
-    
     for s in ["M", "F", "T"]:
-        grouped_data.replace(f'0-4_{s}', f'Y_LT5_{s}', inplace=True)
-        grouped_data.replace(f'90-999_{s}',f'Y_GE90_{s}', inplace=True)
-    #st.write(grouped_data)
-    # grouped_data.to_csv(r"C:\Users\rcxsm\Documents\per5jaar.csv")
+        grouped_data.replace(f'Y0-4_{s}', f'Y_LT5_{s}', inplace=True)
+        grouped_data.replace(f'Y90-120_{s}',f'Y_GE90_{s}', inplace=True)
     
+    # grouped_data.to_csv(r"C:\Users\rcxsm\Documents\per5jaar.csv")
+   
     return grouped_data
 def get_rioolwater_simpel():
     # if platform.processor() != "":
@@ -266,7 +267,7 @@ def get_data_for_series(df_, seriename, vanaf_jaar):
 
     else:
        # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
-        df = df_[["jaar","weeknr","TOTAL_T", seriename]].copy(deep=True)
+        df = df_[["jaar","weeknr", seriename]].copy(deep=True)
    
     df = df[ (df["jaar"] >= vanaf_jaar)] 
    
@@ -527,10 +528,12 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
 
     series_names_ = df_.columns.tolist()
     series_names_ = series_names_[3:]
-    series_names = st.sidebar.multiselect("Which ages to show", series_names_, ["TOTAL_T"])
- 
+    series_names_T = [name for name in series_names_ if name.endswith('_T')]
+    
+    series_names = st.sidebar.multiselect("Which ages to show", series_names_, series_names_T) #["TOTAL_T"])
+    
     series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
-   
+    df_totaal = pd.DataFrame()
     for col, series_name in enumerate(series_to_show):
         
         
@@ -543,14 +546,21 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
             df_corona = df_corona[df_corona["weeknr"] != "2015_53"]
             
             df_quantile = df_quantile.sort_values(by=['jaar','week_'])
-
+           
+            df_quantile["serie_name"] = series_name
+            
+            df_corona["OBS_VALUE"] = df_corona[series_name] 
+            df_export = pd.merge(df_quantile, df_corona, on="weeknr", how="inner")
+            df_export = df_export[["serie_name","weeknr", "OBS_VALUE", "avg"]]
+            
             # # Number of rows to drop
             # n = 52-18
             
 
             # # Dropping last n rows using drop
             # df_quantile.drop(df_quantile.tail(n),inplace = True)
-            st.write(df_quantile)
+            
+            df_totaal = pd.concat([df_totaal, df_export])
             fig = go.Figure()
             low05 = go.Scatter(
                 name='low',
@@ -701,7 +711,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
         else:
             st.error("ERROR in [how]")
             st.stop()
-
+    st.write(df_totaal)
 def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
    
     st.subheader(series_name)
@@ -724,6 +734,7 @@ def get_data(country):
     #value_to_do = "OBS_VALUE"
     #value_to_do = "per100k"
     df__["jaar_week"] = df__["jaar"].astype(int).astype(str)  +"_" + df__["weeknr"].astype(int).astype(str).str.zfill(2)
+    
    
     try:
         df_ = df__.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values=value_to_do).reset_index()
@@ -733,16 +744,25 @@ def get_data(country):
 
         # Pivot the aggregated dataframe
         df_ = df_aggregated.pivot(index=["jaar_week", "jaar", "weeknr"], columns='age_sex', values=value_to_do).reset_index()
-
-    #df_ = df__.pivot(index="jaar_week", columns='age_sex', values='OBS_VALUE').reset_index()
     
-    df_["m_v_0_49"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
+    #df_ = df__.pivot(index="jaar_week", columns='age_sex', values='OBS_VALUE').reset_index()
+    #opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
+    
 
-    df_["m_v_50_64"] = df_["Y50-54_T"]+ df_["Y55-59_T"] + df_["Y60-64_T"]
-    df_["m_v_65_79"] =+ df_["Y65-69_T"]+ df_["Y70-74_T"] + df_["Y75-79_T"]
-    df_["m_v_80_89"] = df_["Y80-84_T"] + df_["Y85-89_T"]
-    df_["m_v_90_999"] = df_["Y_GE90_T"]
-    df_["m_v_0_999"] = df_["m_v_0_49"] + df_["m_v_50_64"] + df_["m_v_65_79"] + df_["m_v_80_89"] + df_["m_v_90_999"]
+    df_["Y0-49_T"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
+
+    df_["Y50-64_T"] = df_["Y50-54_T"]+ df_["Y55-59_T"] + df_["Y60-64_T"]
+    df_["Y65-79_T"] =+ df_["Y65-69_T"]+ df_["Y70-74_T"] + df_["Y75-79_T"]
+    df_["Y25-49_T"] = df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
+
+
+    df_["Y50-59_T"] = df_["Y50-54_T"] + df_["Y55-59_T"]
+    df_["Y60-69_T"] = df_["Y60-64_T"] + df_["Y65-69_T"]
+    df_["Y70-79_T"] = df_["Y70-74_T"] + df_["Y75-79_T"]
+    df_["Y80-89_T"] = df_["Y80-84_T"] + df_["Y85-89_T"]
+    df_["Y80-120_T"] = df_["Y80-84_T"] + df_["Y85-89_T"] + df_["Y_GE90_T"]
+    df_["Y90-120_T"] = df_["Y_GE90_T"]
+    df_["Y0-120_T"] = df_["Y0-49_T"] + df_["Y50-64_T"] + df_["Y65-79_T"] + df_["Y80-89_T"] + df_["Y90-120_T"]
     
     return df_boosters,df_herhaalprik,df_
 
@@ -1012,3 +1032,5 @@ if __name__ == "__main__":
     
     print (f"-----------------------------------{datetime.datetime.now()}-----------------------------------------------------")
     main()
+    # df = get_sterfte("NL")
+    # st.write(df)

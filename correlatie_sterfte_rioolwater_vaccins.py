@@ -15,7 +15,7 @@ from scipy.stats import linregress
 import statsmodels.api as sm
 from scipy import stats
 
-@st.cache_data()
+#@st.cache_data()
 def get_rioolwater_oud() -> pd.DataFrame:
     """
     Fetch and process historical wastewater data.
@@ -42,21 +42,93 @@ def get_rioolwater_oud() -> pd.DataFrame:
         df['RNA_flow_per_100000'] = df['RNA_flow_per_100000'] / 10**17
         return df
 
-def get_oversterfte():
+def get_oversterfte(opdeling):
     if platform.processor() != "":
-        file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\sterfte_basevalue.csv"
+        file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte.csv"
     else:
-        file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_basevalue.csv"
- 
+        file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/basevalues_sterfte.csv"
     # Load the CSV file
-    df = pd.read_csv(file)
-    df["jaar"] = (df["weeknr"].str[:4]).astype(int)
-    df["week"] = (df["weeknr"].str[5:]).astype(int)
-    df["YearWeekISO"] = df["jaar"].astype(int).astype(str) + "-W"+ df["week"].astype(int).astype(str)
-    df["oversterfte"] = df["OBS_VALUE_"] - df["basevalue"]
-    df["p_score"] = ( df["OBS_VALUE_"]- df["basevalue"]) /   df["basevalue"]
+    df_ = pd.read_csv(file)
+    df_["jaar"] = (df_["jaar_week"].str[:4]).astype(int)
+    df_["week"] = (df_["jaar_week"].str[5:]).astype(int)
+    df_["YearWeekISO"] = df_["jaar"].astype(int).astype(str) + "-W"+ df_["week"].astype(int).astype(str)
+    df_["TIME_PERIOD"] = df_["jaar"].astype(int).astype(str) + "-W"+ df_["week"].astype(int).astype(str)
+
+    # Function to extract age_low and age_high based on patterns
+    def extract_age_ranges(age: str) -> Tuple[int, int]:
+        """
+        Extract age ranges from age string.
+
+        Args:
+            age (str): Age string.
+
+        Returns:
+            Tuple[int, int]: Lower and upper age range.
+        """
+        if age == "TOTAL":
+            return 999, 999
+        elif age == "UNK":
+            return 9999, 9999
+        elif age == "Y_LT5":
+            return 0, 4
+        elif age == "Y_GE90":
+            return 90, 120
+        else:
+            # Extract the numeric part from the pattern 'Y10-14'
+            parts = age[1:].split('-')
+            return int(parts[0]), int(parts[1])
+
+    # Apply the function to create the new columns
+    #df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
+
+    df_["jaar"] = df_["jaar"].astype(int)
+    df_["week"] = df_["week"].astype(int)
+
+    #df_ = df_[df_["sex"] == "T"]
+
+    def add_custom_age_group_deaths(df: pd.DataFrame, min_age: int, max_age: int) -> pd.DataFrame:
+        """
+        Add custom age group deaths to the dataframe.
+
+        Args:
+            df (pd.DataFrame): Input dataframe.
+            min_age (int): Minimum age for the group.
+            max_age (int): Maximum age for the group.
+
+        Returns:
+            pd.DataFrame: Dataframe with added custom age group.
+        """
+        # Filter the data based on the dynamic age range
+        df_filtered = df_[(df_['age_low'] >= min_age) & (df_['age_high'] <= max_age)]
+
+        # Group by TIME_PERIOD (week), sex, and sum the deaths (OBS_VALUE)
+        totals = df_filtered.groupby(['TIME_PERIOD', 'sex'], observed=False)['avg'].sum().reset_index()
+
+        # Assign a new label for the age group (dynamic)
+        totals['age'] = f'Y{min_age}-{max_age}'
+        totals["age_sex"] = totals["age"] + "_" +totals["sex"]
+        totals["jaar"] = (totals["TIME_PERIOD"].str[:4]).astype(int)
+        totals["week"] = (totals["TIME_PERIOD"].str[6:]).astype(int)
+        return totals
+
+
+    # for i in opdeling:
+    #     custom_age_group = add_custom_age_group_deaths(df_, i[0], i[1])
+    #     df_ = pd.concat([df_, custom_age_group], ignore_index=True)
+
+    df_bevolking = get_bevolking("NL", opdeling)
+
+    df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
+    df__ = df__[df__["aantal"].notna()]
+    df__ = df__[df__["base_value"].notna()]
+    df__ = df__[df__["jaar"] != 2024]
+    df__["per100k"] = round(df__["OBS_VALUE_"]/df__["aantal"]*100000,1)
+
+
+    df__["oversterfte"] = df__["OBS_VALUE_"] - df__["base_value"]
+    df__["p_score"] = ( df__["OBS_VALUE_"]- df__["base_value"]) /   df__["base_value"]
    
-    return df
+    return df__
 
 def get_maandelijkse_overlijdens(oorzaak):
 
@@ -85,7 +157,7 @@ def get_maandelijkse_overlijdens(oorzaak):
     # Drop extra columns and keep only relevant ones
     df_melted_clean = df_melted[['YearMonth', f'OBS_VALUE_{oorzaak}']]
     return df_melted_clean
-@st.cache_data()
+#@st.cache_data()
 def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.DataFrame:
     """
     Fetch and process mortality data for a given country.
@@ -217,7 +289,7 @@ def date_to_yearweekiso(date):
     # Convert to YearWeekISO format (ISO year and ISO week)
     return date.strftime('%G-W%V')
 
-@st.cache_data()
+#@st.cache_data()
 def get_vaccinaties_owid():
     # https://ourworldindata.org/grapher/daily-covid-19-vaccination-doses?tab=chart&country=~NLD
     if platform.processor() != "":
@@ -510,7 +582,7 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
         x (str): X-axis column name.
         y1 (str): First y-axis column name.
         y2 (str): Second y-axis column name.
-        age_sex (str): Age and sex group.
+        age_sex (str): Age and sex group. (for the title)
     """
     import plotly.graph_objects as go
 
@@ -633,7 +705,6 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y):
     return data
 
 def main():
-
     st.subheader("Relatie sterfte/rioolwater/vaccins")
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
@@ -642,38 +713,82 @@ def main():
     rioolwater = get_rioolwater()
     df_vaccinaties =get_vaccinaties()
     df_vaccinaties_owid =get_vaccinaties_owid()
-    #df_oversterfte = get_oversterfte()
+    df_oversterfte = get_oversterfte(opdeling)
     #df_vaccinaties_owid["age_sex"] = "TOTAL_T"
+    
+    results = []
+    y_value = st.selectbox("Y value (bij leeftijdscategorieen)", ["OBS_VALUE", "oversterfte", "p_score"],0 )
+    #y_value = "OBS_VALUE"
+   
+    
+    #df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
+    # st.write(df)
+    # st.write(df_vaccinaties)
+    # st.write("df_oversterfte")
+    # df_oversterfte = df_oversterfte[df_oversterfte["age_sex"] =="Y0-120_T"]
+    
+    df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
+  
+    
+    # df_oversterfte["jaar"] = df_oversterfte["jaar"].astype(int)
+    # df_oversterfte["week"] = df_oversterfte["week"].astype(int)
+    # df_oversterfte["jaar"] = df_oversterfte["jaar"].astype(int)
+    # df_oversterfte["week"] = df_oversterfte["week"].astype(int)
+    
+    df_result1 = pd.merge(df,rioolwater,on=["jaar", "week"], how="inner")
+    
+    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
+    # st.write("df_result2 hast totalt")
+    
+    # st.write(df_result2)
+    # df_result2["jaar"] = df_result2["jaar"].astype(int)
+    # df_result2["week"] = df_result2["week"].astype(int)
+    # df_oversterfte["jaar"] = df_oversterfte["jaar"].astype(int)
+    # df_oversterfte["week"] = df_oversterfte["week"].astype(int)
+    df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="inner")
+    #df_result4= df_result4[df_result4["age_sex"] == "TOTAL_T"]
+    
+    # st.write("df_result3")
+    #st.write(df_result3)
+    df_result4 = df_result3[(df_result3["jaar"]>=jaar_min) & (df_result3["jaar"]<=jaar_max) ]
+
+    choice_5 = "TOTAL_T"
+    df_result5= df_result4[df_result4["age_sex"] == choice_5]
+    
+    # st.write("df_result4 no totalt")
+    #st.write(df_result4)
+    # st.write(df_result4.dtypes)
     with st.expander("Rioolwater"):
         compare_rioolwater(rioolwater)
     with st.expander("Vaccinations"):
         compare_vaccinations(df_vaccinaties)
+    with st.expander("OBS VALUE - oversterfte - Pvalue"):
+        col1,col2,col3= st.columns(3)
+        with col1:
+            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "oversterfte",choice_5)
+            make_scatterplot(df_result5, "OBS_VALUE", "oversterfte",choice_5)
+        with col2:
+            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "p_score",choice_5)
+            make_scatterplot(df_result5, "OBS_VALUE", "p_score","")
 
-    results = []
-    #y_value = st.selectbox("x_value", ["OBS_VALUE", "oversterfte", "p_socre"],0 )
-    y_value = "OBS_VALUE"
-   
-    
-    #df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
+        with col3:
+            line_plot_2_axis(df_result5, "YearWeekISO_x" ,"base_value", "OBS_VALUE",choice_5)
+            
+            make_scatterplot(df_result5,  "base_value", "OBS_VALUE",choice_5)
+        
 
-    df_result_ = pd.merge(df,rioolwater,on=["jaar", "week"], how="inner")
-    
-    df_result__ = pd.merge(df_result_, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
-    
-    #df_result = pd.merge(df_result, df_oversterfte, on=["jaar", "week","age_sex"], how="inner")
-
-    df_result_ = df_result__[(df_result__["jaar"]>=jaar_min) & (df_result__["jaar"]<=jaar_max) ]
-    
     age_sex_list   = df["age_sex"].unique().tolist()
     
     for age_sex in age_sex_list:
         
-        df_result = df_result_[df_result_["age_sex"] == age_sex].copy(deep=True)
+        df_result = df_result4[df_result4["age_sex"] == age_sex].copy(deep=True)
         df_result["TotalDoses"].fillna(0)
         
         #df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
         #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].shift(2)
         if age_sex == "TOTAL_T":
+        #if age_sex == "Y0_120_T":
+            
             for oorzaak in ["hart_vaat_ziektes","covid",  "ademhalingsorganen","accidentele_val","wegverkeersongevallen", "nieuwvormingen"]:
                 with st.expander(oorzaak):
                     if len(df_result)>0:
@@ -683,7 +798,7 @@ def main():
                         
                         # Voeg deze DataFrame toe aan de lijst van resultaten
                         results.append(df_iteration)
-        df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str)
+        df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str).str.zfill(2)
         
         monthly=False
         if monthly==True:
@@ -718,11 +833,10 @@ def main():
     st.info("https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea")
     st.info("https://www.rivm.nl/corona/actueel/weekcijfers")
 
-
 if __name__ == "__main__":
     import os
     import datetime
     os.system('cls')
-    print(f"--------------{datetime.datetime.now()}-------------------------")
+    print(f"-------xx-------{datetime.datetime.now()}-------------------------")
     main()
     #expand()
