@@ -787,7 +787,7 @@ def main():
         #df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
         #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].shift(2)
         if age_sex == "TOTAL_T":
-        #if age_sex == "Y0_120_T":
+        
             
             for oorzaak in ["hart_vaat_ziektes","covid",  "ademhalingsorganen","accidentele_val","wegverkeersongevallen", "nieuwvormingen"]:
                 with st.expander(oorzaak):
