@@ -223,10 +223,10 @@ def main():
     how  = st.sidebar.selectbox("Plotly (interactive with info on hoover) or pyplot (static - easier to copy/paste)", ["plotly", "pyplot"], index=0)
    
     df_totaal = read_data(inwonersgrens)
-    
+    df_totaal["Coverage_primary_completed"] = df_totaal["Coverage_primary_completed"].replace("<=5", 0).astype(int)
 
     x = "Coverage_primary_completed" # was "Vaccination_coverage_completed"
-    
+
     y1 = "oversterfte_proc2020"
     y2 = "oversterfte_proc2021"
     
