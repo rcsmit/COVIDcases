@@ -61,8 +61,9 @@ def get_sterfte(country):
         #if 1==1:
             df_ = get_data_eurostat()
         #if 1==2:   
-        except:
-            st.warning("ERROR LOADING DATA FROM EUROSTAT. STATIC DATA dd 23/06/2024")
+        except Exception as e:
+            st.warning(f"ERROR LOADING DATA FROM EUROSTAT.{e}")
+            st.info("STATIC DATA dd 23/06/2024")
             if platform.processor() != "":
                 file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
             
