@@ -15,6 +15,10 @@ from scipy.stats import linregress
 import statsmodels.api as sm
 from scipy import stats
 
+# for VIF
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
+
 #@st.cache_data()
 def get_rioolwater_oud() -> pd.DataFrame:
     """
@@ -422,7 +426,7 @@ def from_week_to_month(rw, how):
         rw = rw.groupby(['YearMonth'], as_index=False).mean( numeric_only=True)
     return rw
 
-def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: str, age_sex: str):
+def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: str, age_sex: str, normalize:bool):
     """
     Perform multiple linear regression and display results.
 
@@ -441,57 +445,58 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         df = df.dropna(subset=x_values)
         df = df.dropna(subset=y_value_)
 
-    if standard:
-        # https://stackoverflow.com/questions/50842397/how-to-get-standardised-beta-coefficients-for-multiple-linear-regression-using
-        df = df.select_dtypes(include=[np.number]).dropna().apply(stats.zscore)
-        df = df[x_values].dropna().apply(stats.zscore)
-        numeric_columns = df.select_dtypes(include=[np.number])
+    x = df[x_values]
+    y = df[y_value_]
 
-        # # Apply Z-score normalization to the selected columns
-        df = numeric_columns.apply(stats.zscore)
+    if normalize:
 
-        # Select numeric columns for Z-score normalization
-        numeric_columns = df.select_dtypes(include=[np.number])
+        # Normalize each feature in x to the range [0, 1]
+        x_normalized = (x - x.min()) / (x.max() - x.min())
 
-        # Exclude 'country' and 'population' from Z-score normalization
-        #columns_to_exclude = ['population']
-        #numeric_columns = numeric_columns.drop(columns=columns_to_exclude)
-
-        # # Apply Z-score normalization to the selected columns
-        z_scored_df = numeric_columns.apply(stats.zscore)
-
-        # Add 'country' and 'population' columns back to the Z-scored DataFrame
-        df_standardized =   pd.concat([df, z_scored_df], axis=1)
+        # If intercept is required, add a constant term
+        if intercept:
+            x_normalized = sm.add_constant(x_normalized)  # adding a constant
+    
+        # Fit the OLS model using the normalized data
+        model = sm.OLS(y, x_normalized).fit()
     else:
-        df_standardized = df
-    # st.write("**DATA**")
-    # st.write(df_standardized)
-    # st.write(f"Length : {len(df_standardized)}")
-    
-    
-    # try:    
-    #     # Voeg een sinus- en cosinusfunctie toe om seizoensinvloeden te modelleren
-    #     df_standardized['sin_time'] = np.sin(2 * np.pi * df_standardized['week']/ 52)
-    #     df_standardized['cos_time'] = np.cos(2 * np.pi * df_standardized['week'] / 52)
-    # except:
-    #     df_standardized['sin_time'] = np.sin(2 * np.pi * df_standardized['maand']/ 12)
-    #     df_standardized['cos_time'] = np.cos(2 * np.pi * df_standardized['maand'] / 12)
-    # with statsmodels
-    
-    #x_values = x_values +  ['sin_time', 'cos_time']
+        if intercept:
+            x= sm.add_constant(x) # adding a constant
 
-    x = df_standardized[x_values]
-    y = df_standardized[y_value_]
-
-    if intercept:
-        x= sm.add_constant(x) # adding a constant
-
-    model = sm.OLS(y, x).fit()
+        model = sm.OLS(y, x).fit()
     #predictions = model.predict(x)
     st.write("**OUTPUT ORDINARY LEAST SQUARES**")
-    print_model = model.summary()
-    st.write(print_model)
+    col1,col2=st.columns(2)
+    with col1:
+        st.write("**Model**")
+        print_model = model.summary()
+        st.write(print_model)
+    with col2:
+        robust_model = model.get_robustcov_results(cov_type='HC0')  # You can use 'HC0', 'HC1', 'HC2', or 'HC3'
+        st.write("**robust model**")
+        st.write(robust_model.summary())
+    col1,col2,col3=st.columns([2,1,1])
    
+    with col1:
+        st.write("**Correlation matrix**")
+        correlation_matrix = x.corr()
+        st.write(correlation_matrix)
+    with col2:
+        # Calculate VIF for each variable
+
+        # VIF = 1: No correlation between the variable and others.
+        # 1 < VIF < 5: Moderate correlation, likely acceptable.
+        # VIF > 5: High correlation, indicating possible multicollinearity.
+        # VIF > 10: Strong multicollinearity, action is needed.
+        st.write("**VIF**")
+        vif = pd.DataFrame()
+        vif["Variable"] = x.columns
+        vif["VIF"] = [variance_inflation_factor(x.values, i) for i in range(x.shape[1])]
+        st.write(vif)
+    with col3:
+        U, s, Vt = np.linalg.svd(x)
+        st.write("**spread of singular values**")
+        st.write(s)  # Look at the spread of singular values
     data = {
         'Y value':y_value_,
         # 'Coefficients': model.params,
@@ -507,38 +512,20 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         'F-statistic P-value': [model.f_pvalue], # * len(model.params)
     }
         
-    #st.write(data)
-    # Stap 3: Coefficiënten, P-waarden, en T-waarden omzetten naar dictionaries
-    # We gebruiken .split('\n') om elke variabele en waarde uit te splitsen en daarna de strings om te zetten naar floats.
-
-    # # Coefficiënten
-    # coefficients = dict([item.strip().split() for item in data["Coefficients"].split('\n') if item])
-
-    # # P-waarden
-    # p_values = dict([item.strip().split() for item in data["P-values"].split('\n') if item])
-
-    # # T-waarden
-    # t_values = dict([item.strip().split() for item in data["T-values"].split('\n') if item])
-
-    # # Residuen
-    # residuals = [float(r.split()[1]) for r in data["Residuals"].split('\n') if r]
 
     # Stap 4: Omzetten naar een DataFrame
     xx=data["Y value"]
     y_value_x =  f"{xx}_{age_sex}"
     df = pd.DataFrame({
         "Y value":y_value_x,
-        # "Coefficients": pd.Series(coefficients),
-        # "P-values": pd.Series(p_values),
-        # "T-values": pd.Series(t_values),
-        # "Residuals": residuals,
-        'P_const': data['P_const'],
+       
+        #'P_const': data['P_const'],
         'P_RNA':data['P_RNA'],
         'P_vacc':data['P_vacc'],
 
-        "R-squared": data["R-squared"],
+        #"R-squared": data["R-squared"],
         "Adjusted R-squared": data["Adjusted R-squared"],
-        "F-statistic": data["F-statistic"],
+        #"F-statistic": data["F-statistic"],
         "F-statistic P-value": data["F-statistic P-value"]
     })
 
@@ -599,30 +586,7 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
             line=dict(color='blue')
         )
     )
-    # try:
-    #     fig.add_trace(
-    #         go.Scatter(
-    #             x=df[x],
-    #             y=df["sin_time"],
-    #             mode='lines',
-    #             name="sin_time",
-            
-    #         )
-    #     )
 
-    #     fig.add_trace(
-    #         go.Scatter(
-    #             x=df[x],
-    #             y=df["cos_time"],
-    #             mode='lines',
-    #             name="cos_time",
-                
-    #         )
-    #     )
-
-    # except:
-    #     pass
-    # Add RNA_flow_per_100000 as the second line on the right y-axis
     fig.add_trace(
         go.Scatter(
             x=df[x],
@@ -668,28 +632,63 @@ def yearweek_to_yearmonth(yearweek: str) -> str:
     return date.strftime('%Y-%m')
 
 
-def analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, time_period):
-    
+def analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, time_period, seizoen, maand, normalize):
+    """_summary_
+
+    Args:
+        oorzaak (_type_): _description_
+        age_sex (_type_): _description_
+        df_result (_type_): _description_
+        time_period (_type_): _description_
+        seizoen (bool): _description_
+        maand (bool): _description_
+
+    Returns:
+        _type_: _description_
+    """    
     df_result_month = from_week_to_month(df_result,"sum")
     df_hartvaat = get_maandelijkse_overlijdens(oorzaak)
     
     df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth") 
     df_month["maand"] = (df_month["YearMonth"].str[5:]).astype(int)
     
-    data = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}")
+    data = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}", seizoen, maand, normalize)
     return data
-def perform_analyse(age_sex, df, time_period,x1,x2,y):
+def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize):
+    """_summary_
+
+    Args:
+        age_sex (_type_): _description_
+        df (_type_): _description_
+        time_period (_type_): _description_
+        x1 (_type_): _description_
+        x2 (_type_): _description_
+        y (_type_): _description_
+        seizoen (_type_): _description_
+        maand (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
     # Voeg een sinus- en cosinusfunctie toe om seizoensinvloeden te modelleren
     try:           
         df['sin_time'] = np.sin(2 * np.pi * df['maand']/ 12)
         df['cos_time'] = np.cos(2 * np.pi * df['maand'] / 12)
-
+        m= True
     except:
        
         df['sin_time'] = np.sin(2 * np.pi * df['week']/ 52)
         df['cos_time'] = np.cos(2 * np.pi * df['week'] / 52)
+        m=False
         
-    x_values = [x1,x2] # + ['sin_time', 'cos_time']
+    x_values = [x1,x2] # + 
+    if seizoen:
+        x_values += ['sin_time', 'cos_time']
+    if maand:
+        if m:
+            x_values += ['maand']
+        else:
+            x_values += ['week']
     y_value_ = y
     
    
@@ -701,7 +700,7 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y):
     with col2:
         line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
         make_scatterplot(df, y_value_, x2,age_sex)
-    data = multiple_linear_regression(df,x_values,y_value_, age_sex)
+    data = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
     return data
 
 def main():
@@ -717,47 +716,30 @@ def main():
     #df_vaccinaties_owid["age_sex"] = "TOTAL_T"
     
     results = []
-    y_value = st.selectbox("Y value (bij leeftijdscategorieen)", ["OBS_VALUE", "oversterfte", "p_score"],0 )
-    #y_value = "OBS_VALUE"
-   
-    
-    #df_to_use =df[df["age_sex"] == age_sex].copy(deep=True)
-    # st.write(df)
-    # st.write(df_vaccinaties)
-    # st.write("df_oversterfte")
-    # df_oversterfte = df_oversterfte[df_oversterfte["age_sex"] =="Y0-120_T"]
+    col1,col2,col3,col4=st.columns(4)
+    with col1:
+        y_value = st.selectbox("Y value (bij leeftijdscategorieen)", ["OBS_VALUE", "oversterfte", "p_score"],0 )
+    with col2:
+        normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
+
+    with col3:
+        seizoen = st.checkbox("Seizoensinvloeden meenemen")
+
+    with col4:
+        maand = st.checkbox("Maand-/week invloeden meenemene")
+
     
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
   
     
-    # df_oversterfte["jaar"] = df_oversterfte["jaar"].astype(int)
-    # df_oversterfte["week"] = df_oversterfte["week"].astype(int)
-    # df_oversterfte["jaar"] = df_oversterfte["jaar"].astype(int)
-    # df_oversterfte["week"] = df_oversterfte["week"].astype(int)
-    
-    df_result1 = pd.merge(df,rioolwater,on=["jaar", "week"], how="inner")
-    
+    df_result1 = pd.merge(df,rioolwater,on=["jaar", "week"], how="inner")   
     df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
-    # st.write("df_result2 hast totalt")
-    
-    # st.write(df_result2)
-    # df_result2["jaar"] = df_result2["jaar"].astype(int)
-    # df_result2["week"] = df_result2["week"].astype(int)
-    # df_oversterfte["jaar"] = df_oversterfte["jaar"].astype(int)
-    # df_oversterfte["week"] = df_oversterfte["week"].astype(int)
     df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="inner")
-    #df_result4= df_result4[df_result4["age_sex"] == "TOTAL_T"]
-    
-    # st.write("df_result3")
-    #st.write(df_result3)
     df_result4 = df_result3[(df_result3["jaar"]>=jaar_min) & (df_result3["jaar"]<=jaar_max) ]
 
     choice_5 = "TOTAL_T"
     df_result5= df_result4[df_result4["age_sex"] == choice_5]
-    
-    # st.write("df_result4 no totalt")
-    #st.write(df_result4)
-    # st.write(df_result4.dtypes)
+
     with st.expander("Rioolwater"):
         compare_rioolwater(rioolwater)
     with st.expander("Vaccinations"):
@@ -772,8 +754,7 @@ def main():
             make_scatterplot(df_result5, "OBS_VALUE", "p_score","")
 
         with col3:
-            line_plot_2_axis(df_result5, "YearWeekISO_x" ,"base_value", "OBS_VALUE",choice_5)
-            
+            line_plot_2_axis(df_result5, "YearWeekISO_x" ,"base_value", "OBS_VALUE",choice_5) 
             make_scatterplot(df_result5,  "base_value", "OBS_VALUE",choice_5)
         
 
@@ -793,7 +774,7 @@ def main():
                 with st.expander(oorzaak):
                     if len(df_result)>0:
                         st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
-                        df_iteration = analyse_maandelijkse_overlijdens(oorzaak,age_sex, df_result, "YearMonth")
+                        df_iteration = analyse_maandelijkse_overlijdens(oorzaak,age_sex, df_result, "YearMonth", seizoen, maand, normalize)
                         # Zet de resultaten van deze iteratie in een DataFrame
                         
                         # Voeg deze DataFrame toe aan de lijst van resultaten
@@ -811,7 +792,7 @@ def main():
         if len(df_result)>0:
             with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
                 st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
-                df_iteration = perform_analyse(age_sex, df_result, time_period,"RNA_flow_per_100000","TotalDoses", y_value)
+                df_iteration = perform_analyse(age_sex, df_result, time_period,"RNA_flow_per_100000","TotalDoses", y_value, seizoen, maand, normalize)
                 # Zet de resultaten van deze iteratie in een DataFrame
                 
                 
@@ -823,6 +804,7 @@ def main():
     
     # Als de loop klaar is, concateneer alle DataFrames in één DataFrame
     df_complete = pd.concat(results, ignore_index=True)
+
 
     # Bekijk de complete DataFrame
     st.write(df_complete)

@@ -20,6 +20,8 @@
 
 # TO DO: https://towardsdatascience.com/using-eurostat-statistical-data-on-europe-with-python-2d77c9b7b02b
 
+# BIJ NIEUW JAREN ZOEKEN OP 2025 en dit  aanpassen. Voeg ook het jaar toe in bevolking_NL.csv
+
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
@@ -39,7 +41,7 @@ def get_sterfte(country):
     # Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
-    do_local = True
+    do_local = False
     if do_local:
         st.warning("STATIC DATA dd 23/06/2024")
         if platform.processor() != "":
@@ -56,10 +58,11 @@ def get_sterfte(country):
      
     else:
         try:
+        #if 1==1:
             df_ = get_data_eurostat()
-            
+        #if 1==2:   
         except:
-            st.warning("STATIC DATA dd 23/06/2024")
+            st.warning("ERROR LOADING DATA FROM EUROSTAT. STATIC DATA dd 23/06/2024")
             if platform.processor() != "":
                 file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
             
@@ -78,11 +81,10 @@ def get_sterfte(country):
     df_["age_sex"] = df_["age"] + "_" +df_["sex"]
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
-  
+
     df_bevolking = get_bevolking()
-    
     df__= df_.merge(df_bevolking, on=["age_sex","jaar"], how="inner")
-    df__["per100k"] = df__["OBS_VALUE"] / df__["aantal"]
+    df__["per100k"] = df__["OBS_VALUE"] / df__["aantal"]*100000
     
     df__.columns = df__.columns.str.replace('jaar_x', 'jaar', regex=False)
     #df__.to_csv(r"C:\Users\rcxsm\Documents\endresult.csv")
@@ -260,7 +262,7 @@ def plot_herhaalprik(df_herhaalprik, series_name):
         st.plotly_chart(fig, use_container_width=True)
 
 def get_data_for_series(df_, seriename, vanaf_jaar):
-  
+   
     if seriename == "TOTAL_T":
        # df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
         df = df_[["jaar","weeknr", seriename]].copy(deep=True)
@@ -528,18 +530,22 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
 
     series_names_ = df_.columns.tolist()
     series_names_ = series_names_[3:]
+    #st.write(series_names_)
     series_names_T = [name for name in series_names_ if name.endswith('_T')]
     
-    series_names = st.sidebar.multiselect("Which ages to show", series_names_, series_names_T) #["TOTAL_T"])
+    #series_names = st.sidebar.multiselect("Which ages to show", series_names_, series_names_T) #["TOTAL_T"])
+    series_names = st.sidebar.multiselect("Which ages to show", series_names_, ["Y0-120_T","Y0-49_T","Y50-64_T","Y65-79_T","Y80-120_T"])
     
     series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
     df_totaal = pd.DataFrame()
+  
     for col, series_name in enumerate(series_to_show):
         
         
         if how =="quantiles":
             df_data, df_corona, df_quantile = make_df_data_corona_quantile(vanaf_jaar, df_, series_name)
-           
+            
+       
             columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
             for what_to_sma in columnlist:
                 df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=6, center=sma_center).mean()
@@ -685,7 +691,7 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
                 df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
 
                 #df = df.sort_values(by=['weeknr'])
-                if year == 2020 or year ==2021   or year ==2022 or year ==2023 or year ==2024:
+                if year >= 2020:# or year ==2021   or year ==2022 or year ==2023 or year ==2024:
                     width = 3
                     opacity = 1
                 else:
@@ -711,12 +717,13 @@ def plot( how, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, 
         else:
             st.error("ERROR in [how]")
             st.stop()
-    st.write(df_totaal)
-def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
    
+def make_df_data_corona_quantile(vanaf_jaar, df_, series_name):
+    
     st.subheader(series_name)
     df_data = get_data_for_series(df_, series_name, vanaf_jaar).copy(deep=True)
-    df_corona, df_quantile = make_df_qantile(series_name, df_data)
+    
+    df_corona, df_quantile = make_df_quantile(series_name, df_data)
     return df_data,df_corona,df_quantile
             
 #@st.cache_data
@@ -766,7 +773,7 @@ def get_data(country):
     
     return df_boosters,df_herhaalprik,df_
 
-def make_df_qantile(series_name, df_data):
+def make_df_quantile(series_name, df_data):
     """_summary_
 
     Args:
@@ -776,7 +783,7 @@ def make_df_qantile(series_name, df_data):
     Returns:
         _type_: _description_
     """    
-   
+
     df_corona = df_data[df_data["jaar"].between(2015, 2025)]
     df_corona["weeknr"] = df_corona["jaar"].astype(int).astype(str) +"_" + df_corona["weeknr"].astype(int).astype(str).str.zfill(2)
   
@@ -798,6 +805,7 @@ def make_df_qantile(series_name, df_data):
     )
 
     #df = pd.merge(df_corona, df_quantile, on="weeknr")
+   
     return df_corona, df_quantile
 
 def make_row_df_quantile(series_name, year, df_to_use, w_):
@@ -881,8 +889,8 @@ def make_df_quantile_year(series_name, df_data, year):
 
 
 def footer(vanaf_jaar):
-    st.write("Voor de correctiefactor voor 2020, 2021 en 2022 is uitgegaan van de factor over de gehele populatie. *")
-    st.write(f"Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van {vanaf_jaar} t/m 2019")
+    st.write("Voor de correctiefactor van de deelpopulaties is uitgegaan van de factor over de gehele populatie. De correctiefactor van 2024 is geschat *")
+    #st.write(f"Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van {vanaf_jaar} t/m 2019")
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     #st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")
     st.write("Bron data: Eurostats https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en")

@@ -624,6 +624,7 @@ def interface():
     return how,yaxis_to_zero,rightax,mergetype, show_scatter
 
 def main():
+    st.info("NOT UPDATED. USE https://covid-menu-rcsmit.streamlit.app/?choice=39")
     serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999" ,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
 
     how, yaxis_to_zero, rightax, mergetype, show_scatter = interface()
