@@ -225,7 +225,7 @@ def main():
     df_totaal = read_data(inwonersgrens)
     
 
-    x = "Vaccination_coverage_completed" # was "Vaccination_coverage_completed"
+    x = "Coverage_primary_completed'" # was "Vaccination_coverage_completed"
     y1 = "oversterfte_proc2020"
     y2 = "oversterfte_proc2021"
     
