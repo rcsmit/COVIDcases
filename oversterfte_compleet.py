@@ -700,7 +700,7 @@ def verwachte_sterfte_rivm(df, series_naam):
     df["boekweek"] = df["week"].shift(26)
 
     df_compleet = pd.DataFrame()
-    for y in [2019, 2020, 2021, 2022, 2023]:
+    for y in [2019, 2020, 2021, 2022, 2023,2024]:
         # we filteren 5 jaar voor jaar y (y=2020: 2015 t/m 2020 )
         recent_years = y - 5
         df_ = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] <= y)]
@@ -1086,6 +1086,10 @@ def plot_wrapper(
                 df_oversterfte.loc[i, "meer_minder_sterfte"] = (
                     df_oversterfte.loc[i, series_name] - df_oversterfte.loc[i, "low05"]
                 )
+        
+        
+        
+           
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         fig.add_trace(
@@ -1310,6 +1314,10 @@ def plot_wrapper(
         # end of plot_lines
 
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
+        columnlist = ['avg_', 'low05', 'high95']
+        for what_to_sma in columnlist:
+            df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=7, center=True).mean().round(1)
+
 
         # df_quantile = df_quantile.sort_values(by=['jaar','week_'])
         

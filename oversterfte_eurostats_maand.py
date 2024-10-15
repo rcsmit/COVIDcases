@@ -26,8 +26,118 @@ from plotly.subplots import make_subplots
 import platform
 import plotly.express as px
 import datetime
+#from oversterfte_eurostats import get_data_eurostat
+import eurostat
 
-def get_sterfte():
+@st.cache_data()
+def get_data_eurostat():
+    """Get from Eurostat : Deaths by week, sex and 5-year age group
+    Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
+    https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
+    https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
+   
+    Returns:
+        df: dataframe with weekly mortality in 5 year tranches
+
+                                DATAFLOW        LAST UPDATE freq     age sex  ... OBS_VALUE OBS_FLAG   age_sex  jaar weeknr
+            0      ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   TOTAL   F  ...    1868.0        p   TOTAL_F  2000      1
+            1      ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   TOTAL   M  ...    1699.0        p   TOTAL_M  2000      1
+            2      ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   TOTAL   T  ...    3567.0        p   TOTAL_T  2000      1
+            ...
+            80071  ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   Y_LT5   M  ...       8.0        p   Y_LT5_M  2024     19
+            80072  ESTAT:DEMO_R_MWK_05(1.0)  24/06/24 23:00:00    W   Y_LT5   T  ...      12.0        p   Y_LT5_T  2024     19
+ 
+                W  = Weekly
+                NL = Netherlands
+                NR = Number
+                P  = Provisory
+    """
+    
+    code = "DEMO_R_MWK_05"
+    # ['freq', 'age', 'sex', 'unit', 'geo']
+
+    # pars = eurostat.get_pars(code)
+    # result : ['freq', 'age', 'sex', 'unit', 'geo']
+    # for p in pars:
+    #     par_values = eurostat.get_par_values(code,p)
+    #     print (f"{p} ------------------------------")
+    #     print (par_values)
+        
+    my_filter_pars = {'beginPeriod': 2015, 'geo': ['NL']} # beginPeriod is ignored somehow
+    
+    flags = True
+
+    if flags:
+        df = eurostat.get_data_df(code, flags=True, filter_pars=my_filter_pars, verbose=True, reverse_time=False)
+        print (df)
+        # Identify value and flag columns
+        value_columns = [col for col in df.columns if col.endswith('_value')]
+        flag_columns = [col for col in df.columns if col.endswith('_flag')]
+
+        # Melt the value columns
+        df_values = df.melt(id_vars=['freq', 'age', 'sex', 'unit', 'geo\\TIME_PERIOD'],
+                            value_vars=value_columns,
+                            var_name='TIME_PERIOD', value_name='OBS_VALUE')
+
+        # Remove '_value' suffix from TIME_PERIOD column
+        df_values['TIME_PERIOD'] = df_values['TIME_PERIOD'].str.replace('_value', '')
+
+        # Melt the flag columns
+        df_flags = df.melt(id_vars=['freq', 'age', 'sex', 'unit', 'geo\\TIME_PERIOD'],
+                        value_vars=flag_columns,
+                        var_name='TIME_PERIOD', value_name='OBS_FLAG')
+
+        # Remove '_flag' suffix from TIME_PERIOD column
+        df_flags['TIME_PERIOD'] = df_flags['TIME_PERIOD'].str.replace('_flag', '')
+
+        # Merge the values and flags dataframes
+        df_long = pd.merge(df_values, df_flags, on=['freq', 'age', 'sex', 'unit', 'geo\\TIME_PERIOD', 'TIME_PERIOD'])
+
+        # Add additional columns
+        df_long['DATAFLOW'] = 'ESTAT:DEMO_R_MWK_05(1.0)'
+        df_long['LAST UPDATE'] = '14/06/24 23:00:00'
+
+        # Rename the columns to match the desired output
+        df_long.rename(columns={'geo\\TIME_PERIOD': 'geo'}, inplace=True)
+
+        # Filter out rows with None values in OBS_VALUE
+        df_long = df_long[df_long['OBS_VALUE'].notna()]
+
+        # Reorder the columns
+        df_long = df_long[['DATAFLOW', 'LAST UPDATE', 'freq', 'age', 'sex', 'unit', 'geo', 'TIME_PERIOD', 'OBS_VALUE', 'OBS_FLAG']]
+    else:
+        df = eurostat.get_data_df(code, flags=False, filter_pars=my_filter_pars, verbose=True, reverse_time=False)
+        print (df)
+
+        # Melt the dataframe to long format
+        df_long = df.melt(id_vars=['freq', 'age', 'sex', 'unit', r'geo\TIME_PERIOD'],
+                        var_name='TIME_PERIOD', value_name='OBS_VALUE')
+
+        # Add additional columns, made to be reverse compatible with older code
+        df_long['DATAFLOW'] = 'ESTAT:DEMO_R_MWK_05(1.0)'
+        df_long['LAST UPDATE'] = '24/06/24 23:00:00'
+        #df_long['OBS_FLAG'] = 'p'
+
+        # Rename the columns to match the desired output
+        df_long.rename(columns={'geo\\TIME_PERIOD': 'geo'}, inplace=True)
+
+
+        # Filter out rows with None values in OBS_VALUE
+        df_long = df_long[df_long['OBS_VALUE'].notna()]
+
+        # Reorder the columns
+        df_long = df_long[['DATAFLOW', 'LAST UPDATE', 'freq', 'age', 'sex', 'unit', 'geo', 'TIME_PERIOD', 'OBS_VALUE', 'OBS_FLAG']]
+    
+    df_long["age_sex"] = df_long["age"] + "_" +df_long["sex"]
+    df_long["jaar"] = (df_long["TIME_PERIOD"].str[:4]).astype(int)
+    df_long["weeknr"] = (df_long["TIME_PERIOD"].str[6:]).astype(int)
+
+    # Display the resulting dataframe
+    print (df_long)
+    return (df_long)
+
+
+def get_sterfte_DELETE():
     """_summary_
 
     Returns:
@@ -36,25 +146,27 @@ def get_sterfte():
     # Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
-    if platform.processor() != "":
-        #file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_meer_leeftijdscat.csv"
-        file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
-    else:
-        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
-        # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
-    df_ = pd.read_csv(
-        file,
-        delimiter=",",
+    # if platform.processor() != "":
+    #     #file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_meer_leeftijdscat.csv"
+    #     file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats.csv"
+    #     # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
+    #     # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
+    # else:
+    #     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats.csv"
+    #     # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595567_linear.csv"
+    #     # file = r"C:\Users\rcxsm\Downloads\demo_r_mwk_05__custom_3595595_linear.csv"
+    # df_ = pd.read_csv(
+    #     file,
+    #     delimiter=",",
         
-        low_memory=False,
-        )
+    #     low_memory=False,
+    #     )
    
-    df_["age_sex"] = df_["age"] + "_" +df_["sex"]
-    df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
-    df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
+    # df_["age_sex"] = df_["age"] + "_" +df_["sex"]
+    # df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
+    # df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
+    df_ = get_data_eurostat()
+    st.write(df_)
     return df_
 
 def get_boosters():
@@ -179,26 +291,93 @@ def get_data_for_series(df_, seriename, vanaf_jaar, period):
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
 
-    for y in range (2015,2020):
+    noemer = 149832 # average deaths per year 2015-2019
+    for y in range(2015, 2020):
         df_year = df[(df["jaar"] == y)]
-        som = df_year["TOTAL_T"].sum()
+        # som = df_year["m_v_0_999"].sum()
+        # som_2015_2019 +=som
+
         # https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493.
-        factor_2020 = 153402 / som
-        factor_2021 = 154887 / som
-        factor_2022 = 155494 / som
-       
-        for i in range(len(df)):
-            
-            
-            if df.loc[i,"jaar"] == y:
-                #for s in serienames:
-                new_column_name_2020 = seriename + "_factor_2020"
-                new_column_name_2021 = seriename + "_factor_2021"
-                new_column_name_2022 = seriename + "_factor_2022"
-                df.loc[i,new_column_name_2020] = df.loc[i,seriename] * factor_2020
-                df.loc[i,new_column_name_2021] = df.loc[i,seriename] * factor_2021               
-                df.loc[i,new_column_name_2022] = df.loc[i,seriename] * factor_2022
+        #  https://www.cbs.nl/nl-nl/nieuws/2024/06/sterfte-in-2023-afgenomen/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2023%20is%20deze%20156%20666.
+        # https://opendata.cbs.nl/statline/#/CBS/nl/dataset/85753NED/table?dl=A787C
+        # Define the factors for each year
+        
+
+        # 2.5.1 Verwachte sterfte en oversterfte
+        # De oversterfte is het verschil tussen het waargenomen aantal overledenen en een verwacht 
+        # aantal overledenen in dezelfde periode. Het verwachte aantal overledenen wanneer er geen 
+        # COVID-19-epidemie zou zijn geweest, wordt geschat op basis van de waargenomen sterfte in 
+        # 2015–2019 in twee stappen. Eerst wordt voor elk jaar de sterfte per week bepaald.
+        # Vervolgens wordt per week de gemiddelde sterfte in die week en de zes omliggende weken bepaald. 
+        # Deze gemiddelde sterfte per week levert een benadering van de verwachte wekelijkse sterfte. 
+        # Er is dan nog geen rekening gehouden met de ontwikkeling van de bevolkingssamenstelling. 
+
+        # Daarom is de sterfte per week nog herschaald naar de verwachte totale sterfte voor het jaar. 
+        # Het verwachte aantal overledenen in het hele jaar wordt bepaald op basis van de prognoses 
+        # die het CBS jaarlijks maakt. Deze prognoses geven de meest waarschijnlijke toekomstige 
+        # ontwikkelingen van de bevolking en de sterfte. De prognoses houden rekening met het feit 
+        # dat de bevolking continu verandert door immigratie en vergrijzing. Het CBS gebruikt voor 
+        # de prognose van de leeftijds- en geslachtsspecifieke sterftekansen een extrapolatiemodel 
+        # (L. Stoeldraijer, van Duin et al., 2013
+        # https://pure.rug.nl/ws/portalfiles/portal/13869387/stoeldraijer_et_al_2013_DR.pdf
+        # ): er wordt van uitgegaan dat de toekomstige trends 
+        # een voortzetting zijn van de trends uit het verleden. In het model wordt niet alleen 
+        # uitgegaan van de trends in Nederland, maar ook van de meer stabiele trends in andere 
+        # West-Europese landen. Tijdelijke versnellingen en vertragingen die voorkomen in de 
+        # Nederlandse trends hebben zo een minder groot effect op de toekomstverwachtingen. 
+        # Het model houdt ook rekening met het effect van rookgedrag op de sterfte, wat voor 
+        # Nederland met name belangrijk is om de verschillen tussen mannen en vrouwen in sterftetrends 
+        # goed te beschrijven.
+        # https://www.cbs.nl/nl-nl/longread/rapportages/2023/oversterfte-en-doodsoorzaken-in-2020-tot-en-met-2022?onepage=true
+        # Op basis van de geprognosticeerde leeftijds- en geslachtsspecifieke sterftekansen en de verwachte bevolkingsopbouw in dat jaar, wordt het verwachte aantal overledenen naar leeftijd en geslacht berekend voor een bepaald jaar. Voor 2020 is de verwachte sterfte 153 402, voor 2021 is deze 154 887 en voor 2022 is dit 155 493. 
+        # Op basis van de geprognosticeerde leeftijds- en geslachtsspecifieke sterftekansen en de verwachte
+        #  bevolkingsopbouw in dat jaar, wordt het verwachte aantal overledenen naar leeftijd en geslacht 
+        # berekend voor een bepaald jaar. Voor 2020 is de verwachte sterfte 153 402, 
+        # voor 2021 is deze 154 887 en voor 2022 is dit 155 493. 
+        # Het aantal voor 2020 is ontleend aan de Kernprognose 2019-2060 
+        # (L. Stoeldraijer, van Duin, C., Huisman, C., 2019), het aantal voor 2021 aan de
+        #  Bevolkingsprognose 2020-2070 exclusief de aanname van extra sterfgevallen door de 
+        # COVID-19-epidemie; (L. Stoeldraijer, de Regt et al., 2020) en het aantal voor 2022 
+        # aan de Kernprognose 2021-2070 (exclusief de aanname van extra sterfgevallen door de coronapandemie) (L. Stoeldraijer, van Duin et al., 2021). 
+        # https://www.cbs.nl/nl-nl/longread/rapportages/2023/oversterfte-en-doodsoorzaken-in-2020-tot-en-met-2022/2-data-en-methode
+        
+        # geen waarde voor 2024, zie https://twitter.com/Cbscommunicatie/status/1800505651833270551
+        # huidige waarde 2024 is geexptrapoleerd 2022-2023
+        factors = {
+            2014: 1,
+            2015: 1,
+            2016: 1,
+            2017: 1,
+            2018: 1,
+            2019: 1,
+            2020: 153402 / noemer,
+            2021: 154887 / noemer,
+            2022: 155494 / noemer,
+            2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
+            2024: 157846 / noemer,
+        }
+
+            # 2015	16,9	0,5
+            # 2016	17	0,6
+            # 2017	17,1	0,6
+            # 2018	17,2	0,6
+            # 2019	17,3	0,6
+            # 2020	17,4	0,7
+            # 2021	17,5	0,4
+            # 2022	17,6	0,7
+            # 2023	17,8	1,3
+            # 2024	17,9	0,7
+    # avg_overledenen_2015_2019 = (som_2015_2019/5)
+    # st.write(avg_overledenen_2015_2019)
+    # Loop through the years 2014 to 2024 and apply the factors
+    for year in range(2014, 2025):
+        new_column_name = f"{seriename}_factor_{year}"
+        factor = factors[year]
+        # factor=1
+        df[new_column_name] = df[seriename] * factor
+
     return df
+
 
 def plot_graph_oversterfte(how, df, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter,wdw):
     """_summary_
@@ -371,20 +550,23 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
     """    
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
-    df__ = get_sterfte()
+    df__ = get_data_eurostat()
     df__ = df__[df__['age'] !="UNK"]
     #serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999" ,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
     #series_names = df__["age_sex"].unique().sort()
-    series_names  = df__['age_sex'].drop_duplicates().sort_values()
-    series_to_show = st.sidebar.multiselect("Series to show", series_names, series_names)  
+    series_name_new  = ["Y0-49_T", "Y50-64_T", "Y65-79_T", "Y25-49_T", "Y50-59_T", "Y60-69_T", "Y70-79_T", "Y80-89_T", "Y80-120_T", "Y90-120_T", "Y0-120_T"] 
+    series_from_db = df__['age_sex'].drop_duplicates().sort_values()
+    series_names = list( series_name_new) + list(series_from_db)
+    series_to_show = st.sidebar.multiselect("Series to show", series_names,["TOTAL_T"])# series_names)  
     #series_to_show = series_names # ["Y50-54_M","Y50-54_F"]
     #series_to_show = ["Y50-54_M","Y50-54_F"]
-    wdw=6 if period =="week" else 2
+    wdw=sma 
+    # wdw=6 if period =="week" else 2
     if period == "week":
         df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
         df__['periode_']  = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
         df_ = df__.pivot(index=["jaar_week","periode_", "jaar", "weeknr"], columns='age_sex', values='OBS_VALUE').reset_index()
-   
+        df_ = df_[df_["weeknr"] !=53]
     elif period == "month":
         df__['maandnr'] = df__.apply(lambda x: getMonth(x['jaar'], x['weeknr']),axis=1)
         df__['periode_'] = df__["jaar"].astype(str)  +"_" + df__['maandnr'].astype(str).str.zfill(2)
@@ -394,7 +576,21 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
         
         df_ = df__.pivot_table(index=["periode_", "jaar", "maandnr_"], columns='age_sex', values='OBS_VALUE',  aggfunc='sum',).reset_index()
         
-         
+    df_["Y0-49_T"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
+
+    df_["Y50-64_T"] = df_["Y50-54_T"]+ df_["Y55-59_T"] + df_["Y60-64_T"]
+    df_["Y65-79_T"] =+ df_["Y65-69_T"]+ df_["Y70-74_T"] + df_["Y75-79_T"]
+    df_["Y25-49_T"] = df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
+
+
+    df_["Y50-59_T"] = df_["Y50-54_T"] + df_["Y55-59_T"]
+    df_["Y60-69_T"] = df_["Y60-64_T"] + df_["Y65-69_T"]
+    df_["Y70-79_T"] = df_["Y70-74_T"] + df_["Y75-79_T"]
+    df_["Y80-89_T"] = df_["Y80-84_T"] + df_["Y85-89_T"]
+    df_["Y80-120_T"] = df_["Y80-84_T"] + df_["Y85-89_T"] + df_["Y_GE90_T"]
+    df_["Y90-120_T"] = df_["Y_GE90_T"]
+    df_["Y0-120_T"] = df_["Y0-49_T"] + df_["Y50-64_T"] + df_["Y65-79_T"] + df_["Y80-89_T"] + df_["Y90-120_T"]
+       
           
     for col, series_name in enumerate(series_to_show):
         print (f"---{series_name}----")
@@ -402,11 +598,13 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
         df_data = get_data_for_series(df_, series_name, vanaf_jaar, period).copy(deep=True)
         df_data["maandnr"] = (df_["periode_"].str[5:]).astype(int)
          
-        df_corona, df_quantile = make_df_qantile(series_name, df_data, period)
+        df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
         st.subheader(series_name)
         
         if how =="quantiles":
-            
+            oversterfte = int(df_corona[series_name].sum() - df_quantile["avg"].sum())
+            st.info(f"Oversterfte simpel = Sterfte minus baseline = {oversterfte}")
+
             columnlist = ["q05","q25","q50","avg","q75","q95", "low05", "high95"]
             for what_to_sma in columnlist:
                 df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=wdw, center=sma_center).mean()
@@ -573,7 +771,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
             fig = go.Figure(data=data, layout=layout)
             st.plotly_chart(fig, use_container_width=True)
 
-def make_df_qantile(series_name, df_data, period):
+def make_df_quantile(series_name, df_data, period):
     """_summary_
 
     Args:
@@ -583,15 +781,26 @@ def make_df_qantile(series_name, df_data, period):
     Returns:
         _type_: _description_
     """    
-    df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
-    df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
-    df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
-    df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22],axis = 0)
+    # df_corona_20 = df_data[(df_data["jaar"] ==2020)].copy(deep=True)
+    # df_corona_21 = df_data[(df_data["jaar"] ==2021)].copy(deep=True)
+    # df_corona_22 = df_data[(df_data["jaar"] ==2022)].copy(deep=True)
+    # df_corona = pd.concat([df_corona_20, df_corona_21,  df_corona_22],axis = 0)
     
-    df_quantile_2020 = make_df_quantile(series_name, df_data, 2020, period)
-    df_quantile_2021 = make_df_quantile(series_name, df_data, 2021, period)
-    df_quantile_2022 = make_df_quantile(series_name, df_data, 2022, period)
-    df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022],axis = 0)
+    # df_quantile_2020 = make_df_quantile_jaar(series_name, df_data, 2020, period)
+    # df_quantile_2021 = make_df_quantile_jaar(series_name, df_data, 2021, period)
+    # df_quantile_2022 = make_df_quantile_jaar(series_name, df_data, 2022, period)
+    # df_quantile = pd.concat([df_quantile_2020, df_quantile_2021,  df_quantile_2022],axis = 0)
+    df_quantiles = []
+    df_coronas = []
+    # Loop through the years 2014 to 2024
+    for year in range(2015, 2025):
+        df_corona_year = df_data[(df_data["jaar"] ==year)].copy(deep=True)
+        df_quantile_year = make_df_quantile_jaar(series_name, df_data, year, period)
+        df_quantiles.append(df_quantile_year)
+        df_coronas.append(df_corona_year)
+    # Concatenate all quantile DataFrames into a single DataFrame
+    df_quantile = pd.concat(df_quantiles, axis=0)
+    df_corona = pd.concat(df_coronas,axis=0)
     if period == "week":
             
         df_corona["periodenr"] = df_corona["jaar"].astype(str) +"_" + df_corona["maandnr"].astype(str).str.zfill(2)
@@ -656,14 +865,14 @@ def make_row_df_quantile(series_name, year, df_to_use, w_, period):
             
     return df_quantile_
 
-def make_df_quantile(series_name, df_data, year,period):
+def make_df_quantile_jaar(series_name, df_data, year,period):
 
     """ Calculate the quantiles
 
     Returns:
         _type_: _description_
     """    
-    df_to_use = df_data[(df_data["jaar"] !=2020) & (df_data["jaar"] !=2021) & (df_data["jaar"] !=2022)].copy(deep=True)
+    df_to_use = df_data[(df_data["jaar"] >= 2015) & (df_data["jaar"] < 2020)].copy(deep=True)
     df_quantile =None
            
     #week_list = df_to_use['weeknr'].unique().tolist()
@@ -700,7 +909,8 @@ def footer(vanaf_jaar):
     st.write("*. https://www.cbs.nl/nl-nl/nieuws/2022/22/in-mei-oversterfte-behalve-in-de-laatste-week/oversterfte-en-verwachte-sterfte#:~:text=Daarom%20is%20de%20sterfte%20per,2022%20is%20deze%20155%20493")
 
 def interface():
-    period = "month" #= st.sidebar.selectbox("Period", ["week", "month"], index = 0)
+    #period = "month" #= 
+    period = st.sidebar.selectbox("Period", ["week", "month"], index = 0)
     if period == "month":
         how = "quantiles"
     else:
@@ -716,19 +926,23 @@ def interface():
         rightax, mergetype, show_scatter = None, None, None
     vanaf_jaar = st.sidebar.number_input ("Beginjaar voor CI-interv. (incl.)", 2000, 2022,2015)
     if how == "quantiles":
-        sma= st.sidebar.number_input ("Smooth moving average", 0, 100,1)
+        if period == "month":
+            sma_def = 3
+        else:
+            sma_def = 6
+        sma= st.sidebar.number_input ("Smooth moving average", 0, 100,sma_def)
         sma_center = st.sidebar.selectbox("SMA center", [True, False], index = 0, key = "bb")
     else:
         sma, sma_center = None, None
     return how,period,yaxis_to_zero,rightax,mergetype, show_scatter, vanaf_jaar,sma, sma_center
 
 def main():
-    st.header("(Over)sterfte per maand per geslacht per 5 jaars groep")
-    st.write("Under construction !")
+    st.header("(Over)sterfte per week of  maand per geslacht per 5 jaars groep")
     
-    st.write("Data wordt (nog) niet automatisch geupdate")
-    st.write("Er wordt gekeken naar de begindatum vd week voor toewijzing per maand")
     how, period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center = interface()
+    if period == "month":
+        st.write("Er wordt gekeken naar de begindatum vd week voor toewijzing per maand")
+    
     plot(how,  period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaar,sma, sma_center)
     footer(vanaf_jaar)
 
