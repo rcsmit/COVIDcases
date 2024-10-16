@@ -221,8 +221,11 @@ def main() -> None:
             .node-label-text-path {
                 text-shadow: none;
                 fill: #fff !important;
-            }
-            }</style>""",  unsafe_allow_html=True,)
+            }}
+            sankey.Textfont({
+                'color': 'yellow', 'family': '"Open Sans", verdana, arial, sans-serif', 'size': 10
+                })
+            </style>""",  unsafe_allow_html=True,)
     st.subheader("Doodsoorzaken door de tijd heen")
     
     # choice = st.sidebar.selectbox("Overlijdens of doodsoorzaken",["overlijdens", "doodsoorzaken"],0)
