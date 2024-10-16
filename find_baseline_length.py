@@ -83,7 +83,6 @@ def get_sterfte(opdeling,country="NL"):
 
     # Apply the function to create the new columns
     df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
-
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["weeknr"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
 

@@ -285,7 +285,8 @@ def get_doodsoorzaken(opdeling) -> pd.DataFrame:
 
     # Apply the function to create the new columns
     df['age_low'], df['age_high'] = zip(*df['age_group'].apply(extract_age_ranges))
-
+    df["age_sex"] = df["age_group"] + "_" +df["geslacht"]
+  
   
 
     def add_custom_age_group_deaths(df_, min_age, max_age):

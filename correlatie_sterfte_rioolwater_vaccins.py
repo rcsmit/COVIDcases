@@ -19,6 +19,8 @@ from scipy import stats
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
 
+# WAAROM TWEE KEER add_custom_age_group_deaths ??? TODO
+
 #@st.cache_data()
 def get_rioolwater_oud() -> pd.DataFrame:
     """
@@ -84,7 +86,8 @@ def get_oversterfte(opdeling):
 
     # Apply the function to create the new columns
     #df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
-
+    df_["age_sex"] = df_["age_group"] + "_" +df_["geslacht"]
+  
     df_["jaar"] = df_["jaar"].astype(int)
     df_["week"] = df_["week"].astype(int)
 
@@ -225,7 +228,7 @@ def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.Data
 
     # Apply the function to create the new columns
     df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
-
+    
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["week"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
 
