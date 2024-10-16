@@ -70,7 +70,7 @@ def main():
             ["[40] Bayes berekeningen IC ziekenh" , "bayes_prob_ic_hosp"],
             ["[41] Disabled by Long covid" , "disabled_by_longcovid"],
             ["[42] Oversterfte 5yrs groeps Eurostats" , "oversterfte_eurostats_maand"],
-            ["[xx] retracted" , "oversterfte_eurostats_maand"],
+            ["[43] Doodsoorzaken Sankey" , "mortality_causes"],
             ["[44] Rioolwaarde vs ziekenhuis" , "rioolwater_vs_ziekenhuis"],
             ["[45] Rioolwaarde vs overleden CBS", "overledenen_rioolwaardes"],
             ["[46] Mortality yearly per capita", "mortality_yearly_per_capita"],
