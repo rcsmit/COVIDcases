@@ -491,8 +491,13 @@ def sankey_diagram_ranking(df, criterium, min,max):
 
     st.write(pivot_table)
     st.write(pivot_table_criterium)
-    st.info("Data source: https://opendata.cbs.nl/statline/#/CBS/nl/dataset/7052_95/table?fromstatweb")
-
+    st.info("Data_source: https://opendata.cbs.nl/statline/#/CBS/nl/dataset/7052_95/table?fromstatweb")
+    st.markdown("""<style>.sankey {
+            .node-label-text-path {
+                text-shadow: none;
+                fill: #fff !important;
+            }
+            }</style>""",  unsafe_allow_html=True,)
 def probleem():
  
     data= get_doodsoorzaken_cbs()
