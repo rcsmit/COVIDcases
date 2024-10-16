@@ -217,7 +217,7 @@ def main() -> None:
     Returns:
         None
     """
-     st.markdown("""<style>.sankey {
+    st.markdown("""<style>.sankey {
             .node-label-text-path {
                 text-shadow: none;
                 fill: #fff !important;
