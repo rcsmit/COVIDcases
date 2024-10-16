@@ -402,8 +402,12 @@ def sankey_diagram_ranking(df, criterium, min,max):
             target=targets_new,  # Indices of target nodes
             value=values,    # Flow values (OBS_VALUE)
             #color="lightgray"  # Set link colors for better visibility
-        )
-    ))
+        ),
+        
+    ), layout = go.Layout(
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)'
+                ))
 
      
 
@@ -415,7 +419,7 @@ def sankey_diagram_ranking(df, criterium, min,max):
 
     # Step 1: Predefine a consistent color palette
     if 1==1:
-        
+
         fixed_colors = [
             "#FF5733", "#33FF57", "#3357FF", "#F39C12", "#9B59B6",  # Red, Green, Blue, Orange, Purple
             "#1ABC9C", "#E74C3C", "#2ECC71", "#3498DB", "#F1C40F",  # Teal, Red, Green, Blue, Yellow
@@ -474,7 +478,12 @@ def sankey_diagram_ranking(df, criterium, min,max):
     fig.update_traces(node_color = node_colors)
     fig.update_traces(link_color = link_colors)
     # Update layout to have vertical "lines" for each year
- 
+    fig.update_layout(
+        font_family="Courier New",
+        font_color="black",
+        title_font_family="Times New Roman",
+        title_font_color="blue",
+    )
 
     fig.update_layout(title_text=f"Ranking van Doodsoorzaken door de Tijd {min}-{max}", font_size=10)
     st.plotly_chart(fig)
