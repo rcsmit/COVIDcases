@@ -485,6 +485,7 @@ def sankey_diagram_ranking(df, criterium, min,max):
         title_font_color="blue",
     )
 
+
     fig.update_layout(title_text=f"Ranking van Doodsoorzaken door de Tijd {min}-{max}", font_size=10)
     st.plotly_chart(fig)
 
