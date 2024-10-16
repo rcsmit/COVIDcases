@@ -413,19 +413,65 @@ def sankey_diagram_ranking(df, criterium, min,max):
     # Get unique values from the flattened list
     unique_nodes = list(set(all_nodes))
 
-    # Step 2: Create a color map
-    # Generate random hex colors for each unique node
-    def generate_color():
-        return "#{:06x}".format(random.randint(0, 0xFFFFFF))
+    # Step 1: Predefine a consistent color palette
+    if 1==1:
+        fixed_colors = [
+            "#FF5733", "#33FF57", "#3357FF", "#F39C12", "#9B59B6",  # Red, Green, Blue, Orange, Purple
+            "#1ABC9C", "#E74C3C", "#2ECC71", "#3498DB", "#F1C40F",  # Teal, Red, Green, Blue, Yellow
+            "#8E44AD", "#E67E22", "#2980B9", "#27AE60", "#C0392B",  # Dark Purple, Orange, Dark Blue, Dark Green, Dark Red
+            "#D35400", "#34495E", "#16A085", "#F39C12", "#7F8C8D",  # Orange, Dark Grey, Teal, Orange, Grey
+            "#FFC300", "#FF9F00", "#A569BD", "#D1F2EB", "#7D3C98",  # Yellow, Dark Yellow, Light Purple, Light Teal, Dark Purple
+            "#2C3E50", "#C5C6C7", "#FF5733", "#FF8D1C", "#D1DB00"   # Dark Blue, Light Grey, Red, Orange, Bright Yellow
+        ]
+        # Step 2: Assign colors to unique nodes, cycling through the predefined palette
+        #unique_nodes = set(node for sublist in nodes2 for node in sublist)
+        color_map = {node: fixed_colors[i % len(fixed_colors)] for i, node in enumerate(unique_nodes)}
 
-    color_map = {node: generate_color() for node in unique_nodes}
+        # Step 3: Apply the color map to the nodes
+        node_colors = [color_map[node] for sublist in nodes2 for node in sublist]
 
-    # Step 3: Apply the color map to the nodes
-    # Each node in the sankey diagram will have a corresponding color
-    node_colors = [color_map[node] for sublist in nodes2 for node in sublist]
+       # Now you have consistent `node_colors` and `link_colors`
+
+
+    if 1==2:
+        # Step 2: Create a color map
+        # Generate random hex colors for each unique node
+        def generate_color():
+            return "#{:06x}".format(random.randint(0, 0xFFFFFF))
+
+        color_map = {node: generate_color() for node in unique_nodes}
+
+        # Step 3: Apply the color map to the nodes
+        # Each node in the sankey diagram will have a corresponding color
+        node_colors = [color_map[node] for sublist in nodes2 for node in sublist]
+
+    # Step 1: Convert hex color to RGB (0-255 range)
+    def hex_to_rgb(hex_color):
+        hex_color = hex_color.lstrip("#")
+        return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+    # Step 2: Lighten the color by 50%
+    def lighten_color(rgb_color, factor=0.5):
+        return tuple(int(c + (255 - c) * factor) for c in rgb_color)
+
+    # Step 3: Convert RGB back to hex
+    def rgb_to_hex(rgb_color):
+        return "#{:02x}{:02x}{:02x}".format(*rgb_color)
+
+    # Step 4: Generate link_colors based on node_colors
+    link_colors = []
+
+    for color in node_colors:
+        rgb = hex_to_rgb(color)  # Convert hex to RGB
+        lighter_rgb = lighten_color(rgb, factor=0.5)  # Lighten the color by 50%
+        link_colors.append(rgb_to_hex(lighter_rgb))  # Convert back to hex
+
+    # Now, link_colors contains the lighter colors for each link
+
     #TO DO
     # color_for_nodes = ["red","green","blue","violet","maroon"]
     fig.update_traces(node_color = node_colors)
+    fig.update_traces(link_color = link_colors)
     # Update layout to have vertical "lines" for each year
  
 
