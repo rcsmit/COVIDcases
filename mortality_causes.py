@@ -221,25 +221,32 @@ def main() -> None:
     
     # choice = st.sidebar.selectbox("Overlijdens of doodsoorzaken",["overlijdens", "doodsoorzaken"],0)
     #opdeling = [[0,49], [50,64], [65,79], [80,89], [90,120],[80,120], [0,120]]
-    opdeling = [[0,120], [0,64],[65,79],[80,120]] + interface_opdeling() 
+    col1,col2,col3,col4,col5,col6,col7=st.columns(7)
+    
+    with col1:
+        l1=st.number_input("Custom age low",0,120,20)
+    with col2:
+        l2=st.number_input("Custom age high",0,120,39)
+    
+    opdeling = [[l1,l2],[0,120], [0,64],[65,79],[80,120]] 
+
     df_doodsoorzaken = get_doodsoorzaken(opdeling)
-   
     df_doodsoorzaken['age_transformed'] = df_doodsoorzaken['age_sex_x'].str.split('_').str[0]
 
     # Get the unique values as a list
     unique_values = df_doodsoorzaken['age_transformed'].unique().tolist()
-    col1,col2,col3,col4,col5=st.columns(5)
-    with col1:
-        age_chosen = st.selectbox("Choose agegroup", unique_values)
-    with col2:
-        sex_chosen = st.selectbox ("Choose sex",["T", "M", "F"],0)
     with col3:
-        criterium =  st.selectbox("Chosen value [OBS_VALUE |per100k]", ["OBS_VALUE","per100k" ],0)
-   
+        age_chosen = st.selectbox("Choose agegroup", unique_values,1)
     with col4:
-        min=st.number_input("Minimum",2000,2023,2020)
+        sex_chosen = st.selectbox ("Choose sex",["T", "M", "F"],0)
     with col5:
-        max=st.number_input("Maximum (incl)",2000,2023,2023)
+        criterium =  st.selectbox("Chosen value", ["OBS_VALUE","per100k" ],0)
+   
+    with col6:
+        min=st.number_input("Start year",2000,2023,2020)
+    with col7:
+        max=st.number_input("End year (incl)",2000,2023,2023)
+    
     
     # Filter based on age, sex, year range, and doodsoorzaak containing 'totaal'
     df_doodsoorzaken = df_doodsoorzaken[
