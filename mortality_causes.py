@@ -415,6 +415,7 @@ def sankey_diagram_ranking(df, criterium, min,max):
 
     # Step 1: Predefine a consistent color palette
     if 1==1:
+        
         fixed_colors = [
             "#FF5733", "#33FF57", "#3357FF", "#F39C12", "#9B59B6",  # Red, Green, Blue, Orange, Purple
             "#1ABC9C", "#E74C3C", "#2ECC71", "#3498DB", "#F1C40F",  # Teal, Red, Green, Blue, Yellow
