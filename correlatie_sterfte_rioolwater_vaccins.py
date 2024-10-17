@@ -64,12 +64,13 @@ def get_oversterfte(opdeling):
     df_, df_corona, df_quantile = make_df_quantile("m_v_0_999", df_data, "week") 
     #df_to_export = df_data[["weeknr", "avg", "aantal_overlijdens"]].copy()
     df_["age_sex"] = "Y0-120_T"
-    st.write(df_)
+
     df_ = df_.assign(
         jaar_week=df_["weeknr_x"],
         base_value=df_["avg"],
         OBS_VALUE_=df_["m_v_0_999"]
     )
+    
 
     #st.write(df_to_export)
     df_ = df_[["jaar_week","base_value","OBS_VALUE_"]]
@@ -146,7 +147,7 @@ def get_oversterfte(opdeling):
     
     df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
 
-    st.write(df__)
+    
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["base_value"].notna()]
     df__ = df__[df__["jaar"] != 2024]
@@ -831,7 +832,7 @@ def main():
 
 
     # Bekijk de complete DataFrame
-    st.write(df_complete)
+  
     make_scatterplot(df_complete, "F-statistic P-value", "Adjusted R-squared","")
     #st.write("De OBS_VALUE is 2 weken opgeschoven naar rechts")
     st.subheader("Data sources")
