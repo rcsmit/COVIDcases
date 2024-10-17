@@ -158,7 +158,7 @@ def display_cumulative_oversterfte(df_merged_jaar, year):
             for n in ["rivm", "cbs"]:
                 fig.add_trace(
                     go.Scatter(
-                        x=df_merged_jaar["weeknr"],
+                        x=df_merged_jaar["periodenr"],
                         y=df_merged_jaar[f"oversterfte_{n}_{p}_cumm"],
                         mode="lines",
                         name=f"cummulatieve oversterfte {n}",
@@ -225,16 +225,17 @@ def make_df_merged(df_data, df_rivm, series_name, period):
     _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
     df_official = get_df_offical()
 
-    df_merged = df_corona.merge(df_quantile, left_on="weeknr", right_on="weeknr").merge(
-        df_rivm, on="weeknr", how="outer"
+    df_merged = df_corona.merge(df_quantile, left_on="periodenr", right_on="periodenr").merge(
+        df_rivm, on="periodenr", how="outer"
     )
     df_merged = df_merged.merge(
-        df_official, left_on="weeknr", right_on="weeknr_z", how="outer"
+        df_official, left_on="periodenr", right_on="periodenr_z", how="outer"
     )
-    df_merged = df_merged.drop(columns=["week_"])
+
+    #df_merged = df_merged.drop(columns=["week"])
 
     df_merged["shifted_jaar"] = df_merged["jaar_x_x"]  # .shift(28)
-    df_merged["shifted_week"] = df_merged["weeknr"]  # .shift(28)
+    df_merged["shifted_week"] = df_merged["week_x_x"]  # .shift(28)
 
     columns = [
         [series_name, "aantal_overlijdens"],
@@ -256,7 +257,7 @@ def plot_steigstra(df_transformed, series_name):
     # replicatie van https://twitter.com/SteigstraHerman/status/1801641074336706839
 
     # Pivot table
-    df_pivot = df_transformed.set_index("week")
+    df_pivot = df_transformed.set_index("week_x_x")
 
     # Function to transform the DataFrame
     def create_spaghetti_data(df, year1, year2=None):
@@ -284,7 +285,7 @@ def plot_steigstra(df_transformed, series_name):
     # Generate the sequence from 27 to 52 followed by 1 to 26
     sequence = list(range(32, 53)) + list(range(1, 32))
     # Add the sequence as a new column
-    df_spaghetti["weeknr_real"] = sequence
+    df_spaghetti["week_real"] = sequence
 
     df_spaghetti["average"] = df_spaghetti.iloc[:, :4].mean(axis=1)
 
@@ -340,7 +341,7 @@ def plot_steigstra(df_transformed, series_name):
         yaxis_title="Values",
         xaxis=dict(
             tickvals=df_spaghetti.index,  # Set the tick positions to the DataFrame index
-            ticktext=df_spaghetti['weeknr_real'].astype(str)  # Set the tick labels to 'weeknr_real'
+            ticktext=df_spaghetti['week_real'].astype(str)  # Set the tick labels to 'week_real'
         )
     )
 
@@ -348,7 +349,7 @@ def plot_steigstra(df_transformed, series_name):
 
 def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
 
-    # Set 'week' to 52 if 'weeknr' is '2022_52'
+    # Set 'week' to 52 if 'periodenr' is '2022_52'
 
     # Get list of current columns excluding "shifted_jaar"
     other_columns = [col for col in df_merged.columns if col != "shifted_jaar"]
@@ -376,13 +377,13 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
 
     if cumm:
         df = df_compleet.pivot(
-            index=["week"],
+            index=["week_x_x"],
             columns="shifted_jaar",
             values=f"oversterfte_{m}_simpel_cumm",
         ).reset_index()
     else:
         df = df_compleet.pivot(
-            index=["week"], columns="shifted_jaar", values=f"oversterfte_{m}_simpel"
+            index=["week_x_x"], columns="shifted_jaar", values=f"oversterfte_{m}_simpel"
         ).reset_index()
 
     # Calculate average and standard deviation
@@ -406,7 +407,7 @@ def comparison(df_merged, series_name, smooth):
             df_merged_jaar = calculate_year_data(
                 df_merged, year, show_official, series_name, smooth
             )
-            show_difference(df_merged_jaar, "weeknr", show_official, year)
+            show_difference(df_merged_jaar, "periodenr", show_official, year)
 
             display_cumulative_oversterfte(df_merged_jaar, year)
             display_results(df_merged_jaar, year)
@@ -544,6 +545,8 @@ def get_data_rivm():
         delimiter=";",
         low_memory=False,
     )
+    df_["periodenr"] = df_["weeknr"]
+    df_=df_.drop("weeknr", axis=1)
     return df_
 
 def do_lin_regression(df_filtered, df_volledig, series_naam, y):
@@ -588,7 +591,7 @@ def do_lin_regression(df_filtered, df_volledig, series_naam, y):
     else:
         df_volledig.loc[:, "lower_ci"] = df_volledig["voorspeld"] - 2 * sd
         df_volledig.loc[:, "upper_ci"] = df_volledig["voorspeld"] + 2 * sd
-    df_new = pd.merge(df_filtered, df_volledig, on="weeknr", how="outer")
+    df_new = pd.merge(df_filtered, df_volledig, on="periodenr", how="outer")
 
     df_new = df_new.sort_values(by=["jaar_y", "week_y"]).reset_index(drop=True)
 
@@ -606,8 +609,8 @@ def plot_graph_rivm(df_, series_naam, rivm):
     st.subheader("RIVM methode")
     df_rivm = get_data_rivm()
 
-    df = pd.merge(df_, df_rivm, on="weeknr", how="outer")
-    df = df.sort_values(by=["weeknr"])  # .reset_index()
+    df = pd.merge(df_, df_rivm, on="periodenr", how="outer")
+    df = df.sort_values(by=["periodenr"])  # .reset_index()
 
     # Maak een interactieve plot met Plotly
     fig = go.Figure()
@@ -615,7 +618,7 @@ def plot_graph_rivm(df_, series_naam, rivm):
     # Voeg de werkelijke data toe
     fig.add_trace(
         go.Scatter(
-            x=df["weeknr"],
+            x=df["periodenr"],
             y=df[f"{series_naam}_y"],
             mode="lines",
             name="Werkelijke data cbs",
@@ -625,14 +628,14 @@ def plot_graph_rivm(df_, series_naam, rivm):
     # Voeg de voorspelde lijn toe
     fig.add_trace(
         go.Scatter(
-            x=df["weeknr"], y=df["voorspeld"], mode="lines", name="Voorspeld model"
+            x=df["periodenr"], y=df["voorspeld"], mode="lines", name="Voorspeld model"
         )
     )
     if rivm == True:
         # Voeg de voorspelde lijn RIVM toe
         fig.add_trace(
             go.Scatter(
-                x=df["weeknr"],
+                x=df["periodenr"],
                 y=df["verw_waarde_rivm"],
                 mode="lines",
                 name="Voorspeld RIVM",
@@ -641,7 +644,7 @@ def plot_graph_rivm(df_, series_naam, rivm):
         # Voeg de voorspelde lijn RIVM toe
         fig.add_trace(
             go.Scatter(
-                x=df["weeknr"],
+                x=df["periodenr"],
                 y=df["ondergrens_verwachting_rivm"],
                 mode="lines",
                 name="onder RIVM",
@@ -649,7 +652,7 @@ def plot_graph_rivm(df_, series_naam, rivm):
         )  # Voeg de voorspelde lijn RIVM toe
         fig.add_trace(
             go.Scatter(
-                x=df["weeknr"],
+                x=df["periodenr"],
                 y=df["bovengrens_verwachting_rivm"],
                 mode="lines",
                 name="boven RIVM",
@@ -659,7 +662,7 @@ def plot_graph_rivm(df_, series_naam, rivm):
     # Voeg de betrouwbaarheidsinterval toe
     fig.add_trace(
         go.Scatter(
-            x=df["weeknr"],
+            x=df["periodenr"],
             y=df["upper_ci"],
             mode="lines",
             fill=None,
@@ -670,7 +673,7 @@ def plot_graph_rivm(df_, series_naam, rivm):
 
     fig.add_trace(
         go.Scatter(
-            x=df["weeknr"],
+            x=df["periodenr"],
             y=df["lower_ci"],
             mode="lines",
             fill="tonexty",  # Vul het gebied tussen de lijnen
@@ -707,7 +710,7 @@ def verwachte_sterfte_rivm(df, series_naam):
         df_ = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] <= y)]
 
         df_volledig = df_[
-            ["weeknr", "jaar", "week", "boekjaar", "boekweek", series_naam]
+            ["periodenr", "jaar", "week", "boekjaar", "boekweek", series_naam]
         ]
         df_filtered = filter_rivm(df_, series_naam, y)
 
@@ -735,8 +738,11 @@ def get_boosters():
         delimiter=";",
         low_memory=False,
     )
-    df_["weeknr"] = (
-        df_["jaar"].astype(str) + "_" + df_["weeknr"].astype(str).str.zfill(2)
+    df_["week"] = df_["weeknr"]
+    df_=df_.drop("weeknr", axis=1)
+
+    df_["periodenr"] = (
+        df_["jaar"].astype(str) + "_" + df_["week"].astype(str).str.zfill(2)
     )
     df_ = df_.drop("jaar", axis=1)
 
@@ -760,6 +766,8 @@ def get_herhaalprik():
         delimiter=";",
         low_memory=False,
     )
+    df_["week"] = df_["weeknr"]
+    df_=df_.drop("weeknr", axis=1)
     df_["herhaalprik_m_v_0_64"] = (
         df_["herhaalprik_m_v_0_49"] + df_["herhaalprik_m_v_50_64"]
     )
@@ -767,8 +775,8 @@ def get_herhaalprik():
         df_["herhaalprik_m_v_80_89"] + df_["herhaalprik_m_v_90_999"]
     )
 
-    df_["weeknr"] = (
-        df_["jaar"].astype(str) + "_" + df_["weeknr"].astype(str).str.zfill(2)
+    df_["periodenr"] = (
+        df_["jaar"].astype(str) + "_" + df_["week"].astype(str).str.zfill(2)
     )
     df_ = df_.drop("jaar", axis=1)
 
@@ -789,6 +797,8 @@ def get_herfstprik():
         delimiter=",",
         low_memory=False,
     )
+    df_["week"] = df_["weeknr"]
+    df_=df_.drop("weeknr", axis=1)
     df_["herfstprik_m_v_0_64"] = (
         df_["herfstprik_m_v_0_49"] + df_["herfstprik_m_v_50_64"]
     )
@@ -796,8 +806,8 @@ def get_herfstprik():
         df_["herfstprik_m_v_80_89"] + df_["herfstprik_m_v_90_999"]
     )
 
-    df_["weeknr"] = (
-        df_["jaar"].astype(str) + "_" + df_["weeknr"].astype(str).str.zfill(2)
+    df_["periodenr"] = (
+        df_["jaar"].astype(str) + "_" + df_["week"].astype(str).str.zfill(2)
     )
     df_ = df_.drop("jaar", axis=1)
 
@@ -823,13 +833,19 @@ def get_rioolwater_simpel():
     # if platform.processor() != "":
     #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwaarde2024.csv"
     # else:
-    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwaarde2024.csv"
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2024okt.csv"
+    
     df_rioolwater = pd.read_csv(
         file,
-        delimiter=",",
+        delimiter=";",
         low_memory=False,
     )
-    df_rioolwater["weeknr"] = (
+    
+    df_rioolwater["rioolwaarde"] = df_rioolwater["RNA_flow_per_100000"]
+
+    df_rioolwater = df_rioolwater.drop("RNA_flow_per_100000", axis=1)
+    
+    df_rioolwater["periodenr"] = (
         df_rioolwater["jaar"].astype(int).astype(str)
         + "_"
         + df_rioolwater["week"].astype(int).astype(str)
@@ -841,7 +857,9 @@ def get_rioolwater_simpel():
     return df_rioolwater
 
 def get_df_offical():
-    """Laad de waardes zoals door RIVM en CBS is bepaald. Gedownload dd 11 juni 2024
+    """Laad de waardes zoals door RIVM en CBS zijn bepaald. Gedownload dd 11 juni 2024
+    jaar_z,week_z,datum,Overledenen_z,verw_cbs_official,low_cbs_official,high_cbs_official,aantal_overlijdens_z,low_rivm_official,high_rivm_official,opgehoogd
+
     Returns:
         _df
     """
@@ -853,7 +871,7 @@ def get_df_offical():
         delimiter=",",
         low_memory=False,
     )
-    df_["weeknr_z"] = (
+    df_["periodenr_z"] = (
         df_["jaar_z"].astype(str) + "_" + df_["week_z"].astype(str).str.zfill(2)
     )
     df_["verw_rivm_official"] = (
@@ -864,11 +882,10 @@ def get_df_offical():
 
 def get_data_for_series_wrapper(df_, seriename, vanaf_jaar):
 
-    df = df_[["jaar", "week", "weeknr", seriename]].copy(deep=True)
+    df = df_[["jaar", "week", "periodenr", seriename]].copy(deep=True)
 
     df = df[(df["jaar"] > vanaf_jaar)]
-    # df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
-    df = df.sort_values(by=["jaar", "weeknr"]).reset_index()
+    df = df.sort_values(by=["jaar", "week"]).reset_index()
 
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
@@ -1108,28 +1125,28 @@ def plot_wrapper(
         booster_cat = ["m_v_0_999", "m_v_0_64", "m_v_65_79", "m_v_80_999"]
       
         df_oversterfte = pd.merge(
-            df, df_corona, left_on="week_", right_on="weeknr", how="outer"
+            df, df_corona, left_on="periodenr", right_on="periodenr", how="outer"
         )
 
         if rightax == "boosters":
             df_oversterfte = pd.merge(
-                df_oversterfte, df_boosters, on="weeknr", how=mergetype
+                df_oversterfte, df_boosters, on="periodenr", how=mergetype
             )
         if rightax == "herhaalprik":
             df_oversterfte = pd.merge(
-                df_oversterfte, df_herhaalprik, on="weeknr", how=mergetype
+                df_oversterfte, df_herhaalprik, on="periodenr", how=mergetype
             )
         if rightax == "herfstprik":
             df_oversterfte = pd.merge(
-                df_oversterfte, df_herfstprik, on="weeknr", how=mergetype
+                df_oversterfte, df_herfstprik, on="periodenr", how=mergetype
             )
         if rightax == "rioolwater":
             df_oversterfte = pd.merge(
-                df_oversterfte, df_rioolwater, on="weeknr", how=mergetype
+                df_oversterfte, df_rioolwater, on="periodenr", how=mergetype
             )
         if rightax == "kobak":
             df_oversterfte = pd.merge(
-                df_oversterfte, df_kobak, on="weeknr", how=mergetype
+                df_oversterfte, df_kobak, on="periodenr", how=mergetype
             )
 
         df_oversterfte["over_onder_sterfte"] = 0
@@ -1169,7 +1186,7 @@ def plot_wrapper(
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         fig.add_trace(
             go.Scatter(
-                x=df_oversterfte["week_"],
+                x=df_oversterfte["periodenr"],
                 y=df_oversterfte[how],
                 # line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
                 line=dict(width=2, color="rgba(205, 61,62, 1)"),
@@ -1188,7 +1205,7 @@ def plot_wrapper(
                 fig.add_trace(
                     go.Scatter(
                         name=grens,
-                        x=df_oversterfte["weeknr"],
+                        x=df_oversterfte["periodenr"],
                         y=df_oversterfte[grens],
                         mode="lines",
                         line=dict(width=1, color="rgba(205, 61,62, 1)"),
@@ -1200,7 +1217,7 @@ def plot_wrapper(
             fig.add_trace(
                 go.Scatter(
                     name="low",
-                    x=df_oversterfte["week_"],
+                    x=df_oversterfte["periodenr"],
                     y=df_oversterfte["low05"],
                     mode="lines",
                     line=dict(width=0.5, color="rgba(255, 188, 0, 0.5)"),
@@ -1210,7 +1227,7 @@ def plot_wrapper(
             fig.add_trace(
                 go.Scatter(
                     name="high",
-                    x=df_oversterfte["week_"],
+                    x=df_oversterfte["periodenr"],
                     y=df_oversterfte["high95"],
                     mode="lines",
                     line=dict(width=0.5, color="rgba(255, 188, 0, 0.5)"),
@@ -1222,7 +1239,7 @@ def plot_wrapper(
             fig.add_trace(
                 go.Scatter(
                     name="Verwachte Sterfte",
-                    x=df_oversterfte["weeknr"],
+                    x=df_oversterfte["periodenr"],
                     y=df_oversterfte["avg"],
                     mode="lines",
                     line=dict(width=0.5, color="rgba(204, 63, 61, .8)"),
@@ -1232,7 +1249,7 @@ def plot_wrapper(
             fig.add_trace(
                 go.Scatter(
                     name="Sterfte",
-                    x=df_oversterfte["weeknr"],
+                    x=df_oversterfte["periodenr"],
                     y=df_oversterfte[series_name],
                     mode="lines",
                     line=dict(width=1, color="rgba(204, 63, 61, 1)"),
@@ -1246,7 +1263,7 @@ def plot_wrapper(
                 fig.add_trace(
                     go.Scatter(
                         name="boosters",
-                        x=df_oversterfte["week_"],
+                        x=df_oversterfte["periodenr"],
                         y=df_oversterfte[b],
                         mode="lines",
                         line=dict(width=2, color="rgba(94, 172, 219, 1)"),
@@ -1261,7 +1278,7 @@ def plot_wrapper(
                 fig.add_trace(
                     go.Scatter(
                         name="herhaalprik",
-                        x=df_oversterfte["week_"],
+                        x=df_oversterfte["periodenr"],
                         y=df_oversterfte[b],
                         mode="lines",
                         line=dict(width=2, color="rgba(94, 172, 219, 1)"),
@@ -1278,7 +1295,7 @@ def plot_wrapper(
                 fig.add_trace(
                     go.Scatter(
                         name="herfstprik",
-                        x=df_oversterfte["week_"],
+                        x=df_oversterfte["periodenr"],
                         y=df_oversterfte[b],
                         mode="lines",
                         line=dict(width=2, color="rgba(94, 172, 219, 1)"),
@@ -1294,7 +1311,7 @@ def plot_wrapper(
                 fig.add_trace(
                     go.Scatter(
                         name="rioolwater",
-                        x=df_oversterfte["week_"],
+                        x=df_oversterfte["periodenr"],
                         y=df_oversterfte[b],
                         mode="lines",
                         line=dict(width=2, color="rgba(94, 172, 219, 1)"),
@@ -1311,7 +1328,7 @@ def plot_wrapper(
                 fig.add_trace(
                     go.Scatter(
                         name="excess deaths(kobak)",
-                        x=df_oversterfte["week_"],
+                        x=df_oversterfte["periodenr"],
                         y=df_oversterfte[b],
                         mode="lines",
                         line=dict(width=2, color="rgba(94, 172, 219, 1)"),
@@ -1349,9 +1366,7 @@ def plot_wrapper(
         for idx, year in enumerate(year_list):
             df = df_data[df_data["jaar"] == year].copy(
                 deep=True
-            )  # [['weeknr', series_name]].reset_index()
-
-            # df = df.sort_values(by=['weeknr'])
+            )  
             if (
                 year == 2020
                 or year == 2021
@@ -1390,7 +1405,7 @@ def plot_wrapper(
 
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
     
-        df_corona = df_corona[df_corona["weeknr"] !="2019_1"] #somewhere an error bc of 53 weeks in 53
+        df_corona = df_corona[df_corona["periodenr"] !="2019_1"] #somewhere an error bc of 53 weeks in 53
        
         columnlist = ['avg_', 'low05', 'high95']
         for what_to_sma in columnlist:
@@ -1401,7 +1416,7 @@ def plot_wrapper(
         fig = go.Figure()
         low05 = go.Scatter(
             name="low",
-            x=df_quantile["weeknr"],
+            x=df_quantile["periodenr"],
             y=df_quantile["low05"],
             mode="lines",
             line=dict(width=0.5, color="rgba(255, 188, 0, 0.5)"),
@@ -1411,7 +1426,7 @@ def plot_wrapper(
 
         avg = go.Scatter(
             name="gemiddeld",
-            x=df_quantile["weeknr"],
+            x=df_quantile["periodenr"],
             y=df_quantile["avg_"],
             mode="lines",
             line=dict(width=0.75, color="rgba(68, 68, 68, 0.8)"),
@@ -1419,7 +1434,7 @@ def plot_wrapper(
 
         sterfte = go.Scatter(
             name="Sterfte",
-            x=df_corona["weeknr"],
+            x=df_corona["periodenr"],
             y=df_corona[series_name],
             mode="lines",
             line=dict(width=2, color="rgba(255, 0, 0, 0.8)"),
@@ -1427,7 +1442,7 @@ def plot_wrapper(
 
         high95 = go.Scatter(
             name="high",
-            x=df_quantile["weeknr"],
+            x=df_quantile["periodenr"],
             y=df_quantile["high95"],
             mode="lines",
             line=dict(width=0.5, color="rgba(255, 188, 0, 0.5)"),
@@ -1497,21 +1512,21 @@ def get_baseline_kobak():
         low_memory=False,
     )
 
-    df_["weeknr"] = df_["jaar"].astype(str) + "_" + df_["week"].astype(str).str.zfill(2)
-    df_ = df_[["weeknr", "baseline_kobak"]]
+    df_["periodenr"] = df_["jaar"].astype(str) + "_" + df_["week"].astype(str).str.zfill(2)
+    df_ = df_[["periodenr", "baseline_kobak"]]
     return df_
 
 def show_difference(df, date_field, show_official, year):
     """Function to show the difference between the two methods quickly"""
 
     df_baseline_kobak = get_baseline_kobak()
-    df = pd.merge(df, df_baseline_kobak, on="weeknr", how="outer")
+    df = pd.merge(df, df_baseline_kobak, on="periodenr", how="outer")
     
     if year!= "All":
         df= df[df["jaar_x_x"] == year]
   
     # rolling(df, 'baseline_kobak')
-
+   
     # Maak een interactieve plot met Plotly
     fig = go.Figure()
 
@@ -1682,22 +1697,17 @@ def duplicate_row(df, from_, to):
         from_ (str): oorspronkelijke rij eg. '2022_51'
         to (str): bestemmingsrij eg. '2022_52'
     """
-    # Find the row where weeknr is '2022_51' and duplicate it
-    row_to_duplicate = df[df["weeknr"] == from_].copy()
+    # Find the row where periodenr is '2022_51' and duplicate it
+    row_to_duplicate = df[df["periodenr"] == from_].copy()
 
-    # Update the weeknr value to '2022_52' in the duplicated row
-    row_to_duplicate["weeknr"] = to
+    # Update the periodenr value to '2022_52' in the duplicated row
+    row_to_duplicate["periodenr"] = to
     row_to_duplicate["week"] = int(to.split("_")[1])
-    # row_to_duplicate['m_v_0_999'] = 0
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2021_52', 52, df_merged['week'])
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2022_52', 52, df_merged['week'])
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2019_01', 1, df_merged['week'])
-    # df_merged['week'] = np.where(df_merged['weeknr'] == '2015_01', 1, df_merged['week'])
-
+   
     # Append the duplicated row to the DataFrame
     df = pd.concat([df, row_to_duplicate], ignore_index=True)
 
-    df = df.sort_values(by=["weeknr"]).reset_index(drop=True)
+    df = df.sort_values(by=["periodenr"]).reset_index(drop=True)
 
     return df
 
@@ -1752,7 +1762,7 @@ def get_sterftedata(vanaf_jaar, seriename="m_v_0_999", ):
         """Filters out week 0 and 53 and makes a category column (eg. "M_V_0_999")"""
 
         # data = data[~data['week'].isin([0, 53])] #filter out week 2020-53
-        data["weeknr"] = (
+        data["periodenr"] = (
             data["jaar"].astype(str) + "_" + data["week"].astype(str).str.zfill(2)
         )
 
@@ -1851,13 +1861,13 @@ def get_sterftedata(vanaf_jaar, seriename="m_v_0_999", ):
     # Combine the adjusted rows with the remaining rows
 
     df_ = data.pivot(
-        index=["weeknr", "jaar", "week"], columns="categorie", values="Overledenen_1"
+        index=["periodenr", "jaar", "week"], columns="categorie", values="Overledenen_1"
     ).reset_index()
     df_["week"] = df_["week"].astype(int)
     df_["jaar"] = df_["jaar"].astype(int)
 
     # dit moet nog ergens anders
-    df_[["weeknr", "delete"]] = df_.weeknr.str.split(
+    df_[["periodenr", "delete"]] = df_.periodenr.str.split(
         r" \(",
         expand=True,
     )
@@ -1866,9 +1876,9 @@ def get_sterftedata(vanaf_jaar, seriename="m_v_0_999", ):
 
     df_ = df_[(df_["jaar"] > 2014)]
 
-    df = df_[["jaar", "weeknr", "week", seriename]].copy(deep=True)
+    df = df_[["jaar", "periodenr", "week", seriename]].copy(deep=True)
 
-    df = df.sort_values(by=["jaar", "weeknr"]).reset_index()
+    df = df.sort_values(by=["jaar", "periodenr"]).reset_index()
 
     df = get_data_for_series_wrapper(df, seriename, vanaf_jaar)
 
@@ -1895,13 +1905,13 @@ def make_row_df_quantile(series_name, year, df_to_use, w_, period):
     
     if period == "week":
         #eurostats
-        df_to_use_ = df_to_use[(df_to_use["weeknr"] == w)].copy(deep=True)
-        if len (df_to_use_)==0:
-            #oversterftecompleet
-            df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
+        df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
+        # if len (df_to_use_)==0:
+        #     #oversterftecompleet
+        #     df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
     elif period == "maand":
         
-        df_to_use_ = df_to_use[(df_to_use["maandnr"] == w)].copy(deep=True)
+        df_to_use_ = df_to_use[(df_to_use["maand"] == w)].copy(deep=True)
 
     column_to_use = series_name + "_factor_" + str(year)
   
@@ -1928,7 +1938,7 @@ def make_row_df_quantile(series_name, year, df_to_use, w_, period):
     df_quantile_ = pd.DataFrame(
         [
             {
-                "week_": w_,
+                "week": w_,
                 "jaar": year,
                 "q05": q05,
                 "q25": q25,
@@ -1963,7 +1973,7 @@ def make_df_quantile_year(series_name, df_data, year, period):
     df_quantile = None
     end = 53 if period == "week" else 13
 
-    #week_list = df_to_use["weeknr"].unique().tolist()
+    #week_list = df_to_use["periodenr"].unique().tolist()
     for w in range(1, end):
         df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w, period)
         df_quantile = pd.concat([df_quantile, df_quantile_], axis=0)
@@ -2008,30 +2018,16 @@ def make_df_quantile(series_name, df_data, period):
     df_quantile = pd.concat(df_quantiles, axis=0)
     if_corona = pd.concat(df_coronas,axis=0)
     
-    df_quantile["weeknr"] = (
+    df_quantile["periodenr"] = (
         df_quantile["jaar"].astype(str)
         + "_"
-        + df_quantile["week_"].astype(str).str.zfill(2)
+        + df_quantile["week"].astype(str).str.zfill(2)
     )
 
-  
-    if period == "week":
-      
-        try:
-            df_corona["periodenr"] = df_corona["weeknr"]
-        except:
-            #oversterfte eurostats
-            df_corona["periodenr"] = df_corona["periode_"] #["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
-        df_quantile["periodenr"]= df_quantile["weeknr"] #.astype(str) +"_" + df_quantile['periode_'].astype(str).str.zfill(2)
-    elif period == "maand":
-        # crazy manipulations bc of compatibility with overstats_eurostats.maand
-        df_corona["periodenr"] = df_corona["jaar"].astype(str) +"_" + df_corona["maandnr"].astype(str).str.zfill(2)
-        #dfquantile geeft 52 regels voor een jaar, maar alleen de 1e 12 zijn gevvuld. Kolom heet ook weeknr :o
-        #df_quantile["periodenr"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['weeknr'].astype(str).str.zfill(2)
-        df_quantile["periodenr"]= df_quantile["weeknr"] #.astype(str) +"_" + df_quantile['periode_'].astype(str).str.zfill(2)
-        df_quantile=df_quantile[df_quantile["week_"]<13]
 
+ 
     df = pd.merge(df_corona, df_quantile, on="periodenr", how="inner")
+
     return df, df_corona, df_quantile
 
 def predict(X, verbose=False, excess_begin=None):
@@ -2172,13 +2168,13 @@ def show_plot(df, df_covid, df_kobak_github):
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=df["weeknr"], y=df["baseline_kobak"], mode="lines", name=f"kobak_baseline"
+            x=df["periodenr"], y=df["baseline_kobak"], mode="lines", name=f"kobak_baseline"
         )
     )
 
     fig.add_trace(
         go.Scatter(
-            x=df["weeknr"],
+            x=df["periodenr"],
             y=df_kobak_github["baseline_kobak"],
             mode="lines",
             name=f"kobak_baseline GITHUB",
@@ -2187,7 +2183,7 @@ def show_plot(df, df_covid, df_kobak_github):
 
     fig.add_trace(
         go.Scatter(
-            x=df["weeknr"],
+            x=df["periodenr"],
             y=df_covid["avg_"],
             mode="lines",
             name=f"CBS_method_baseline",
@@ -2213,8 +2209,8 @@ def do_kobak_vs_cbs(df_deaths):
     df, _, _ = make_df_quantile("m_v_0_999", df_deaths, "week")
 
     df_covid = df[(df["jaar_x"] >= 2020) & (df["jaar_x"] <= 2023)]
-
-    X = df[["jaar_x", "week", "m_v_0_999"]].values
+   
+    X = df[["jaar_x", "week_x", "m_v_0_999"]].values
     X = X[~np.isnan(X[:, 2]), :]
     X = X.astype(int)
 
@@ -2235,7 +2231,7 @@ def do_kobak_vs_cbs(df_deaths):
         {"year": date_range.year, "week": date_range.isocalendar().week}
     )
     df_kobak_calculated["baseline_kobak"] = combined_list
-    df_kobak_calculated["weeknr"] = (
+    df_kobak_calculated["periodenr"] = (
         df_kobak_calculated["year"].astype(str)
         + "_"
         + df_kobak_calculated["week"].astype(str).str.zfill(2)
@@ -2284,27 +2280,7 @@ def main():
         df_kobak,
     ) = get_all_data(series_name, vanaf_jaar)
 
-    print(f"---{series_name}----")
-    df_data = get_data_for_series_wrapper(df_sterfte, series_name, vanaf_jaar).copy(deep=True)
-    df_to_export = df_data[["weeknr", "avg", "aantal_overlijdens"]].copy()
-    df_to_export["age_sex"] = "Y0-120_T"
-
-    df_merged = df_merged.assign(
-        jaar_week=df_merged["weeknr"],
-        basevalue=df_merged["avg"],
-        OBS_VALUE_=df_merged["aantal_overlijdens"]
-    )
-
-    #st.write(df_to_export)
-    df_to_export = df_merged[["jaar_week","basevalue","OBS_VALUE_"]]
-    df_to_export["age_sex"]= "Y0-120_T"
-    
-    # try:
-    #df_to_export.to_csv(f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte_Y0-120_T.csv")
-    # except:
-    #     pass
-    _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
-    
+    df_corona, df_quantile, df_rivm, df_merged = calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte)
     plot_wrapper(
         df_boosters,
         df_herhaalprik,
@@ -2321,12 +2297,8 @@ def main():
         mergetype,
         sec_y,
     )
+    
     if how == "quantiles":
-
-        df_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
-        df_merged = make_df_merged(df_data, df_rivm, series_name, period)
-        
-       
         if series_name == "m_v_0_999":
            
             plot_graph_rivm(df_rivm, series_name, False)
@@ -2340,6 +2312,33 @@ def main():
             "De vergrlijking met vaccinateies, rioolwater etc is vooralsnog alleen mogelijk met CBS methode "
         )
     footer()
+
+def calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte):
+    print(f"---{series_name}----")
+    df_data = get_data_for_series_wrapper(df_sterfte, series_name, vanaf_jaar).copy(deep=True)
+    
+    _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
+    
+    if how == "quantiles":
+        df_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
+        df_merged = make_df_merged(df_data, df_rivm, series_name, period)
+        
+        if 1==2: #if you want an export
+            df_merged = df_merged.assign(
+                jaar_week=df_merged["periodenr"],
+                basevalue=df_merged["avg"],
+                OBS_VALUE_=df_merged["aantal_overlijdens"]
+            )
+
+           
+            df_to_export = df_merged[["jaar_week","basevalue","OBS_VALUE_"]]
+            df_to_export["age_sex"]= "Y0-120_T"
+            
+            try:
+                df_to_export.to_csv(f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte_Y0-120_T.csv")
+            except:
+                pass
+    return df_corona,df_quantile,df_rivm,df_merged
 
 if __name__ == "__main__":
     import datetime

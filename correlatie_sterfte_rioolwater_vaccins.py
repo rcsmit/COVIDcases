@@ -66,7 +66,7 @@ def get_oversterfte(opdeling):
     df_["age_sex"] = "Y0-120_T"
 
     df_ = df_.assign(
-        jaar_week=df_["weeknr_x"],
+        jaar_week=df_["periodenr"],
         base_value=df_["avg"],
         OBS_VALUE_=df_["m_v_0_999"]
     )
@@ -806,7 +806,10 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
     with col2:
         line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
         make_scatterplot(df, y_value_, x2,age_sex)
-    data = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
+    try:
+        data = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
+    except:
+        data = None
     return data
 
 def main():
@@ -843,7 +846,7 @@ def main():
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
     
     df_result1 = pd.merge(df,df_rioolwater,on=["jaar", "week"], how="left")   
-    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="left")
+    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
     df_result2=df_result2.fillna(0)
     df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
     df_result4 = df_result3[(df_result3["jaar"]>=jaar_min) & (df_result3["jaar"]<=jaar_max) ]
@@ -918,7 +921,7 @@ def main():
 
 
     # Bekijk de complete DataFrame
-  
+    st.write(df_complete)
     make_scatterplot(df_complete, "F-statistic P-value", "Adjusted R-squared","")
     #st.write("De OBS_VALUE is 2 weken opgeschoven naar rechts")
     st.subheader("Data sources")

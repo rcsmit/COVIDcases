@@ -112,7 +112,7 @@ def get_data_eurostat():
     
     df_long["age_sex"] = df_long["age"] + "_" +df_long["sex"]
     df_long["jaar"] = (df_long["TIME_PERIOD"].str[:4]).astype(int)
-    df_long["weeknr"] = (df_long["TIME_PERIOD"].str[6:]).astype(int)
+    df_long["week"] = (df_long["TIME_PERIOD"].str[6:]).astype(int)
 
     # Display the resulting dataframe
     print (df_long)
@@ -134,7 +134,7 @@ def plot_boosters(df_boosters, series_name):
         b= "boosters_"+series_name
         fig.add_trace(  go.Scatter(
                 name='boosters',
-                x=df_boosters["weeknr"],
+                x=df_boosters["periodnr"],
                 y=df_boosters[b],
                 mode='lines',
                 
@@ -166,7 +166,7 @@ def plot_herhaalprik(df_herhaalprik, series_name):
         b= "herhaalprik_"+series_name
         fig.add_trace(  go.Scatter(
                 name='herhaalprik',
-                x=df_herhaalprik["weeknr"],
+                x=df_herhaalprik["periodnr"],
                 y=df_herhaalprik[b],
                 mode='lines',
                 
@@ -183,20 +183,15 @@ def plot_herhaalprik(df_herhaalprik, series_name):
         st.plotly_chart(fig, use_container_width=True)
 
 def get_data_for_series_wrapper(df_, seriename, vanaf_jaar, period):
-    period_ = "weeknr" if period=="week" else "maandnr"
     
     if seriename == "TOTAL_T":
-       # df = df_[["jaar","weeknr","aantal_dgn", seriename]].copy(deep=True)
-        df = df_[["jaar","periode_", seriename]].copy(deep=True)
+        df = df_[["jaar","periodenr", seriename]].copy(deep=True)
 
     else:
-       # df = df_[["jaar","weeknr","aantal_dgn","totaal_m_v_0_999", seriename]].copy(deep=True)
-        df = df_[["jaar","periode_","TOTAL_T", seriename]].copy(deep=True)
+        df = df_[["jaar","periodenr","TOTAL_T", seriename]].copy(deep=True)
     
-    #df = df[(df["aantal_dgn"] == 7) & (df["jaar"] > 2014)]
-    df = df[ (df["jaar"] >= vanaf_jaar)]  #& (df["weeknr"] != 53)]
-    #df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
-    df = df.sort_values(by=['jaar',"periode_"]).reset_index()
+    df = df[ (df["jaar"] >= vanaf_jaar)] 
+    df = df.sort_values(by=['jaar',"periodenr"]).reset_index()
   
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
@@ -219,15 +214,12 @@ def plot_graph_oversterfte_eurostats(how, df, df_corona, df_boosters, df_herhaal
     """
     booster_cat = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999"]
    
-    df["weeknr"] = df["periodenr"] 
-    df_corona["weeknr"] = df_corona["periode_"] 
     
-    df_oversterfte = pd.merge(df, df_corona, left_on = "weeknr", right_on="weeknr", how = "outer")
-    df_oversterfte["periodenr"] = df_oversterfte["weeknr"]
+    df_oversterfte = pd.merge(df, df_corona, left_on = "periodenr", right_on="periodenr", how = "outer")
     if rightax == "boosters":
-        df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="weeknr", how = mergetype)
+        df_oversterfte = pd.merge(df_oversterfte, df_boosters, on="periodenr", how = mergetype)
     if rightax == "herhaalprik":
-        df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="weeknr", how = mergetype)
+        df_oversterfte = pd.merge(df_oversterfte, df_herhaalprik, on="periodenr", how = mergetype)
     what_to_sma_ = ["low05", "high95"]
     for what_to_sma in what_to_sma_:
         # sma = 6 is also in de procedure of CBS
@@ -390,18 +382,18 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
     wdw=sma 
     wdw=6 if period =="week" else 2
     if period == "week":
-        df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
-        df__['periode_']  = df__["jaar"].astype(str)  +"_" + df__["weeknr"].astype(str).str.zfill(2)
-        df_ = df__.pivot(index=["jaar_week","periode_", "jaar", "weeknr"], columns='age_sex', values='OBS_VALUE').reset_index()
-        df_ = df_[df_["weeknr"] !=53]
+        df__["jaar_week"] = df__["jaar"].astype(str)  +"_" + df__["week"].astype(str).str.zfill(2)
+        df__['periodenr']  = df__["jaar"].astype(str)  +"_" + df__["week"].astype(str).str.zfill(2)
+        df_ = df__.pivot(index=["periodenr", "jaar", "week"], columns='age_sex', values='OBS_VALUE').reset_index()
+        df_ = df_[df_["week"] !=53]
     elif period == "maand":
-        df__['maandnr'] = df__.apply(lambda x: getMonth(x['jaar'], x['weeknr']),axis=1)
-        df__['periode_'] = df__["jaar"].astype(str)  +"_" + df__['maandnr'].astype(str).str.zfill(2)
-        df__['maandnr_'] = df__["jaar"].astype(str)  +"_" + df__['maandnr'].astype(str).str.zfill(2)
+        df__['maand'] = df__.apply(lambda x: getMonth(x['jaar'], x['week']),axis=1)
+        df__['periodenr'] = df__["jaar"].astype(str)  +"_" + df__['maand'].astype(str).str.zfill(2)
+        #df__['maandnr_'] = df__["jaar"].astype(str)  +"_" + df__['maandnr'].astype(str).str.zfill(2)
         #df__["jaar_maand"] = df__["jaar"].astype(str)  +"_" + df__["maandnr"].astype(str).str.zfill(2)
-        #df__ = df__.groupby(["periode_",'jaar', 'maandnr_', 'age_sex'], as_index=False)
+        #df__ = df__.groupby(["periodenr",'jaar', 'maandnr_', 'age_sex'], as_index=False)
         
-        df_ = df__.pivot_table(index=["periode_", "jaar", "maandnr_"], columns='age_sex', values='OBS_VALUE',  aggfunc='sum',).reset_index()
+        df_ = df__.pivot_table(index=["periodenr", "jaar", "maand"], columns='age_sex', values='OBS_VALUE',  aggfunc='sum',).reset_index()
         
     df_["Y0-49_T"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
 
@@ -423,9 +415,9 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
         
         df_data = get_data_for_series_wrapper(df_, series_name, vanaf_jaar, period).copy(deep=True)
         if period == "week":
-            df_data["weeknr"] = (df_["periode_"].str[5:]).astype(int)
+            df_data["week"] = (df_["periodenr"].str[5:]).astype(int)
         elif period == "maand":
-            df_data["maandnr"] = (df_["periode_"].str[5:]).astype(int)
+            df_data["maand"] = (df_["periodenr"].str[5:]).astype(int)
         
         df, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
         st.subheader(series_name)
@@ -440,15 +432,15 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
 
                  
             
-            df_quantile["periode_"] = df_quantile["periodenr"] #["jaar"].astype(str) +"_"+ df_quantile["period_"].astype(str).str.zfill(2)
-            df_quantile = df_quantile.sort_values(by=['jaar','periode_'])
+            df_quantile["periodenr"] #["jaar"].astype(str) +"_"+ df_quantile["period_"].astype(str).str.zfill(2)
+            df_quantile = df_quantile.sort_values(by=['jaar','periodenr'])
             
 
            
             fig = go.Figure()
             low05 = go.Scatter(
                 name='low',
-                x=df_quantile["periode_"],
+                x=df_quantile["periodenr"],
                 y=df_quantile['low05'] ,
                 mode='lines',
                 line=dict(width=0.5,
@@ -457,7 +449,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
 
             q05 = go.Scatter(
                 name='q05',
-                x=df_quantile["periode_"],
+                x=df_quantile["periodenr"],
                 y=df_quantile['q05'] ,
                 mode='lines',
                 line=dict(width=0.5,
@@ -466,7 +458,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
 
             q25 = go.Scatter(
                 name='q25',
-                x=df_quantile["periode_"],
+                x=df_quantile["periodenr"],
                 y=df_quantile['q25'] ,
                 mode='lines',
                 line=dict(width=0.5,
@@ -476,7 +468,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
 
             avg = go.Scatter(
                 name='gemiddeld',
-                x=df_quantile["periode_"],
+                x=df_quantile["periodenr"],
                 y=df_quantile["avg"],
                 mode='lines',
                 line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
@@ -485,14 +477,14 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
             df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
             sterfte = go.Scatter(
                 name="Sterfte",
-                x=df_corona["periode_"],
+                x=df_corona["periodenr"],
                 y=df_corona[series_name],)
                 #mode='lines',
                 #line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
                 
             sterfte_sma = go.Scatter(
                 name="Sterfte sma",
-                x=df_corona["periode_"],
+                x=df_corona["periodenr"],
                 y=df_corona[col_sma],
                 mode='lines',
                 line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
@@ -500,7 +492,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
 
             q75 = go.Scatter(
                 name='q75',
-                x=df_quantile["periode_"],
+                x=df_quantile["periodenr"],
                 y=df_quantile['q75'] ,
                 mode='lines',
                 line=dict(width=0.5,
@@ -510,7 +502,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
 
             q95 = go.Scatter(
                 name='q95',
-                x=df_quantile["periode_"],
+                x=df_quantile["periodenr"],
                 y=df_quantile['q95'],
                 mode='lines',
                 line=dict(width=0.5,
@@ -519,7 +511,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
             )
             high95 = go.Scatter(
                 name='high',
-                x=df_quantile["periode_"],
+                x=df_quantile["periodenr"],
                 y=df_quantile['high95'],
                 mode='lines',
                 line=dict(width=0.5,
@@ -561,9 +553,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
             year_list = df_data['jaar'].unique().tolist()
             data = []
             for idx, year in enumerate(year_list):
-                df = df_data[df_data['jaar'] == year].copy(deep=True)  # [['weeknr', series_name]].reset_index()
-
-                #df = df.sort_values(by=['weeknr'])
+                df = df_data[df_data['jaar'] == year].copy(deep=True) 
                 if year == 2020 or year ==2021:
                     width = 3
                     opacity = 1
@@ -571,7 +561,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
                     width = .7
                     opacity = .3
                 
-                fig_ = go.Scatter(x=df['weeknr'],
+                fig_ = go.Scatter(x=df['periodenr'],
                             y=df[series_name],
                             line=dict(width=width), opacity = opacity, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
                             mode='lines',
