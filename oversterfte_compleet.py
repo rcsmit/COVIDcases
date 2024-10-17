@@ -13,14 +13,12 @@ from sklearn.linear_model import LinearRegression
 import datetime
 import statsmodels.api as sm
 
-
 import statsmodels.api as sm
 
 # Impact of different mortality forecasting methods and explicit assumptions on projected future
 # life expectancy
 # Stoeldraijer, L.; van Duin, C.; van Wissen, L.J.G.; Janssen, F
 # https://pure.rug.nl/ws/portalfiles/portal/13869387/stoeldraijer_et_al_2013_DR.pdf
-
 
 # 70895ned = https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1659307527578
 # Overledenen; geslacht en leeftijd, per week
@@ -36,7 +34,6 @@ except:
 # A value is trying to be set on a copy of a slice from a DataFrame.
 # Try using .loc[row_indexer,col_indexer] = value instead
 pd.options.mode.chained_assignment = None
-
 
 def interface():
     how = st.sidebar.selectbox(
@@ -76,14 +73,12 @@ def interface():
         sec_y = None
     return how, yaxis_to_zero, rightax, mergetype, sec_y
 
-
 def calculate_year_data(df_merged, year, show_official, series_name, smooth):
     st.subheader(year)
     if year != "All":
         df_merged_jaar = df_merged[df_merged["jaar_x_x"] == year].copy()
     else:
         df_merged_jaar = df_merged.copy()
-
     df_merged_jaar["verw_cbs"] = df_merged_jaar["avg"]
     for n in ["cbs", "rivm"]:
         df_merged_jaar[f"oversterfte_{n}_simpel"] = (
@@ -137,7 +132,6 @@ def calculate_year_data(df_merged, year, show_official, series_name, smooth):
             df_merged_jaar[f'{what_to_sma}_sma'] = df_merged_jaar[what_to_sma]
     return df_merged_jaar
 
-
 def display_cumulative_oversterfte(df_merged_jaar, year):
 
     cbs_middel = df_merged_jaar["oversterfte_cbs_middel_cumm"].iloc[-1]
@@ -179,7 +173,6 @@ def display_cumulative_oversterfte(df_merged_jaar, year):
 
             st.plotly_chart(fig)
             st.write(texts[i])
-
 
 def display_results(df_merged_jaar, year):
     st.subheader(f"Results - {year}")
@@ -228,9 +221,8 @@ def display_results(df_merged_jaar, year):
         new_df_grouped = pd.DataFrame(new_data).transpose().astype(int)
         st.write(new_df_grouped)
 
-
-def make_df_merged(df_data, df_rivm, series_name):
-    _, df_corona, df_quantile = make_df_quantile(series_name, df_data)
+def make_df_merged(df_data, df_rivm, series_name, period):
+    _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
     df_official = get_df_offical()
 
     df_merged = df_corona.merge(df_quantile, left_on="weeknr", right_on="weeknr").merge(
@@ -248,7 +240,7 @@ def make_df_merged(df_data, df_rivm, series_name):
         [series_name, "aantal_overlijdens"],
         ["q50", "verw_cbs_q50"],
         ["low05", "low_cbs"],
-        ["avg_", "avg"],
+        ["avg_", "avg_x"],
         ["high95", "high_cbs"],
         ["voorspeld", "verw_rivm"],
         ["lower_ci", "low_rivm"],
@@ -259,7 +251,6 @@ def make_df_merged(df_data, df_rivm, series_name):
     for c in columns:
         df_merged = df_merged.rename(columns={c[0]: c[1]})
     return df_merged
-
 
 def plot_steigstra(df_transformed, series_name):
     # replicatie van https://twitter.com/SteigstraHerman/status/1801641074336706839
@@ -304,7 +295,7 @@ def plot_steigstra(df_transformed, series_name):
     df_spaghetti["high"] = df_spaghetti["average"] + 1.96 * df_spaghetti.iloc[
         :, :4
     ].std(axis=1)
-    #st.write(df_spaghetti)
+   
     # Plotting with Plotly
     fig = go.Figure()
     fig.add_vline(x=25, name="week 1", line=dict(color="gray", width=1, dash="dash"))
@@ -342,8 +333,6 @@ def plot_steigstra(df_transformed, series_name):
         )
     )
 
-
-
     # Update layout to customize x-axis labels
     fig.update_layout(
         title=f"Steigstra Plot of {series_name} over Different Years week 32 to week 31",
@@ -356,7 +345,6 @@ def plot_steigstra(df_transformed, series_name):
     )
 
     st.plotly_chart(fig)
-
 
 def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
 
@@ -406,7 +394,6 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
 
     return df
 
-
 def comparison(df_merged, series_name, smooth):
     
     show_official = st.sidebar.selectbox("Show official values", [True, False], 0)
@@ -424,11 +411,31 @@ def comparison(df_merged, series_name, smooth):
             display_cumulative_oversterfte(df_merged_jaar, year)
             display_results(df_merged_jaar, year)
 
-
 def filter_rivm(df, series_name, y):
     """
 
         # replicating https://www.rivm.nl/monitoring-sterftecijfers-nederland
+
+        
+        # Imitating RIVM overstefte grafieken
+        # overlijdens per week: https://opendata.cbs.nl/#/CBS/nl/dataset/70895ned/table?ts=1655808656887
+
+        # Het verwachte aantal overledenen wanneer er geen COVID-19-epidemie was geweest, is
+        # geschat op basis van de waargenomen sterfte in 2015–2019. Eerst wordt voor elk jaar de
+        # sterfte per week bepaald. Vervolgens wordt per week de gemiddelde sterfte in die week
+        # en de zes omliggende weken bepaald. Deze gemiddelde sterfte per week levert een
+        # benadering van de verwachte wekelijkse sterfte. Er is dan nog geen rekening gehouden
+        # met de trendmatige vergrijzing van de bevolking. Daarom is de sterfte per week nog
+        # herschaald naar de verwachte totale sterfte voor het jaar. Voor 2020 is de verwachte sterfte
+        # 153 402 en voor 2021 is deze 154 887. Het aantal voor 2020 is ontleend aan de
+        # Kernprognose 2019–2060 en het aantal voor 2021 aan de Bevolkingsprognose 2020–2070
+        # CBS en RIVM | Sterfte en oversterfte in 2020 en 2021 | Juni 2022 15
+        # (exclusief de aanname van extra sterfgevallen door de corona-epidemie). De marges rond
+        # de verwachte sterfte zijn geschat op basis van de waargenomen spreiding in de sterfte per
+        # week in de periode 2015–2019. Dit 95%-interval geeft de bandbreedte weer van de
+        # gewoonlijk fluctuaties in de sterfte. 95 procent van de sterfte die in eerdere jaren is
+        # waargenomen, valt in dit interval. Er wordt van oversterfte gesproken wanneer de sterfte
+        # boven de bovengrens van dit interval ligt.
 
         # Doorgetrokken lijn: gemelde sterfte tot en met 2 juni 2024.
 
@@ -497,7 +504,6 @@ def filter_rivm(df, series_name, y):
 
     return df
 
-
 def add_columns_lin_regression(df):
     """voeg columns tijd, sin en cos toe. de sinus/cosinus-termen zijn om mogelijke
     seizoensschommelingen te beschrijven
@@ -510,7 +516,6 @@ def add_columns_lin_regression(df):
     df.loc[:, "sin"] = np.sin(2 * np.pi * df["boekweek"] / 52)
     df.loc[:, "cos"] = np.cos(2 * np.pi * df["boekweek"] / 52)
     return df
-
 
 def filter_period(df_new, start_year, start_week, end_year, end_week, add):
     """Filter de dataframe en dus de grafiek in tijd (x-as)"""
@@ -527,7 +532,6 @@ def filter_period(df_new, start_year, start_week, end_year, end_week, add):
     df_new = df_new[condition1 | condition2 | condition3]
     return df_new
 
-
 def get_data_rivm():
     """laad de waardes zoals RIVM die heeft vastgesteld (11 juni 2024)
 
@@ -541,7 +545,6 @@ def get_data_rivm():
         low_memory=False,
     )
     return df_
-
 
 def do_lin_regression(df_filtered, df_volledig, series_naam, y):
     """lineair regressiemodel met een lineaire tijdstrend
@@ -590,7 +593,6 @@ def do_lin_regression(df_filtered, df_volledig, series_naam, y):
     df_new = df_new.sort_values(by=["jaar_y", "week_y"]).reset_index(drop=True)
 
     return df_new
-
 
 def plot_graph_rivm(df_, series_naam, rivm):
     """plot the graph
@@ -686,7 +688,6 @@ def plot_graph_rivm(df_, series_naam, rivm):
 
     st.plotly_chart(fig)
 
-
 def verwachte_sterfte_rivm(df, series_naam):
     """Verwachte sterfte/baseline  uitrekenen volgens RIVM methode
 
@@ -744,7 +745,6 @@ def get_boosters():
 
     return df_
 
-
 def get_herhaalprik():
     """_summary_
 
@@ -773,8 +773,6 @@ def get_herhaalprik():
     df_ = df_.drop("jaar", axis=1)
 
     return df_
-
-
 
 def get_herfstprik():
     """_summary_
@@ -805,8 +803,7 @@ def get_herfstprik():
 
     return df_
 
-
-def get_all_data(seriename):
+def get_all_data(seriename, vanaf_jaar):
     """_summary_
 
     Returns:
@@ -818,10 +815,9 @@ def get_all_data(seriename):
     # df_rioolwater_dag, df_rioolwater = None, None # get_rioolwater.scrape_rioolwater()
     df_kobak = get_kobak()
     df_rioolwater = get_rioolwater_simpel()
-    df_ = get_sterftedata(seriename)
+    df_ = get_sterftedata(vanaf_jaar, seriename)
 
     return df_, df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak
-
 
 def get_rioolwater_simpel():
     # if platform.processor() != "":
@@ -843,7 +839,6 @@ def get_rioolwater_simpel():
     )
 
     return df_rioolwater
-
 
 def get_df_offical():
     """Laad de waardes zoals door RIVM en CBS is bepaald. Gedownload dd 11 juni 2024
@@ -867,18 +862,21 @@ def get_df_offical():
 
     return df_
 
-
-def get_data_for_series(df_, seriename):
+def get_data_for_series_wrapper(df_, seriename, vanaf_jaar):
 
     df = df_[["jaar", "week", "weeknr", seriename]].copy(deep=True)
 
-    df = df[(df["jaar"] > 2014)]
+    df = df[(df["jaar"] > vanaf_jaar)]
     # df = df[df["jaar"] > 2014 | (df["weeknr"] != 0) | (df["weeknr"] != 53)]
     df = df.sort_values(by=["jaar", "weeknr"]).reset_index()
 
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
     # som_2015_2019 = 0
+    df = get_data_for_series(df, seriename, vanaf_jaar)
+    return df
+def get_data_for_series(df, seriename, vanaf_jaar):
+
     noemer = 149832 # average deaths per year 2015-2019
     for y in range(2015, 2020):
         df_year = df[(df["jaar"] == y)]
@@ -966,7 +964,6 @@ def get_data_for_series(df_, seriename):
 
     return df
 
-
 def rolling(df, what):
 
     df[f"{what}_sma"] = df[what].rolling(window=7, center=True).mean()
@@ -975,6 +972,84 @@ def rolling(df, what):
     # df[f'{what}_sma'] = savgol_filter(df[what], 7,2)
     return df
 
+def layout_annotations_fig(fig):
+    fig.update_layout(xaxis=dict(tickformat="%d-%m"))
+
+    #             — eerste oversterftegolf: week 13 tot en met 18 van 2020 (eind maart–eind april 2020);
+    # — tweede oversterftegolf: week 39 van 2020 tot en met week 3 van 2021 (eind
+    # september 2020–januari 2021);
+    # — derde oversterftegolf: week 33 tot en met week 52 van 2021 (half augustus 2021–eind
+    # december 2021).
+    # De hittegolf in 2020 betreft week 33 en week 34 (half augustus 2020).
+
+    fig.add_vrect(
+        x0="2020_13",
+        x1="2020_18",
+        annotation_text="Eerste golf",
+        annotation_position="top left",
+        fillcolor="pink",
+        opacity=0.25,
+        line_width=0,
+    )
+    fig.add_vrect(
+        x0="2020_39",
+        x1="2021_03",
+        annotation_text="Tweede golf",
+        annotation_position="top left",
+        fillcolor="pink",
+        opacity=0.25,
+        line_width=0,
+    )
+    fig.add_vrect(
+        x0="2021_33",
+        x1="2021_52",
+        annotation_text="Derde golf",
+        annotation_position="top left",
+        fillcolor="pink",
+        opacity=0.25,
+        line_width=0,
+    )
+
+    # hittegolven
+    fig.add_vrect(
+        x0="2020_33",
+        x1="2020_34",
+        annotation_text=" ",
+        annotation_position="top left",
+        fillcolor="yellow",
+        opacity=0.35,
+        line_width=0,
+    )
+
+    fig.add_vrect(
+        x0="2022_32",
+        x1="2022_33",
+        annotation_text=" ",
+        annotation_position="top left",
+        fillcolor="yellow",
+        opacity=0.35,
+        line_width=0,
+    )
+
+    fig.add_vrect(
+        x0="2023_23",
+        x1="2023_24",
+        annotation_text=" ",
+        annotation_position="top left",
+        fillcolor="yellow",
+        opacity=0.35,
+        line_width=0,
+    )
+    fig.add_vrect(
+        x0="2023_36",
+        x1="2023_37",
+        annotation_text="Geel = Hitte golf",
+        annotation_position="top left",
+        fillcolor="yellow",
+        opacity=0.35,
+        line_width=0,
+    )
+    return fig
 
 def plot_wrapper(
     df_boosters,
@@ -1031,7 +1106,7 @@ def plot_wrapper(
             mergetype (_type_): _description_
         """
         booster_cat = ["m_v_0_999", "m_v_0_64", "m_v_65_79", "m_v_80_999"]
-
+      
         df_oversterfte = pd.merge(
             df, df_corona, left_on="week_", right_on="weeknr", how="outer"
         )
@@ -1090,7 +1165,7 @@ def plot_wrapper(
         
         
            
-
+        
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         fig.add_trace(
             go.Scatter(
@@ -1314,10 +1389,12 @@ def plot_wrapper(
         # end of plot_lines
 
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
+    
+        df_corona = df_corona[df_corona["weeknr"] !="2019_1"] #somewhere an error bc of 53 weeks in 53
+       
         columnlist = ['avg_', 'low05', 'high95']
         for what_to_sma in columnlist:
             df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=7, center=True).mean().round(1)
-
 
         # df_quantile = df_quantile.sort_values(by=['jaar','week_'])
         
@@ -1342,7 +1419,7 @@ def plot_wrapper(
 
         sterfte = go.Scatter(
             name="Sterfte",
-            x=df_quantile["weeknr"],
+            x=df_corona["weeknr"],
             y=df_corona[series_name],
             mode="lines",
             line=dict(width=2, color="rgba(255, 0, 0, 0.8)"),
@@ -1359,7 +1436,7 @@ def plot_wrapper(
 
         # data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
         data = [high95, low05, avg, sterfte]  # , value_in_year_2021 ]
-        title = f"Overleden {series_name}"
+        title = f"Overleden x {series_name}"
         layout = go.Layout(
             xaxis=dict(title="Weeknumber"),
             yaxis=dict(title="Number of persons"),
@@ -1367,82 +1444,8 @@ def plot_wrapper(
         )
 
         fig = go.Figure(data=data, layout=layout)
-        fig.update_layout(xaxis=dict(tickformat="%d-%m"))
-
-        #             — eerste oversterftegolf: week 13 tot en met 18 van 2020 (eind maart–eind april 2020);
-        # — tweede oversterftegolf: week 39 van 2020 tot en met week 3 van 2021 (eind
-        # september 2020–januari 2021);
-        # — derde oversterftegolf: week 33 tot en met week 52 van 2021 (half augustus 2021–eind
-        # december 2021).
-        # De hittegolf in 2020 betreft week 33 en week 34 (half augustus 2020).
-
-        fig.add_vrect(
-            x0="2020_13",
-            x1="2020_18",
-            annotation_text="Eerste golf",
-            annotation_position="top left",
-            fillcolor="pink",
-            opacity=0.25,
-            line_width=0,
-        )
-        fig.add_vrect(
-            x0="2020_39",
-            x1="2021_03",
-            annotation_text="Tweede golf",
-            annotation_position="top left",
-            fillcolor="pink",
-            opacity=0.25,
-            line_width=0,
-        )
-        fig.add_vrect(
-            x0="2021_33",
-            x1="2021_52",
-            annotation_text="Derde golf",
-            annotation_position="top left",
-            fillcolor="pink",
-            opacity=0.25,
-            line_width=0,
-        )
-
-        # hittegolven
-        fig.add_vrect(
-            x0="2020_33",
-            x1="2020_34",
-            annotation_text=" ",
-            annotation_position="top left",
-            fillcolor="yellow",
-            opacity=0.35,
-            line_width=0,
-        )
-
-        fig.add_vrect(
-            x0="2022_32",
-            x1="2022_33",
-            annotation_text=" ",
-            annotation_position="top left",
-            fillcolor="yellow",
-            opacity=0.35,
-            line_width=0,
-        )
-
-        fig.add_vrect(
-            x0="2023_23",
-            x1="2023_24",
-            annotation_text=" ",
-            annotation_position="top left",
-            fillcolor="yellow",
-            opacity=0.35,
-            line_width=0,
-        )
-        fig.add_vrect(
-            x0="2023_36",
-            x1="2023_37",
-            annotation_text="Geel = Hitte golf",
-            annotation_position="top left",
-            fillcolor="yellow",
-            opacity=0.35,
-            line_width=0,
-        )
+        fig = layout_annotations_fig(fig)
+    
 
         if yaxis_to_zero:
             fig.update_yaxes(rangemode="tozero")
@@ -1478,7 +1481,6 @@ def plot_wrapper(
     else:
         plot_lines(series_name, df_corona)
 
-
 def get_baseline_kobak():
     """Load the csv with the baseline as calculated by Ariel Karlinsky and Dmitry Kobak
         https://elifesciences.org/articles/69336#s4
@@ -1498,7 +1500,6 @@ def get_baseline_kobak():
     df_["weeknr"] = df_["jaar"].astype(str) + "_" + df_["week"].astype(str).str.zfill(2)
     df_ = df_[["weeknr", "baseline_kobak"]]
     return df_
-
 
 def show_difference(df, date_field, show_official, year):
     """Function to show the difference between the two methods quickly"""
@@ -1629,6 +1630,7 @@ def show_difference(df, date_field, show_official, year):
                 y=df["verw_cbs_official"],
                 mode="lines",
                 name="Baseline model cbs  official",
+                line=dict(width=0.75)#, color="rgba(0, 255, 68, 0.8)")
             )
         )
 
@@ -1649,6 +1651,7 @@ def show_difference(df, date_field, show_official, year):
             y=df["verw_cbs_sma"],
             mode="lines",
             name="Baseline model cbs",
+            line=dict(width=0.75, color="rgba(68, 68, 68, 0.8)"),
         )
     )
 
@@ -1659,6 +1662,7 @@ def show_difference(df, date_field, show_official, year):
             y=df["aantal_overlijdens"],
             mode="lines",
             name="Werkelijk overleden",
+            line=dict(width=1.5, color="rgba(255, 0, 0, 1.0)"),
         )
     )
     # Titel en labels toevoegen
@@ -1669,7 +1673,6 @@ def show_difference(df, date_field, show_official, year):
     )
 
     st.plotly_chart(fig)
-
 
 def duplicate_row(df, from_, to):
     """Duplicates a row
@@ -1698,7 +1701,6 @@ def duplicate_row(df, from_, to):
 
     return df
 
-
 def footer():
     st.write(
         "De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie."
@@ -1715,13 +1717,10 @@ def footer():
     st.info("Karlinsky & Kobak: https://elifesciences.org/articles/69336#s4")
     st.info("Steigstra: https://twitter.com/SteigstraHerman/status/1801641074336706839")
 
-
-
 def get_kobak():
     """Load the csv with the baselines as calculated by Ariel Karlinsky and Dmitry Kobak
     https://elifesciences.org/articles/69336#s4
     https://github.com/dkobak/excess-mortality/
-
 
     One line is deleted: Netherlands, 2020, 53, 3087.2
     since all other years have 52 weeks
@@ -1740,11 +1739,11 @@ def get_kobak():
 
     return df_
 
-
 @st.cache_data(ttl=60 * 60 * 24)
-def get_sterftedata(seriename="m_v_0_999"):
+def get_sterftedata(vanaf_jaar, seriename="m_v_0_999", ):
     """Get and manipulate data of the deaths
 
+    
     Args:
         seriename (str, optional): _description_. Defaults to "m_v_0_999".
     """
@@ -1871,14 +1870,113 @@ def get_sterftedata(seriename="m_v_0_999"):
 
     df = df.sort_values(by=["jaar", "weeknr"]).reset_index()
 
-    df = get_data_for_series(df, seriename)
+    df = get_data_for_series_wrapper(df, seriename, vanaf_jaar)
 
     return df
 
+def make_row_df_quantile(series_name, year, df_to_use, w_, period):
+    """DONE
+    Calculate the percentiles of a certain week
+        make_df_quantile -> make_df_quantile -> make_row_quantile
 
-def make_df_quantile(series_name, df_data):
+    Args:
+        series_name (_type_): _description_
+        year (_type_): _description_
+        df_to_use (_type_): _description_
+        w_ (_type_): _description_
+        period 
+    Returns:
+        _type_: _description_
+    """
+    if w_ == 53:
+        w = 52
+    else:
+        w = w_
+    
+    if period == "week":
+        #eurostats
+        df_to_use_ = df_to_use[(df_to_use["weeknr"] == w)].copy(deep=True)
+        if len (df_to_use_)==0:
+            #oversterftecompleet
+            df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
+    elif period == "maand":
+        
+        df_to_use_ = df_to_use[(df_to_use["maandnr"] == w)].copy(deep=True)
+
+    column_to_use = series_name + "_factor_" + str(year)
+  
+    data = df_to_use_[column_to_use]  # .tolist()
+    avg = round(data.mean(), 0)
+      
+          
+    # try:
+    if 1==1:
+        q05 = np.percentile(data, 5)
+        q25 = np.percentile(data, 25)
+        q50 = np.percentile(data, 50)
+        q75 = np.percentile(data, 75)
+        q95 = np.percentile(data, 95)
+    # except:
+    #     q05, q25, q50, q75, q95 = 0, 0, 0, 0, 0
+
+    
+
+    sd = round(data.std(), 0)
+    low05 = round(avg - (2 * sd), 0)
+    high95 = round(avg + (2 * sd), 0)
+
+    df_quantile_ = pd.DataFrame(
+        [
+            {
+                "week_": w_,
+                "jaar": year,
+                "q05": q05,
+                "q25": q25,
+                "q50": q50,
+                "avg_": avg,
+                "avg": avg,
+                "q75": q75,
+                "q95": q95,
+                "low05": low05,
+                "high95": high95,
+            }
+        ]
+    )
+
+    return df_quantile_
+
+def make_df_quantile_year(series_name, df_data, year, period):
+
+    """Calculate the quantiles for a certain year
+        make_df_quantile -> make_df_quantile_year -> make_row_quantile
+
+    Returns:
+        _type_: _description_
+    """
+
+    
+
+    df_to_use = df_data[(df_data["jaar"] >= 2015) & (df_data["jaar"] < 2020)].copy(
+        deep=True
+    )
+   
+    df_quantile = None
+    end = 53 if period == "week" else 13
+
+    #week_list = df_to_use["weeknr"].unique().tolist()
+    for w in range(1, end):
+        df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w, period)
+        df_quantile = pd.concat([df_quantile, df_quantile_], axis=0)
+    if year==2020 and period == "week":
+        #2020 has a week 53
+        df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, 53, period)
+        df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
+    
+    return df_quantile
+
+def make_df_quantile(series_name, df_data, period):
     """_Makes df quantile
-    make_df_quantile -> make_df_quantile -> make_row_quantile
+    make_df_quuantile -> make_df_quantile_year -> make_row_quantile
 
     Args:
         series_name (_type_): _description_
@@ -1890,91 +1988,10 @@ def make_df_quantile(series_name, df_data):
         df_quantiles : df with quantiles
     """
 
-    def make_df_quantile_year(series_name, df_data, year):
-
-        """Calculate the quantiles for a certain year
-            make_df_quantile -> make_df_quantile -> make_row_quantile
+    
 
 
-        Returns:
-            _type_: _description_
-        """
-
-        def make_row_df_quantile(series_name, year, df_to_use, w_):
-            """Calculate the percentiles of a certain week
-                make_df_quantile -> make_df_quantile -> make_row_quantile
-
-            Args:
-                series_name (_type_): _description_
-                year (_type_): _description_
-                df_to_use (_type_): _description_
-                w_ (_type_): _description_
-
-            Returns:
-                _type_: _description_
-            """
-            if w_ == 53:
-                w = 52
-            else:
-                w = w_
-            column_to_use = series_name + "_factor_" + str(year)
-            df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
-
-            data = df_to_use_[column_to_use]  # .tolist()
-            avg = round(data.mean(), 0)
-            
-          
-            df_to_use_ = df_to_use[(df_to_use["week"] == w)].copy(deep=True)
-
-            data = df_to_use_[column_to_use]  # .tolist()
-            avg = round(data.mean(), 0)
-                
-            try:
-                q05 = np.percentile(data, 5)
-                q25 = np.percentile(data, 25)
-                q50 = np.percentile(data, 50)
-                q75 = np.percentile(data, 75)
-                q95 = np.percentile(data, 95)
-            except:
-                q05, q25, q50, q75, q95 = 0, 0, 0, 0, 0
-
-           
-
-            sd = round(data.std(), 0)
-            low05 = round(avg - (2 * sd), 0)
-            high95 = round(avg + (2 * sd), 0)
-
-            df_quantile_ = pd.DataFrame(
-                [
-                    {
-                        "week_": w_,
-                        "jaar": year,
-                        "q05": q05,
-                        "q25": q25,
-                        "q50": q50,
-                        "avg_": avg,
-                        "q75": q75,
-                        "q95": q95,
-                        "low05": low05,
-                        "high95": high95,
-                    }
-                ]
-            )
-
-            return df_quantile_
-
-        df_to_use = df_data[(df_data["jaar"] >= 2015) & (df_data["jaar"] < 2020)].copy(
-            deep=True
-        )
-
-        df_quantile = None
-
-        week_list = df_to_use["weeknr"].unique().tolist()
-        for w in range(1, 53):
-            df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w)
-            df_quantile = pd.concat([df_quantile, df_quantile_], axis=0)
-        return df_quantile
-
+    df_coronas = []
     df_corona = df_data[df_data["jaar"].between(2015, 2025)]
 
     # List to store individual quantile DataFrames
@@ -1982,21 +1999,40 @@ def make_df_quantile(series_name, df_data):
 
     # Loop through the years 2014 to 2024
     for year in range(2015, 2025):
-        df_quantile_year = make_df_quantile_year(series_name, df_data, year)
+        df_corona_year = df_data[(df_data["jaar"] ==year)].copy(deep=True)
+        
+        df_quantile_year = make_df_quantile_year(series_name, df_data, year, period)
         df_quantiles.append(df_quantile_year)
-
+        df_coronas.append(df_corona_year)
     # Concatenate all quantile DataFrames into a single DataFrame
     df_quantile = pd.concat(df_quantiles, axis=0)
-
+    if_corona = pd.concat(df_coronas,axis=0)
+    
     df_quantile["weeknr"] = (
         df_quantile["jaar"].astype(str)
         + "_"
         + df_quantile["week_"].astype(str).str.zfill(2)
     )
 
-    df = pd.merge(df_corona, df_quantile, on="weeknr")
-    return df, df_corona, df_quantile
+  
+    if period == "week":
+      
+        try:
+            df_corona["periodenr"] = df_corona["weeknr"]
+        except:
+            #oversterfte eurostats
+            df_corona["periodenr"] = df_corona["periode_"] #["jaar"].astype(str) +"_" + df_corona["weeknr"].astype(str).str.zfill(2)
+        df_quantile["periodenr"]= df_quantile["weeknr"] #.astype(str) +"_" + df_quantile['periode_'].astype(str).str.zfill(2)
+    elif period == "maand":
+        # crazy manipulations bc of compatibility with overstats_eurostats.maand
+        df_corona["periodenr"] = df_corona["jaar"].astype(str) +"_" + df_corona["maandnr"].astype(str).str.zfill(2)
+        #dfquantile geeft 52 regels voor een jaar, maar alleen de 1e 12 zijn gevvuld. Kolom heet ook weeknr :o
+        #df_quantile["periodenr"]= df_quantile["jaar"].astype(str) +"_" + df_quantile['weeknr'].astype(str).str.zfill(2)
+        df_quantile["periodenr"]= df_quantile["weeknr"] #.astype(str) +"_" + df_quantile['periode_'].astype(str).str.zfill(2)
+        df_quantile=df_quantile[df_quantile["week_"]<13]
 
+    df = pd.merge(df_corona, df_quantile, on="periodenr", how="inner")
+    return df, df_corona, df_quantile
 
 def predict(X, verbose=False, excess_begin=None):
     """Function to predict the baseline with linear regression - Karlinksy & Kobak
@@ -2125,7 +2161,6 @@ def predict(X, verbose=False, excess_begin=None):
         total_excess_std,
     )
 
-
 def show_plot(df, df_covid, df_kobak_github):
     """_summary_
 
@@ -2163,7 +2198,6 @@ def show_plot(df, df_covid, df_kobak_github):
 
     st.plotly_chart(fig)
 
-
 def do_kobak_vs_cbs(df_deaths):
 
     """Main function
@@ -2176,7 +2210,7 @@ def do_kobak_vs_cbs(df_deaths):
     """
     st.subheader("Kobak vs CBS")
     # df_deaths = get_sterftedata()
-    df, _, _ = make_df_quantile("m_v_0_999", df_deaths)
+    df, _, _ = make_df_quantile("m_v_0_999", df_deaths, "week")
 
     df_covid = df[(df["jaar_x"] >= 2020) & (df["jaar_x"] <= 2023)]
 
@@ -2211,7 +2245,6 @@ def do_kobak_vs_cbs(df_deaths):
 
     show_plot(df_kobak_calculated, df_covid, df_kobak_github)
 
-
 def main():
 
     serienames_ = [
@@ -2231,6 +2264,8 @@ def main():
 
     series_name = st.sidebar.selectbox("Leeftijden", serienames_, 0)
     smooth = st.sidebar.selectbox("Smooth div lijnen in de vergelijking", [True,False],0)
+    vanaf_jaar = st.sidebar.number_input ("Beginjaar voor CI-interv. (incl.)", 2000, 2022,2015)
+    period = "week" # st.sidebar.selectbox("Period", ["week", "maand"], index = 0)
     st.header("Oversterfte - minder leeftijdscategorieen - v240829a")
     st.subheader("CBS & RIVM Methode")
     st.write(
@@ -2247,13 +2282,29 @@ def main():
         df_herfstprik,
         df_rioolwater,
         df_kobak,
-    ) = get_all_data(series_name)
+    ) = get_all_data(series_name, vanaf_jaar)
 
     print(f"---{series_name}----")
-    df_data = get_data_for_series(df_sterfte, series_name).copy(deep=True)
+    df_data = get_data_for_series_wrapper(df_sterfte, series_name, vanaf_jaar).copy(deep=True)
+    df_to_export = df_data[["weeknr", "avg", "aantal_overlijdens"]].copy()
+    df_to_export["age_sex"] = "Y0-120_T"
 
-    _, df_corona, df_quantile = make_df_quantile(series_name, df_data)
+    df_merged = df_merged.assign(
+        jaar_week=df_merged["weeknr"],
+        basevalue=df_merged["avg"],
+        OBS_VALUE_=df_merged["aantal_overlijdens"]
+    )
 
+    #st.write(df_to_export)
+    df_to_export = df_merged[["jaar_week","basevalue","OBS_VALUE_"]]
+    df_to_export["age_sex"]= "Y0-120_T"
+    
+    # try:
+    #df_to_export.to_csv(f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte_Y0-120_T.csv")
+    # except:
+    #     pass
+    _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
+    
     plot_wrapper(
         df_boosters,
         df_herhaalprik,
@@ -2273,12 +2324,15 @@ def main():
     if how == "quantiles":
 
         df_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
-        df_merged = make_df_merged(df_data, df_rivm, series_name)
-        # df_merged.to_csv(f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\df_merged_{series_name}.csv")
+        df_merged = make_df_merged(df_data, df_rivm, series_name, period)
+        
+       
         if series_name == "m_v_0_999":
+           
             plot_graph_rivm(df_rivm, series_name, False)
             comparison(df_merged, series_name, smooth)
             do_kobak_vs_cbs(df_sterfte)
+
         df_steigstra = calculate_steigstra(df_merged, series_name)
         plot_steigstra(df_steigstra, series_name)
     else:
@@ -2286,7 +2340,6 @@ def main():
             "De vergrlijking met vaccinateies, rioolwater etc is vooralsnog alleen mogelijk met CBS methode "
         )
     footer()
-
 
 if __name__ == "__main__":
     import datetime

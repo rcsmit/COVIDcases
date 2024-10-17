@@ -14,7 +14,7 @@ import plotly.express as px
 from scipy.stats import linregress
 import statsmodels.api as sm
 from scipy import stats
-
+from oversterfte_compleet import  get_sterftedata, get_data_for_series_wrapper,make_df_quantile
 # for VIF
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
@@ -49,12 +49,32 @@ def get_rioolwater_oud() -> pd.DataFrame:
         return df
 
 def get_oversterfte(opdeling):
-    if platform.processor() != "":
-        file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte.csv"
-    else:
-        file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/basevalues_sterfte.csv"
-    # Load the CSV file
-    df_ = pd.read_csv(file)
+    # if platform.processor() != "":
+    #     file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte.csv"
+    #     file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte_Y0-120_T.csv"
+    
+    # else:
+    #     #file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/basevalues_sterfte.csv"
+    #     file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/basevalues_sterfte_Y0-120_T.csv"
+    # # Load the CSV file
+    # df_ = pd.read_csv(file)
+    df__ = get_sterftedata(2015, "m_v_0_999")
+
+    df_data= get_data_for_series_wrapper(df__,"m_v_0_999",2015)
+    df_, df_corona, df_quantile = make_df_quantile("m_v_0_999", df_data, "week") 
+    #df_to_export = df_data[["weeknr", "avg", "aantal_overlijdens"]].copy()
+    df_["age_sex"] = "Y0-120_T"
+    st.write(df_)
+    df_ = df_.assign(
+        jaar_week=df_["weeknr_x"],
+        base_value=df_["avg"],
+        OBS_VALUE_=df_["m_v_0_999"]
+    )
+
+    #st.write(df_to_export)
+    df_ = df_[["jaar_week","base_value","OBS_VALUE_"]]
+    df_["age_sex"]= "Y0-120_T"
+
     df_["jaar"] = (df_["jaar_week"].str[:4]).astype(int)
     df_["week"] = (df_["jaar_week"].str[5:]).astype(int)
     df_["YearWeekISO"] = df_["jaar"].astype(int).astype(str) + "-W"+ df_["week"].astype(int).astype(str)
@@ -89,7 +109,6 @@ def get_oversterfte(opdeling):
     
     df_["jaar"] = df_["jaar"].astype(int)
     df_["week"] = df_["week"].astype(int)
-
     #df_ = df_[df_["sex"] == "T"]
 
     def add_custom_age_group_deaths(df: pd.DataFrame, min_age: int, max_age: int) -> pd.DataFrame:
@@ -126,6 +145,8 @@ def get_oversterfte(opdeling):
     df_bevolking = get_bevolking("NL", opdeling)
     
     df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
+
+    st.write(df__)
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["base_value"].notna()]
     df__ = df__[df__["jaar"] != 2024]
