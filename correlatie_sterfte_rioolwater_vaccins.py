@@ -14,11 +14,11 @@ import plotly.express as px
 from scipy.stats import linregress
 import statsmodels.api as sm
 from scipy import stats
-from oversterfte_compleet import  get_sterftedata, get_data_for_series_wrapper,make_df_quantile
+from oversterfte_compleet import  get_sterftedata, get_data_for_series_wrapper,make_df_quantile, layout_annotations_fig
 # for VIF
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
-
+from oversterfte_eurostats_maand import get_data_eurostat
 # WAAROM TWEE KEER add_custom_age_group_deaths ??? TODO
 
 #@st.cache_data()
@@ -70,9 +70,8 @@ def get_oversterfte(opdeling):
         base_value=df_["avg"],
         OBS_VALUE_=df_["m_v_0_999"]
     )
-    
 
-    #st.write(df_to_export)
+
     df_ = df_[["jaar_week","base_value","OBS_VALUE_"]]
     df_["age_sex"]= "Y0-120_T"
 
@@ -150,7 +149,7 @@ def get_oversterfte(opdeling):
     
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["base_value"].notna()]
-    df__ = df__[df__["jaar"] != 2024]
+    #df__ = df__[df__["jaar"] != 2024]
     df__["per100k"] = round(df__["OBS_VALUE_"]/df__["aantal"]*100000,1)
 
 
@@ -184,7 +183,7 @@ def get_maandelijkse_overlijdens(oorzaak):
     df_melted['YearMonth'] = df_melted['year'] + '-' + df_melted['month']
 
     # Drop extra columns and keep only relevant ones
-    df_melted_clean = df_melted[['YearMonth', f'OBS_VALUE_{oorzaak}']]
+    df_melted_clean = df_melted[['YearMonth', f'OBS_VALUE_{oorzaak}']].dropna()
     return df_melted_clean
 #@st.cache_data()
 def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.DataFrame:
@@ -202,23 +201,27 @@ def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.Data
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
 
-    if country == "NL":
-        if platform.processor() != "":
-            file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
+    if 1==2:
+        if country == "NL":
+            if platform.processor() != "":
+                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
+            else:
+                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_NL.csv"
+        elif country == "BE":
+            if platform.processor() != "":
+                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_BE.csv"
+            else:
+                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_BE.csv"
         else:
-            file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_NL.csv"
-    elif country == "BE":
-        if platform.processor() != "":
-            file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_BE.csv"
-        else:
-            file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_BE.csv"
-    else:
-        st.error(f"Error in country {country}")
-    df_ = pd.read_csv(
-        file,
-        delimiter=",",
-            low_memory=False,
-            )
+            st.error(f"Error in country {country}")
+        
+        df_ = pd.read_csv(
+            file,
+            delimiter=",",
+                low_memory=False,
+                )
+    df_ = get_data_eurostat()
+   
 
     df_=df_[df_["geo"] == country]
 
@@ -290,7 +293,7 @@ def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.Data
     df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["OBS_VALUE"].notna()]
-    df__ = df__[df__["jaar"] != 2024]
+    #df__ = df__[df__["jaar"] != 2024]
     df__["per100k"] = round(df__["OBS_VALUE"]/df__["aantal"]*100000,1)
 
     return df__
@@ -325,6 +328,7 @@ def get_vaccinaties_owid():
         file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\vaccinations_OWOD_NL_daily.csv"
     else:
         file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/vaccinations_OWOD_NL_daily.csv"
+        
     df = pd.read_csv(
         file,
         delimiter=",",
@@ -393,38 +397,6 @@ def get_vaccinaties():
 
     return df
 
-def compare_vaccinations(df_vaccinaties):
-    st.subheader("Compare vaccinations EDCD - OWID")
-    df_vaccinaties_owid = get_vaccinaties_owid()
-
-    df_vaccinaties_total = df_vaccinaties[df_vaccinaties['age_sex']=="TOTAL_T"].copy(deep=True)
-
-    df_v = pd.merge(df_vaccinaties_total, df_vaccinaties_owid, on="YearWeekISO")
-    df_v["week"] = df_v["week_x"]
-    df_v["jaar"] = df_v["jaar_x"]
-
-    line_plot_2_axis(df_v,"YearWeekISO","TotalDoses_x","TotalDoses_y","TOTAL_T")
-
-    df_v_month = from_week_to_month(df_v,"sum")
-    line_plot_2_axis(df_v_month,"YearMonth","TotalDoses_x","TotalDoses_y","TOTAL_T")
-
-    df_vaccinaties_ = df_vaccinaties[df_vaccinaties["age_sex"] == "TOTAL_T"].copy(deep=True)
-    #df_grouped = df_vaccinaties.groupby(['YearWeekISO', 'age_sex']).sum(numeric_only=True).reset_index()
-    df_grouped = df_vaccinaties_.groupby(['YearWeekISO'])[['FirstDose', 'SecondDose', 'DoseAdditional1', 'DoseAdditional2',
-                       'DoseAdditional3', 'DoseAdditional4', 'DoseAdditional5', 'UnknownDose']].sum(numeric_only=True).reset_index()
-
-    import plotly.express as px
-
-    # Melt the dataframe to get columns as separate entries for plotting
-    df_melted = df_grouped.melt(id_vars=['YearWeekISO'], var_name='column', value_name='value')
-
-
-    # Create a line plot
-    fig = px.line(df_melted, x='YearWeekISO', y='value', color='column', 
-                labels={'value': 'Value', 'YearWeekISO': 'Week'}, 
-                title='Vaccination Data Over Time')
-
-    st.plotly_chart(fig)
 
 def compare_rioolwater(rioolwater):
     st.subheader("compare the rioolwater given by RIVM (x)  and calculated from the file with various meetpunten (y)")
@@ -491,15 +463,15 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         model = sm.OLS(y, x).fit()
     #predictions = model.predict(x)
     st.write("**OUTPUT ORDINARY LEAST SQUARES**")
-    col1,col2=st.columns(2)
-    with col1:
-        st.write("**Model**")
-        print_model = model.summary()
-        st.write(print_model)
-    with col2:
-        robust_model = model.get_robustcov_results(cov_type='HC0')  # You can use 'HC0', 'HC1', 'HC2', or 'HC3'
-        st.write("**robust model**")
-        st.write(robust_model.summary())
+    #col1,col2=st.columns(2)
+    # with col1:
+    #     st.write("**Model**")
+    #     print_model = model.summary()
+    #     st.write(print_model)
+    # with col2:
+    robust_model = model.get_robustcov_results(cov_type='HC0')  # You can use 'HC0', 'HC1', 'HC2', or 'HC3'
+    st.write("**robust model**")
+    st.write(robust_model.summary())
     col1,col2,col3=st.columns([2,1,1])
    
     with col1:
@@ -567,8 +539,8 @@ def make_scatterplot(df: pd.DataFrame, x: str, y: str, age_sex: str):
         y (str): Y-axis column name.
         age_sex (str): Age and sex group.
     """
-    #st.subheader("Scatterplot")
-
+    df[x]=df[x].astype(float)
+    df[y]=df[y].astype(float)
     slope, intercept, r_value, p_value, std_err = linregress(df[x], df[y])
     r_squared = r_value ** 2
     # Calculate correlation coefficient
@@ -635,9 +607,116 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
         ),
         legend=dict(x=0.5, y=1, orientation='h')
     )
-
-    # Show the figure
     
+    # Show the figure
+    try:
+        if 2020 in df["jaar"].values:
+            fig.add_vrect(
+                x0="2020-W13",
+                x1="2020-W18",
+                annotation_text="Eerste golf",
+                annotation_position="top left",
+                fillcolor="pink",
+                opacity=0.25,
+                line_width=0,
+                )
+            fig.add_vrect(
+                x0="2020-W39",
+                x1="2021-W03",
+                annotation_text="Tweede golf",
+                annotation_position="top left",
+                fillcolor="pink",
+                opacity=0.25,
+                line_width=0,
+            )
+
+
+             # hittegolven
+            fig.add_vrect(
+                x0="2020-W33",
+                x1="2020-W34",
+                annotation_text=" ",
+                annotation_position="top left",
+                fillcolor="yellow",
+                opacity=0.35,
+                line_width=0,
+            )
+            fig.add_vrect(
+                x0="2020-W01",
+                x1="2020-W52",
+                fillcolor="grey",
+                opacity=0.1,
+                line_width=0,
+            )
+        if 2021 in df["jaar"].values:
+            fig.add_vrect(
+                x0="2021-W33",
+                x1="2021-W52",
+                annotation_text="Derde golf",
+                annotation_position="top left",
+                fillcolor="pink",
+                opacity=0.25,
+                line_width=0,
+            )
+            fig.add_vrect(
+                x0="2021-W01",
+                x1="2021-W02",
+                fillcolor="grey",
+                opacity=0.35,
+                line_width=0,
+            )
+       
+        if 2022 in df["jaar"].values:
+        
+            fig.add_vrect(
+                x0="2022-W32",
+                x1="2022-W33",
+                annotation_text=" ",
+                annotation_position="top left",
+                fillcolor="yellow",
+                opacity=0.35,
+                line_width=0,
+            )
+            fig.add_vrect(
+                x0="2022-W01",
+                x1="2022-W52",
+                fillcolor="grey",
+                opacity=0.1,
+                line_width=0,
+            )
+        if 2023 in df["jaar"].values:
+        
+            fig.add_vrect(
+                x0="2023-W23",
+                x1="2023-W24",
+                annotation_text=" ",
+                annotation_position="top left",
+                fillcolor="yellow",
+                opacity=0.35,
+                line_width=0,
+            )
+            fig.add_vrect(
+                x0="2023-W36",
+                x1="2023-W37",
+                annotation_text="Geel = Hitte golf",
+                annotation_position="top left",
+                fillcolor="yellow",
+                opacity=0.35,
+                line_width=0,
+            )
+            
+        if 2024 in df["jaar"].values:
+            # geen hittegolf in 2024
+            fig.add_vrect(
+                x0="2024-W01",
+                x1="2024-W39",
+                fillcolor="grey",
+                opacity=0.1,
+                line_width=0,
+            )
+           
+    except:
+        pass
     st.plotly_chart(fig)
 
 def yearweek_to_yearmonth(yearweek: str) -> str:
@@ -671,10 +750,12 @@ def analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, time_period, s
     Returns:
         _type_: _description_
     """    
+    
     df_result_month = from_week_to_month(df_result,"sum")
+    #df_result_month = df_result_month[df_result_month["jaar"] != 2024]
     df_hartvaat = get_maandelijkse_overlijdens(oorzaak)
     
-    df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth") 
+    df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth", how="inner") 
     df_month["maand"] = (df_month["YearMonth"].str[5:]).astype(int)
     
     data = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}", seizoen, maand, normalize)
@@ -732,18 +813,23 @@ def main():
     st.subheader("Relatie sterfte/rioolwater/vaccins")
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
-    (jaar_min, jaar_max) = st.slider("years", 2020,2024,(2021, 2023))
+    (jaar_min, jaar_max) = st.slider("years", 2020,2024,(2021, 2024))
     df = get_sterfte(opdeling)
-    rioolwater = get_rioolwater()
+
+    df_rioolwater = get_rioolwater()
     df_vaccinaties =get_vaccinaties()
-    df_vaccinaties_owid =get_vaccinaties_owid()
+    #df_vaccinaties_owid =get_vaccinaties_owid()
     df_oversterfte = get_oversterfte(opdeling)
     #df_vaccinaties_owid["age_sex"] = "TOTAL_T"
-    
+    if 1==2:
+        st.write(df)
+        st.write(df_rioolwater)
+        st.write(df_vaccinaties)
+        st.write(df_oversterfte)
     results = []
     col1,col2,col3,col4=st.columns(4)
     with col1:
-        y_value = st.selectbox("Y value (bij leeftijdscategorieen)", ["OBS_VALUE", "oversterfte", "p_score"],0 )
+        y_value = st.selectbox("Y value",  ["OBS_VALUE", "oversterfte", "p_score"],0,help = "Alleen bij leeftijdscategorieen" )
     with col2:
         normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
 
@@ -755,33 +841,33 @@ def main():
 
     
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
-  
     
-    df_result1 = pd.merge(df,rioolwater,on=["jaar", "week"], how="inner")   
-    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
-    df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="inner")
+    df_result1 = pd.merge(df,df_rioolwater,on=["jaar", "week"], how="left")   
+    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="left")
+    df_result2=df_result2.fillna(0)
+    df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
     df_result4 = df_result3[(df_result3["jaar"]>=jaar_min) & (df_result3["jaar"]<=jaar_max) ]
 
-    choice_5 = "TOTAL_T"
-    df_result5= df_result4[df_result4["age_sex"] == choice_5]
-
+    age_sex = ""
+    df_result5= df_result4 #[df_result4["age_sex"] == age_sex]
+   
     with st.expander("Rioolwater"):
-        compare_rioolwater(rioolwater)
-    with st.expander("Vaccinations"):
-        compare_vaccinations(df_vaccinaties)
+        compare_rioolwater(df_rioolwater)
     with st.expander("OBS VALUE - oversterfte - Pvalue"):
         col1,col2,col3= st.columns(3)
         with col1:
-            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "oversterfte",choice_5)
-            make_scatterplot(df_result5, "OBS_VALUE", "oversterfte",choice_5)
+            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "oversterfte",age_sex)
+            
+            make_scatterplot(df_result5, "OBS_VALUE", "oversterfte",age_sex)
         with col2:
-            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "p_score",choice_5)
+            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "p_score",age_sex)
             make_scatterplot(df_result5, "OBS_VALUE", "p_score","")
 
         with col3:
-            line_plot_2_axis(df_result5, "YearWeekISO_x" ,"base_value", "OBS_VALUE",choice_5) 
-            make_scatterplot(df_result5,  "base_value", "OBS_VALUE",choice_5)
+            line_plot_2_axis(df_result5, "YearWeekISO_x" ,"base_value", "OBS_VALUE",age_sex) 
+            make_scatterplot(df_result5,  "base_value", "OBS_VALUE",age_sex)
         
+
 
     age_sex_list   = df["age_sex"].unique().tolist()
     
