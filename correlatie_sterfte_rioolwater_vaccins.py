@@ -86,8 +86,7 @@ def get_oversterfte(opdeling):
 
     # Apply the function to create the new columns
     #df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
-    df_["age_sex"] = df_["age_group"] + "_" +df_["geslacht"]
-  
+    
     df_["jaar"] = df_["jaar"].astype(int)
     df_["week"] = df_["week"].astype(int)
 
@@ -122,9 +121,10 @@ def get_oversterfte(opdeling):
     # for i in opdeling:
     #     custom_age_group = add_custom_age_group_deaths(df_, i[0], i[1])
     #     df_ = pd.concat([df_, custom_age_group], ignore_index=True)
-
+    #df_["age_sex"] = df_["age_group"] + "_" +df_["geslacht"]
+  
     df_bevolking = get_bevolking("NL", opdeling)
-
+    
     df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
     df__ = df__[df__["aantal"].notna()]
     df__ = df__[df__["base_value"].notna()]
