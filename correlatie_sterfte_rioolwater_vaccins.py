@@ -503,8 +503,8 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         # 'P-values': model.pvalues,
         # 'T-values': model.tvalues,
         # 'Residuals': model.resid,
-        'C_RNA':model.params["RNA_flow_per_100000"]
-        'C_vacc':model.params["TotalDoses"]
+        'C_RNA':model.params["RNA_flow_per_100000"],
+        'C_vacc':model.params["TotalDoses"],
         'P_const': model.pvalues["const"],
         'P_RNA':model.pvalues["RNA_flow_per_100000"],
         'P_vacc':model.pvalues["TotalDoses"],
