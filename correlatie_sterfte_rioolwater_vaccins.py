@@ -21,7 +21,7 @@ from statsmodels.tools.tools import add_constant
 from oversterfte_eurostats_maand import get_data_eurostat
 # WAAROM TWEE KEER add_custom_age_group_deaths ??? TODO
 
-#@st.cache_data()
+@st.cache_data()
 def get_rioolwater_oud() -> pd.DataFrame:
     """
     Fetch and process historical wastewater data.
@@ -47,7 +47,7 @@ def get_rioolwater_oud() -> pd.DataFrame:
         # https://github.com/statsmodels/statsmodels/issues/9258
         df['RNA_flow_per_100000'] = df['RNA_flow_per_100000'] / 10**17
         return df
-
+@st.cache_data()
 def get_oversterfte(opdeling):
     # if platform.processor() != "":
     #     file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte.csv"
@@ -158,6 +158,7 @@ def get_oversterfte(opdeling):
    
     return df__
 
+@st.cache_data()
 def get_maandelijkse_overlijdens(oorzaak):
 
     if platform.processor() != "":
@@ -185,7 +186,8 @@ def get_maandelijkse_overlijdens(oorzaak):
     # Drop extra columns and keep only relevant ones
     df_melted_clean = df_melted[['YearMonth', f'OBS_VALUE_{oorzaak}']].dropna()
     return df_melted_clean
-#@st.cache_data()
+
+@st.cache_data()
 def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.DataFrame:
     """
     Fetch and process mortality data for a given country.
@@ -298,7 +300,7 @@ def get_sterfte(opdeling: List[Tuple[int, int]], country: str = "NL") -> pd.Data
 
     return df__
 
-#@st.cache_data()
+@st.cache_data()
 def get_rioolwater():
     # https://www.rivm.nl/corona/actueel/weekcijfers
 
@@ -321,7 +323,7 @@ def date_to_yearweekiso(date):
     # Convert to YearWeekISO format (ISO year and ISO week)
     return date.strftime('%G-W%V')
 
-#@st.cache_data()
+@st.cache_data()
 def get_vaccinaties_owid():
     # https://ourworldindata.org/grapher/daily-covid-19-vaccination-doses?tab=chart&country=~NLD
     if platform.processor() != "":
@@ -369,7 +371,7 @@ def get_vaccinaties_owid():
     
     return df_filled
 
-#@st.cache_data()
+@st.cache_data()
 def get_vaccinaties():
     # https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea
 
@@ -393,7 +395,8 @@ def get_vaccinaties():
     df["jaar"] = (df["YearWeekISO"].str[:4]).astype(int)
     df["week"] = (df["YearWeekISO"].str[6:]).astype(int)
 
-
+    df["periodenr"] = df["jaar"].astype(str) + "_" + df["week"].astype(str).str.zfill(2)
+    
 
     return df
 
@@ -851,28 +854,33 @@ def main():
     df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
     df_result4 = df_result3[(df_result3["jaar"]>=jaar_min) & (df_result3["jaar"]<=jaar_max) ]
 
-    age_sex = ""
-    df_result5= df_result4 #[df_result4["age_sex"] == age_sex]
-   
+    age_sex = "TOTAL_T"
+    df_result5= df_result4[df_result4["age_sex"] == age_sex]
+    
     with st.expander("Rioolwater"):
         compare_rioolwater(df_rioolwater)
+   
+
     with st.expander("OBS VALUE - oversterfte - Pvalue"):
         col1,col2,col3= st.columns(3)
         with col1:
-            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "oversterfte",age_sex)
+            line_plot_2_axis(df_result5, "periodenr", "OBS_VALUE", "oversterfte",age_sex)
             
             make_scatterplot(df_result5, "OBS_VALUE", "oversterfte",age_sex)
         with col2:
-            line_plot_2_axis(df_result5, "YearWeekISO_x", "OBS_VALUE", "p_score",age_sex)
+            line_plot_2_axis(df_result5, "periodenr", "OBS_VALUE", "p_score",age_sex)
             make_scatterplot(df_result5, "OBS_VALUE", "p_score","")
 
         with col3:
-            line_plot_2_axis(df_result5, "YearWeekISO_x" ,"base_value", "OBS_VALUE",age_sex) 
+            line_plot_2_axis(df_result5, "periodenr" ,"base_value", "OBS_VALUE",age_sex) 
             make_scatterplot(df_result5,  "base_value", "OBS_VALUE",age_sex)
+    
+
+    if (y_value =="oversterfte") or (y_value =="p_score"):
         
-
-
-    age_sex_list   = df["age_sex"].unique().tolist()
+        age_sex_list = ["TOTAL_T"]
+    else:
+        age_sex_list   = df["age_sex"].unique().tolist()
     
     for age_sex in age_sex_list:
         
