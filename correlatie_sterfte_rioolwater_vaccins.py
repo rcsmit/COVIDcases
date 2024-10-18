@@ -838,14 +838,14 @@ def main():
         st.write(df_vaccinaties)
         st.write(df_oversterfte)
     results = []
-    col1,col2,col3,col4=st.columns(4)
+    col1,col2,col3,col4=st.columns(4,  vertical_alignment="center")
     with col1:
         y_value = st.selectbox("Y value",  ["OBS_VALUE", "oversterfte", "p_score"],0,help = "Alleen bij leeftijdscategorieen" )
     with col2:
         normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
 
     with col3:
-        seizoen = st.checkbox("Seizoensinvloeden meenemen")
+        seizoen = st.checkbox("Seizoensinvloeden meenemen", True)
 
     with col4:
         maand = st.checkbox("Maand-/week invloeden meenemene")
