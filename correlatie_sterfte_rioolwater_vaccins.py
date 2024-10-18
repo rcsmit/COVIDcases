@@ -935,7 +935,7 @@ def main():
 
     # Bekijk de complete DataFrame
     st.write(df_complete)
-    make_scatterplot(df_complete, "F-statistic P-value", "Adjusted R-squared","")
+    make_scatterplot(df_complete, "p_F-stat.", "Adj. R2","")
     #st.write("De OBS_VALUE is 2 weken opgeschoven naar rechts")
     st.subheader("Data sources")
     st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
