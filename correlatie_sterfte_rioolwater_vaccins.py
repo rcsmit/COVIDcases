@@ -509,9 +509,9 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         'P_RNA':model.pvalues["RNA_flow_per_100000"],
         'P_vacc':model.pvalues["TotalDoses"],
         'R-squared': [model.rsquared], #* len(model.params),
-        'Adjusted R-squared': [model.rsquared_adj], # * len(model.params),
-        'F-statistic': [model.fvalue], # * len(model.params),
-        'F-statistic P-value': [model.f_pvalue], # * len(model.params)
+        'Adj. R2': [model.rsquared_adj], # * len(model.params),
+        'F-stat.': [model.fvalue], # * len(model.params),
+        'F-stat. P-value': [model.f_pvalue], # * len(model.params)
     }
         
 
