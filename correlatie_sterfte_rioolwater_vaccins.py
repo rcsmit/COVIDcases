@@ -509,9 +509,9 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         'P_RNA':model.pvalues["RNA_flow_per_100000"],
         'P_vacc':model.pvalues["TotalDoses"],
         'R-squared': [model.rsquared], #* len(model.params),
-        'Adj. R2': [model.rsquared_adj], # * len(model.params),
-        'F-stat.': [model.fvalue], # * len(model.params),
-        'F-stat. P-value': [model.f_pvalue], # * len(model.params)
+        'Adjusted R-squared': [model.rsquared_adj], # * len(model.params),
+        'F-statistic': [model.fvalue], # * len(model.params),
+        'F-statistic P-value': [model.f_pvalue], # * len(model.params)
     }
         
 
@@ -525,13 +525,13 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         'coef_RNA':data['C_RNA'],
         'coef_vacc':data['C_vacc'],
 
-        'P_RNA':data['P_RNA'],
-        'P_vacc':data['P_vacc'],
+        'p_RNA':data['P_RNA'],
+        'p_vacc':data['P_vacc'],
 
         #"R-squared": data["R-squared"],
-        "Adjusted R-squared": data["Adjusted R-squared"],
-        "F-statistic": data["F-statistic"],
-        "F-statistic P-value": data["F-statistic P-value"]
+        "Adj. R2": data["Adjusted R-squared"],
+        "F-stat.": data["F-statistic"],
+        "p_F-stat.": data["F-statistic P-value"]
     })
 
     return df
