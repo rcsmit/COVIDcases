@@ -509,11 +509,11 @@ This approach helps us understand how seasonal changes impact weekly death rates
     normalize = False # st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
     seizoen = True# st.checkbox("Seizoensinvloeden meenemen")
     maand = False #st.checkbox("Maand-/week invloeden meenemene")
-    col1,col2,col3 = st.columns([5,1])
+    col1,col2 = st.columns([5,1])
     with col1:
         (min,max) = st.slider("years", 2000,2024,(2000, 2024))
     with col2:
-         =  st.checkbox("columns")
+        columns =  st.checkbox("columns")
     
     #     use_cos = st.checkbox("use cos", True)
     # with col3:
