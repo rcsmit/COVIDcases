@@ -85,7 +85,7 @@ def main():
             ["[55] Fit Mortality/causes death","fit_mortality"],
             ["[56] Bayes Mortality Vaccination","bayes_vaccination"],
             ["[57] Sterfte/rioolw./vaccins","correlatie_sterfte_rioolwater_vaccins"],
-        
+    
             ]
 
 
