@@ -509,10 +509,12 @@ This approach helps us understand how seasonal changes impact weekly death rates
     normalize = False # st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
     seizoen = True# st.checkbox("Seizoensinvloeden meenemen")
     maand = False #st.checkbox("Maand-/week invloeden meenemene")
-    # col1,col2,col3 = st.columns(3)
-    # with col1:
-    (min,max) = st.slider("years", 2000,2024,(2000, 2024))
-    # with col2:
+    col1,col2,col3 = st.columns([5,1])
+    with col1:
+        (min,max) = st.slider("years", 2000,2024,(2000, 2024))
+    with col2:
+         =  st.checkbox("columns")
+    
     #     use_cos = st.checkbox("use cos", True)
     # with col3:
     #     use_sin = st.checkbox("use sin", True)
@@ -523,22 +525,24 @@ This approach helps us understand how seasonal changes impact weekly death rates
     
     age_sex, df_result5 = get_and_prepare_data(opdeling, min, max)
 
-    col1,col2,col3 = st.columns(3)
-    with col1:
-        use_sin, use_cos = True, True
-        a,b,c, r2,f,f_p = perform_analyse(age_sex, df_result5, time_period,y_value,seizoen, maand, normalize, use_sin, use_cos)
-        line_plot_2_axis(df_result5, "periodenr", "OBS_VALUE",age_sex,a,b,c, r2,f,f_p, use_cos, use_sin, min,max)
+    def run_analysis_and_plot(df, age_sex, time_period, y_value, seizoen, maand, normalize, use_sin, use_cos, min_val, max_val):
+        a, b, c, r2, f, f_p = perform_analyse(age_sex, df, time_period, y_value, seizoen, maand, normalize, use_sin, use_cos)
+        line_plot_2_axis(df, "periodenr", "OBS_VALUE", age_sex, a, b, c, r2, f, f_p, use_cos, use_sin, min_val, max_val)
+
+    options = [(True, True), (True, False), (False, True)]
+    # If columns are available
+    if columns:
+        col1, col2, col3 = st.columns(3)
         
-    with col2:
-        use_sin, use_cos = True, False
-        a,b,c, r2,f,f_p = perform_analyse(age_sex, df_result5, time_period,y_value,seizoen, maand, normalize, use_sin, use_cos)
-        line_plot_2_axis(df_result5, "periodenr", "OBS_VALUE",age_sex,a,b,c, r2,f,f_p, use_cos, use_sin, min,max)
-    
-    with col3:
-        use_sin, use_cos = False, True
-        a,b,c, r2,f,f_p = perform_analyse(age_sex, df_result5, time_period,y_value,seizoen, maand, normalize, use_sin, use_cos)
-        line_plot_2_axis(df_result5, "periodenr", "OBS_VALUE",age_sex,a,b,c, r2,f,f_p, use_cos, use_sin, min,max)
-    
+        for col, (use_sin, use_cos) in zip([col1, col2, col3], options):
+            with col:
+                run_analysis_and_plot(df_result5, age_sex, time_period, y_value, seizoen, maand, normalize, use_sin, use_cos, min, max)
+
+    # If no columns are available
+    else:
+        for use_sin, use_cos in options:
+            run_analysis_and_plot(df_result5, age_sex, time_period, y_value, seizoen, maand, normalize, use_sin, use_cos, min, max)
+  
     
     st.subheader("Data sources")
     st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
