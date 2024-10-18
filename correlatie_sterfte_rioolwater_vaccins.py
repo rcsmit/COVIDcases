@@ -824,7 +824,7 @@ def main():
     st.subheader("Relatie sterfte/rioolwater/vaccins")
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
-    (jaar_min, jaar_max) = st.slider("years", 2020,2024,(2021, 2024))
+    (jaar_min, jaar_max) = st.slider("years", 2020,2024,(2020, 2024))
     df = get_sterfte(opdeling)
 
     df_rioolwater = get_rioolwater()
@@ -838,7 +838,10 @@ def main():
         st.write(df_vaccinaties)
         st.write(df_oversterfte)
     results = []
-    col1,col2,col3,col4=st.columns(4,  vertical_alignment="center")
+    try:
+        col1,col2,col3,col4=st.columns(4, vertical_alignment="center")
+    except:
+        col1,col2,col3,col4=st.columns(4)
     with col1:
         y_value = st.selectbox("Y value",  ["OBS_VALUE", "oversterfte", "p_score"],0,help = "Alleen bij leeftijdscategorieen" )
     with col2:
@@ -854,11 +857,13 @@ def main():
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
     
     df_result1 = pd.merge(df,df_rioolwater,on=["jaar", "week"], how="left")   
-    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="inner")
+    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="left")
+    df_result2 = df_result2.infer_objects()
     df_result2=df_result2.fillna(0)
     df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
+    
     df_result4 = df_result3[(df_result3["jaar"]>=jaar_min) & (df_result3["jaar"]<=jaar_max) ]
-
+   
     age_sex = "TOTAL_T"
     df_result5= df_result4[df_result4["age_sex"] == age_sex]
     
@@ -898,14 +903,16 @@ def main():
         
             
             for oorzaak in ["hart_vaat_ziektes","covid",  "ademhalingsorganen","accidentele_val","wegverkeersongevallen", "nieuwvormingen"]:
-                with st.expander(oorzaak):
-                    if len(df_result)>0:
-                        st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
-                        df_iteration = analyse_maandelijkse_overlijdens(oorzaak,age_sex, df_result, "YearMonth", seizoen, maand, normalize)
-                        # Zet de resultaten van deze iteratie in een DataFrame
-                        
-                        # Voeg deze DataFrame toe aan de lijst van resultaten
-                        results.append(df_iteration)
+                if sum(df_result["TotalDoses"] !=0):
+
+                    with st.expander(oorzaak):
+                        if len(df_result)>0:
+                            st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
+                            df_iteration = analyse_maandelijkse_overlijdens(oorzaak,age_sex, df_result, "YearMonth", seizoen, maand, normalize)
+                            # Zet de resultaten van deze iteratie in een DataFrame
+                            
+                            # Voeg deze DataFrame toe aan de lijst van resultaten
+                            results.append(df_iteration)
         df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str).str.zfill(2)
         
         monthly=False
@@ -914,19 +921,19 @@ def main():
             time_period = "YearMonth"
         else:
             time_period = "YearWeekISO"
-
+        if sum(df_result["TotalDoses"] !=0):
         #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].rolling(window=5).mean()
-        if len(df_result)>0:
-            with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
-                st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
-                df_iteration = perform_analyse(age_sex, df_result, time_period,"RNA_flow_per_100000","TotalDoses", y_value, seizoen, maand, normalize)
-                # Zet de resultaten van deze iteratie in een DataFrame
-                
-                
-                # Voeg deze DataFrame toe aan de lijst van resultaten
-                results.append(df_iteration)
+            if len(df_result)>0:
+                with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
+                    st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
+                    df_iteration = perform_analyse(age_sex, df_result, time_period,"RNA_flow_per_100000","TotalDoses", y_value, seizoen, maand, normalize)
+                    # Zet de resultaten van deze iteratie in een DataFrame
+                    
+                    
+                    # Voeg deze DataFrame toe aan de lijst van resultaten
+                    results.append(df_iteration)
         else:
-            pass
+            
             print (f"No records {age_sex}")
     
     # Als de loop klaar is, concateneer alle DataFrames in één DataFrame
