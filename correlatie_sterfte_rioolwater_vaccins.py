@@ -843,7 +843,7 @@ def main():
     except:
         col1,col2,col3,col4=st.columns(4)
     with col1:
-        y_value = st.selectbox("Y value",  ["OBS_VALUE", "oversterfte", "p_score"],0,help = "Alleen bij leeftijdscategorieen" )
+        y_value = st.selectbox("Y value",  ["OBS_VALUE",  "oversterfte", "p_score"],0,help = "Alleen bij leeftijdscategorieen" )
     with col2:
         normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
 

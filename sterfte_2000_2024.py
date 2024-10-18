@@ -21,121 +21,8 @@ from statsmodels.tools.tools import add_constant
 from oversterfte_eurostats_maand import get_data_eurostat
 # WAAROM TWEE KEER add_custom_age_group_deaths ??? TODO
 
-@st.cache_data
-def get_oversterfte(opdeling):
-    # if platform.processor() != "":
-    #     file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte.csv"
-    #     file = f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte_Y0-120_T.csv"
-    
-    # else:
-    #     #file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/basevalues_sterfte.csv"
-    #     file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/basevalues_sterfte_Y0-120_T.csv"
-    # # Load the CSV file
-    # df_ = pd.read_csv(file)
-    df__ = get_sterftedata(2000, "m_v_0_999")
-
-    df_data= get_data_for_series_wrapper(df__,"m_v_0_999",2015)
-    df_, df_corona, df_quantile = make_df_quantile("m_v_0_999", df_data, "week") 
-    #df_to_export = df_data[["weeknr", "avg", "aantal_overlijdens"]].copy()
-    df_["age_sex"] = "Y0-120_T"
-
-    df_ = df_.assign(
-        jaar_week=df_["periodenr"],
-        base_value=df_["avg"],
-        OBS_VALUE_=df_["m_v_0_999"]
-    )
-
-
-    df_ = df_[["jaar_week","base_value","OBS_VALUE_"]]
-    df_["age_sex"]= "Y0-120_T"
-
-    df_["jaar"] = (df_["jaar_week"].str[:4]).astype(int)
-    df_["week"] = (df_["jaar_week"].str[5:]).astype(int)
-    df_["YearWeekISO"] = df_["jaar"].astype(int).astype(str) + "-W"+ df_["week"].astype(int).astype(str)
-    df_["TIME_PERIOD"] = df_["jaar"].astype(int).astype(str) + "-W"+ df_["week"].astype(int).astype(str)
-
-    # Function to extract age_low and age_high based on patterns
-    def extract_age_ranges(age: str) -> Tuple[int, int]:
-        """
-        Extract age ranges from age string.
-
-        Args:
-            age (str): Age string.
-
-        Returns:
-            Tuple[int, int]: Lower and upper age range.
-        """
-        if age == "TOTAL":
-            return 999, 999
-        elif age == "UNK":
-            return 9999, 9999
-        elif age == "Y_LT5":
-            return 0, 4
-        elif age == "Y_GE90":
-            return 90, 120
-        else:
-            # Extract the numeric part from the pattern 'Y10-14'
-            parts = age[1:].split('-')
-            return int(parts[0]), int(parts[1])
-
-    # Apply the function to create the new columns
-    #df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
-    
-    df_["jaar"] = df_["jaar"].astype(int)
-    df_["week"] = df_["week"].astype(int)
-    #df_ = df_[df_["sex"] == "T"]
-
-    def add_custom_age_group_deaths(df: pd.DataFrame, min_age: int, max_age: int) -> pd.DataFrame:
-        """
-        Add custom age group deaths to the dataframe.
-
-        Args:
-            df (pd.DataFrame): Input dataframe.
-            min_age (int): Minimum age for the group.
-            max_age (int): Maximum age for the group.
-
-        Returns:
-            pd.DataFrame: Dataframe with added custom age group.
-        """
-        # Filter the data based on the dynamic age range
-        df_filtered = df_[(df_['age_low'] >= min_age) & (df_['age_high'] <= max_age)]
-
-        # Group by TIME_PERIOD (week), sex, and sum the deaths (OBS_VALUE)
-        totals = df_filtered.groupby(['TIME_PERIOD', 'sex'], observed=False)['avg'].sum().reset_index()
-
-        # Assign a new label for the age group (dynamic)
-        totals['age'] = f'Y{min_age}-{max_age}'
-        totals["age_sex"] = totals["age"] + "_" +totals["sex"]
-        totals["jaar"] = (totals["TIME_PERIOD"].str[:4]).astype(int)
-        totals["week"] = (totals["TIME_PERIOD"].str[6:]).astype(int)
-        return totals
-
-
-    # for i in opdeling:
-    #     custom_age_group = add_custom_age_group_deaths(df_, i[0], i[1])
-    #     df_ = pd.concat([df_, custom_age_group], ignore_index=True)
-    #df_["age_sex"] = df_["age_group"] + "_" +df_["geslacht"]
-  
-    df_bevolking = get_bevolking("NL", opdeling)
-    
-    df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
-
-    
-    df__ = df__[df__["aantal"].notna()]
-    df__ = df__[df__["base_value"].notna()]
-    #df__ = df__[df__["jaar"] != 2024]
-    df__["per100k"] = round(df__["OBS_VALUE_"]/df__["aantal"]*100000,1)
-
-
-    df__["oversterfte"] = df__["OBS_VALUE_"] - df__["base_value"]
-    df__["p_score"] = ( df__["OBS_VALUE_"]- df__["base_value"]) /   df__["base_value"]
-   
-    return df__
-
-
-
 @st.cache_data()
-def get_sterfte(opdeling: List[Tuple[int, int]],min:int,max:int, country: str = "NL") -> pd.DataFrame:
+def get_sterfte(min,max, country: str = "NL") -> pd.DataFrame:
     """
     Fetch and process mortality data for a given country.
 
@@ -150,105 +37,19 @@ def get_sterfte(opdeling: List[Tuple[int, int]],min:int,max:int, country: str = 
     # https://ec.europa.eu/eurostat/databrowser/bookmark/fbd80cd8-7b96-4ad9-98be-1358dd80f191?lang=en
     #https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/DEMO_R_MWK_05/1.0?references=descendants&detail=referencepartial&format=sdmx_2.1_generic&compressed=true
 
-    if 1==2:
-        if country == "NL":
-            if platform.processor() != "":
-                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_NL.csv"
-            else:
-                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_NL.csv"
-        elif country == "BE":
-            if platform.processor() != "":
-                file = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\sterfte_eurostats_BE.csv"
-            else:
-                file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/sterfte_eurostats_BE.csv"
-        else:
-            st.error(f"Error in country {country}")
-        
-        df_ = pd.read_csv(
-            file,
-            delimiter=",",
-                low_memory=False,
-                )
-    df_ = get_data_eurostat()
-   
-
-    df_=df_[df_["geo"] == country]
-
-    df_["age_sex"] = df_["age"] + "_" +df_["sex"]
-
-    # Function to extract age_low and age_high based on patterns
-    def extract_age_ranges(age: str) -> Tuple[int, int]:
-        """
-        Extract age ranges from age string.
-
-        Args:
-            age (str): Age string.
-
-        Returns:
-            Tuple[int, int]: Lower and upper age range.
-        """
-        if age == "TOTAL":
-            return 999, 999
-        elif age == "UNK":
-            return 9999, 9999
-        elif age == "Y_LT5":
-            return 0, 4
-        elif age == "Y_GE90":
-            return 90, 120
-        else:
-            # Extract the numeric part from the pattern 'Y10-14'
-            parts = age[1:].split('-')
-            return int(parts[0]), int(parts[1])
-
-    # Apply the function to create the new columns
-    df_['age_low'], df_['age_high'] = zip(*df_['age'].apply(extract_age_ranges))
     
+    df_ = get_data_eurostat()
+    df_=df_[df_["geo"] == country]
     df_["jaar"] = (df_["TIME_PERIOD"].str[:4]).astype(int)
     df_["week"] = (df_["TIME_PERIOD"].str[6:]).astype(int)
-    df_ = df_[(df_["jaar"] >= min) & (df_["jaar"] < max)].copy(
+    df_ = df_[(df_["jaar"] >= min) & (df_["jaar"] <= max)].copy(
         deep=True
     )
    
-    df_ = df_[df_["sex"] == "T"]
+    df_ = df_[(df_["sex"] == "T") & (df_["age"] == "TOTAL")]
 
-    def add_custom_age_group_deaths(df: pd.DataFrame, min_age: int, max_age: int) -> pd.DataFrame:
-        """
-        Add custom age group deaths to the dataframe.
-
-        Args:
-            df (pd.DataFrame): Input dataframe.
-            min_age (int): Minimum age for the group.
-            max_age (int): Maximum age for the group.
-
-        Returns:
-            pd.DataFrame: Dataframe with added custom age group.
-        """
-        # Filter the data based on the dynamic age range
-        df_filtered = df_[(df_['age_low'] >= min_age) & (df_['age_high'] <= max_age)]
-
-        # Group by TIME_PERIOD (week), sex, and sum the deaths (OBS_VALUE)
-        totals = df_filtered.groupby(['TIME_PERIOD', 'sex'], observed=False)['OBS_VALUE'].sum().reset_index()
-
-        # Assign a new label for the age group (dynamic)
-        totals['age'] = f'Y{min_age}-{max_age}'
-        totals["age_sex"] = totals["age"] + "_" +totals["sex"]
-        totals["jaar"] = (totals["TIME_PERIOD"].str[:4]).astype(int)
-        totals["week"] = (totals["TIME_PERIOD"].str[6:]).astype(int)
-        return totals
-
-    for i in opdeling:
-        custom_age_group = add_custom_age_group_deaths(df_, i[0], i[1])
-        df_ = pd.concat([df_, custom_age_group], ignore_index=True)
-
-    df_bevolking = get_bevolking("NL", opdeling)
-
-    df__ = pd.merge(df_, df_bevolking, on=['jaar', 'age_sex'], how='outer')
-    df__ = df__[df__["aantal"].notna()]
-    df__ = df__[df__["OBS_VALUE"].notna()]
-    #df__ = df__[df__["jaar"] != 2024]
-    df__["per100k"] = round(df__["OBS_VALUE"]/df__["aantal"]*100000,1)
-
-    return df__
+  
+    return df_
 
 def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: str, age_sex: str, normalize:bool, use_sin:bool, use_cos:bool):
     """
@@ -472,13 +273,15 @@ def perform_analyse(age_sex, df, time_period,y, seizoen, maand, normalize, use_s
     return a,b,c, r2,f,f_p
 
 def get_and_prepare_data(opdeling, min, max):
-    df = get_sterfte(opdeling,min,max)
-    df_oversterfte = get_oversterfte(opdeling)
-    df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
-    df_result3 = pd.merge(df, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
+    df_result3 = get_sterfte(min,max)
+    
+    # df_oversterfte = get_oversterfte(opdeling)
+    # df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
+    # df_result3 = pd.merge(df, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
     age_sex = "TOTAL_T"
     df_result5= df_result3[df_result3["age_sex"] == age_sex]
     df_result5["periodenr"] =df_result5["jaar"].astype(str) + "_" + df_result5["week"].astype(int).astype(str).str.zfill(2)
+    
     return age_sex,df_result5
    
 
@@ -509,7 +312,10 @@ This approach helps us understand how seasonal changes impact weekly death rates
     normalize = False # st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
     seizoen = True# st.checkbox("Seizoensinvloeden meenemen")
     maand = False #st.checkbox("Maand-/week invloeden meenemene")
-    col1,col2 = st.columns([5,1], vertical_alignment="center")
+    try:
+        col1,col2 = st.columns([5,1], vertical_alignment="center")
+    except:
+        col1,col2 = st.columns([5,1])
     with col1:
         (min,max) = st.slider("years", 2000,2024,(2000, 2024))
     with col2:
