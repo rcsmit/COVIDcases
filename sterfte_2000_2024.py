@@ -484,18 +484,22 @@ def get_and_prepare_data(opdeling, min, max):
 
 def main():
     st.subheader("Multiple Lineair Regression")
-    st.info("""This analysis examines seasonality in the number of deaths in the Netherlands, 
-            where deaths fluctuate based on the time of year. Using regression models, 
-            we analyze these patterns by applying cosine and sine functions to capture seasonal cycles.
+    st.info("""
+This analysis examines seasonality in the number of deaths in the Netherlands, 
+where deaths fluctuate based on the time of year. Using regression models, 
+we analyze these patterns by applying cosine and sine functions to capture seasonal cycles.
 
-            Key results include:
-            **R²**: Measures how well the model explains the data. A value above 0.7 suggests 
-            the model explains a strong portion of the variation in deaths.
-            **F-statistic**: Indicates the overall effectiveness of the model. A high F-statistic 
-            (generally above 10) indicates the model is meaningful.
-            **F p-value**: Tests if the relationships are statistically significant.  
-            If below 0.05, the results are statistically significant, meaning the seasonal effects are unlikely to be due to chance.
-            This approach helps us understand how seasonal changes impact weekly death rates.
+Key results include:
+
+**R²**: Measures how well the model explains the data. 
+A value above 0.7 suggests the model explains a strong portion of the variation in deaths.
+
+**F-statistic**: Indicates the overall effectiveness of the model. 
+A high F-statistic (generally above 10) indicates the model is meaningful.
+
+**F p-value**: Tests if the relationships are statistically significant. 
+If below 0.05, the results are statistically significant, meaning the seasonal effects are unlikely to be due to chance.
+This approach helps us understand how seasonal changes impact weekly death rates.
             """)
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
    
@@ -538,7 +542,30 @@ def main():
     
     st.subheader("Data sources")
     st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
+    st.info("""
+Het combineren van zowel sin als cos in een regressiemodel levert vaak het 
+beste resultaat omdat beide functies samen de volledige seizoenscyclus 
+kunnen beschrijven. Ze vullen elkaar aan door elk een deel van de golfbeweging op te vangen:
 
+Cosinus is hoog in januari (bij 1) en laag in juli (bij 7), wat een typische 
+winter-zomer trend beschrijft. Dit past goed bij het patroon van hogere 
+sterftecijfers in de wintermaanden, vooral door bijvoorbeeld griep of 
+koude weersomstandigheden.
+
+Sinus werkt iets anders: deze is nul bij januari en juli en heeft pieken 
+in de lente en herfst (bij ongeveer week 13 en 39). Dit helpt het model 
+de kleinere schommelingen in sterfte te beschrijven die mogelijk niet volledig 
+door alleen cosinus worden opgevangen.
+
+Samen zorgen ze ervoor dat het model zowel de amplitude (hoe groot de schommelingen zijn)
+als de faseverschuiving (wanneer pieken en dalen plaatsvinden) van de 
+seizoensgebonden sterfte nauwkeurig kan beschrijven. Dit geeft het model 
+flexibiliteit om het volledige patroon door het jaar heen beter te volgen, 
+wat leidt tot een betere R², F-statistic, en p-waarde.
+
+Kortom, door zowel sin als cos te gebruiken, kan het model zowel de symmetrische 
+als de asymmetrische variaties van sterfte over de seizoenen heen effectief modelleren. [ChatGPT]
+            """)
 if __name__ == "__main__":
     import os
     import datetime
