@@ -260,7 +260,7 @@ def get_doodsoorzaken(opdeling) -> pd.DataFrame:
     df = df.rename(columns={'Perioden': 'jaar'})
     df = df.rename(columns={'Sexe': 'geslacht'})
     df["jaar"]= df["jaar"].astype(int)
-    df=df[df["jaar"]>1999]
+    #df=df[df["jaar"]>1999]
     
     #opdeling = [[0,19],[20,64],[65,79],[80,120]]
     df_bevolking = get_bevolking("NL", opdeling)
