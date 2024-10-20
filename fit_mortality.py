@@ -1075,7 +1075,7 @@ def main() -> None:
     columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
     if what_to_do == "selection":
         age_groups_selected = [st.sidebar.selectbox("age group", age_groups,age_groups_def)]
-        start_years = [st.sidebar.number_input("Fitting from year",2000,2019,2010)]
+        start_years = [st.sidebar.number_input("Fitting from year",1950,2019,2010)]
         verbose=True
         secondary_choice_ = st.sidebar.multiselect(
             "Secondary choice",
@@ -1130,7 +1130,7 @@ def main() -> None:
     # Display the results as a table in Streamlit
     st.subheader("Excess Mortality Comparison")
     st.dataframe(df_pivot)
-   
+    st.info("Doodsoorzaken: https://www.cbs.nl/nl-nl/cijfers/detail/7052_95")
 if __name__ == "__main__":
     import os
     import datetime
