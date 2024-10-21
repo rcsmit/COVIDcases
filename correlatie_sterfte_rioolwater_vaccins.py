@@ -580,12 +580,12 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
 
     # Create a figure
     fig = go.Figure()
-
+    df[f"{y1}_sma"] = df[y1].rolling(window=5, center=True).mean()
     # Add OBS_VALUE as the first line on the left y-axis
     fig.add_trace(
         go.Scatter(
             x=df[x],
-            y=df[y1],
+            y=df[f"{y1}_sma"],
             mode='lines',
             name=y1,
             line=dict(color='blue')
@@ -805,8 +805,8 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
             x_values += ['week']
     y_value_ = y
     
-   
     col1,col2=st.columns(2)
+    #col1,col2,col3=st.columns(3)
     with col1:
         line_plot_2_axis(df, time_period,y_value_, x1,age_sex)
         make_scatterplot(df, y_value_, x1,age_sex)
@@ -814,6 +814,9 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
     with col2:
         line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
         make_scatterplot(df, y_value_, x2,age_sex)
+    # with col3:
+    #     line_plot_2_axis(df, time_period,x1, x2,age_sex)
+    #     make_scatterplot(df, x1, x2,age_sex)
     try:
         data = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
     except:
@@ -824,7 +827,22 @@ def main():
     st.subheader("Relatie sterfte/rioolwater/vaccins")
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
-    (jaar_min, jaar_max) = st.slider("years", 2020,2024,(2020, 2024))
+    col1,col2,col3,col4=st.columns(4)
+    with col1:
+        start_week = st.number_input("Startweek",1,52,1)
+    with col2:
+        start_jaar = st.number_input("Startjaar",2020,2024,2020)
+    with col3:
+        eind_week = st.number_input("Eindweek",1,52,52)
+    with col4:
+        eind_jaar = st.number_input("Eindjaar",2020,2024,2024)
+    pseudo_start_week = start_jaar*52+start_week
+    pseudo_eind_week = eind_jaar*52+eind_week
+    if pseudo_start_week>=pseudo_eind_week:
+        st.error("Eind kan niet voor start")
+        st.stop()
+
+    #(jaar_min, jaar_max) = st.slider("years", 2020,2024,(2020, 2024))
     df = get_sterfte(opdeling)
 
     df_rioolwater = get_rioolwater()
@@ -861,11 +879,15 @@ def main():
     df_result2 = df_result2.infer_objects()
     df_result2=df_result2.fillna(0)
     df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
-    
-    df_result4 = df_result3[(df_result3["jaar"]>=jaar_min) & (df_result3["jaar"]<=jaar_max) ]
-   
+    df_result3["pseudoweek"] =  (df_result3["jaar"]) *52+df_result3["week"]
+    df_result4 = df_result3[(df_result3["pseudoweek"]>=pseudo_start_week) & (df_result3["pseudoweek"]<=pseudo_eind_week) ]
+    df_result4 = df_result4[df_result4["week"] !=53]
     age_sex = "TOTAL_T"
     df_result5= df_result4[df_result4["age_sex"] == age_sex]
+    st.write(df_result5)
+    
+    df_iteration = perform_analyse(age_sex, df_result5, "jaar_week","RNA_flow_per_100000","TotalDoses", y_value, seizoen, maand, normalize)
+                    
     
     with st.expander("Rioolwater"):
         compare_rioolwater(df_rioolwater)
