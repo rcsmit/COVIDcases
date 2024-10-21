@@ -892,7 +892,6 @@ def main():
     with st.expander("Rioolwater"):
         compare_rioolwater(df_rioolwater)
    
-
     with st.expander("OBS VALUE - oversterfte - Pvalue"):
         col1,col2,col3= st.columns(3)
         with col1:
