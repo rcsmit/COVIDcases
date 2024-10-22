@@ -972,6 +972,7 @@ def main():
             with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
                 st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
                 st.write(df_result)
+                #df_result.to_csv(f"{age_sex}")
                 df_iteration,_,_,_,_ = perform_analyse(age_sex, df_result, time_period, "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
                 results.append(df_iteration)
     
