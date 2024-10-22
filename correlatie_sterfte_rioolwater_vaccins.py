@@ -836,10 +836,10 @@ def main():
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
     
     opdeling = [[0, 120], [15, 17], [18, 24], [25, 49], [50, 59], [60, 69], [70, 79], [80, 120]]
-    col1, col2, col3, col4, col5 = st.columns(5)
+    col1, col2, col3, col4, col5 = st.columns(5, vertical_alignment="center")
     
     with col1:
-        fixed_periods = st.checkbox("Fixed periods for Anne Lanning", False)
+        fixed_periods = st.checkbox("Fixed periods", False)
     
     if not fixed_periods:
         with col2:
@@ -874,7 +874,7 @@ def main():
     
     df_merged["pseudoweek"] = df_merged["jaar"] * 52 + df_merged["week"]
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4, vertical_alignment="center")
     with col1:
         y_value = st.selectbox("Y value", ["OBS_VALUE", "oversterfte", "p_score"], 0, help="Alleen bij leeftijdscategorieen")
     with col2:
@@ -936,6 +936,7 @@ def main():
         compare_rioolwater(df_rioolwater)
     
     with st.expander("OBS VALUE - oversterfte - Pvalue"):
+        
         col1, col2, col3 = st.columns(3)
         with col1:
             line_plot_2_axis(df_filtered, "periodenr", "OBS_VALUE", "oversterfte", age_sex)
@@ -960,20 +961,20 @@ def main():
                 if df_result["TotalDoses"].sum() != 0:
                     with st.expander(oorzaak):
                         st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
+                        
                         df_iteration = analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, "YearMonth", seizoen, maand, normalize)
                         results.append(df_iteration)
         
-        time_period = "YearMonth" if maand else "jaar_week"
+        time_period = "YearMonth" if maand else "TIME_PERIOD_x"
         #st.write(df_result)
         if df_result["TotalDoses"].sum() != 0:
             with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
                 st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
+                st.write(df_result)
                 df_iteration,_,_,_,_ = perform_analyse(age_sex, df_result, time_period, "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
                 results.append(df_iteration)
     
-
     df_complete = pd.concat(results, ignore_index=True)
-    
     
     st.write(df_complete)
     make_scatterplot(df_complete, "p_F-stat.", "Adj. R2", "")
