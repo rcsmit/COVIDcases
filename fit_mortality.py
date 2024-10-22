@@ -1113,7 +1113,7 @@ def main() -> None:
             age_groups_selected_y = [age_groups_selected_x]
             
             df_results = calculate_results(df, age_groups_selected_y, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot, scaled)
-   
+            df_results.to_csv(f"data_{age_groups_selected_x}.csv")
      # Pivot the DataFrame to create a multi-level column structure
     df_pivot = df_results.pivot_table(
         index='age_group',
