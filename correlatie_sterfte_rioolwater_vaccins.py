@@ -971,8 +971,9 @@ def main():
                 df_iteration,_,_,_,_ = perform_analyse(age_sex, df_result, time_period, "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
                 results.append(df_iteration)
     
-    
+
     df_complete = pd.concat(results, ignore_index=True)
+    
     
     st.write(df_complete)
     make_scatterplot(df_complete, "p_F-stat.", "Adj. R2", "")
