@@ -874,6 +874,7 @@ def main():
     
     df_merged["pseudoweek"] = df_merged["jaar"] * 52 + df_merged["week"]
 
+
     col1, col2, col3, col4 = st.columns(4, vertical_alignment="center")
     with col1:
         y_value = st.selectbox("Y value", ["OBS_VALUE", "oversterfte", "p_score"], 0, help="Alleen bij leeftijdscategorieen")
