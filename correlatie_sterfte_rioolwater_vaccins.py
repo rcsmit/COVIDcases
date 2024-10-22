@@ -8,7 +8,7 @@ import datetime as dt
 import pandas as pd
 import streamlit as st
 import numpy as np
-
+from covid_dashboard_rcsmit import find_lag_time
 import plotly.express as px
 
 from scipy.stats import linregress
@@ -19,6 +19,11 @@ from oversterfte_compleet import  get_sterftedata, get_data_for_series_wrapper,m
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
 from oversterfte_eurostats_maand import get_data_eurostat
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+from scipy.signal import savgol_filter
+
 # WAAROM TWEE KEER add_custom_age_group_deaths ??? TODO
 
 @st.cache_data()
@@ -766,7 +771,7 @@ def analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, time_period, s
     df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth", how="inner") 
     df_month["maand"] = (df_month["YearMonth"].str[5:]).astype(int)
     
-    data = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}", seizoen, maand, normalize)
+    data,_,_,_,_ = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}", seizoen, maand, normalize)
     return data
 def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize):
     """_summary_
@@ -821,150 +826,156 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
         data = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
     except:
         data = None
-    return data
+    max_lag,max_corr,max_lag_sma,max_corr_sma = find_lag_time(df, x1, y_value_, -14, 14)
+    return data,max_lag,max_corr,max_lag_sma,max_corr_sma
+
+
 
 def main():
     st.subheader("Relatie sterfte/rioolwater/vaccins")
     st.info("Inspired by https://www.linkedin.com/posts/annelaning_vaccinatie-corona-prevalentie-activity-7214244468269481986-KutC/")
-    opdeling = [[0,120],[15,17],[18,24], [25,49],[50,59],[60,69],[70,79],[80,120]]
-    col1,col2,col3,col4=st.columns(4)
+    
+    opdeling = [[0, 120], [15, 17], [18, 24], [25, 49], [50, 59], [60, 69], [70, 79], [80, 120]]
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
     with col1:
-        start_week = st.number_input("Startweek",1,52,1)
-    with col2:
-        start_jaar = st.number_input("Startjaar",2020,2024,2020)
-    with col3:
-        eind_week = st.number_input("Eindweek",1,52,52)
-    with col4:
-        eind_jaar = st.number_input("Eindjaar",2020,2024,2024)
-    pseudo_start_week = start_jaar*52+start_week
-    pseudo_eind_week = eind_jaar*52+eind_week
-    if pseudo_start_week>=pseudo_eind_week:
-        st.error("Eind kan niet voor start")
-        st.stop()
-
-    #(jaar_min, jaar_max) = st.slider("years", 2020,2024,(2020, 2024))
+        fixed_periods = st.checkbox("Fixed periods for Anne Lanning", False)
+    
+    if not fixed_periods:
+        with col2:
+            start_week = st.number_input("Startweek", 1, 52, 1)
+        with col3:
+            start_jaar = st.number_input("Startjaar", 2020, 2024, 2020)
+        with col4:
+            eind_week = st.number_input("Eindweek", 1, 52, 52)
+        with col5:
+            eind_jaar = st.number_input("Eindjaar", 2020, 2024, 2024)
+        
+        pseudo_start_week = start_jaar * 52 + start_week
+        pseudo_eind_week = eind_jaar * 52 + eind_week
+        
+        if pseudo_start_week >= pseudo_eind_week:
+            st.error("Eind kan niet voor start")
+            st.stop()
+    
     df = get_sterfte(opdeling)
-
     df_rioolwater = get_rioolwater()
-    df_vaccinaties =get_vaccinaties()
-    #df_vaccinaties_owid =get_vaccinaties_owid()
+    df_vaccinaties = get_vaccinaties()
     df_oversterfte = get_oversterfte(opdeling)
-    #df_vaccinaties_owid["age_sex"] = "TOTAL_T"
-    if 1==2:
-        st.write(df)
-        st.write(df_rioolwater)
-        st.write(df_vaccinaties)
-        st.write(df_oversterfte)
-    results = []
-    try:
-        col1,col2,col3,col4=st.columns(4, vertical_alignment="center")
-    except:
-        col1,col2,col3,col4=st.columns(4)
-    with col1:
-        y_value = st.selectbox("Y value",  ["OBS_VALUE",  "oversterfte", "p_score"],0,help = "Alleen bij leeftijdscategorieen" )
-    with col2:
-        normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
-
-    with col3:
-        seizoen = st.checkbox("Seizoensinvloeden meenemen", True)
-
-    with col4:
-        maand = st.checkbox("Maand-/week invloeden meenemene")
-
     
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
     
-    df_result1 = pd.merge(df,df_rioolwater,on=["jaar", "week"], how="left")   
-    df_result2 = pd.merge(df_result1, df_vaccinaties, on=["jaar", "week","age_sex"], how="left")
-    df_result2 = df_result2.infer_objects()
-    df_result2=df_result2.fillna(0)
-    df_result3 = pd.merge(df_result2, df_oversterfte, on=["jaar", "week","age_sex"], how="left")
-    df_result3["pseudoweek"] =  (df_result3["jaar"]) *52+df_result3["week"]
-    df_result4 = df_result3[(df_result3["pseudoweek"]>=pseudo_start_week) & (df_result3["pseudoweek"]<=pseudo_eind_week) ]
-    df_result4 = df_result4[df_result4["week"] !=53]
-    age_sex = "TOTAL_T"
-    df_result5= df_result4[df_result4["age_sex"] == age_sex]
-    st.write(df_result5)
+    df_merged = (
+        pd.merge(df, df_rioolwater, on=["jaar", "week"], how="left")
+        .merge(df_vaccinaties, on=["jaar", "week", "age_sex"], how="left")
+        .fillna(0).infer_objects(copy=False)
+        .merge(df_oversterfte, on=["jaar", "week", "age_sex"], how="left")
+    )
     
-    df_iteration = perform_analyse(age_sex, df_result5, "jaar_week","RNA_flow_per_100000","TotalDoses", y_value, seizoen, maand, normalize)
-                    
+    df_merged["pseudoweek"] = df_merged["jaar"] * 52 + df_merged["week"]
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        y_value = st.selectbox("Y value", ["OBS_VALUE", "oversterfte", "p_score"], 0, help="Alleen bij leeftijdscategorieen")
+    with col2:
+        normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
+    with col3:
+        seizoen = st.checkbox("Seizoensinvloeden meenemen", True)
+    with col4:
+        maand = st.checkbox("Maand-/week invloeden meenemene")
+    
+    if fixed_periods:
+        periods = [
+            [1, 2020, 26, 2021],
+            [27, 2021, 26, 2022],
+            [27, 2022, 26, 2023],
+            [27, 2023, 52, 2024],
+            [1,2022,52,2023],
+            [1,2020,52,2024]
+        ]
+        results = []
+        for start_wk, start_yr, end_wk, end_yr in periods:
+            pseudo_start_week = start_yr * 52 + start_wk
+            pseudo_eind_week = end_yr * 52 + end_wk
+            
+            st.subheader(f"{start_wk}-{start_yr} -- {end_wk}-{end_yr}")
+            df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
+            df_period = df_period[df_period["week"] != 53]
+            
+            age_sex = "TOTAL_T"
+            df_filtered = df_period[df_period["age_sex"] == age_sex]
+            
+            _,max_lag,max_corr,max_lag_sma,max_corr_sma = perform_analyse(age_sex, df_filtered, "jaar_week", "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
+            period = f"{start_wk}-{start_yr}-{end_wk}/{end_yr}"
+
+            result = {
+                "period": period,
+                "max_lag_days": max_lag,
+                "max_corr": max_corr,
+                "max_lag_days_sma_(7)": max_lag_sma,
+                "max_corr_sma_(7)": max_corr_sma
+            }
+            
+            # Append the result dictionary to the results list
+            results.append(result)
+
+        # Convert the results list to a dataframe
+        df_results = pd.DataFrame(results)
+
+        # Display the resulting dataframe
+
+        st.subheader("Optimum shift for maximum correlation")
+        st.write(df_results)
+        st.stop()
+    df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
+    df_period = df_period[df_period["week"] != 53]
+    age_sex = "TOTAL_T"
+    df_filtered = df_period[df_period["age_sex"] == age_sex]
     
     with st.expander("Rioolwater"):
         compare_rioolwater(df_rioolwater)
-   
+    
     with st.expander("OBS VALUE - oversterfte - Pvalue"):
-        col1,col2,col3= st.columns(3)
+        col1, col2, col3 = st.columns(3)
         with col1:
-            line_plot_2_axis(df_result5, "periodenr", "OBS_VALUE", "oversterfte",age_sex)
-            
-            make_scatterplot(df_result5, "OBS_VALUE", "oversterfte",age_sex)
+            line_plot_2_axis(df_filtered, "periodenr", "OBS_VALUE", "oversterfte", age_sex)
+            make_scatterplot(df_filtered, "OBS_VALUE", "oversterfte", age_sex)
         with col2:
-            line_plot_2_axis(df_result5, "periodenr", "OBS_VALUE", "p_score",age_sex)
-            make_scatterplot(df_result5, "OBS_VALUE", "p_score","")
-
+            line_plot_2_axis(df_filtered, "periodenr", "OBS_VALUE", "p_score", age_sex)
+            make_scatterplot(df_filtered, "OBS_VALUE", "p_score", "")
         with col3:
-            line_plot_2_axis(df_result5, "periodenr" ,"base_value", "OBS_VALUE",age_sex) 
-            make_scatterplot(df_result5,  "base_value", "OBS_VALUE",age_sex)
+            line_plot_2_axis(df_filtered, "periodenr", "base_value", "OBS_VALUE", age_sex)
+            make_scatterplot(df_filtered, "base_value", "OBS_VALUE", age_sex)
     
-
-    if (y_value =="oversterfte") or (y_value =="p_score"):
-        
-        age_sex_list = ["TOTAL_T"]
-    else:
-        age_sex_list   = df["age_sex"].unique().tolist()
+    # Analyze based on age groups and causes
+    age_sex_list = ["TOTAL_T"] if y_value in ["oversterfte", "p_score"] else df["age_sex"].unique().tolist()
     
+    results = []
     for age_sex in age_sex_list:
-        
-        df_result = df_result4[df_result4["age_sex"] == age_sex].copy(deep=True)
+        df_result = df_period[df_period["age_sex"] == age_sex].copy()
         df_result["TotalDoses"].fillna(0)
         
-        #df_result["RNA_flow_per_100000"] = df_result["RNA_flow_per_100000"]
-        #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].shift(2)
         if age_sex == "TOTAL_T":
-        
-            
-            for oorzaak in ["hart_vaat_ziektes","covid",  "ademhalingsorganen","accidentele_val","wegverkeersongevallen", "nieuwvormingen"]:
-                if sum(df_result["TotalDoses"] !=0):
-
+            for oorzaak in ["hart_vaat_ziektes", "covid", "ademhalingsorganen", "accidentele_val", "wegverkeersongevallen", "nieuwvormingen"]:
+                if df_result["TotalDoses"].sum() != 0:
                     with st.expander(oorzaak):
-                        if len(df_result)>0:
-                            st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
-                            df_iteration = analyse_maandelijkse_overlijdens(oorzaak,age_sex, df_result, "YearMonth", seizoen, maand, normalize)
-                            # Zet de resultaten van deze iteratie in een DataFrame
-                            
-                            # Voeg deze DataFrame toe aan de lijst van resultaten
-                            results.append(df_iteration)
-        df_result["YearWeekISO"] = df_result["jaar"].astype(int).astype(str) + "-W"+ df_result["week"].astype(int).astype(str).str.zfill(2)
+                        st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
+                        df_iteration = analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, "YearMonth", seizoen, maand, normalize)
+                        results.append(df_iteration)
         
-        monthly=False
-        if monthly==True:
-            df_result = from_week_to_month(df_result, "sum")
-            time_period = "YearMonth"
-        else:
-            time_period = "YearWeekISO"
-        if sum(df_result["TotalDoses"] !=0):
-        #df_result['OBS_VALUE'] = df_result['OBS_VALUE'].rolling(window=5).mean()
-            if len(df_result)>0:
-                with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
-                    st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
-                    df_iteration = perform_analyse(age_sex, df_result, time_period,"RNA_flow_per_100000","TotalDoses", y_value, seizoen, maand, normalize)
-                    # Zet de resultaten van deze iteratie in een DataFrame
-                    
-                    
-                    # Voeg deze DataFrame toe aan de lijst van resultaten
-                    results.append(df_iteration)
-        else:
-            
-            print (f"No records {age_sex}")
+        time_period = "YearMonth" if maand else "jaar_week"
+        #st.write(df_result)
+        if df_result["TotalDoses"].sum() != 0:
+            with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
+                st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
+                df_iteration,_,_,_,_ = perform_analyse(age_sex, df_result, time_period, "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
+                results.append(df_iteration)
     
-    # Als de loop klaar is, concateneer alle DataFrames in één DataFrame
     df_complete = pd.concat(results, ignore_index=True)
-
-
-    # Bekijk de complete DataFrame
+    
     st.write(df_complete)
-    make_scatterplot(df_complete, "p_F-stat.", "Adj. R2","")
-    #st.write("De OBS_VALUE is 2 weken opgeschoven naar rechts")
+    make_scatterplot(df_complete, "p_F-stat.", "Adj. R2", "")
+    
     st.subheader("Data sources")
     st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
     st.info("https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea")

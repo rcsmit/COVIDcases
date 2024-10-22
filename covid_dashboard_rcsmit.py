@@ -750,24 +750,6 @@ def add_walking_r(df, smoothed_columns, how_to_smooth, tg):
     return df, column_list_r_smoothened, column_list_r_sec_smoothened
 
 
-def move_column(df, column_, days):
-    """Move/shift a column
-
-    Args:
-        df (df): df
-        column_ (string): which column to move
-        days (int): how many days
-
-    Returns:
-        df: df
-        new_column : name of the new column
-    """    """  _ _ _ """
-    column_ = column_ if type(column_) == list else [column_]
-    for column in column_:
-        new_column = column + "_moved_" + str(days)
-        df[new_column] = df[column].shift(days)
-    return df, new_column
-
 
 def drop_columns(df, what_to_drop):
     """  _ _ _ """
@@ -927,10 +909,10 @@ def graph_daily_normed(
         st.warning("Choose something")
         st.stop()
 
-    df, smoothed_columns_l = smooth_columnlist(df, what_to_show_day_l, how_to_smoothen,WDW2, centersmooth)
+    df, smoothed_columns_l = smooth_columns(df, what_to_show_day_l, how_to_smoothen,WDW2, centersmooth)
     df, normed_columns_l = normeren(df, smoothed_columns_l)
 
-    df, smoothed_columns_r = smooth_columnlist(df, what_to_show_day_r, how_to_smoothen, WDW2, centersmooth)
+    df, smoothed_columns_r = smooth_columns(df, what_to_show_day_r, how_to_smoothen, WDW2, centersmooth)
     df, normed_columns_r = normeren(df, smoothed_columns_r)
 
     graph_daily(df, normed_columns_l, normed_columns_r, None, how_to_display, showday)
@@ -994,7 +976,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
 
     n = 0  # counter to walk through the colors-list
 
-    df, columnlist_sm_l = smooth_columnlist(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
+    df, columnlist_sm_l = smooth_columns(df, what_to_show_l_, how_to_smooth, WDW2, centersmooth)
 
     # CODE TO MAKE STACKED BARS - DOESNT WORK
     # stackon=""
@@ -1039,7 +1021,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
             firstday = df.iloc[0]["WEEKDAY"]  # monday = 0
             color_x = find_color_x(firstday, showoneday, showday)
             # MAYBE WE CAN LEAVE THIS OUT HERE
-            df, columnlist = smooth_columnlist(df, [b], how_to_smooth, WDW2, centersmooth)
+            df, columnlist = smooth_columns(df, [b], how_to_smooth, WDW2, centersmooth)
 
             df.set_index("date")
 
@@ -1084,7 +1066,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
 
                         for R in R_smooth:
                             # correctie R waarde, moet naar links ivm 2x smoothen
-                            df, Rn = move_column(df, R, MOVE_WR)
+                            df, Rn = shift_column(df, R, MOVE_WR)
 
                             if teller == 0:
                                 dfmin = Rn
@@ -1102,7 +1084,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
                             teller += 1
                         for R in R_smooth_sec:  # SECOND METHOD TO CALCULATE R
                             # correctie R waarde, moet naar links ivm 2x smoothen
-                            df, Rn = move_column(df, R, MOVE_WR)
+                            df, Rn = shift_column(df, R, MOVE_WR)
                             # ax3=df[Rn].plot(secondary_y=True, label=Rn,linestyle='--',color=operamauve, linewidth=1)
                     if show_R_value_graph:
                         ax3.fill_between(
@@ -1156,7 +1138,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
         for a in what_to_show_r:
             x -= 1
             lbl = a + " (right ax)"
-            df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
+            df, columnlist = smooth_columns(df, [a], how_to_smooth, WDW2, centersmooth)
             for c_ in columnlist:
                 # smoothed
                 lbl2 = a + " (right ax)"
@@ -1294,7 +1276,7 @@ def graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t,showda
         if a != None:
             x -= 1
             lbl = a + " (right ax)"
-            df, columnlist = smooth_columnlist(df, [a], how_to_smooth, WDW2, centersmooth)
+            df, columnlist = smooth_columns(df, [a], how_to_smooth, WDW2, centersmooth)
             for c_ in columnlist:
                 # smoothed
                 lbl2 = a + " (right ax)"
@@ -1581,48 +1563,87 @@ def graph_daily(df, what_to_show_l, what_to_show_r, how_to_smooth, t, showday):
             title += t + "\n"
         graph_day(df, what_to_show_l, what_to_show_r, how_to_smooth, title, t, showday)
 
+def shift_column(df: pd.DataFrame, column: str, days: int) -> tuple[pd.DataFrame, str]:
+    """Shift a column in the DataFrame by a specified number of days."""
+    shifted_column = f"{column}_shifted_{days}"
+    df[shifted_column] = df[column].shift(days)
+    return df, shifted_column
 
-def smooth_columnlist(df, columnlist, t, WDW2, centersmooth):
-    """  _ _ _ """
-    c_smoothen = []
-    wdw_savgol = 7
-    #if __name__ = "covid_dashboard_rcsmit":
-    # global WDW2, centersmooth, show_scenario
-    # WDW2=7
-    # st.write(__name__)
-    # centersmooth = False
-    # show_scenario = False
-    if columnlist is not None:
-        if type(columnlist) == list:
-            columnlist_ = columnlist
+def smooth_columns(df: pd.DataFrame, columns: list[str], method: str, window: int, center_smooth: bool) -> tuple[pd.DataFrame, list[str]]:
+    """Smooth a list of columns using different methods like SMA or Savitzky-Golay filter."""
+    smoothed_columns = []
+    for column in columns:
+        if method == "SMA":
+            smoothed_column = f"{column}_SMA_{window}"
+            df[smoothed_column] = df[column].rolling(window=window, center=center_smooth).mean()
+        elif method == "savgol":
+            smoothed_column = f"{column}_savgol_{window}"
+            df[smoothed_column] = df[column].transform(lambda x: savgol_filter(x, window, 2))
+        elif method is None:
+            smoothed_column = f"{column}_unchanged"
+            df[smoothed_column] = df[column]
         else:
-            columnlist_ = [columnlist]
-            # print (columnlist)
-        for c in columnlist_:
-            print(f"Smoothening {c}")
-            if t == "SMA":
-                new_column = c + "_SMA_" + str(WDW2)
-                print("Generating " + new_column + "...")
-                df[new_column] = (
-                    df.iloc[:, df.columns.get_loc(c)]
-                    .rolling(window=WDW2, center=centersmooth)
-                    .mean()
-                )
+            print("ERROR: Unsupported smoothing method.")
+            st.stop()
+        smoothed_columns.append(smoothed_column)
+    return df, smoothed_columns
 
-            elif t == "savgol":
-                new_column = c + "_savgol_" + str(WDW2)
-                print("Generating " + new_column + "...")
-                df[new_column] = df[c].transform(lambda x: savgol_filter(x, WDW2, 2))
+def find_lag_time(df: pd.DataFrame, first_event: str, second_event: str, start_lag: int, end_lag: int) -> None:
+    """Find the lag time between two events by calculating correlations over shifted time periods."""
+    x, y, y_sma = [], [], []
+    max_corr, max_corr_sma = 0, 0
+    wdw=7
+    # Smooth both columns
+    df, first_event_sma = smooth_columns(df, [first_event], "SMA", wdw, True)
+    df, second_event_sma = smooth_columns(df, [second_event], "SMA", wdw, True)
 
-            elif t == None:
-                new_column = c + "_unchanged_"
-                df[new_column] = df[c]
-                print("Added " + new_column + "...~")
-            else:
-                print("ERROR in smooth_columnlist")
-                st.stop()
-            c_smoothen.append(new_column)
-    return df, c_smoothen
+    # Prepare shifted columns
+    df, second_event_shifted = shift_column(df, second_event, 0)
+    df, second_event_sma_shifted = shift_column(df, second_event_sma[0], 0)
+
+    for lag in range(start_lag, end_lag + 1):
+        # Shift first event by lag days and calculate correlation
+        df, first_event_shifted = shift_column(df, first_event, lag)
+        corr = round(df[first_event_shifted].corr(df[second_event_shifted]), 3)
+        if corr > max_corr:
+            max_corr = corr
+            max_lag = lag
+        x.append(lag)
+        y.append(corr)
+
+        # Correlation with smoothed data
+        df, first_event_sma_shifted = shift_column(df, first_event_sma[0], lag)
+        corr_sma = round(df[first_event_sma_shifted].corr(df[second_event_sma_shifted]), 3)
+        if corr_sma > max_corr_sma:
+            max_corr_sma = corr_sma
+            max_lag_sma = lag
+        y_sma.append(corr_sma)
+
+    # Plot the results using Plotly
+    title = f"Correlation between: {second_event} - {first_event} with shifted days"
+    
+    fig = go.Figure()
+
+    # Add traces
+    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Values'))
+    fig.add_trace(go.Scatter(x=x, y=y_sma, mode='lines', name=f'Smoothed ({wdw})'))
+
+    # Update layout
+    fig.update_layout(
+        title=title,
+        xaxis_title="Shift in days",
+        yaxis_title="Correlation",
+        legend_title="Correlation Type",
+        template="plotly_white"
+    )
+
+    # Display plot in Streamlit
+    st.plotly_chart(fig)
+
+    st.write(f"Values: Highest correlation at {max_lag} days - correlation = {max_corr}")
+    st.write(f"Smoothed({wdw}): Highest correlation at {max_lag_sma} days - correlation = {max_corr_sma}")
+    
+    return max_lag,max_corr,max_lag_sma,max_corr_sma
 
 
 ###################################################################
@@ -1670,63 +1691,63 @@ def find_correlation_pair(df, first, second):
     return c
 
 
-def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
-    b = what_happens_first
-    a = what_happens_second  # shape (266,1)
-    x = []
-    y = []
-    y_sma =[]
+# def find_lag_time(df, what_happens_first, what_happens_second, r1, r2):
+#     b = what_happens_first
+#     a = what_happens_second  # shape (266,1)
+#     x = []
+#     y = []
+#     y_sma =[]
 
-    max = 0
-    max_sma = 0
-    df, b_sma = smooth_columnlist(df, b, "SMA", 7, True )
-    df, a_sma = smooth_columnlist(df, a, "SMA", 7, True )
-
-
-    df, nx = move_column(df, a, 0) #strange way to prevent error
-    df, nx_sma = move_column(df, a_sma, 0) #strange way to prevent error
-
-    max_column = None
-    for n in range(r1, (r2 + 1)):
-
-        df, m = move_column(df, b, n) #(shape (266,)
-        c = round(df[m].corr(df[nx]), 3)
-        if c > max:
-            max = c
-            n_max = n
-
-        x.append(n)
-        y.append(c)
-
-        df, m_sma = move_column(df, b_sma, n) #(shape (266,)
-        c_sma = round(df[m_sma].corr(df[nx_sma]), 3)
-        if c_sma > max_sma:
-            max_sma = c_sma
-            n_max_sma = n
-        y_sma.append(c_sma)
+#     max = 0
+#     max_sma = 0
+#     df, b_sma = smooth_columns(df, b, "SMA", 7, True )
+#     df, a_sma = smooth_columns(df, a, "SMA", 7, True )
 
 
-    title = f"Correlation between : {a} - {b} with moved days\n({FROM} - {UNTIL})"
+#     df, nx = shift_column(df, a, 0) #strange way to prevent error
+#     df, nx_sma = shift_column(df, a_sma, 0) #strange way to prevent error
 
-    # with _lock:
-    fig1x = plt.figure()
-    ax = fig1x.add_subplot(111)
-    plt.xlabel("shift in days")
-    plt.plot(x, y, label = "Values")
-    plt.plot(x, y_sma, label = "Smoothed")
-    #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
-    # Add a grid
-    plt.legend()
-    plt.grid(alpha=0.2, linestyle="--")
-    plt.title(title, fontsize=10)
-    st.pyplot(fig1x)
-    # plt.show()
-    st.write (f"Values: heightest correlateion at  {n_max} days - correlation = {max}")
-    st.write (f"Smoothed: heightest correlateion at {n_max_sma} days - correlation = {max_sma}")
+#     max_column = None
+#     for n in range(r1, (r2 + 1)):
 
-    # graph_daily(df, [a], [b], "SMA", "line", showday)
-    # graph_daily(df, [a], [max_column], "SMA", "line", showday)
-    # if the optimum is negative, the second one is that x days later
+#         df, m = shift_column(df, b, n) #(shape (266,)
+#         c = round(df[m].corr(df[nx]), 3)
+#         if c > max:
+#             max = c
+#             n_max = n
+
+#         x.append(n)
+#         y.append(c)
+
+#         df, m_sma = shift_column(df, b_sma, n) #(shape (266,)
+#         c_sma = round(df[m_sma].corr(df[nx_sma]), 3)
+#         if c_sma > max_sma:
+#             max_sma = c_sma
+#             n_max_sma = n
+#         y_sma.append(c_sma)
+
+
+#     title = f"Correlation between : {a} - {b} with moved days\n({FROM} - {UNTIL})"
+
+#     # with _lock:
+#     fig1x = plt.figure()
+#     ax = fig1x.add_subplot(111)
+#     plt.xlabel("shift in days")
+#     plt.plot(x, y, label = "Values")
+#     plt.plot(x, y_sma, label = "Smoothed")
+#     #plt.axvline(x=0, color="yellow", alpha=0.6, linestyle="--")
+#     # Add a grid
+#     plt.legend()
+#     plt.grid(alpha=0.2, linestyle="--")
+#     plt.title(title, fontsize=10)
+#     st.pyplot(fig1x)
+#     # plt.show()
+#     st.write (f"Values: heightest correlateion at  {n_max} days - correlation = {max}")
+#     st.write (f"Smoothed: heightest correlateion at {n_max_sma} days - correlation = {max_sma}")
+
+#     # graph_daily(df, [a], [b], "SMA", "line", showday)
+#     # graph_daily(df, [a], [max_column], "SMA", "line", showday)
+#     # if the optimum is negative, the second one is that x days later
 
 
 def init():
@@ -1999,7 +2020,7 @@ def main():
     lijst.extend(newcolumns_w2w14) # percentage
     lijst.extend(newcolumns2_w2w14) # index
 
-    df, smoothed_columns_w2w0 = smooth_columnlist(df, w2w, how_to_smoothen, WDW2, centersmooth)
+    df, smoothed_columns_w2w0 = smooth_columns(df, w2w, how_to_smoothen, WDW2, centersmooth)
     df, newcolumns_w2w, newcolumns2_w2w = week_to_week(df, smoothed_columns_w2w0, 7)
 
     lijst.extend(newcolumns_w2w) # percentage
@@ -2007,7 +2028,7 @@ def main():
 
     # diff of diff
 
-    df, smoothed_columns_w2w1 = smooth_columnlist(df, newcolumns_w2w, how_to_smoothen, WDW2, centersmooth)
+    df, smoothed_columns_w2w1 = smooth_columns(df, newcolumns_w2w, how_to_smoothen, WDW2, centersmooth)
     df, newcolumns_w2w2, newcolumns2_w2w2 = week_to_week(df, smoothed_columns_w2w1, 7)
 
     lijst.extend(newcolumns_w2w2) # percentage
@@ -2207,7 +2228,7 @@ def main():
 
         if week_or_day == "day":
             if move_right != 0 and len(what_to_show_day_r) != 0:
-                df, what_to_show_day_r = move_column(df, what_to_show_day_r, move_right)
+                df, what_to_show_day_r = shift_column(df, what_to_show_day_r, move_right)
             if how_to_display == "line":
                 graph_daily(
                     df,
