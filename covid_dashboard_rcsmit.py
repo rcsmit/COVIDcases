@@ -1591,8 +1591,8 @@ def smooth_columns(df: pd.DataFrame, columns: list[str], method: str, window: in
 def find_lag_time(df: pd.DataFrame, first_event: str, second_event: str, start_lag: int, end_lag: int) -> None:
     """Find the lag time between two events by calculating correlations over shifted time periods."""
     x, y, y_sma = [], [], []
-    max_corr, max_corr_sma = 0, 0
-    wdw=7
+    max_lag,max_lag_sma, max_corr, max_corr_sma = None,None,0, 0
+    wdw=5
     # Smooth both columns
     df, first_event_sma = smooth_columns(df, [first_event], "SMA", wdw, True)
     df, second_event_sma = smooth_columns(df, [second_event], "SMA", wdw, True)
@@ -1605,7 +1605,7 @@ def find_lag_time(df: pd.DataFrame, first_event: str, second_event: str, start_l
         # Shift first event by lag days and calculate correlation
         df, first_event_shifted = shift_column(df, first_event, lag)
         corr = round(df[first_event_shifted].corr(df[second_event_shifted]), 3)
-        if corr > max_corr:
+        if abs(corr) > abs(max_corr):
             max_corr = corr
             max_lag = lag
         x.append(lag)

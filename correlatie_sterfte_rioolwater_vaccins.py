@@ -14,7 +14,7 @@ import plotly.express as px
 from scipy.stats import linregress
 import statsmodels.api as sm
 from scipy import stats
-from oversterfte_compleet import  get_sterftedata, get_data_for_series_wrapper,make_df_quantile, layout_annotations_fig
+from oversterfte_compleet import  get_sterftedata, get_data_for_series_wrapper,make_df_quantile #, layout_annotations_fig
 # for VIF
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
@@ -22,9 +22,47 @@ from oversterfte_eurostats_maand import get_data_eurostat
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-from scipy.signal import savgol_filter
+#from scipy.signal import savgol_filter
 
 # WAAROM TWEE KEER add_custom_age_group_deaths ??? TODO
+
+@st.cache_data()
+def get_ziekenhuis_ic() -> pd.DataFrame:
+    """
+    Fetch and process historical wastewater data.
+
+    Returns:
+        pd.DataFrame: Processed wastewater data with year, week, and RNA flow per 100,000 people.
+    """
+    with st.spinner("GETTING ALL DATA ..."):
+     
+        # URLs for the datasets
+        url1 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep_tm_03102021.csv"
+        url2 = "https://data.rivm.nl/covid-19/COVID-19_ziekenhuis_ic_opnames_per_leeftijdsgroep.csv"
+
+        # Load the two CSV files into dataframes
+        df1 = pd.read_csv(url1, delimiter=';')
+        df2 = pd.read_csv(url2, delimiter=';')
+
+        # Combine the two dataframes
+        df_combined = pd.concat([df1, df2], ignore_index=True)
+
+        # Ensure the Date_of_statistics_week_start column is in datetime format
+        df_combined['Date_of_statistics_week_start_nr'] =  pd.to_datetime(df_combined["Date_of_statistics_week_start"], format="%Y-%m-%d")
+        
+        # Create 'year' and 'week' columns from the 'Date_measurement' column
+        df_combined['jaar'] = df_combined['Date_of_statistics_week_start_nr'].dt.year
+        df_combined['week'] = df_combined['Date_of_statistics_week_start_nr'].dt.isocalendar().week
+        df_combined["periodenr"] = df_combined["jaar"].astype(str) + "_" + df_combined["week"].astype(str).str.zfill(2)
+   
+        # df=df[ (df["jaar"] == 2022) & (df["week"] >= 9)& (df["week"] <= 29)]
+
+        # Group by 'year' and 'week', then sum 'RNA_flow_per_100000'
+        df_combined = df_combined.groupby(['jaar', 'week'], as_index=False).sum(["Hospital_admission", "IC_admission"])
+
+
+        
+        return df_combined
 
 @st.cache_data()
 def get_rioolwater_oud() -> pd.DataFrame:
@@ -439,6 +477,16 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         df (pd.DataFrame): Input dataframe.
         x_values (List[str]): List of independent variable column names.
         y_value (str): Dependent variable column name.
+    Returns:
+        Datadict :  C_RNA':model.params["RNA_flow_per_100000"],
+                    'C_vacc':model.params["TotalDoses"],
+                    'P_const': model.pvalues["const"],
+                    'P_RNA':model.pvalues["RNA_flow_per_100000"],
+                    'P_vacc':model.pvalues["TotalDoses"],
+                    'R-squared': [model.rsquared], #* len(model.params),
+                    'Adjusted R-squared': [model.rsquared_adj], # * len(model.params),
+                    'F-statistic': [model.fvalue], # * len(model.params),
+                    'F-statistic P-value':
     """
     st.subheader("Multiple Lineair Regression")
     standard=  False#  st.sidebar.checkbox("Standardizing dataframe", True)
@@ -502,8 +550,8 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         U, s, Vt = np.linalg.svd(x)
         st.write("**spread of singular values**")
         st.write(s)  # Look at the spread of singular values
-    data = {
-        'Y value':y_value_,
+    data_dict = {
+        'Y value':f"{y_value_}_{age_sex}",
         # 'Coefficients': model.params,
         # 'P-values': model.pvalues,
         # 'T-values': model.tvalues,
@@ -513,33 +561,16 @@ def multiple_linear_regression(df: pd.DataFrame, x_values: List[str], y_value_: 
         'P_const': model.pvalues["const"],
         'P_RNA':model.pvalues["RNA_flow_per_100000"],
         'P_vacc':model.pvalues["TotalDoses"],
-        'R-squared': [model.rsquared], #* len(model.params),
-        'Adjusted R-squared': [model.rsquared_adj], # * len(model.params),
-        'F-statistic': [model.fvalue], # * len(model.params),
-        'F-statistic P-value': [model.f_pvalue], # * len(model.params)
+        'R-squared': model.rsquared, #* len(model.params),
+        'Adjusted R-squared': model.rsquared_adj, # * len(model.params),
+        'F-statistic': model.fvalue, # * len(model.params),
+        'F-statistic P-value': model.f_pvalue, # * len(model.params)
     }
         
 
-    # Stap 4: Omzetten naar een DataFrame
-    xx=data["Y value"]
-    y_value_x =  f"{xx}_{age_sex}"
-    df = pd.DataFrame({
-        "Y value":y_value_x,
-       
-        #'P_const': data['P_const'],
-        'coef_RNA':data['C_RNA'],
-        'coef_vacc':data['C_vacc'],
-
-        'p_RNA':data['P_RNA'],
-        'p_vacc':data['P_vacc'],
-
-        #"R-squared": data["R-squared"],
-        "Adj. R2": data["Adjusted R-squared"],
-        "F-stat.": data["F-statistic"],
-        "p_F-stat.": data["F-statistic P-value"]
-    })
-
-    return df
+    
+    
+    return data_dict
 
 
 def make_scatterplot(df: pd.DataFrame, x: str, y: str, age_sex: str):
@@ -585,28 +616,40 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
 
     # Create a figure
     fig = go.Figure()
-    df[f"{y1}_sma"] = df[y1].rolling(window=5, center=True).mean()
+    
     # Add OBS_VALUE as the first line on the left y-axis
     fig.add_trace(
         go.Scatter(
             x=df[x],
-            y=df[f"{y1}_sma"],
+            y=df[y1],
             mode='lines',
             name=y1,
             line=dict(color='blue')
         )
     )
+    if y1=="base_value":
 
-    fig.add_trace(
-        go.Scatter(
-            x=df[x],
-            y=df[y2],
-            mode='lines',
-            name=y2,
-            line=dict(color='red'),
-            yaxis='y2'
+        fig.add_trace(
+            go.Scatter(
+                x=df[x],
+                y=df[y2],
+                mode='lines',
+                name=y2,
+                line=dict(color='red'),
+              
+            )
         )
-    )
+    else:
+        fig.add_trace(
+            go.Scatter(
+                x=df[x],
+                y=df[y2],
+                mode='lines',
+                name=y2,
+                line=dict(color='red'),
+                yaxis='y2'
+            )
+        )
 
     # Update layout to include two y-axes
     fig.update_layout(
@@ -771,8 +814,8 @@ def analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, time_period, s
     df_month = pd.merge(df_result_month, df_hartvaat, on="YearMonth", how="inner") 
     df_month["maand"] = (df_month["YearMonth"].str[5:]).astype(int)
     
-    data,_,_,_,_ = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}", seizoen, maand, normalize)
-    return data
+    data_dict,_,_,_,_ = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}", seizoen, maand, normalize)
+    return data_dict
 def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize):
     """_summary_
 
@@ -787,7 +830,18 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
         maand (_type_): _description_
 
     Returns:
-        _type_: _description_
+        tuple: data_dict
+        
+                    C_RNA':model.params["RNA_flow_per_100000"],
+                    'C_vacc':model.params["TotalDoses"],
+                    'P_const': model.pvalues["const"],
+                    'P_RNA':model.pvalues["RNA_flow_per_100000"],
+                    'P_vacc':model.pvalues["TotalDoses"],
+                    'R-squared': [model.rsquared], #* len(model.params),
+                    'Adjusted R-squared': [model.rsquared_adj], # * len(model.params),
+                    'F-statistic': [model.fvalue], # * len(model.params),
+                    'F-statistic P-value':
+                max_lag,max_corr,max_lag_sma,max_corr_sma
     """    
     # Voeg een sinus- en cosinusfunctie toe om seizoensinvloeden te modelleren
     try:           
@@ -823,11 +877,11 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
     #     line_plot_2_axis(df, time_period,x1, x2,age_sex)
     #     make_scatterplot(df, x1, x2,age_sex)
     try:
-        data = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
+        data_dict = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
     except:
-        data = None
+        data_dict = None
     max_lag,max_corr,max_lag_sma,max_corr_sma = find_lag_time(df, x1, y_value_, -14, 14)
-    return data,max_lag,max_corr,max_lag_sma,max_corr_sma
+    return data_dict,max_lag,max_corr,max_lag_sma,max_corr_sma
 
 
 
@@ -862,11 +916,13 @@ def main():
     df_rioolwater = get_rioolwater()
     df_vaccinaties = get_vaccinaties()
     df_oversterfte = get_oversterfte(opdeling)
-    
+    df_ziekenhuis_ic = get_ziekenhuis_ic()
+
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
     
     df_merged = (
-        pd.merge(df, df_rioolwater, on=["jaar", "week"], how="left")
+        pd.merge(df, df_rioolwater,  on=["jaar", "week"], how="left")
+        .merge(df_ziekenhuis_ic, on=["jaar", "week"], how="left")
         .merge(df_vaccinaties, on=["jaar", "week", "age_sex"], how="left")
         .fillna(0).infer_objects(copy=False)
         .merge(df_oversterfte, on=["jaar", "week", "age_sex"], how="left")
@@ -875,16 +931,20 @@ def main():
     df_merged["pseudoweek"] = df_merged["jaar"] * 52 + df_merged["week"]
 
 
-    col1, col2, col3, col4 = st.columns(4, vertical_alignment="center")
+    col1, col2, col3, col4,col5,col6 = st.columns(6, vertical_alignment="center")
     with col1:
-        y_value = st.selectbox("Y value", ["OBS_VALUE", "oversterfte", "p_score"], 0, help="Alleen bij leeftijdscategorieen")
+        y_value = st.selectbox("Y value", ["OBS_VALUE", "oversterfte", "p_score", "Hospital_admission",  "IC_admission"], 0, help="Alleen bij leeftijdscategorieen")
     with col2:
         normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
     with col3:
         seizoen = st.checkbox("Seizoensinvloeden meenemen", True)
     with col4:
         maand = st.checkbox("Maand-/week invloeden meenemene")
-    
+    with col5:
+        shift_weeks = st.slider(f"Shift {y_value}", -52,52,0)
+    with col6:
+        window = st.slider(f"SMA window {y_value}", 1,52,1)
+                
     if fixed_periods:
         periods = [
             [1, 2020, 26, 2021],
@@ -895,91 +955,137 @@ def main():
             [1,2020,52,2024]
         ]
         results = []
-        for start_wk, start_yr, end_wk, end_yr in periods:
-            pseudo_start_week = start_yr * 52 + start_wk
-            pseudo_eind_week = end_yr * 52 + end_wk
-            
-            st.subheader(f"{start_wk}-{start_yr} -- {end_wk}-{end_yr}")
-            df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
-            df_period = df_period[df_period["week"] != 53]
-            
-            age_sex = "TOTAL_T"
-            df_filtered = df_period[df_period["age_sex"] == age_sex]
-            
-            _,max_lag,max_corr,max_lag_sma,max_corr_sma = perform_analyse(age_sex, df_filtered, "jaar_week", "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
-            period = f"{start_wk}-{start_yr}-{end_wk}/{end_yr}"
+        with st.expander("results"):
+        #if 1==1:
+            for start_wk, start_yr, end_wk, end_yr in periods:
+                pseudo_start_week = start_yr * 52 + start_wk
+                pseudo_eind_week = end_yr * 52 + end_wk
+                
+                st.subheader(f"{start_wk}-{start_yr} -- {end_wk}-{end_yr}")
+                df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
+                df_period = df_period[df_period["week"] != 53]
+                
+                age_sex = "TOTAL_T"
+                df_filtered = df_period[df_period["age_sex"] == age_sex].copy(deep=True)
+                df_filtered[y_value] = df_filtered[y_value].rolling(window=window, center=True).mean()
+                df_filtered[y_value] = df_filtered[y_value].shift(shift_weeks)
+                
+                data_dict ,max_lag,max_corr,max_lag_sma,max_corr_sma = perform_analyse(age_sex, df_filtered, "jaar_week", "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
+              
+           
+                period = f"{start_wk}-{start_yr}-{end_wk}/{end_yr}"
 
-            result = {
-                "period": period,
-                "max_lag_days": max_lag,
-                "max_corr": max_corr,
-                "max_lag_days_sma_(7)": max_lag_sma,
-                "max_corr_sma_(7)": max_corr_sma
-            }
-            
-            # Append the result dictionary to the results list
-            results.append(result)
+                result = {
+                    "period": period,
+                    "Y value": data_dict['Y value'],
+                    "coef_RNA": round(data_dict['C_RNA'],4),
+                    "coef_vacc": round(data_dict['C_vacc'],4),
+                    "p_RNA": round(data_dict['P_RNA'],4),
+                    "p_vacc": round(data_dict['P_vacc'],4),
+                    "Adj. R2": round(data_dict['Adjusted R-squared'],4),
+                    "F-stat.": round(data_dict['F-statistic'],4),
+                    "p_F-stat.": round(data_dict['F-statistic P-value'],4),
+                    "max_lag_days": max_lag,
+                    "max_corr": max_corr,
+                    "max_lag_days_sma_(7)": max_lag_sma,
+                    "max_corr_sma_(7)": max_corr_sma
+                }
+                
+                # Append the result dictionary to the results list
+                results.append(result)
 
         # Convert the results list to a dataframe
         df_results = pd.DataFrame(results)
 
         # Display the resulting dataframe
 
-        st.subheader("Optimum shift for maximum correlation")
+        st.subheader("Results")
         st.write(df_results)
-        st.stop()
-    df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
-    df_period = df_period[df_period["week"] != 53]
-    age_sex = "TOTAL_T"
-    df_filtered = df_period[df_period["age_sex"] == age_sex]
-    
-    with st.expander("Rioolwater"):
-        compare_rioolwater(df_rioolwater)
-    
-    with st.expander("OBS VALUE - oversterfte - Pvalue"):
         
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            line_plot_2_axis(df_filtered, "periodenr", "OBS_VALUE", "oversterfte", age_sex)
-            make_scatterplot(df_filtered, "OBS_VALUE", "oversterfte", age_sex)
-        with col2:
-            line_plot_2_axis(df_filtered, "periodenr", "OBS_VALUE", "p_score", age_sex)
-            make_scatterplot(df_filtered, "OBS_VALUE", "p_score", "")
-        with col3:
-            line_plot_2_axis(df_filtered, "periodenr", "base_value", "OBS_VALUE", age_sex)
-            make_scatterplot(df_filtered, "base_value", "OBS_VALUE", age_sex)
-    
-    # Analyze based on age groups and causes
-    age_sex_list = ["TOTAL_T"] if y_value in ["oversterfte", "p_score"] else df["age_sex"].unique().tolist()
-    
-    results = []
-    for age_sex in age_sex_list:
-        df_result = df_period[df_period["age_sex"] == age_sex].copy()
-        df_result["TotalDoses"].fillna(0)
+    else:
+        # not a loop of fixed periods. Just one period
+        df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
+        df_period = df_period[df_period["week"] != 53]
+        age_sex = "TOTAL_T"
+        df_filtered = df_period[df_period["age_sex"] == age_sex]
+        df_filtered[y_value] = df_filtered[y_value].rolling(window=window, center=True).mean()
+        df_filtered[y_value] = df_filtered[y_value].shift(shift_weeks)
+                
+        with st.expander("Rioolwater"):
+            compare_rioolwater(df_rioolwater)
         
-        if age_sex == "TOTAL_T":
-            for oorzaak in ["hart_vaat_ziektes", "covid", "ademhalingsorganen", "accidentele_val", "wegverkeersongevallen", "nieuwvormingen"]:
-                if df_result["TotalDoses"].sum() != 0:
-                    with st.expander(oorzaak):
-                        st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
-                        
-                        df_iteration = analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, "YearMonth", seizoen, maand, normalize)
-                        results.append(df_iteration)
+        with st.expander("OBS VALUE - oversterfte - Pvalue"):
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", "OBS_VALUE", "oversterfte", age_sex)
+                make_scatterplot(df_filtered, "OBS_VALUE", "oversterfte", age_sex)
+            with col2:
+                line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", "OBS_VALUE", "p_score", age_sex)
+                make_scatterplot(df_filtered, "OBS_VALUE", "p_score", "")
+            with col3:
+                line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", "base_value", "OBS_VALUE", age_sex)
+                make_scatterplot(df_filtered, "base_value", "OBS_VALUE", age_sex)
         
-        time_period = "YearMonth" if maand else "TIME_PERIOD_x"
-        #st.write(df_result)
-        if df_result["TotalDoses"].sum() != 0:
-            with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
-                st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
-                st.write(df_result)
-                #df_result.to_csv(f"{age_sex}")
-                df_iteration,_,_,_,_ = perform_analyse(age_sex, df_result, time_period, "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
-                results.append(df_iteration)
-    
-    df_complete = pd.concat(results, ignore_index=True)
-    
-    st.write(df_complete)
-    make_scatterplot(df_complete, "p_F-stat.", "Adj. R2", "")
+        # Analyze based on age groups and causes
+        age_sex_list = ["TOTAL_T"] if y_value in ["oversterfte", "p_score"] else df["age_sex"].unique().tolist()
+        
+        results = []
+        df_complete=pd.DataFrame()
+        for age_sex in age_sex_list:
+            df_result = df_period[df_period["age_sex"] == age_sex].copy()
+            df_result["TotalDoses"].fillna(0)
+            
+            if age_sex == "TOTAL_T":
+                for oorzaak in ["hart_vaat_ziektes", "covid", "ademhalingsorganen", "accidentele_val", "wegverkeersongevallen", "nieuwvormingen"]:
+                    if df_result["TotalDoses"].sum() != 0:
+                        with st.expander(oorzaak):
+                            st.subheader(f"TOTAL overlijdens {oorzaak} vs rioolwater en vaccinaties")
+                            
+                            df_iteration = analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, "YearMonth", seizoen, maand, normalize)
+                            results.append(df_iteration)
+            
+            time_period = "YearMonth" if maand else "TIME_PERIOD_x"
+            #st.write(df_result)
+            if df_result["TotalDoses"].sum() != 0:
+                with st.expander(f"{age_sex} - Alle overlijdensoorzaken"):
+                    st.subheader(f"{age_sex} - Alle overlijdensoorzaken")
+                    st.write(df_result)
+                    #df_result.to_csv(f"{age_sex}")
+                    data_dict,_,_,_,_ = perform_analyse(age_sex, df_result, time_period, "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
+                    
+                    xx=data_dict["Y value"]
+                    y_value_x =  f"{xx}_{age_sex}"
+                    # df_iteration = pd.DataFrame({
+                    #     "Y value":y_value_x,
+                    
+                    #     #'P_const': data['P_const'],
+                    #     'coef_RNA':data_dict['C_RNA'],
+                    #     'coef_vacc':data_dict['C_vacc'],
+
+                    #     'p_RNA':data_dict['P_RNA'],
+                    #     'p_vacc':data_dict['P_vacc'],
+
+                    #     #"R-squared": data["R-squared"],
+                    #     "Adj. R2": data_dict["Adjusted R-squared"],
+                    #     "F-stat.": data_dict["F-statistic"],
+                    #     "p_F-stat.": data_dict["F-statistic P-value"]
+                    # })
+
+                    
+                    # Append the DataFrame to the results list
+                    results.append(data_dict)
+      
+        # Convert the results list to a dataframe
+        df_results = pd.DataFrame(results)
+
+        # Display the resulting dataframe
+
+        st.subheader("Results")
+        st.write(df_results)
+
+        # st.write(df_complete)
+        make_scatterplot(df_results, "F-statistic P-value", "Adjusted R-squared", "")
     
     st.subheader("Data sources")
     st.info("https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en")
@@ -989,7 +1095,8 @@ def main():
 if __name__ == "__main__":
     import os
     import datetime
+    
     os.system('cls')
     print(f"-------xx-------{datetime.datetime.now()}-------------------------")
     main()
-    #expand()
+  
