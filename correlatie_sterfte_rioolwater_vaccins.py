@@ -878,8 +878,8 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
         line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
         make_scatterplot(df, y_value_, x2,age_sex)
     with col3:
-        line_plot_2_axis(df, time_period,x1, x2,age_sex)
-        make_scatterplot(df, x2, x1,age_sex)
+        line_plot_2_axis(df, time_period,x2, x1,age_sex)
+        make_scatterplot(df, x1, x2,age_sex)
     try:
         data_dict = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
     except:
