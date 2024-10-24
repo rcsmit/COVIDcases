@@ -666,8 +666,8 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
     )
     
     # Show the figure
-    # try:
-    if 1==2:
+    try:
+    #if 1==2:
         if 2020 in df["jaar"].values:
             fig.add_vrect(
                 x0="2020-W13",
@@ -773,8 +773,8 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
                 line_width=0,
             )
            
-    # except:
-    #     pass
+    except Exception as e:
+        print ("Error in annotations {e}")
     key=str(int(random.random()*10000))
     st.plotly_chart(fig, key=key)
 
