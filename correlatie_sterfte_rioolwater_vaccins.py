@@ -666,115 +666,116 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
     )
     
     # Show the figure
-    try:
-    #if 1==2:
-        if 2020 in df["jaar"].values:
-            fig.add_vrect(
-                x0="2020-W13",
-                x1="2020-W18",
-                annotation_text="Eerste golf",
-                annotation_position="top left",
-                fillcolor="pink",
-                opacity=0.25,
-                line_width=0,
+    if 1==2:
+        
+        try:
+            if 2020 in df["jaar"].values:
+                fig.add_vrect(
+                    x0="2020-W13",
+                    x1="2020-W18",
+                    annotation_text="Eerste golf",
+                    annotation_position="top left",
+                    fillcolor="pink",
+                    opacity=0.25,
+                    line_width=0,
+                    )
+                fig.add_vrect(
+                    x0="2020-W39",
+                    x1="2021-W03",
+                    annotation_text="Tweede golf",
+                    annotation_position="top left",
+                    fillcolor="pink",
+                    opacity=0.25,
+                    line_width=0,
                 )
-            fig.add_vrect(
-                x0="2020-W39",
-                x1="2021-W03",
-                annotation_text="Tweede golf",
-                annotation_position="top left",
-                fillcolor="pink",
-                opacity=0.25,
-                line_width=0,
-            )
 
 
-             # hittegolven
-            fig.add_vrect(
-                x0="2020-W33",
-                x1="2020-W34",
-                annotation_text=" ",
-                annotation_position="top left",
-                fillcolor="yellow",
-                opacity=0.35,
-                line_width=0,
-            )
-            fig.add_vrect(
-                x0="2020-W01",
-                x1="2020-W52",
-                fillcolor="grey",
-                opacity=0.1,
-                line_width=0,
-            )
-        if 2021 in df["jaar"].values:
-            fig.add_vrect(
-                x0="2021-W33",
-                x1="2021-W52",
-                annotation_text="Derde golf",
-                annotation_position="top left",
-                fillcolor="pink",
-                opacity=0.25,
-                line_width=0,
-            )
-            fig.add_vrect(
-                x0="2021-W01",
-                x1="2021-W02",
-                fillcolor="grey",
-                opacity=0.35,
-                line_width=0,
-            )
-       
-        if 2022 in df["jaar"].values:
+                # hittegolven
+                fig.add_vrect(
+                    x0="2020-W33",
+                    x1="2020-W34",
+                    annotation_text=" ",
+                    annotation_position="top left",
+                    fillcolor="yellow",
+                    opacity=0.35,
+                    line_width=0,
+                )
+                fig.add_vrect(
+                    x0="2020-W01",
+                    x1="2020-W52",
+                    fillcolor="grey",
+                    opacity=0.1,
+                    line_width=0,
+                )
+            if 2021 in df["jaar"].values:
+                fig.add_vrect(
+                    x0="2021-W33",
+                    x1="2021-W52",
+                    annotation_text="Derde golf",
+                    annotation_position="top left",
+                    fillcolor="pink",
+                    opacity=0.25,
+                    line_width=0,
+                )
+                fig.add_vrect(
+                    x0="2021-W01",
+                    x1="2021-W02",
+                    fillcolor="grey",
+                    opacity=0.35,
+                    line_width=0,
+                )
         
-            fig.add_vrect(
-                x0="2022-W32",
-                x1="2022-W33",
-                annotation_text=" ",
-                annotation_position="top left",
-                fillcolor="yellow",
-                opacity=0.35,
-                line_width=0,
-            )
-            fig.add_vrect(
-                x0="2022-W01",
-                x1="2022-W52",
-                fillcolor="grey",
-                opacity=0.1,
-                line_width=0,
-            )
-        if 2023 in df["jaar"].values:
-        
-            fig.add_vrect(
-                x0="2023-W23",
-                x1="2023-W24",
-                annotation_text=" ",
-                annotation_position="top left",
-                fillcolor="yellow",
-                opacity=0.35,
-                line_width=0,
-            )
-            fig.add_vrect(
-                x0="2023-W36",
-                x1="2023-W37",
-                annotation_text="Geel = Hitte golf",
-                annotation_position="top left",
-                fillcolor="yellow",
-                opacity=0.35,
-                line_width=0,
-            )
+            if 2022 in df["jaar"].values:
             
-        if 2024 in df["jaar"].values:
-            # geen hittegolf in 2024
-            fig.add_vrect(
-                x0="2024-W01",
-                x1="2024-W39",
-                fillcolor="grey",
-                opacity=0.1,
-                line_width=0,
-            )
-           
-    except Exception as e:
-        print ("Error in annotations {e}")
+                fig.add_vrect(
+                    x0="2022-W32",
+                    x1="2022-W33",
+                    annotation_text=" ",
+                    annotation_position="top left",
+                    fillcolor="yellow",
+                    opacity=0.35,
+                    line_width=0,
+                )
+                fig.add_vrect(
+                    x0="2022-W01",
+                    x1="2022-W52",
+                    fillcolor="grey",
+                    opacity=0.1,
+                    line_width=0,
+                )
+            if 2023 in df["jaar"].values:
+            
+                fig.add_vrect(
+                    x0="2023-W23",
+                    x1="2023-W24",
+                    annotation_text=" ",
+                    annotation_position="top left",
+                    fillcolor="yellow",
+                    opacity=0.35,
+                    line_width=0,
+                )
+                fig.add_vrect(
+                    x0="2023-W36",
+                    x1="2023-W37",
+                    annotation_text="Geel = Hitte golf",
+                    annotation_position="top left",
+                    fillcolor="yellow",
+                    opacity=0.35,
+                    line_width=0,
+                )
+                
+            if 2024 in df["jaar"].values:
+                # geen hittegolf in 2024
+                fig.add_vrect(
+                    x0="2024-W01",
+                    x1="2024-W39",
+                    fillcolor="grey",
+                    opacity=0.1,
+                    line_width=0,
+                )
+            
+        except Exception as e:
+            print ("Error in annotations {e}")
     key=str(int(random.random()*10000))
     st.plotly_chart(fig, key=key)
 
@@ -878,7 +879,7 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
         make_scatterplot(df, y_value_, x2,age_sex)
     with col3:
         line_plot_2_axis(df, time_period,x1, x2,age_sex)
-        make_scatterplot(df, x1, x2,age_sex)
+        make_scatterplot(df, x2, x1,age_sex)
     try:
         data_dict = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
     except:
