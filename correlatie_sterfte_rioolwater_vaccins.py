@@ -3,7 +3,7 @@ import streamlit as st
 from typing import List, Tuple
 import pandas as pd
 import platform
-
+import random
 import datetime as dt
 import pandas as pd
 import streamlit as st
@@ -599,7 +599,8 @@ def make_scatterplot(df: pd.DataFrame, x: str, y: str, age_sex: str):
     fig.add_trace(px.line(x=df[x], y=slope * df[x] + intercept, line_shape='linear').data[0])
 
     # Show the plot
-    st.plotly_chart(fig)
+    key=str(int(random.random()*10000))
+    st.plotly_chart(fig, key=key)
 
 def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
     """
@@ -773,7 +774,8 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
            
     except:
         pass
-    st.plotly_chart(fig)
+    key=str(int(random.random()*10000))
+    st.plotly_chart(fig, key=key)
 
 def yearweek_to_yearmonth(yearweek: str) -> str:
     """
