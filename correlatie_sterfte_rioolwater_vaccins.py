@@ -864,8 +864,8 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
             x_values += ['week']
     y_value_ = y
     
-    col1,col2=st.columns(2)
-    #col1,col2,col3=st.columns(3)
+    #col1,col2=st.columns(2)
+    col1,col2,col3=st.columns(3)
     with col1:
         line_plot_2_axis(df, time_period,y_value_, x1,age_sex)
         make_scatterplot(df, y_value_, x1,age_sex)
@@ -873,9 +873,9 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
     with col2:
         line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
         make_scatterplot(df, y_value_, x2,age_sex)
-    # with col3:
-    #     line_plot_2_axis(df, time_period,x1, x2,age_sex)
-    #     make_scatterplot(df, x1, x2,age_sex)
+    with col3:
+        line_plot_2_axis(df, time_period,x1, x2,age_sex)
+        make_scatterplot(df, x1, x2,age_sex)
     try:
         data_dict = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
     except:
