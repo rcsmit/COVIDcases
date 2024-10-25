@@ -662,9 +662,10 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
             overlaying='y',
             side='right'
         ),
-        legend=dict(x=0.5, y=1, orientation='h')
+        showlegend=False
+        
     )
-    
+    #legend=dict(x=0.5, y=1, orientation='h')
     # Show the figure
     if 1==2:
         
@@ -820,7 +821,7 @@ def analyse_maandelijkse_overlijdens(oorzaak, age_sex, df_result, time_period, s
     
     data_dict,_,_,_,_ = perform_analyse(age_sex, df_month, time_period, "RNA_flow_per_100000","TotalDoses",f"OBS_VALUE_{oorzaak}", seizoen, maand, normalize)
     return data_dict
-def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize):
+def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize, only_graph=False):
     """_summary_
 
     Args:
@@ -832,7 +833,8 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
         y (_type_): _description_
         seizoen (_type_): _description_
         maand (_type_): _description_
-
+        normalize
+        only graph
     Returns:
         tuple: data_dict
         
@@ -867,24 +869,31 @@ def perform_analyse(age_sex, df, time_period,x1,x2,y, seizoen, maand, normalize)
         else:
             x_values += ['week']
     y_value_ = y
-    
-    #col1,col2=st.columns(2)
-    col1,col2,col3=st.columns(3)
-    with col1:
+    if only_graph:
         line_plot_2_axis(df, time_period,y_value_, x1,age_sex)
-        make_scatterplot(df, y_value_, x1,age_sex)
-  
-    with col2:
-        line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
-        make_scatterplot(df, y_value_, x2,age_sex)
-    with col3:
-        line_plot_2_axis(df, time_period,x2, x1,age_sex)
-        make_scatterplot(df, x1, x2,age_sex)
+        max_lag,max_corr,max_lag_sma,max_corr_sma=None,None,None,None
+    else:
+        #col1,col2=st.columns(2)
+        col1,col2,col3=st.columns(3)
+        with col1:
+            line_plot_2_axis(df, time_period,y_value_, x1,age_sex)
+            make_scatterplot(df, y_value_, x1,age_sex)
+    
+        with col2:
+            line_plot_2_axis(df, time_period,y_value_, x2,age_sex)
+            make_scatterplot(df, y_value_, x2,age_sex)
+        with col3:
+            line_plot_2_axis(df, time_period,x2, x1,age_sex)
+            make_scatterplot(df, x1, x2,age_sex)
+        max_lag,max_corr,max_lag_sma,max_corr_sma = find_lag_time(df, x1, y_value_, -14, 14)
+    
     try:
         data_dict = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize)
-    except:
+    except Exception as e:
         data_dict = None
-    max_lag,max_corr,max_lag_sma,max_corr_sma = find_lag_time(df, x1, y_value_, -14, 14)
+        st.write(f"error {e}")
+
+        
     return data_dict,max_lag,max_corr,max_lag_sma,max_corr_sma
 
 
@@ -897,7 +906,7 @@ def main():
     col1, col2, col3, col4, col5 = st.columns(5, vertical_alignment="center")
     
     with col1:
-        fixed_periods = st.checkbox("Fixed periods", False)
+        fixed_periods = st.checkbox("Fixed periods", True)
     
     if not fixed_periods:
         with col2:
@@ -933,7 +942,7 @@ def main():
     )
     
     df_merged["pseudoweek"] = df_merged["jaar"] * 52 + df_merged["week"]
-
+    st.write(df_merged)
 
     col1, col2, col3, col4,col5,col6 = st.columns(6, vertical_alignment="center")
     with col1:
@@ -955,56 +964,65 @@ def main():
             [27, 2021, 26, 2022],
             [27, 2022, 26, 2023],
             [27, 2023, 52, 2024],
-            [1,2022,52,2023],
-            [1,2020,52,2024]
+            # [1,2022,52,2023],
+            # [1,2020,52,2024]
         ]
         results = []
+        col=[None,None,None,None]
+        col[0],col[1],col[2],col[3] = st.columns(4)
+        
         with st.expander("results"):
         #if 1==1:
-            for start_wk, start_yr, end_wk, end_yr in periods:
-                pseudo_start_week = start_yr * 52 + start_wk
-                pseudo_eind_week = end_yr * 52 + end_wk
-                
-                st.subheader(f"{start_wk}-{start_yr} -- {end_wk}-{end_yr}")
-                df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
-                df_period = df_period[df_period["week"] != 53]
-                
-                age_sex = "TOTAL_T"
-                df_filtered = df_period[df_period["age_sex"] == age_sex].copy(deep=True)
-                df_filtered[y_value] = df_filtered[y_value].rolling(window=window, center=True).mean()
-                df_filtered[y_value] = df_filtered[y_value].shift(shift_weeks)
-                
-                data_dict ,max_lag,max_corr,max_lag_sma,max_corr_sma = perform_analyse(age_sex, df_filtered, "jaar_week", "RNA_flow_per_100000", "TotalDoses", y_value, seizoen, maand, normalize)
-              
-           
-                period = f"{start_wk}-{start_yr}-{end_wk}/{end_yr}"
+            for n,what in enumerate(["OBS_VALUE",  "oversterfte", "p_score", "Hospital_admission",  "IC_admission", "RNA_flow_per_100000","TotalDoses"]):
+                m=0
+                for start_wk, start_yr, end_wk, end_yr in periods:
+                    
+                    pseudo_start_week = start_yr * 52 + start_wk
+                    pseudo_eind_week = end_yr * 52 + end_wk
+                    
+                    st.subheader(f"{start_wk}-{start_yr} -- {end_wk}-{end_yr}")
+                    df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
+                    df_period = df_period[df_period["week"] != 53]
+                    
+                    age_sex = "TOTAL_T"
+                    df_filtered = df_period[df_period["age_sex"] == age_sex].copy(deep=True)
+                    df_filtered[y_value] = df_filtered[y_value].rolling(window=window, center=True).mean()
+                    df_filtered[y_value] = df_filtered[y_value].shift(shift_weeks)
+                    with col[m]:
+                        data_dict ,max_lag,max_corr,max_lag_sma,max_corr_sma = perform_analyse(age_sex, df_filtered, "jaar_week", what, "RNA_flow_per_100000",  y_value, seizoen, maand, normalize, True)
+                        #line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, "RNA_flow_per_100000", age_sex, )
+                        #line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, "RNA_flow_per_100000", age_sex, )
+                        #line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, "TotalDoses", age_sex, )
+                    
+                    m+=1
+                    #period = f"{start_wk}-{start_yr}-{end_wk}/{end_yr}"
 
-                result = {
-                    "period": period,
-                    "Y value": data_dict['Y value'],
-                    "coef_RNA": round(data_dict['C_RNA'],4),
-                    "coef_vacc": round(data_dict['C_vacc'],4),
-                    "p_RNA": round(data_dict['P_RNA'],4),
-                    "p_vacc": round(data_dict['P_vacc'],4),
-                    "Adj. R2": round(data_dict['Adjusted R-squared'],4),
-                    "F-stat.": round(data_dict['F-statistic'],4),
-                    "p_F-stat.": round(data_dict['F-statistic P-value'],4),
-                    "max_lag_days": max_lag,
-                    "max_corr": max_corr,
-                    "max_lag_days_sma_(7)": max_lag_sma,
-                    "max_corr_sma_(7)": max_corr_sma
-                }
-                
-                # Append the result dictionary to the results list
-                results.append(result)
+        #             result = {
+        #                 "period": period,
+        #                 "Y value": data_dict['Y value'],
+        #                 "coef_RNA": round(data_dict['C_RNA'],4),
+        #                 "coef_vacc": round(data_dict['C_vacc'],4),
+        #                 "p_RNA": round(data_dict['P_RNA'],4),
+        #                 "p_vacc": round(data_dict['P_vacc'],4),
+        #                 "Adj. R2": round(data_dict['Adjusted R-squared'],4),
+        #                 "F-stat.": round(data_dict['F-statistic'],4),
+        #                 "p_F-stat.": round(data_dict['F-statistic P-value'],4),
+        #                 "max_lag_days": max_lag,
+        #                 "max_corr": max_corr,
+        #                 "max_lag_days_sma_(7)": max_lag_sma,
+        #                 "max_corr_sma_(7)": max_corr_sma
+        #             }
+                    
+        #             # Append the result dictionary to the results list
+        #             results.append(result)
 
-        # Convert the results list to a dataframe
-        df_results = pd.DataFrame(results)
+        # # Convert the results list to a dataframe
+        # df_results = pd.DataFrame(results)
 
-        # Display the resulting dataframe
+        # # Display the resulting dataframe
 
-        st.subheader("Results")
-        st.write(df_results)
+        # st.subheader("Results")
+        # st.write(df_results)
         
     else:
         # not a loop of fixed periods. Just one period
