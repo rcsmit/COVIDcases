@@ -960,12 +960,12 @@ def main():
                 
     if fixed_periods:
         periods = [
-            [1, 2020, 26, 2021],
-            [27, 2021, 26, 2022],
+            # [1, 2020, 26, 2021],
+            # [27, 2021, 26, 2022],
             [27, 2022, 26, 2023],
             [27, 2023, 52, 2024],
-            # [1,2022,52,2023],
-            # [1,2020,52,2024]
+            [1,2022,52,2023],
+            [1,2021,52,2024]
         ]
         results = []
         col=[None,None,None,None]
@@ -989,14 +989,14 @@ def main():
                     df_filtered[y_value] = df_filtered[y_value].rolling(window=window, center=True).mean()
                     df_filtered[y_value] = df_filtered[y_value].shift(shift_weeks)
                     with col[m]:
-                        data_dict ,max_lag,max_corr,max_lag_sma,max_corr_sma = perform_analyse(age_sex, df_filtered, "jaar_week", what, "RNA_flow_per_100000",  y_value, seizoen, maand, normalize, True)
+                        #data_dict ,max_lag,max_corr,max_lag_sma,max_corr_sma = perform_analyse(age_sex, df_filtered, "jaar_week", what, "RNA_flow_per_100000",  y_value, seizoen, maand, normalize, True)
                         #line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, "RNA_flow_per_100000", age_sex, )
                         #line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, "RNA_flow_per_100000", age_sex, )
-                        #line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, "TotalDoses", age_sex, )
+                        line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, "TotalDoses", age_sex, )
                     
                     m+=1
                     #period = f"{start_wk}-{start_yr}-{end_wk}/{end_yr}"
-
+        
         #             result = {
         #                 "period": period,
         #                 "Y value": data_dict['Y value'],
