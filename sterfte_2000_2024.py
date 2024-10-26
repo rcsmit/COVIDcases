@@ -307,6 +307,7 @@ def perform_analyse(age_sex, df, time_period,y, seizoen, maand, normalize, use_s
     a,b,c, r2,f,f_p = multiple_linear_regression(df,x_values,y_value_, age_sex, normalize,use_sin, use_cos)
     return a,b,c, r2,f,f_p
 
+
 def get_and_prepare_data(opdeling, min, max):
     """_summary_
 
