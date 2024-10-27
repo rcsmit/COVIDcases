@@ -228,6 +228,7 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
             )
         )
 
+
     # Update layout to include two y-axes
     fig.update_layout(
         title=f'{age_sex} - {x} vs<br>{y1} and {y2}',
