@@ -179,7 +179,7 @@ def make_scatterplot(df: pd.DataFrame, x: str, y: str, age_sex: str):
     r = random.randint(1,50)
     st.plotly_chart(fig, key=key)
 
-def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
+def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str, period=None):
     """
     Create and display a line plot with two y-axes.
 
@@ -228,10 +228,12 @@ def line_plot_2_axis(df: pd.DataFrame, x: str, y1: str, y2: str, age_sex: str):
             )
         )
 
-
+    title = f"{age_sex} - {x} vs<br>{y1} and {y2}"
+    if period is not None:
+        title+= f"<br>{period}"
     # Update layout to include two y-axes
     fig.update_layout(
-        title=f'{age_sex} - {x} vs<br>{y1} and {y2}',
+        title=title,
         xaxis_title=x,
         yaxis_title=y1,
         yaxis2=dict(
@@ -483,6 +485,22 @@ def main():
             st.error("Eind kan niet voor start")
             st.stop()
     
+    if not fixed_periods:
+        col1, col2, col3, col4,col5,col6 = st.columns(6, vertical_alignment="center")
+        with col1:
+            y_value = st.selectbox("Y value/left ax", ["OBS_VALUE", "oversterfte", "p_score", "Hospital_admission",  "IC_admission"], 0, help="Alleen bij leeftijdscategorieen")
+        with col2:
+            normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
+        with col3:
+            seizoen = st.checkbox("Seizoensinvloeden meenemen", True)
+        with col4:
+            maand = st.checkbox("Maand-/week invloeden meenemene")
+        with col5:
+            shift_weeks = st.slider(f"Shift {y_value}", -52,52,0)
+        with col6:
+            window = st.slider(f"SMA window {y_value}", 1,52,1)
+    #else:
+     
     df = get_sterfte(opdeling)
     df_rioolwater = get_rioolwater()
     df_vaccinaties = get_vaccinaties()
@@ -500,21 +518,7 @@ def main():
     )
     
     df_merged["pseudoweek"] = df_merged["jaar"] * 52 + df_merged["week"]
-
-    col1, col2, col3, col4,col5,col6 = st.columns(6, vertical_alignment="center")
-    with col1:
-        y_value = st.selectbox("Y value", ["OBS_VALUE", "oversterfte", "p_score", "Hospital_admission",  "IC_admission"], 0, help="Alleen bij leeftijdscategorieen")
-    with col2:
-        normalize = st.checkbox("Normaliseer X values", True, help="Normalizeren omdat de vaccindosissen een hoog getal kunnen zijn")
-    with col3:
-        seizoen = st.checkbox("Seizoensinvloeden meenemen", True)
-    with col4:
-        maand = st.checkbox("Maand-/week invloeden meenemene")
-    with col5:
-        shift_weeks = st.slider(f"Shift {y_value}", -52,52,0)
-    with col6:
-        window = st.slider(f"SMA window {y_value}", 1,52,1)
-                
+          
     if fixed_periods:
         periods = [
             [1, 2020, 26, 2021],
@@ -527,44 +531,46 @@ def main():
         results = []
         col=[None,None,None,None]
         options = ["OBS_VALUE",  "oversterfte", "p_score", "Hospital_admission",  "IC_admission", "RNA_flow_per_100000","TotalDoses"]
-        secondary_ax = st.selectbox("Secondary axis", options,5)
+        secondary_ax = st.selectbox("Right axis", options,5)
         age_sex = "TOTAL_T"
         #with st.expander("results"):
         if 1==1:
             for n,what in enumerate(options):
-                st.header(what)
-                df_filtered = make_df_filtered(df_merged, age_sex, y_value, shift_weeks, window, 1, 2020, 52, 2024)
-                line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, secondary_ax, age_sex, )
-                
-                m=0
+                if what != secondary_ax:    
+                    st.header(what)
+                    df_filtered = make_df_filtered(df_merged, age_sex, what, 0, 1, 1, 2020, 52, 2024)
+                  
+                    line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, secondary_ax, age_sex, )
+                    
+                    m=0
 
-                col[0],col[1],col[2],col[3] = st.columns(4)
-                for start_wk, start_yr, end_wk, end_yr in periods:          
-                    
-                    df_filtered = make_df_filtered(df_merged, age_sex,y_value, shift_weeks, window, start_wk, start_yr, end_wk, end_yr)
-                    with col[m]:
-                        period=f"{start_wk}-{start_yr} - {end_wk}-{end_yr}"
-                        st.subheader(period)
-                        corr= df_filtered[what].corr(df_filtered[secondary_ax])
-                        max_lag,max_corr,max_lag_sma,max_corr_sma = find_lag_time(df_filtered, what, secondary_ax,-14,14,verbose=False)
-                        line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, secondary_ax, age_sex, )
-                     
-                    
-                    m+=1
-                    
-                    result = {
-                        "period": period,
-                        "Primary ax": what,
-                        "Secondary ax": secondary_ax,
-                        "corr_coeff": round(corr,4),
-                        "max_lag_days": max_lag,
-                        "max_corr": max_corr,
-                        "max_lag_days_sma_(7)": max_lag_sma,
-                        "max_corr_sma_(7)": max_corr_sma
-                    }
-                    
-                    # Append the result dictionary to the results list
-                    results.append(result)
+                    col[0],col[1],col[2],col[3] = st.columns(4)
+                    for start_wk, start_yr, end_wk, end_yr in periods:          
+                        
+                        df_filtered = make_df_filtered(df_merged, age_sex,what, 0, 1, start_wk, start_yr, end_wk, end_yr)
+                        with col[m]:
+                            period=f"{start_wk}-{start_yr} - {end_wk}-{end_yr}"
+                            
+                            corr= df_filtered[what].corr(df_filtered[secondary_ax])
+                            max_lag,max_corr,max_lag_sma,max_corr_sma = find_lag_time(df_filtered, what, secondary_ax,-14,14,verbose=False)
+                            line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, secondary_ax, age_sex, period=period )
+                        
+                        
+                        m+=1
+                        
+                        result = {
+                            "period": period,
+                            "Primary ax": what,
+                            "Secondary ax": secondary_ax,
+                            "corr_coeff": round(corr,4),
+                            "max_lag_days": max_lag,
+                            "max_corr": max_corr,
+                            "max_lag_days_sma_(7)": max_lag_sma,
+                            "max_corr_sma_(7)": max_corr_sma
+                        }
+                        
+                        # Append the result dictionary to the results list
+                        results.append(result)
 
         # Convert the results list to a dataframe
         df_results = pd.DataFrame(results)
@@ -665,6 +671,24 @@ def main():
     st.info("https://www.rivm.nl/corona/actueel/weekcijfers")
 
 def make_df_filtered(df_merged,age_sex, y_value, shift_weeks, window, start_wk, start_yr, end_wk, end_yr):
+    """ Filter on period and age sex
+        move and smooth y_value
+
+    Args:
+        df_merged (_type_): _description_
+        age_sex (_type_): _description_
+        y_value (_type_): _description_
+        shift_weeks (_type_): _description_
+        window (_type_): _description_
+        start_wk (_type_): _description_
+        start_yr (_type_): _description_
+        end_wk (_type_): _description_
+        end_yr (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
+    
     pseudo_start_week = start_yr * 52 + start_wk
     pseudo_eind_week = end_yr * 52 + end_wk
     df_period = df_merged[(df_merged["pseudoweek"] >= pseudo_start_week) & (df_merged["pseudoweek"] <= pseudo_eind_week)]
