@@ -13,6 +13,7 @@ from statsmodels.tsa.arima.model import ARIMA
 
 import statsmodels.api as sm
 from statsmodels.tsa.seasonal import STL
+import statsmodels.formula.api as smf
 import plotly.graph_objects as go
 from scipy import stats
 # for VIF
@@ -22,7 +23,10 @@ from statsmodels.tsa.seasonal import STL
 import numpy as np
 import plotly.graph_objs as go
 from sklearn.metrics import mean_squared_error
-
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+from scipy.stats import norm
 
 
 def get_cbs_baseline():
@@ -379,7 +383,7 @@ def plot_stl_all_in_one(df,y_value):
         fig.add_trace(go.Scatter(x=df["periodenr"], y=df['OBS_VALUE'], mode='lines', name='Original Data Eurostats'))
         fig.add_trace(go.Scatter(x=df["periodenr"], y=df['OBS_VALUE_'], mode='lines', name='Original Data CBS'))
         fig.add_trace(go.Scatter(x=df["periodenr"], y=df['residual_CBS'], mode='lines', name='Residual CBS (oversterfte)'))
-        fig.add_trace(go.Scatter(x=df["periodenr"], y=df['basevalue'], mode='lines', name='basevalue CBS'))
+        fig.add_trace(go.Scatter(x=df["periodenr"], y=df['basevalue'].rolling(window=7).mean(), mode='lines', name='basevalue CBS'))
 
     else:
         fig.add_trace(go.Scatter(x=df["periodenr"], y=df['per100k'], mode='lines', name='Original Data Eurostats'))
@@ -399,16 +403,24 @@ def plot_stl_all_in_one(df,y_value):
     fig.add_trace(go.Scatter(x=df["periodenr"], y=df['trend_seasonal'], mode='lines', name='t+s'))
 
     fig.add_trace(go.Scatter(x=df["periodenr"], y=df['forecast'], mode='lines', name='Forecast ARIMA'))
- 
+    fig.add_trace(go.Scatter(x=df["periodenr"], y=df['glm_predicted_baseline'], mode='lines', name='GLM baseline'))
+    
+    fig.add_trace(go.Scatter(x=df["periodenr"], y=df['predicted_baseline_overdisp'], mode='lines', name='GLM baseline overdisp'))
+    
+    fig.add_trace(go.Scatter(x=df["periodenr"], y=df['predicted_baseline_neg_binom'], mode='lines', name='Neg binom baseline'))
+    
+    fig.add_trace(go.Scatter(x=df["periodenr"], y=df['z_value'], mode='lines', name='z_values'))
+    fig.add_trace(go.Scatter(x=df["periodenr"], y=df['excess_death'], mode='lines', name='excess_deaths'))
+    fig.add_trace(go.Scatter(x=df["periodenr"], y=df['alarm'], mode='lines', name='alarms'))
     # Update layout
-    fig.update_layout(title='All STL lines + data/baseline CBS',
+    fig.update_layout(title='All STL lines + data/baseline CBS + GLM + neg binom + Farrinton',
                     xaxis_title='Date',
                     yaxis_title='Value',
                     legend_title='Components')
 
     # Show the plot
     st.plotly_chart(fig)
-
+    st.plotly_chart(fig)
 
 def stl(df):
     st.subheader("STL")
@@ -451,7 +463,8 @@ def stl(df):
 
     df_merged = merge_with_cbs(df)
     df_prediction = predict(df_merged, y_value)
-     
+    df_prediction = farrington_algorithm_all(df_prediction)
+
     plot_stl_all_in_one(df_prediction, y_value)
 
     
@@ -505,6 +518,7 @@ def predict(df,y_value='OBS_VALUE'):
     fig.add_trace(go.Scatter(x=df_before_2020["periodenr"], y=df_before_2020[y_value], mode='lines', name='Training Data'))
     fig.add_trace(go.Scatter(x=df_after_2020["periodenr"], y=df_after_2020[y_value], mode='lines', name='Actual'))
     fig.add_trace(go.Scatter(x=df_after_2020["periodenr"], y=df_after_2020['forecast'], mode='lines', name='Forecast'))
+
     fig.update_layout(title='Forecast vs Actual', xaxis_title='Date', yaxis_title=y_value)
     st.plotly_chart(fig)
     df_combined = pd.concat([df_before_2020, df_after_2020], ignore_index=True)
@@ -582,6 +596,11 @@ Also the CBS baseline and excess mortality is plotted in the graph
     
     age_sex, df_result5 = get_and_prepare_data(opdeling, min, max)
     analyse_cos_sin(df_result5, age_sex, time_period, columns, y_value, seizoen, maand, normalize, use_sin, use_cos, min, max)
+    print (df_result5.dtypes)
+
+    
+    # Zorg dat alle relevante kolommen numeriek zijn en verwijder rijen met ontbrekende waarden
+    df_result5 = glm_poisson(df_result5)
     
     stl(df_result5)
     st.subheader("Data sources")
@@ -610,6 +629,162 @@ wat leidt tot een betere R², F-statistic, en p-waarde.
 Kortom, door zowel sin als cos te gebruiken, kan het model zowel de symmetrische 
 als de asymmetrische variaties van sterfte over de seizoenen heen effectief modelleren. [ChatGPT]
             """)
+
+def glm_poisson(df_result5):
+    df_result5['OBS_VALUE'] = pd.to_numeric(df_result5['OBS_VALUE'], errors='coerce')
+    df_result5['week'] = pd.to_numeric(df_result5['week'], errors='coerce')
+    df_result5['sin_time'] = np.sin(2 * np.pi * df_result5['week']/ 52)
+    df_result5['cos_time'] = np.cos(2 * np.pi * df_result5['week'] / 52)
+    df_result5['jaar'] = pd.to_numeric(df_result5['jaar'], errors='coerce')
+    df_result5 = df_result5.dropna(subset=['OBS_VALUE', 'week', 'jaar'])
+
+    df_result5['OBS_VALUE'] = df_result5['OBS_VALUE'].astype(int)
+
+    # a Negative Binomial model instead of Poisson to account for overdispersion
+    negative_binomial_model = smf.glm(
+        formula='OBS_VALUE ~sin_time + cos_time + jaar',
+        data=df_result5,
+        family=sm.families.NegativeBinomial()
+    )
+
+    # Fit the model
+    negative_binomial_results = negative_binomial_model.fit()
+
+    # Print the summary
+    st.write("Neg binomial")
+    st.write(negative_binomial_results.summary())
+
+    # Add predicted baseline column with Negative Binomial predictions
+    df_result5['predicted_baseline_neg_binom'] = negative_binomial_results.predict(df_result5)
+    # Poisson GLM specificeren en fitten
+    poisson_model = smf.glm(
+        formula='OBS_VALUE ~sin_time + cos_time + jaar',
+        data=df_result5,
+        family=sm.families.Poisson()
+    )
+    poisson_results = poisson_model.fit()
+
+    # Voorspelde waarden toevoegen als nieuwe kolom
+    df_result5['glm_predicted_baseline'] = poisson_results.predict(df_result5)
+
+    # Controleren op overdispersie en quasi-Poisson model indien nodig
+    deviance = poisson_results.deviance
+    df_resid = poisson_results.df_resid
+    overdispersion_factor = deviance / df_resid
+
+    if overdispersion_factor > 1:
+        poisson_model_2 = smf.glm(
+            formula='OBS_VALUE ~sin_time + cos_time  + jaar',
+            data=df_result5,
+            family=sm.families.Poisson()
+        )
+
+        # Fit the model with a scale adjustment for overdispersion
+        poisson_results = poisson_model_2.fit(scale=overdispersion_factor)
+
+        # Print summary
+        st.write("Overdispersie gedetecteerd")
+        st.write(poisson_results.summary())
+
+        # Add predicted baseline with adjusted scale
+        df_result5['predicted_baseline_overdisp'] = poisson_results.predict(df_result5)
+    else:
+        st.write("Geen overdispersie gedetecteerd.")
+        print(poisson_results.summary())
+    return df_result5
+
+
+
+
+def farrington_algorithm_all(df, b=5, w=3, alpha=0.05):
+    """
+    Implements a version of the Farrington algorithm for excess deaths using df_result5.
+    
+    Parameters:
+    - df: pd.DataFrame, input dataframe containing count data in the 'aantal' column.
+    - b: int, number of years to consider in the baseline window.
+    - w: int, window size for baseline weeks.
+    - alpha: float, significance level for the threshold.
+
+    Returns:
+    - df: pd.DataFrame, updated with the Z-value and excess death columns.
+
+    https://www.euromomo.eu/how-it-works/what-is-a-z-score
+
+    "The Z-scores published by Euromomo are more complicated than this although exactly how they
+    are calculated is not known."
+    https://arxiv.org/pdf/2010.10320
+
+
+    # https://www.researchgate.net/publication/354431343_Geographically_weighted_generalized_Farrington_algorithm_for_rapid_outbreak_detection_over_short_data_accumulation_periods
+    # https://rdrr.io/cran/surveillance/src/R/algo_farrington.R
+
+    # https://zero.sci-hub.st/2819/4f21ebf7385080fe7697465003d09c7b/farrington1996.pdf
+    """
+    # Create a time index for the dataframe
+    df['time_index'] = df['jaar'] * 52 + df['week']
+    df['OBS_VALUE'] = df['residual']+(-1*df['residual'].min())
+    # Initialize lists to store Z-values and excess deaths
+    z_values = []
+    excess_deaths = []
+    alarms = []
+
+    # Iterate through each row in the dataframe
+    for idx, row in df.iterrows():
+        current_time = row['time_index']
+        
+        # Select baseline data
+        baseline_data = []
+        for year in range(row['jaar'] - b, row['jaar']):
+            for week in range(row['week'] - w, row['week'] + w + 1):
+                time_index = year * 52 + week
+                if time_index in df['time_index'].values:
+                    baseline_data.append(df.loc[df['time_index'] == time_index, 'OBS_VALUE'].values[0])
+
+        if len(baseline_data) == 0:
+            z_values.append(np.nan)
+            excess_deaths.append(np.nan)
+            alarms.append(0)
+            continue
+        
+        # Fit quasi-Poisson regression
+        X = np.arange(len(baseline_data)).reshape(-1, 1)
+        y = np.array(baseline_data)
+        poisson_model = sm.GLM(y, sm.add_constant(X), family=sm.families.Poisson()).fit()
+
+        # Estimate dispersion parameter φ
+        mu_hat = poisson_model.predict(sm.add_constant(X))
+        phi_hat = max(1, ((y - mu_hat) ** 2 / mu_hat).mean())
+
+        # Calculate mean μ and threshold U for current time
+        mu_tc = np.exp(poisson_model.params[0] + poisson_model.params[1] * len(baseline_data))
+        z_alpha = norm.ppf(1 - alpha)
+        x=phi_hat + (mu_tc.var() /mu_tc) 
+        U = (mu_tc * (1 + (2 / 3) * z_alpha * ((x / mu_tc) ** 0.5)) ** (3 / 2))
+
+        # Determine current count
+        y_tc = row['OBS_VALUE']
+
+        # Calculate excess death and alarm
+        excess_death = max(y_tc - U, 0)
+        alarm = 1 if y_tc > U else 0
+        
+        # Calculate Z-value
+        z_value = (y_tc - U) / np.sqrt(phi_hat * mu_tc) if mu_tc > 0 else np.nan
+        
+        # Append results
+        z_values.append(z_value)
+        excess_deaths.append(excess_death)
+        alarms.append(alarm)
+
+    # Add new columns to the dataframe
+    df['z_value'] = z_values
+    df['excess_death'] = excess_deaths
+    df['alarm'] = alarms
+
+    return df
+
+
 if __name__ == "__main__":
     import os
     import datetime

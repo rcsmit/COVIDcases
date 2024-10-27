@@ -1588,7 +1588,7 @@ def smooth_columns(df: pd.DataFrame, columns: list[str], method: str, window: in
         smoothed_columns.append(smoothed_column)
     return df, smoothed_columns
 
-def find_lag_time(df: pd.DataFrame, first_event: str, second_event: str, start_lag: int, end_lag: int) -> None:
+def find_lag_time(df: pd.DataFrame, first_event: str, second_event: str, start_lag: int, end_lag: int, verbose:bool =True) -> None:
     """Find the lag time between two events by calculating correlations over shifted time periods."""
     x, y, y_sma = [], [], []
     max_lag,max_lag_sma, max_corr, max_corr_sma = None,None,0, 0
@@ -1618,30 +1618,30 @@ def find_lag_time(df: pd.DataFrame, first_event: str, second_event: str, start_l
             max_corr_sma = corr_sma
             max_lag_sma = lag
         y_sma.append(corr_sma)
+    if verbose:
+        # Plot the results using Plotly
+        title = f"Correlation between: {second_event} - {first_event} with shifted days"
+        
+        fig = go.Figure()
 
-    # Plot the results using Plotly
-    title = f"Correlation between: {second_event} - {first_event} with shifted days"
-    
-    fig = go.Figure()
+        # Add traces
+        fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Values'))
+        fig.add_trace(go.Scatter(x=x, y=y_sma, mode='lines', name=f'Smoothed ({wdw})'))
 
-    # Add traces
-    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Values'))
-    fig.add_trace(go.Scatter(x=x, y=y_sma, mode='lines', name=f'Smoothed ({wdw})'))
+        # Update layout
+        fig.update_layout(
+            title=title,
+            xaxis_title="Shift in days",
+            yaxis_title="Correlation",
+            legend_title="Correlation Type",
+            template="plotly_white"
+        )
 
-    # Update layout
-    fig.update_layout(
-        title=title,
-        xaxis_title="Shift in days",
-        yaxis_title="Correlation",
-        legend_title="Correlation Type",
-        template="plotly_white"
-    )
+        # Display plot in Streamlit
+        st.plotly_chart(fig)
 
-    # Display plot in Streamlit
-    st.plotly_chart(fig)
-
-    st.write(f"Values: Highest correlation at {max_lag} days - correlation = {max_corr}")
-    st.write(f"Smoothed({wdw}): Highest correlation at {max_lag_sma} days - correlation = {max_corr_sma}")
+        st.write(f"Values: Highest correlation at {max_lag} days - correlation = {max_corr}")
+        st.write(f"Smoothed({wdw}): Highest correlation at {max_lag_sma} days - correlation = {max_corr_sma}")
     
     return max_lag,max_corr,max_lag_sma,max_corr_sma
 
