@@ -541,7 +541,7 @@ def main():
                     df_filtered = make_df_filtered(df_merged, age_sex, what, 0, 1, 1, 2020, 52, 2024)
                   
                     line_plot_2_axis(df_filtered,  "TIME_PERIOD_x", what, secondary_ax, age_sex, )
-            
+                    
                     m=0
 
                     col[0],col[1],col[2],col[3] = st.columns(4)
