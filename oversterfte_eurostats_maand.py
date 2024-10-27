@@ -8,8 +8,9 @@ import plotly.express as px
 import datetime
 #from oversterfte_eurostats import get_data_eurostat
 import eurostat
-from oversterfte_compleet import get_data_for_series, get_herhaalprik,get_boosters, make_df_quantile, layout_annotations_fig
-
+from oversterfte_compleet import get_data_for_series,  make_df_quantile
+from oversterfte_plot_functions import layout_annotations_fig #plot_wrapper, show_plot_steigstra, plot_graph_rivm, show_difference_plot, 
+from oversterfte_get_data import get_herhaalprik,get_boosters #get_all_data, get_df_offical, get_baseline_kobak
 
 
 @st.cache_data()
@@ -437,111 +438,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
             
 
            
-            fig = go.Figure()
-            low05 = go.Scatter(
-                name='low',
-                x=df_quantile["periodenr"],
-                y=df_quantile['low05'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.1)', fill='tonexty')
-
-            q05 = go.Scatter(
-                name='q05',
-                x=df_quantile["periodenr"],
-                y=df_quantile['q05'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.2)', fill='tonexty')
-
-            q25 = go.Scatter(
-                name='q25',
-                x=df_quantile["periodenr"],
-                y=df_quantile['q25'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)',
-                fill='tonexty')
-
-            avg = go.Scatter(
-                name='gemiddeld',
-                x=df_quantile["periodenr"],
-                y=df_quantile["avg"],
-                mode='lines',
-                line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
-                )
-            col_sma = series_name +"_sma"
-            df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
-            sterfte = go.Scatter(
-                name="Sterfte",
-                x=df_corona["periodenr"],
-                y=df_corona[series_name],)
-                #mode='lines',
-                #line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
-                
-            sterfte_sma = go.Scatter(
-                name="Sterfte sma",
-                x=df_corona["periodenr"],
-                y=df_corona[col_sma],
-                mode='lines',
-                line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
-                )
-
-            q75 = go.Scatter(
-                name='q75',
-                x=df_quantile["periodenr"],
-                y=df_quantile['q75'] ,
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)',
-                fill='tonexty')
-
-            q95 = go.Scatter(
-                name='q95',
-                x=df_quantile["periodenr"],
-                y=df_quantile['q95'],
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.3)'
-            )
-            high95 = go.Scatter(
-                name='high',
-                x=df_quantile["periodenr"],
-                y=df_quantile['high95'],
-                mode='lines',
-                line=dict(width=0.5,
-                        color="rgba(255, 188, 0, 0.5)"),
-                fillcolor='rgba(68, 68, 68, 0.2)'
-             )
-            
-            #data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
-            data = [ high95,low05,avg, sterfte, sterfte_sma] #, value_in_year_2021 ]
-            title = f"Overleden {series_name}"
-            layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
-                            title=title,)
-                
-    
-            fig = go.Figure(data=data, layout=layout)
-            fig.update_layout(xaxis=dict(tickformat="%d-%m"))
-            
-            #             — eerste oversterftegolf: week 13 tot en met 18 van 2020 (eind maart–eind april 2020);
-            # — tweede oversterftegolf: week 39 van 2020 tot en met week 3 van 2021 (eind
-            # september 2020–januari 2021);
-            # — derde oversterftegolf: week 33 tot en met week 52 van 2021 (half augustus 2021–eind
-            # december 2021).
-            # De hittegolf in 2020 betreft week 33 en week 34 (half augustus 2020).
-            
-            if period == "week":
-                fig = layout_annotations_fig(fig)
-            
-            if yaxis_to_zero:
-                fig.update_yaxes(rangemode="tozero")
-            st.plotly_chart(fig, use_container_width=True)
+            make_plot_eurostats(period, yaxis_to_zero, sma, series_name, df_corona, df_quantile)
 
         elif (how == "year_minus_avg") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
             plot_graph_oversterfte_eurostats(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter,wdw)
@@ -577,6 +474,113 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
     
             fig = go.Figure(data=data, layout=layout)
             st.plotly_chart(fig, use_container_width=True)
+
+def make_plot_eurostats(period, yaxis_to_zero, sma, series_name, df_corona, df_quantile):
+    fig = go.Figure()
+    low05 = go.Scatter(
+                name='low',
+                x=df_quantile["periodenr"],
+                y=df_quantile['low05'] ,
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)"),
+                fillcolor='rgba(68, 68, 68, 0.1)', fill='tonexty')
+
+    q05 = go.Scatter(
+                name='q05',
+                x=df_quantile["periodenr"],
+                y=df_quantile['q05'] ,
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)"),
+                fillcolor='rgba(68, 68, 68, 0.2)', fill='tonexty')
+
+    q25 = go.Scatter(
+                name='q25',
+                x=df_quantile["periodenr"],
+                y=df_quantile['q25'] ,
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)"),
+                fillcolor='rgba(68, 68, 68, 0.3)',
+                fill='tonexty')
+
+    avg = go.Scatter(
+                name='gemiddeld',
+                x=df_quantile["periodenr"],
+                y=df_quantile["avg"],
+                mode='lines',
+                line=dict(width=0.75,color='rgba(68, 68, 68, 0.8)'),
+                )
+    col_sma = series_name +"_sma"
+    df_corona[col_sma] =  df_corona[series_name].rolling(window = int(sma), center = True).mean()
+    sterfte = go.Scatter(
+                name="Sterfte",
+                x=df_corona["periodenr"],
+                y=df_corona[series_name],)
+                #mode='lines',
+                #line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
+                
+    sterfte_sma = go.Scatter(
+                name="Sterfte sma",
+                x=df_corona["periodenr"],
+                y=df_corona[col_sma],
+                mode='lines',
+                line=dict(width=2,color='rgba(255, 0, 0, 0.8)'),
+                )
+
+    q75 = go.Scatter(
+                name='q75',
+                x=df_quantile["periodenr"],
+                y=df_quantile['q75'] ,
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)"),
+                fillcolor='rgba(68, 68, 68, 0.3)',
+                fill='tonexty')
+
+    q95 = go.Scatter(
+                name='q95',
+                x=df_quantile["periodenr"],
+                y=df_quantile['q95'],
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)"),
+                fillcolor='rgba(68, 68, 68, 0.3)'
+            )
+    high95 = go.Scatter(
+                name='high',
+                x=df_quantile["periodenr"],
+                y=df_quantile['high95'],
+                mode='lines',
+                line=dict(width=0.5,
+                        color="rgba(255, 188, 0, 0.5)"),
+                fillcolor='rgba(68, 68, 68, 0.2)'
+             )
+            
+            #data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
+    data = [ high95,low05,avg, sterfte, sterfte_sma] #, value_in_year_2021 ]
+    title = f"Overleden {series_name}"
+    layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
+                            title=title,)
+                
+    
+    fig = go.Figure(data=data, layout=layout)
+    fig.update_layout(xaxis=dict(tickformat="%d-%m"))
+            
+            #             — eerste oversterftegolf: week 13 tot en met 18 van 2020 (eind maart–eind april 2020);
+            # — tweede oversterftegolf: week 39 van 2020 tot en met week 3 van 2021 (eind
+            # september 2020–januari 2021);
+            # — derde oversterftegolf: week 33 tot en met week 52 van 2021 (half augustus 2021–eind
+            # december 2021).
+            # De hittegolf in 2020 betreft week 33 en week 34 (half augustus 2020).
+            
+    if period == "week":
+        fig = layout_annotations_fig(fig)
+            
+    if yaxis_to_zero:
+        fig.update_yaxes(rangemode="tozero")
+    st.plotly_chart(fig, use_container_width=True)
 
 
    
