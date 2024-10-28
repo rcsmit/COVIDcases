@@ -100,7 +100,6 @@ def simulate(population_size, prob_infection, new_prob_infection_factor, day_new
         for i,agent in enumerate(population):
             # Calculate progress percentage
             progress = (i + 1) / len(population) * 100
-
             # Print statement every 10%
             if progress % 10 == 0:
                 placeholder.info(f"agents: {i+1}/{len(population)} - days: {step + 1}/{steps}")
