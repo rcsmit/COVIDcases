@@ -13,13 +13,47 @@ import streamlit as st
 import numpy as np
 import matplotlib.dates as mdates
 import datetime as dt
-import matplotlib.pyplot as plt
-# from matplotlib.backends.backend_agg import RendererAgg
+# import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.font_manager import FontProperties
 # _lock = RendererAgg.lock
 from scipy.integrate import odeint
+import plotly.graph_objects as go
 
 
+def show_disclaimer(Rstart, alfa, gamma, beta):
+    disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SEIR-graphs</h1>'
+                        '<p>These graphs are based on classical SEIR models.</p>'
+                        '<p>The parameters are taken from'
+                        '<a href=\"https://twitter.com/MinaCoen/status/1362910764739231745\" target=\"_blank\">'
+                        ' the story from Willemijn Coene about Hobbeland</a></p>'
+                        '<p> See <a href=\"https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\"'
+                        ' target=\"_blank\">'
+                        'for my illustrative and simple model about the Netherlands</a>. </p>'
+                        '<p>Alfa : ' + str(round(alfa,4)) + ' / Beta : ' + str(round(beta,4)) + ' / Gamma : ' + str(gamma) + ' / R<sub>0</sub> : '+ str(Rstart) + '</p>'
+                        '<p>If there are strange results, just change the number of days/parameters a little bit. This is due to strange behavior of scipy\'s ODEINT. solve_ivp seems to be better</p>'
+                        '</div>'
+        )
+
+    st.markdown(disclaimerSIR, unsafe_allow_html=True)
+
+    #####################################################
+
+
+
+def show_footer():
+    tekst = (
+        '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
+        '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
+        'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
+        'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\" target=\"_blank\">github.com/rcsmit</a><br>'
+        'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
+        'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst.<br>'
+        'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a>.</div>')
+
+
+
+    st.sidebar.markdown(tekst, unsafe_allow_html=True)
 
 def th2r(rz):
     return int( Tg_ * math.log(0.5) / math.log(rz))
@@ -41,96 +75,99 @@ def getsecondax():
     ax2.set_ylim(*ax.get_ylim())
     ax2.set_ylabel('Halverings-/verdubbelingstijd (dagen)')
 
-def configgraph(titlex,x,b,datediff):
-    interval_ = int(numberofdays_ / 20)
-    plt.xlabel('date')
-    plt.xlim(x[0], x[-1])
-    todaylabel = "Today ("+ b + ")"
-    plt.axvline(x=x[0]+datediff, color='yellow', alpha=.6,linestyle='--',label = todaylabel)
-    # Add a grid
-    plt.grid(alpha=.4,linestyle='--')
 
-    #Add a Legend
-    fontP = FontProperties()
-    fontP.set_size('xx-small')
-    plt.legend(  loc='best', prop=fontP)
-    plt.title(titlex , fontsize=10)
 
-    # lay-out of the x axis
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=interval_))
-    plt.gcf().autofmt_xdate()
-    plt.gca().set_title(titlex , fontsize=10)
+def plot_seirv(data):
+    # Create traces for each curve
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=data["t"], y=data["S"], mode='lines', line=dict(color='blue', width=2), opacity=0.5, name='Susceptible'))
+    fig.add_trace(go.Scatter(x=data["t"], y=data["E"], mode='lines', line=dict(color='purple', width=2), opacity=0.5, name='Exposed'))
+    fig.add_trace(go.Scatter(x=data["t"], y=data["V"], mode='lines', line=dict(color='yellow', width=2), opacity=0.5, name='Vaccinated'))
+    fig.add_trace(go.Scatter(x=data["t"], y=data["I"], mode='lines', line=dict(color='red', width=2), opacity=0.5, name='Infected'))
+    fig.add_trace(go.Scatter(x=data["t"], y=data["Cnew"], mode='lines', line=dict(color='orange', width=2), opacity=0.5, name='New Cases'))
+    fig.add_trace(go.Scatter(x=data["t"], y=data["R"], mode='lines', line=dict(color='green', width=2), opacity=0.5, name='Recovered with immunity'))
+    fig.add_trace(go.Scatter(x=data["t"], y=data["D"], mode='lines', line=dict(color='black', width=2), opacity=0.5, name='Death'))
+
+    # Set titles and labels
+    fig.update_layout(
+        title=f'SEIR - {data["scenarioname"]}',
+        xaxis_title='Time (days)',
+        yaxis_title='Number',
+        xaxis=dict(showticklabels=True, ticklen=0),
+        yaxis=dict(showticklabels=True, ticklen=0),
+    )
+
+    # Show the figure
+    st.plotly_chart(fig) 
+def plot_new_cases(data):
+    # New Cases Plot
+    fig_new_cases = go.Figure()
+
+    # Add traces for New Cases and Infected
+    fig_new_cases.add_trace(go.Scatter(x=data["t"], y=data["Cnew"], mode='lines', line=dict(color='blue', width=2), name='New Cases'))
+    fig_new_cases.add_trace(go.Scatter(x=data["t"], y=data["I"], mode='lines', line=dict(color='red', width=2), opacity=0.5, name='Infected'))
+
+    # Update layout for New Cases plot
+    fig_new_cases.update_layout(
+        title='New Cases',
+        xaxis_title='Time (days)',
+        yaxis_title='Number',
+        xaxis=dict(showticklabels=True, ticklen=0),
+        yaxis=dict(showticklabels=True, ticklen=0)
+    )
+
+    # Display figure in Streamlit
+    st.plotly_chart(fig_new_cases)
+    
+
+def plot_r_eff(data):
+    # Gliding R-number Plot
+    fig_r_number = go.Figure()
+
+    # Add trace for R number based on Cnew
+    fig_r_number.add_trace(go.Scatter(x=data["t"], y=data["repr"], mode='lines', line=dict(color='blue', width=2), opacity=0.5, name='R getal based on Cnew'))
+
+    # Add a horizontal line at y=1
+    fig_r_number.add_hline(y=1, line=dict(color='yellow', width=2, dash='dash'), opacity=0.6)
+
+    # Update layout for Gliding R-number plot
+    fig_r_number.update_layout(
+        title='R_eff through time',
+        xaxis_title='Time (days)',
+        yaxis_title='R getal',
+        xaxis=dict(showticklabels=True, ticklen=0),
+        yaxis=dict(showticklabels=True, ticklen=0)
+    )
+
+    # Display figure in Streamlit
+    st.plotly_chart(fig_r_number)
 
 ################################################
 
 def main():
-
-
-    DATE_FORMAT = "%m/%d/%Y"
-    b = datetime.today().strftime('%m/%d/%Y')
-
-    st.sidebar.title('Parameters')
-
-    numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero (I0)', 100))
-
-    try:
-        numberofcasesdayzero = int(numberofcasesdayz)
-    except:
-        st.error("Please enter a number for the number of active cases on day zero")
-        st.stop()
-
-    totalimmunedayzero = 0
-
-    st.markdown("<hr>", unsafe_allow_html=True)
-    a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"03/01/2021")
-
-    try:
-        startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
-    except:
-        st.error("Please make sure that the date is in format mm/dd/yyyy")
-        st.stop()
-
-    NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 100)
-    global numberofdays_
-    numberofdays_ = NUMBEROFDAYS
-
-    scenarioname = (st.sidebar.text_input('Scenarioname'))
-    #Rstart = st.sidebar.slider('R-number variant', 0.1, 10.0, 2.5)
-    Rstart =  st.sidebar.number_input('R number', 0.00, 10.00, 2.50)
-    ifr = (st.sidebar.number_input('ifr in %', 0.0, 100.0, 0.60))/100
-
-    incubationtime = (st.sidebar.slider('Incubatietijd (1/alfa)', 1, 30, 3))
-
-    infectioustime = (st.sidebar.slider('Average days infectious (1/gamma)', 1, 30, 2))
-
-    #start_day_vaccination = (st.sidebar.slider('Day on which the vaccination starts\n(set on max for no vaccination)', 1, NUMBEROFDAYS, int(NUMBEROFDAYS*0.2)))
-    start_day_vaccination = (st.sidebar.slider('Day on which the vaccination starts\n(set on max for no vaccination)', 1, NUMBEROFDAYS,NUMBEROFDAYS ))
-
-    days_needed_for_vaccination = (st.sidebar.slider('Days needed for vaccination', 1, 3650, 365))
-
-    totalpopulation_ = (st.sidebar.text_input('Total population', 10_000_000))
-
-    try:
-        totalpopulation = int(totalpopulation_)
-    except:
-        st.error("Please enter a number for the number of population")
-        st.stop()
-
-    Tg = st.sidebar.slider('Generation time (to calculate gliding Rt)', 2.0, 11.0, 4.0)
-    global Tg_
-    Tg_=Tg
-
-
+    data_dict = interface()
+    numberofcasesdayz = data_dict["number_of_cases_day_zero"]
+    totalimmunedayzero = data_dict["total_immunity_day_zero"]
+    NUMBEROFDAYS = data_dict["number_of_days"]
+    scenarioname = data_dict["scenario_name"]
+    Rstart = data_dict["R_start"]
+    ifr = data_dict["infection_fatality_rate"]
+    incubationtime = data_dict["incubation_time"]
+    infectioustime = data_dict["infectious_time"]
+    start_day_vaccination = data_dict["start_day_vaccination"]
+    days_needed_for_vaccination = data_dict["days_needed_for_vaccination"]
+    totalpopulation = data_dict["total_population"]
 
     # Some manipulation of the x-values (the dates)
-    then = startx + dt.timedelta(days=NUMBEROFDAYS)
-    x = mdates.drange(startx,then,dt.timedelta(days=1))
+    # then = startx + dt.timedelta(days=NUMBEROFDAYS)
+    # x = mdates.drange(startx,then,dt.timedelta(days=1))
+    x=None
     z  = np.array(range(NUMBEROFDAYS))
 
-    a_ = dt.datetime.strptime(a,'%m/%d/%Y').date()
-    b_ = dt.datetime.strptime(b,'%m/%d/%Y').date()
-    datediff = ( abs((a_ - b_).days))
+    # a_ = dt.datetime.strptime(a,'%m/%d/%Y').date()
+    # b_ = dt.datetime.strptime(b,'%m/%d/%Y').date()
+    # datediff = ( abs((a_ - b_).days))
 
     # TODO:  Transform this in a multi dimensional list
 
@@ -170,11 +207,6 @@ def main():
 
     C0 = I0
     days = NUMBEROFDAYS
-
-    # Contact rate, beta, and mean recovery rate, gamma, (in 1/days).
-    #beta, gamma = 0.2, 1./10
-    ##beta = float(input("Contact rate - beta [0-1] "))
-    #gamma = 1/int(input("Mean recovery rate in days - 1/gamma  "))
 
     # Gamma is 1/serial interval
     # https://wwwnc.cdc.gov/eid/article/26/6/20-0357_article
@@ -223,6 +255,104 @@ def main():
     ret = odeint(deriv, y0, t, args=(N, beta, gamma, ifr))
     S, V, E, I, R, D,  C  = ret.T
 
+    t, lambdaa, repr, Cnew, repr_c_, repr_i_ = calculate_r_eff(Rstart, days, I, C)
+
+    show_disclaimer(Rstart, alfa, gamma, beta)
+
+    data = {"x":x, "t":t,"S":S,"E":E,"V":V,"I":I,"Cnew":Cnew,
+            "R":R,"D":D,"scenarioname":scenarioname, 
+            "repr":repr, "repr_c_":repr_c_, "repr_i_":repr_i_}
+    plot_seirv(data)
+
+
+
+    st.write  ("attack rate classical SIR model : " + str(int(C[days-1])) + " mensen / "+ str(round(100*((C[days-1])        /N),2))+ " %")
+    st.write (f"Number of deaths: {round(C[days-1])} * {ifr} = {round(C[days-1]*ifr)}")
+
+    st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
+    st.write ("Attack rate = final size of the epidemic (FSE) ")
+
+    plot_new_cases(data)
+    plot_r_eff(data)
+
+
+    st.write  ("attack rate classical SIR model : " + str(int(C[days-1])) + " mensen / "+ str(round(100*((C[days-1])        /N),2))+ " %")
+    st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
+    st.write ("Attack rate = final size of the epidemic (FSE) ")
+    st.write("Read also: 7 Reasons Not to Use ODEs for Epidemic Modeling https://gerritgr.medium.com/7-reasons-not-to-use-odes-for-epidemic-modeling-bf451037a97f")
+    repr=[]
+    show_footer()
+
+def interface():
+    DATE_FORMAT = "%m/%d/%Y"
+    b = datetime.today().strftime('%m/%d/%Y')
+
+    st.sidebar.title('Parameters')
+
+    numberofcasesdayz = (st.sidebar.text_input('Number infected persons on day zero (I0)', 100))
+
+    try:
+        numberofcasesdayzero = int(numberofcasesdayz)
+    except:
+        st.error("Please enter a number for the number of active cases on day zero")
+        st.stop()
+
+    totalimmunedayzero = 0
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+    # a = st.sidebar.text_input('startdate (mm/dd/yyyy)',"03/01/2021")
+
+    # try:
+    #     startx = dt.datetime.strptime(a,'%m/%d/%Y').date()
+    # except:
+    #     st.error("Please make sure that the date is in format mm/dd/yyyy")
+    #     st.stop()
+
+    NUMBEROFDAYS = st.sidebar.slider('Number of days in graph', 15, 720, 100)
+    global numberofdays_
+    numberofdays_ = NUMBEROFDAYS
+
+    scenarioname = (st.sidebar.text_input('Scenarioname'))
+    #Rstart = st.sidebar.slider('R-number variant', 0.1, 10.0, 2.5)
+    Rstart =  st.sidebar.number_input('R number', 0.00, 10.00, 2.50)
+    ifr = (st.sidebar.number_input('ifr in %', 0.0, 100.0, 0.60))/100
+
+    incubationtime = (st.sidebar.slider('Incubatietijd (1/alfa)', 1, 30, 3))
+
+    infectioustime = (st.sidebar.slider('Average days infectious (1/gamma)', 1, 30, 2))
+
+    #start_day_vaccination = (st.sidebar.slider('Day on which the vaccination starts\n(set on max for no vaccination)', 1, NUMBEROFDAYS, int(NUMBEROFDAYS*0.2)))
+    start_day_vaccination = (st.sidebar.slider('Day on which the vaccination starts\n(set on max for no vaccination)', 1, NUMBEROFDAYS,NUMBEROFDAYS ))
+
+    days_needed_for_vaccination = (st.sidebar.slider('Days needed for vaccination', 1, 3650, 365))
+
+    totalpopulation_ = (st.sidebar.text_input('Total population', 10_000_000))
+
+    try:
+        totalpopulation = int(totalpopulation_)
+    except:
+        st.error("Please enter a number for the number of population")
+        st.stop()
+
+    Tg = st.sidebar.slider('Generation time (to calculate Reff)', 2.0, 11.0, 4.0)
+    global Tg_
+    Tg_=Tg
+
+    data_dict = {
+        "number_of_cases_day_zero": numberofcasesdayz,
+        "total_immunity_day_zero": totalimmunedayzero,
+        "number_of_days": NUMBEROFDAYS,
+        "scenario_name": scenarioname,
+        "R_start": Rstart,
+        "infection_fatality_rate": ifr,
+        "incubation_time": incubationtime,
+        "infectious_time": infectioustime,
+        "start_day_vaccination": start_day_vaccination,
+        "days_needed_for_vaccination": days_needed_for_vaccination,
+        "total_population": totalpopulation
+    }
+    return data_dict
+def calculate_r_eff(Rstart, days, I, C):
     Tg = Tg_
     d = 1
     lambdaa = 1
@@ -249,101 +379,14 @@ def main():
         repr.append(repr_)
         repr_c.append(repr_c_)
         repr_i.append(repr_i_)
-
-    disclaimerSIR= ('<div class=\"infobox\"><h1>Classical SEIR-graphs</h1>'
-                        '<p>These graphs are based on classical SEIR models.</p>'
-                        '<p>The parameters are taken from'
-                        '<a href=\"https://twitter.com/MinaCoen/status/1362910764739231745\" target=\"_blank\">'
-                        ' the story from Willemijn Coene about Hobbeland</a></p>'
+    return t,lambdaa,repr,Cnew,repr_c_,repr_i_
 
 
-                        '<p> See <a href=\"https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py\"'
-                        ' target=\"_blank\">'
-                        'for my illustrative and simple model about the Netherlands</a>. </p>'
-
-
-
-                        '<p>Alfa : ' + str(round(alfa,4)) + ' / Beta : ' + str(round(beta,4)) + ' / Gamma : ' + str(gamma) + ' / R<sub>0</sub> : '+ str(Rstart) + '</p>'
-                        '<p>If there are strange results, just change the number of days/parameters a little bit. This is due to strange behavior of scipy\'s ODEINT. solve_ivp seems to be better</p>'
-                        '</div>'
-        )
-
-    st.markdown(disclaimerSIR, unsafe_allow_html=True)
-
-    # Plot the data on three separate curves for S(t), I(t) and R(t)
-    fig2a = plt.figure(facecolor='w')
-    ax = fig2a.add_subplot(111, axisbelow=True)
-    ax.plot(x, S, 'b', alpha=0.5, lw=2, label='Susceptible')
-    ax.plot(x, E, 'purple', alpha=0.5, lw=2, label='Exposed')
-    ax.plot(x, V, 'yellow', alpha=0.5, lw=2, label='Vaccinated')
-
-    ax.plot(x, I, 'r', alpha=0.5, lw=2, label='Infected')
-    ax.plot(x, Cnew, 'orange', alpha=0.5, lw=2, label='New Cases')
-    ax.plot(x, R, 'g', alpha=0.5, lw=2, label='Recovered with immunity')
-    ax.plot(x, D, 'black', alpha=0.5, lw=2, label='Death')
-    ax.set_xlabel('Time (days)')
-    ax.set_ylabel('Number')
-    ax.yaxis.set_tick_params(length=0)
-    ax.xaxis.set_tick_params(length=0)
-
-    titlex = (f'SEIR - {scenarioname}')
-    configgraph(titlex,x,b,datediff)
-    plt.show()
-    st.pyplot(fig2a)
-
-    st.write  ("attack rate classical SIR model : " + str(int(C[days-1])) + " mensen / "+ str(round(100*((C[days-1])        /N),2))+ " %")
-    st.write (f"Number of deaths: {round(C[days-1])} * {ifr} = {round(C[days-1]*ifr)}")
-
-    st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
-    st.write ("Attack rate = final size of the epidemic (FSE) ")
-
-
-    # New cases
-    fig2c = plt.figure(facecolor='w')
-    ax = fig2c.add_subplot(111,  axisbelow=True)
-    ax.plot(x, Cnew, 'blue',  label='New Cases')
-    ax.plot(x, I, 'red', alpha=0.5,  label='Infected')
-    ax.set_xlabel('Time (days)')
-    ax.set_ylabel('Number')
-    ax.yaxis.set_tick_params(length=0)
-    ax.xaxis.set_tick_params(length=0)
-    titlex = 'New cases'
-    configgraph(titlex,x,b,datediff)
-    plt.show()
-    st.pyplot(fig2c)
-
-    # Gliding R number
-    fig2b = plt.figure(facecolor='w')
-    ax = fig2b.add_subplot(111,  axisbelow=True)
-    ax.plot(x, repr, 'b', alpha=0.5, lw=2, label='R getal_ based on Cnew')
-    ax.set_xlabel('Time (days)')
-    ax.set_ylabel('R getal')
-    ax.axhline(y=1, color='yellow', alpha=.6,linestyle='--')
-    titlex = "Gliding R-number"
-    configgraph(titlex,x,b,datediff)
-    plt.show()
-    st.pyplot(fig2b)
-
-    st.write  ("attack rate classical SIR model : " + str(int(C[days-1])) + " mensen / "+ str(round(100*((C[days-1])        /N),2))+ " %")
-    st.markdown ("Theoretical herd immunity treshhold (HIT) (1 - [1/"+str(Rstart)+"]<sup>1/"+ str(lambdaa)+ "</sup>) : " + str(round(100*(1-((1/Rstart)**(1/lambdaa))),2))+ " % = " + str(round(N*(1-((1/Rstart)**(1/lambdaa))),0))+ " persons", unsafe_allow_html=True)
-    st.write ("Attack rate = final size of the epidemic (FSE) ")
-    st.write("Read also: 7 Reasons Not to Use ODEs for Epidemic Modeling https://gerritgr.medium.com/7-reasons-not-to-use-odes-for-epidemic-modeling-bf451037a97f")
-    repr=[]
-
-    #####################################################
-
-    tekst = (
-        '<style> .infobox {  background-color: lightblue; padding: 5px;}</style>'
-        '<hr><div class=\'infobox\'>Made by Rene Smit. (<a href=\'http://www.twitter.com/rcsmit\' target=\"_blank\">@rcsmit</a>) <br>'
-        'Overdrachtstijd is 4 dagen. Disclaimer is following. Provided As-is etc.<br>'
-        'Sourcecode : <a href=\"https://github.com/rcsmit/COVIDcases/edit/main/number_of_cases_interactive.py\" target=\"_blank\">github.com/rcsmit</a><br>'
-        'How-to tutorial : <a href=\"https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d\" target=\"_blank\">rcsmit.medium.com</a><br>'
-        'Inspired by <a href=\"https://twitter.com/mzelst/status/1350923275296251904\" target=\"_blank\">this tweet</a> of Marino van Zelst.<br>'
-        'With help of <a href=\"https://twitter.com/hk_nien" target=\"_blank\">Han-Kwang Nienhuys</a>.</div>')
-
-
-
-    st.sidebar.markdown(tekst, unsafe_allow_html=True)
 
 if __name__ == "__main__":
+   
+    print(
+        f"-----------------------------------{datetime.now()}-----------------------------------------------------"
+    )
+
     main()
