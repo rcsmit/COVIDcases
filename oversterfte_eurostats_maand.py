@@ -1,17 +1,17 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-import numpy as np
 from plotly.subplots import make_subplots
-import platform
 import plotly.express as px
 import datetime
-#from oversterfte_eurostats import get_data_eurostat
-import eurostat
-from oversterfte_compleet import get_data_for_series,  make_df_quantile
-from oversterfte_plot_functions import layout_annotations_fig #plot_wrapper, show_plot_steigstra, plot_graph_rivm, show_difference_plot, 
-from oversterfte_get_data import get_herhaalprik,get_boosters #get_all_data, get_df_offical, get_baseline_kobak
 
+import eurostat
+from oversterfte_cbs_functions import get_data_for_series, get_data_for_series_wrapper, make_df_quantile
+from oversterfte_plot_functions import layout_annotations_fig 
+from oversterfte_get_data import get_herhaalprik,get_boosters 
+
+# (Over)sterfte per week of  maand per geslacht per 5 jaars groep"
+    
 
 @st.cache_data()
 def get_data_eurostat():

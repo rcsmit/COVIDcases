@@ -818,3 +818,68 @@ def show_plot_steigstra(df_spaghetti,series_name):
     )
 
     st.plotly_chart(fig)
+
+
+def plot_graph_rivm_wrapper(df_, series_naam, rivm):
+    """wrapper to plot the graph
+
+    Args:
+        df_ (str): _description_
+        series_naam (str): _description_
+        rivm (bool): show the official values from the RIVM graph
+                        https://www.rivm.nl/monitoring-sterftecijfers-nederland
+    """
+    st.subheader("RIVM methode")
+    df_rivm = get_data_rivm()
+
+    df = pd.merge(df_, df_rivm, on="periodenr", how="outer")
+    df = df.sort_values(by=["periodenr"])  # .reset_index()
+    plot_graph_rivm(df, series_naam, rivm)
+  
+
+
+def plot_steigstra_wrapper(df_transformed, series_name):
+    # replicatie van https://twitter.com/SteigstraHerman/status/1801641074336706839
+
+    # Pivot table
+    df_pivot = df_transformed.set_index("week_x_x")
+
+    # Function to transform the DataFrame
+    def create_spaghetti_data(df, year1, year2=None):
+        part1 = df.loc[32:52, year1]
+        if year2 is not None:
+            part2 = df.loc[1:31, year2]
+            combined = pd.concat([part1, part2]).reset_index(drop=True)
+        else:
+            combined = part1.reset_index(drop=True)
+        return combined
+
+    # Create the spaghetti data
+    years = df_pivot.columns[:-3] 
+
+    years = list(map(int, years))
+
+    spaghetti_data = {
+        year: create_spaghetti_data(df_pivot, year, year + 1) if (year + 1) in years else create_spaghetti_data(df_pivot, year)
+        for year in years
+    }
+    df_spaghetti = pd.DataFrame(spaghetti_data)
+
+    df_spaghetti = df_spaghetti.cumsum(axis=0)
+
+    # Generate the sequence from 27 to 52 followed by 1 to 26
+    sequence = list(range(32, 53)) + list(range(1, 32))
+    # Add the sequence as a new column
+    df_spaghetti["week_real"] = sequence
+
+    df_spaghetti["average"] = df_spaghetti.iloc[:, :4].mean(axis=1)
+
+    # Calculate low and high (mean - 1.96*std and mean + 1.96*std) for the first 5 columns
+    df_spaghetti["low"] = df_spaghetti["average"] - 1.96 * df_spaghetti.iloc[:, :4].std(
+        axis=1
+    )
+    df_spaghetti["high"] = df_spaghetti["average"] + 1.96 * df_spaghetti.iloc[
+        :, :4
+    ].std(axis=1)
+
+    show_plot_steigstra(df_spaghetti,series_name)

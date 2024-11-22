@@ -1,6 +1,9 @@
 import pandas as pd
+import cbsodata
+import streamlit as st
 
 
+@st.cache_data(ttl=60 * 60 * 24)
 def get_all_data(seriename, vanaf_jaar):
     """_summary_
 
@@ -11,8 +14,10 @@ def get_all_data(seriename, vanaf_jaar):
     df_herhaalprik = get_herhaalprik()
     df_herfstprik = get_herfstprik()
     df_kobak = get_baseline_kobak()
-    df_rioolwater = get_rioolwater_simpel()    
-    return df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak
+    df_rioolwater = get_rioolwater_simpel()  
+    cbs_data_ruw = pd.DataFrame(cbsodata.get_data("70895ned"))
+  
+    return df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak, cbs_data_ruw
 
 
 def get_baseline_kobak():

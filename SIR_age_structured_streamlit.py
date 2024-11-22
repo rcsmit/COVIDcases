@@ -195,8 +195,8 @@ def show_toelichting():
     st.write("* Ainslie et al. The expected outcome of COVID-19 vaccination strategies (https://www.rivm.nl/sites/default/files/2021-03/Modellingresults%20COVID19%20vaccination%20version1.0%2020210324_0.pdf) ")
     # https://www.rivm.nl/sites/default/files/2021-03/Modellingresults%20COVID19%20vaccination%20version1.0%2020210324_0%20%281%29_2.pdf
     st.subheader ("Bronnen parameters: ")
-    st.write("* Ziekenhuis, IC en IFR: waardes uit ziekenhuis_ic_opnames_per_leeftijdsgroep.csv gedeeld op de cummulatieve prevalentie gedeeld door 8")
-    st.write("* IFR: waardes van  https://www.rivm.nl/coronavirus-covid-19/grafieken (overleden naar leeftijd en geslacht) gedeeld op de cummulatieve prevalentie gedeeld door 8")
+    st.write("* Ziekenhuis, IC en IFR: waardes uit ziekenhuis_ic_opnames_per_leeftijdsgroep.csv gedeeld op de cummulatieve prevalentie gedeeld door 8, ca Jul 13, 2021")
+    st.write("* IFR: waardes van  https://www.rivm.nl/coronavirus-covid-19/grafieken (overleden naar leeftijd en geslacht) gedeeld op de cummulatieve prevalentie gedeeld door 8, ca. Jul 13, 2021")
     st.write("* Relative infectiousness - Lau, 2020 : https://www.pnas.org/content/117/36/22430")
     st.write("* Relative suspceptibility fig 1b, op het oog - Davies, 2020 : https://www.nature.com/articles/s41591-020-0962-9")
 
