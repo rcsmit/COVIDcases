@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-
+import streamlit as st
 # replicating https://www.rivm.nl/monitoring-sterftecijfers-nederland
 
 # Imitating RIVM overstefte grafieken
@@ -41,6 +41,43 @@ def filter_rivm(df, series_name, y):
     """ Filter de 25% hoogste sterftecijfers
          van de afgelopen vijf jaar en de 20% hoogste sterftecijfers in juli en augustus.
 
+    Resultaat vd functie is een df van de 5 jaar voór jaar y (y=2020: 2015-2019) met
+    de gefilterde waardes
+    """
+    # Selecteer de gegevens van de afgelopen vijf jaar
+    df = df[(df["boekjaar"] >= y-5) & (df["boekjaar"] < y)]
+
+    # Bereken de drempelwaarde voor de 25% hoogste sterftecijfers van de afgelopen vijf jaar
+    threshold_25 = df[series_name].quantile(0.75)
+
+    # Filter de data voor juli en augustus (weken 27-35) per jaar
+    summer_thresholds = df[df["week"].between(27, 35)].groupby("boekjaar")[series_name].quantile(0.80)
+
+    # Apply the thresholds
+    set_to_none = False
+    if set_to_none:
+        # de 'ongeldige waardes' worden vervangen door None
+        df.loc[df["jaar"] >= y-5, series_name] = df.loc[
+            df["jaar"] >= y-5, series_name
+        ].apply(lambda x: np.nan if x > threshold_25 else x)
+        
+        for year, threshold in summer_thresholds.items():
+            df.loc[(df["week"].between(27, 35)) & (df["boekjaar"] == year), series_name] = df.loc[
+                (df["week"].between(27, 35)) & (df["boekjaar"] == year), series_name
+            ].apply(lambda x: np.nan if x > threshold else x)
+    else:
+        # verwijder de rijen met de 'ongeldige waardes'
+        df = df[~((df["jaar"] >= y-5) & (df[series_name] >= threshold_25))]
+        
+        for year, threshold in summer_thresholds.items():
+            df = df[~((df["week"].between(27, 35)) & (df["boekjaar"] == year) & (df[series_name] >= threshold))]
+
+    return df
+
+def filter_rivm_origineel(df, series_name, y):
+    """ Filter de 25% hoogste sterftecijfers
+         van de afgelopen vijf jaar en de 20% hoogste sterftecijfers in juli en augustus.
+
 
      
     Resultaat vd functie is een df van de 5 jaar voór jaar y (y=2020: 2015-2019) met
@@ -52,12 +89,14 @@ def filter_rivm(df, series_name, y):
 
     #df = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] < y)]
     df = df[(df["boekjaar"] >= y-5) & (df["boekjaar"] < y)]
+    # df = df[(df["boekjaar"] > y-5) & (df["boekjaar"] <= y)]
     # Bereken de drempelwaarde voor de 25% hoogste sterftecijfers van de afgelopen vijf jaar
     threshold_25 = df[series_name].quantile(0.75)
 
     # Filter de data voor juli en augustus (weken 27-35)
     summer_data = df[df["week"].between(27, 35)]
     threshold_20 = summer_data[series_name].quantile(0.80)
+    
     # st.write(f"drempelwaarde voor de 25% hoogste sterftecijfers : 
     # {threshold_25=} /  drempelwaarde voor 20% hoogste sterftecijfers in juli en augustus {threshold_20=}")
     set_to_none = False
@@ -71,11 +110,10 @@ def filter_rivm(df, series_name, y):
         ].apply(lambda x: np.nan if x > threshold_20 else x)
     else:
         # verwijder de rijen met de 'ongeldige waardes'
-        df = df[~((df["jaar"] >= y-5) & (df[series_name] > threshold_25))]
-        df = df[~((df["week"].between(27, 35)) & (df[series_name] > threshold_20))]
+        df = df[~((df["jaar"] >= y-5) & (df[series_name] >= threshold_25))]
+        df = df[~((df["week"].between(27, 35)) & (df[series_name] >= threshold_20))]
 
     return df
-
 def add_columns_lin_regression(df):
     """voeg columns tijd, sin en cos toe. de sinus/cosinus-termen zijn om mogelijke
     seizoensschommelingen te beschrijven
@@ -106,10 +144,11 @@ def do_lin_regression_rivm(df_filtered, df_volledig, series_naam, y):
 
     # Over een tijdvak [j-6-tot j-1] wordt per week wordt de standard deviatie berekend.
     # Hier wordt dan het gemiddelde van genomen
-
+    df_filtered=df_filtered[df_filtered["boekjaar"]!= y]
     weekly_std = df_filtered.groupby("boekweek")[series_naam].std().reset_index()
     weekly_std.columns = ["week", "std_dev"]
     sd = weekly_std["std_dev"].mean()
+    #sd = df_filtered[series_naam].std()
     # st.write(f"Standard deviatie = {sd}")
 
     X = df_filtered[["tijd", "sin", "cos"]]
@@ -131,6 +170,7 @@ def do_lin_regression_rivm(df_filtered, df_volledig, series_naam, y):
     else:
         df_volledig.loc[:, "lower_ci"] = df_volledig["voorspeld"] - 2 * sd
         df_volledig.loc[:, "upper_ci"] = df_volledig["voorspeld"] + 2 * sd
+
     df_new = pd.merge(df_filtered, df_volledig, on="periodenr", how="outer")
 
     df_new = df_new.sort_values(by=["jaar_y", "week_y"]).reset_index(drop=True)
@@ -149,13 +189,14 @@ def verwachte_sterfte_rivm(df, series_naam):
 
     df["boekjaar"] = df["jaar"].shift(26)
     df["boekweek"] = df["week"].shift(26)
-
+  
     df_compleet = pd.DataFrame()
-    for y in [2019, 2020, 2021, 2022, 2023,2024]:
+    for y in [2019, 2020, 2021, 2022, 2023,2024,]:
         # we filteren 5 jaar voor jaar y (y=2020: 2015 t/m 2020 )
         recent_years = y - 5
         df_ = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] <= y)]
-
+       
+        
         df_volledig = df_[
             ["periodenr", "jaar", "week", "boekjaar", "boekweek", series_naam]
         ]

@@ -265,7 +265,7 @@ def calculate_steigstra(df_merged, series_naam, cumm=False, m="cbs"):
     df_merged["verw_cbs"] = df_merged["avg"]
 
     df_compleet = pd.DataFrame()
-    for year in range(2015, 2025):
+    for year in range(2015, datetime.datetime.now().year+1):
         df_merged_jaar = df_merged[df_merged["jaar_x_x"] == year].copy()
         for n in ["cbs"]:
             df_merged_jaar[f"oversterfte_{n}_simpel"] = (
@@ -676,7 +676,7 @@ def main():
         plot_steigstra_wrapper(df_steigstra, series_name)
     else:
         st.info(
-            "De vergrlijking met vaccinateies, rioolwater etc is vooralsnog alleen mogelijk met CBS methode "
+            "De vergrlijking met vaccinaties, rioolwater etc is vooralsnog alleen mogelijk met CBS methode "
         )
     footer()
 

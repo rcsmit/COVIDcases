@@ -1,6 +1,8 @@
 import pandas as pd
 import streamlit as st
 import numpy as np
+from datetime import datetime
+
 
 def get_data_for_series_wrapper(df_, seriename, vanaf_jaar):
 
@@ -89,6 +91,7 @@ def get_data_for_series(df, seriename, vanaf_jaar):
         # https://www.cbs.nl/en-gb/news/2024/06/fewer-deaths-in-2023/excess-mortality-and-expected-mortality
         # geen waarde voor 2024, zie https://twitter.com/Cbscommunicatie/status/1800505651833270551
         # huidige waarde 2024 is geexptrapoleerd 2022-2023
+         # huidige waarde 2025 is geexptrapoleerd vanuit 2022-2023
         factors = {
             2014: 1,
             2015: 1,
@@ -101,6 +104,11 @@ def get_data_for_series(df, seriename, vanaf_jaar):
             2022: 155494 / noemer,
             2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
             2024: 157846 / noemer,
+            2025: (((156666/155494)**1) * 157846)/ noemer,
+            2026: (((156666/155494)**2) * 157846)/ noemer,
+            2027: (((156666/155494)**3) * 157846)/ noemer,
+            2028: (((156666/155494)**4) * 157846)/ noemer,
+            2029: (((156666/155494)**5) * 157846)/ noemer,
         }
 
 #           # 2015	16,9	0,5
@@ -116,7 +124,7 @@ def get_data_for_series(df, seriename, vanaf_jaar):
     # avg_overledenen_2015_2019 = (som_2015_2019/5)
     # st.write(avg_overledenen_2015_2019)
     # Loop through the years 2014 to 2024 and apply the factors
-    for year in range(2014, 2025):
+    for year in range(2014, datetime.now().year+1):
         new_column_name = f"{seriename}_factor_{year}"
         factor = factors[year]
         # factor=1
@@ -133,7 +141,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     Args:
         seriename (str, optional): _description_. Defaults to "m_v_0_999".
     """
-
+ 
     def manipulate_data_df(data):
         """Filters out week 0 and 53 and makes a category column (eg. "M_V_0_999")"""
 
@@ -175,10 +183,14 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
         #
         import re
 
-        pattern = r"(\d{4}) week (\d{1,2}) \((\d+) dag(?:en)?\)"
+        #pattern = r"(\d{4}) week (\d{1,2}) \((\d+) dag(?:en)?\)"
+        pattern = r"(\d{4}) week (\d{1,2})(?: \((\d+) dag(?:en)?\))?"
+
         match = re.match(pattern, period)
         if match:
             year, week, days = match.groups()
+            if days==None: 
+                days = 7
             return int(year), int(week), int(days)
         return None, None, None
 
@@ -189,8 +201,11 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
 
         TODO: integrate chagnes from calculate_baselines.py
         """
-
+         # Extract the number after 'week' in the column
+        
         for index, row in df.iterrows():
+
+           
             if row["week"] == 0:
                 previous_year = row["year"] - 1
                 df.loc[
@@ -208,24 +223,32 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
    
     # Filter rows where Geslacht is 'Totaal mannen en vrouwen' and LeeftijdOp31December is 'Totaal leeftijd'
     # data_ruw = data_ruw[(data_ruw['Geslacht'] == 'Totaal mannen en vrouwen') & (data_ruw['LeeftijdOp31December'] == 'Totaal leeftijd')]
-
+    
+    # week 2024-53 mist aanduiding 2 dagen
+    data_ruw['Perioden'] = data_ruw['Perioden'].replace('2024 week 53', '2024 week 53 (2 dagen)')
     data_ruw[["jaar", "week"]] = data_ruw.Perioden.str.split(
         " week ",
         expand=True,
+    
     )
+    data_ruw["week"].fillna("_", inplace=True)
+    data_ruw["week_number"] = data_ruw["week"].str.extract(r"week (\d+)")
 
     data_ruw["jaar"] = data_ruw["jaar"].astype(int)
     data_ruw = data_ruw[(data_ruw["jaar"] > 2013)]
     data_ruw = manipulate_data_df(data_ruw)
     data_ruw = data_ruw[data_ruw["categorie"] == seriename]
-    data_compleet = data_ruw[~data_ruw["Perioden"].str.contains("dag")]
-    data_incompleet = data_ruw[data_ruw["Perioden"].str.contains("dag")]
-
-    # Apply the function to the "perioden" column and create new columns
-    data_incompleet[["year", "week", "days"]] = data_incompleet["Perioden"].apply(
+    data_ruw[["year", "week", "days"]] = data_ruw["Perioden"].apply(
         lambda x: pd.Series(extract_period_info(x))
     )
-
+    data_compleet = data_ruw[~data_ruw["Perioden"].str.contains("dag")]
+    data_incompleet = data_ruw[data_ruw["Perioden"].str.contains("dag")]
+  
+    # Apply the function to the "perioden" column and create new columns
+    # data_incompleet[["year", "week", "days"]] = data_incompleet["Perioden"].apply(
+    #     lambda x: pd.Series(extract_period_info(x))
+    # )
+    data_compleet = adjust_overledenen(data_compleet)
     data_incompleet = adjust_overledenen(data_incompleet)
     data = pd.concat([data_compleet, data_incompleet])
     data = data[data["week"].notna()]
@@ -248,7 +271,9 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     )
     df_ = df_.replace("2015_1", "2015_01")
     df_ = df_.replace("2020_1", "2020_01")
-
+    df_ = df_.replace("2019_1", "2019_01")
+    df_ = df_.replace("2025_1", "2025_01")
+    #df_ = df_[~df_["week"].isin([0, 53])]
     df_ = df_[(df_["jaar"] > 2014)]
 
     df = df_[["jaar", "periodenr", "week", seriename]].copy(deep=True)
@@ -256,7 +281,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     df = df.sort_values(by=["jaar", "periodenr"]).reset_index()
 
     df = get_data_for_series_wrapper(df, seriename, vanaf_jaar)
-
+    
     return df
 
 def make_row_df_quantile(series_name, year, df_to_use, w_, period):
@@ -352,7 +377,7 @@ def make_df_quantile_year(series_name, df_data, year, period):
     for w in range(1, end):
         df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, w, period)
         df_quantile = pd.concat([df_quantile, df_quantile_], axis=0)
-    if year==2020 and period == "week":
+    if ((year==2020) or (year==2024) ) and period == "week":
         #2020 has a week 53
         df_quantile_ = make_row_df_quantile(series_name, year, df_to_use, 53, period)
         df_quantile = pd.concat([df_quantile, df_quantile_],axis = 0)
@@ -377,13 +402,13 @@ def make_df_quantile(series_name, df_data, period):
 
 
     df_coronas = []
-    df_corona = df_data[df_data["jaar"].between(2015, 2025)]
+    df_corona = df_data[df_data["jaar"].between(2015, datetime.now().year+1)]
 
     # List to store individual quantile DataFrames
     df_quantiles = []
 
     # Loop through the years 2014 to 2024
-    for year in range(2015, 2025):
+    for year in range(2015, datetime.now().year+1):
         df_corona_year = df_data[(df_data["jaar"] ==year)].copy(deep=True)
         
         df_quantile_year = make_df_quantile_year(series_name, df_data, year, period)

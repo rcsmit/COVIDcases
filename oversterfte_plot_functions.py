@@ -629,6 +629,8 @@ def show_difference_plot(df, date_field, show_official, year):
         )
     )
 
+ 
+
     fig.add_trace(
         go.Scatter(
             x=df[date_field],
