@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import streamlit as st
+
+from scipy.stats import median_abs_deviation
+
 # replicating https://www.rivm.nl/monitoring-sterftecijfers-nederland
 
 # Imitating RIVM overstefte grafieken
@@ -144,10 +147,21 @@ def do_lin_regression_rivm(df_filtered, df_volledig, series_naam, y):
 
     # Over een tijdvak [j-6-tot j-1] wordt per week wordt de standard deviatie berekend.
     # Hier wordt dan het gemiddelde van genomen
-    df_filtered=df_filtered[df_filtered["boekjaar"]!= y]
-    weekly_std = df_filtered.groupby("boekweek")[series_naam].std().reset_index()
-    weekly_std.columns = ["week", "std_dev"]
-    sd = weekly_std["std_dev"].mean()
+    #df_filtered=df_filtered[df_filtered["boekjaar"]!= y]
+    #df_filtered=df_filtered[df_filtered["boekjaar"]== y]
+
+    
+
+    
+    # Option 3: Use median absolute deviation (more robust to outliers)
+    # NO IDEA WHY THIS FITS BETTER
+    sd = median_abs_deviation(df_filtered[series_naam], scale=1.4826)
+
+    
+    # weekly_std = df_filtered.groupby("boekweek")[series_naam].std().reset_index()
+    # weekly_std.columns = ["week", "std_dev"]
+    # sd = weekly_std["std_dev"].mean()
+
     #sd = df_filtered[series_naam].std()
     # st.write(f"Standard deviatie = {sd}")
 
