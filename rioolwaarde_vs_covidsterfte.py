@@ -27,10 +27,11 @@ covid_sterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/in
 oversterfte_url =  "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overl_cbs_vs_rivm.csv"
 #oversterfte_url=r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\oversterfte_mrt2025.csv"
 
+
 rioolwater = pd.read_csv(rioolwater_url, delimiter=';')
 covid_sterfte = pd.read_csv(covid_sterfte_url, delimiter=',')
-oversterfte = pd.read_csv(oversterfte_url, delimiter=';')
-# oversterfte= oversterfte[["jaar_z","week_z","datum","Overledenen_z","verw_cbs_official","aantal_overlijdens_z"]]
+oversterfte = pd.read_csv(oversterfte_url, delimiter=',')
+#oversterfte= oversterfte[["jaar_z","week_z","datum","Overledenen_z","verw_cbs_official","aantal_overlijdens_z"]]
 # oversterfte["jaar_z"]=oversterfte["jaar_z"].astype(int)
 # oversterfte["week_z"]=oversterfte["week_z"].astype(int)
 
