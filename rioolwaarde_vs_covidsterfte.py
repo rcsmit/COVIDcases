@@ -25,17 +25,14 @@ def select_year(row):
 rioolwater_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2025mrt.csv"
 covid_sterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_covid_months_as_int.csv"
 oversterfte_url =  "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overl_cbs_vs_rivm.csv"
-#oversterfte_url=r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\oversterfte_mrt2025.csv"
+
+# https://www.rivm.nl/corona/actueel/weekcijfers
+# https://www.cbs.nl/nl-nl/reeksen/tijd/doodsoorzaken
 
 rioolwater = pd.read_csv(rioolwater_url, delimiter=';')
 covid_sterfte = pd.read_csv(covid_sterfte_url, delimiter=',')
 oversterfte = pd.read_csv(oversterfte_url, delimiter=',')
-#oversterfte= oversterfte[["jaar_z","week_z","datum","Overledenen_z","verw_cbs_official","aantal_overlijdens_z"]]
-# oversterfte["jaar_z"]=oversterfte["jaar_z"].astype(int)
-# oversterfte["week_z"]=oversterfte["week_z"].astype(int)
 
-print (oversterfte.dtypes)
-print (covid_sterfte)
 # Process oversterfte data
 oversterfte['month'] = oversterfte.apply(calculate_month_oversterfte, axis=1)
 oversterfte['oversterfte_cbs'] = oversterfte['Overledenen_z'] - oversterfte['verw_cbs_official']
@@ -73,12 +70,13 @@ fig.add_trace(go.Scatter(x=merged_df['selected_year'].astype(str) + '-' + merged
                          name='Covid Sterfte',
                          yaxis='y1'))
 
-# # Add the oversterfte data to the plot
-# fig.add_trace(go.Scatter(x=merged_df['selected_year'].astype(str) + '-' + merged_df['month'].astype(str),
-#                          y=merged_df['oversterfte_cbs'],
-#                          mode='lines',
-#                          name='Oversterfte',
-#                          yaxis='y3'))
+# Add the oversterfte data to the plot
+fig.add_trace(go.Scatter(x=merged_df['selected_year'].astype(str) + '-' + merged_df['month'].astype(str),
+                         y=merged_df['oversterfte_cbs'],
+                         mode='lines',
+                         name='Oversterfte',
+                        #  yaxis='y3'
+                        ))
 
 # Update the layout to include three y-axes
 fig.update_layout(
@@ -93,30 +91,7 @@ fig.update_layout(
             color='#1f77b4'
         )
     ),
-    # yaxis2=dict(
-    #     title='Covid Sterfte Value',
-    #     # titlefont=dict(
-    #     #     color='#ff7f0e'
-    #     # ),
-    #     # tickfont=dict(
-    #     #     color='#ff7f0e'
-    #     # ),
-    #     overlaying='y',
-    #     side='right'
-    # ),
-    # yaxis3=dict(
-    #     title='Oversterfte Value',
-    #     titlefont=dict(
-    #         color='#2ca02c'
-    #     ),
-    #     tickfont=dict(
-    #         color='#2ca02c'
-    #     ),
-    #     overlaying='y',
-    #     side='right',
-    #     anchor='free',
-    #     position=0.85
-    # )
+   
 )
 
 # Display the plot
