@@ -2,22 +2,23 @@ import pandas as pd
 import cbsodata
 import streamlit as st
 
-
 @st.cache_data(ttl=60 * 60 * 24)
-def get_all_data(seriename, vanaf_jaar):
+def get_all_data():
     """_summary_
 
     Returns:
         _type_: df_boosters,df_herhaalprik,df_herfstprik,df_rioolwater,df_
     """
+    print ("get all data")
     df_boosters = get_boosters()
     df_herhaalprik = get_herhaalprik()
     df_herfstprik = get_herfstprik()
     df_kobak = get_baseline_kobak()
     df_rioolwater = get_rioolwater_simpel()  
+    print ("Loading cbs data")
     cbs_data_ruw = pd.DataFrame(cbsodata.get_data("70895ned"))
-  
     return df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak, cbs_data_ruw
+
 
 
 def get_baseline_kobak():

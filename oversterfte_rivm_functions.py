@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import streamlit as st
-
+import plotly.graph_objects as go
 from scipy.stats import median_abs_deviation
 
 # replicating https://www.rivm.nl/monitoring-sterftecijfers-nederland
@@ -69,54 +69,93 @@ def filter_rivm(df, series_name, y):
                 (df["week"].between(27, 35)) & (df["boekjaar"] == year), series_name
             ].apply(lambda x: np.nan if x > threshold else x)
     else:
-        # verwijder de rijen met de 'ongeldige waardes'
-        df = df[~((df["jaar"] >= y-5) & (df[series_name] >= threshold_25))]
-        
+        # Create mask for threshold_25 condition
+        mask_threshold = ((df["jaar"] >= y-5) & (df[series_name] > threshold_25))
+        df_filtered_out_threshold = df[mask_threshold].copy()
+
+        # Create empty DataFrame for summer threshold filtered rows
+        df_filtered_out_summer = pd.DataFrame()
+
+        # Filter out rows and store filtered rows
+        for year, threshold in summer_thresholds.items():
+            summer_mask = ((df["week"].between(27, 35)) & (df["boekjaar"] == year) & (df[series_name] >= threshold))
+            df_filtered_out_summer = pd.concat([df_filtered_out_summer, df[summer_mask]])
+
+        # Combine all filtered out rows
+        df_filtered_out = pd.concat([df_filtered_out_threshold, df_filtered_out_summer])
+
+        # Apply filters to main DataFrame
+        df = df[~mask_threshold]
         for year, threshold in summer_thresholds.items():
             df = df[~((df["week"].between(27, 35)) & (df["boekjaar"] == year) & (df[series_name] >= threshold))]
 
-    return df
 
-def filter_rivm_origineel(df, series_name, y):
-    """ Filter de 25% hoogste sterftecijfers
-         van de afgelopen vijf jaar en de 20% hoogste sterftecijfers in juli en augustus.
-
-
-     
-    Resultaat vd functie is een df van de 5 jaar voór jaar y (y=2020: 2015-2019) met
-    de gefilterde waardes
-
-    """
-    # Selecteer de gegevens van de afgelopen vijf jaar
-    recent_years = df["boekjaar"].max() - 6
-
-    #df = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] < y)]
-    df = df[(df["boekjaar"] >= y-5) & (df["boekjaar"] < y)]
-    # df = df[(df["boekjaar"] > y-5) & (df["boekjaar"] <= y)]
-    # Bereken de drempelwaarde voor de 25% hoogste sterftecijfers van de afgelopen vijf jaar
-    threshold_25 = df[series_name].quantile(0.75)
-
-    # Filter de data voor juli en augustus (weken 27-35)
-    summer_data = df[df["week"].between(27, 35)]
-    threshold_20 = summer_data[series_name].quantile(0.80)
+        # Return both DataFrames
+    pivot_df = create_pivot_df(df, df_filtered_out, series_name)
     
-    # st.write(f"drempelwaarde voor de 25% hoogste sterftecijfers : 
-    # {threshold_25=} /  drempelwaarde voor 20% hoogste sterftecijfers in juli en augustus {threshold_20=}")
-    set_to_none = False
-    if set_to_none:
-        # de 'ongeldige waardes' worden vervangen door None
-        df.loc[df["jaar"] >= recent_years, series_name] = df.loc[
-            df["jaar"] >= recent_years, series_name
-        ].apply(lambda x: np.nan if x > threshold_25 else x)
-        df.loc[df["week"].between(27, 35), series_name] = df.loc[
-            df["week"].between(27, 35), series_name
-        ].apply(lambda x: np.nan if x > threshold_20 else x)
-    else:
-        # verwijder de rijen met de 'ongeldige waardes'
-        df = df[~((df["jaar"] >= y-5) & (df[series_name] >= threshold_25))]
-        df = df[~((df["week"].between(27, 35)) & (df[series_name] >= threshold_20))]
+     
+    return df, pivot_df
 
-    return df
+def create_pivot_df(df_filtered, df_filtered_out, series_name):
+    """Plot the filtered and filtered out values for a given series
+    """
+
+   
+    # Create a combined table structure
+    # First, prepare both dataframes with consistent columns
+    df_filtered = df_filtered.copy()
+    df_filtered_out = df_filtered_out.copy()
+    
+    # Add a status column to each dataframe
+    df_filtered['status'] = 'Included'
+    df_filtered_out['status'] = 'Filtered Out'
+    
+  
+    # Create display labels with zero-padded week numbers
+    df_filtered['date'] = df_filtered.apply(
+        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+    )
+    df_filtered_out['date'] = df_filtered_out.apply(
+        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+    )
+    df_filtered['periodenr'] = df_filtered.apply(
+        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+    )
+    df_filtered_out['periodenr'] = df_filtered_out.apply(
+        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+    )
+      # Create display labels with zero-padded week numbers
+    df_filtered['label'] = df_filtered.apply(
+        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+    )
+    df_filtered_out['label'] = df_filtered_out.apply(
+        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+    )
+     
+    # Combine into one dataframe
+    columns_to_keep = ['date','periodenr', 'label', 'boekjaar', 'week', series_name, 'status']
+    combined_df = pd.concat([
+        df_filtered[columns_to_keep],
+        df_filtered_out[columns_to_keep]
+    ]).sort_values('date')
+
+    
+    # Create the pivot table
+    pivot_df = pd.pivot_table(
+        combined_df,
+        values=series_name,
+        index='date',
+        columns='status',
+        aggfunc='mean'  # Using mean, but could be any function that makes sense for your data
+    )
+    
+
+    # Reset the index to make it more readable
+    pivot_df = pivot_df.reset_index()
+    return pivot_df    
+  
+
+
 def add_columns_lin_regression(df):
     """voeg columns tijd, sin en cos toe. de sinus/cosinus-termen zijn om mogelijke
     seizoensschommelingen te beschrijven
@@ -155,12 +194,13 @@ def do_lin_regression_rivm(df_filtered, df_volledig, series_naam, y):
     
     # Option 3: Use median absolute deviation (more robust to outliers)
     # NO IDEA WHY THIS FITS BETTER
-    sd = median_abs_deviation(df_filtered[series_naam], scale=1.4826)
+    # https://en.wikipedia.org/wiki/Median_absolute_deviation
+    sd_mad = median_abs_deviation(df_filtered[series_naam], scale=1.4826)
 
     
-    # weekly_std = df_filtered.groupby("boekweek")[series_naam].std().reset_index()
-    # weekly_std.columns = ["week", "std_dev"]
-    # sd = weekly_std["std_dev"].mean()
+    weekly_std = df_filtered.groupby("boekweek")[series_naam].std().reset_index()
+    weekly_std.columns = ["week", "std_dev"]
+    sd = weekly_std["std_dev"].mean()
 
     #sd = df_filtered[series_naam].std()
     # st.write(f"Standard deviatie = {sd}")
@@ -184,6 +224,8 @@ def do_lin_regression_rivm(df_filtered, df_volledig, series_naam, y):
     else:
         df_volledig.loc[:, "lower_ci"] = df_volledig["voorspeld"] - 2 * sd
         df_volledig.loc[:, "upper_ci"] = df_volledig["voorspeld"] + 2 * sd
+        df_volledig.loc[:, "lower_ci_mad"] = df_volledig["voorspeld"] - 2 * sd_mad
+        df_volledig.loc[:, "upper_ci_mad"] = df_volledig["voorspeld"] + 2 * sd_mad
 
     df_new = pd.merge(df_filtered, df_volledig, on="periodenr", how="outer")
 
@@ -205,7 +247,8 @@ def verwachte_sterfte_rivm(df, series_naam):
     df["boekweek"] = df["week"].shift(26)
   
     df_compleet = pd.DataFrame()
-    for y in [2019, 2020, 2021, 2022, 2023,2024,]:
+    df_compleet_pivot = pd.DataFrame()
+    for y in [2019, 2020, 2021, 2022, 2023,2024,2025]:
         # we filteren 5 jaar voor jaar y (y=2020: 2015 t/m 2020 )
         recent_years = y - 5
         df_ = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] <= y)]
@@ -214,7 +257,7 @@ def verwachte_sterfte_rivm(df, series_naam):
         df_volledig = df_[
             ["periodenr", "jaar", "week", "boekjaar", "boekweek", series_naam]
         ]
-        df_filtered = filter_rivm(df_, series_naam, y)
+        df_filtered, pivot_df = filter_rivm(df_, series_naam, y)
 
         df_do_lin_regression_rivm = do_lin_regression_rivm(
             df_filtered, df_volledig, series_naam, y
@@ -223,4 +266,7 @@ def verwachte_sterfte_rivm(df, series_naam):
             (df_do_lin_regression_rivm["boekjaar_y"] == y)
         ]
         df_compleet = pd.concat([df_compleet, df_do_lin_regression_rivm])
-    return df_compleet
+        df_compleet_pivot = pd.concat([df_compleet_pivot, pivot_df])
+    #plot_filtered_values(df_compleet_pivot, series_naam)
+  
+    return df_compleet, df_compleet_pivot

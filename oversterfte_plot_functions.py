@@ -522,12 +522,76 @@ def layout_annotations_fig(fig):
     )
     return fig
 
-  
-def plot_graph_rivm(df, series_naam, rivm):
+def plot_filtered_values_rivm(pivot_df, series_name):
+    """Plot the filtered and filtered out values for a given series 
+    """
 
+    # Create figure
+    fig = go.Figure()
+    
+    # Plot filtered values
+   
+    fig.add_trace(go.Scatter(
+        x=pivot_df['date'],
+        y=pivot_df["Included"],
+        mode='markers',
+        name='Included Values',
+        marker=dict(color='green', size=4),
+       
+    ))
+    
+    # Plot filtered out values
+
+    fig.add_trace(go.Scatter(
+        x=pivot_df['date'],
+        y=pivot_df["Filtered Out"],
+        mode='markers',
+        name='Filtered Out',
+        marker=dict(color='red', size=4),
+       
+    ))
+    
+    # Update layout
+    fig.update_layout(
+        title=f'Filtered vs Filtered Out Values ({series_name})',
+        xaxis_title='Year-Week',
+        yaxis_title='Value',
+        showlegend=True,
+       
+    )
+    
+    # Format the x-axis tick labels
+    fig.update_xaxes(
+        tickformat="%Y-W%W",
+        
+    )
+    st.plotly_chart(fig)
+    
+
+def plot_graph_rivm(df,pivot_df, series_naam, rivm):
+   
     # Maak een interactieve plot met Plotly
     fig = go.Figure()
 
+    # fig.add_trace(go.Scatter(
+    #     x=pivot_df['date'],
+    #     y=pivot_df["Included"],
+    #     mode='markers',
+    #     name='Included Values',
+    #     marker=dict(color='green', size=4),
+       
+    # ))
+    
+    # # Plot filtered out values
+
+    # fig.add_trace(go.Scatter(
+    #     x=pivot_df['date'],
+    #     y=pivot_df["Filtered Out"],
+    #     mode='markers',
+    #     name='Filtered Out',
+    #     marker=dict(color='red', size=4),
+       
+    # ))
     # Voeg de werkelijke data toe
     fig.add_trace(
         go.Scatter(
@@ -595,6 +659,28 @@ def plot_graph_rivm(df, series_naam, rivm):
         )
     )
 
+ # Voeg de betrouwbaarheidsinterval toe
+    fig.add_trace(
+        go.Scatter(
+            x=df["periodenr"],
+            y=df["upper_ci_mad"],
+            mode="lines",
+            fill=None,
+            line_color="lightgreen",
+            name="Bovenste CI MAD",
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=df["periodenr"],
+            y=df["lower_ci_mad"],
+            mode="lines",
+            fill="tonexty",  # Vul het gebied tussen de lijnen
+            line_color="lightgreen",
+            name="Onderste CI MAD",
+        )
+    )
     # Titel en labels toevoegen
     fig.update_layout(
         title="Voorspelling van Overledenen met 95% Betrouwbaarheidsinterval RIVM",
@@ -629,8 +715,6 @@ def show_difference_plot(df, date_field, show_official, year):
         )
     )
 
- 
-
     fig.add_trace(
         go.Scatter(
             x=df[date_field],
@@ -639,6 +723,29 @@ def show_difference_plot(df, date_field, show_official, year):
             fill="tonexty",  # Vul het gebied tussen de lijnen
             line_color="yellow",
             name="low rivm",
+        )
+    )
+
+     # Voeg de betrouwbaarheidsinterval toe
+    fig.add_trace(
+        go.Scatter(
+            x=df[date_field],
+            y=df["high_rivm_mad"],
+            mode="lines",
+            fill=None,
+            line_color="lightgreen",
+            name="high rivm mad",
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=df[date_field],
+            y=df["low_rivm_mad"],
+            mode="lines",
+            fill="tonexty",  # Vul het gebied tussen de lijnen
+            line_color="lightgreen",
+            name="low rivm mad",
         )
     )
 

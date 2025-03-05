@@ -7,7 +7,8 @@ from sklearn.linear_model import LinearRegression
 import datetime
 import statsmodels.api as sm
 
-from oversterfte_plot_functions import plot_wrapper, plot_graph_rivm, show_difference_plot,  plot_steigstra_wrapper
+
+from oversterfte_plot_functions import plot_wrapper, plot_filtered_values_rivm, plot_graph_rivm, show_difference_plot,  plot_steigstra_wrapper
 from oversterfte_get_data import get_all_data, get_df_offical, get_baseline_kobak
 from oversterfte_rivm_functions import verwachte_sterfte_rivm
 from oversterfte_cbs_functions import get_sterftedata, get_data_for_series_wrapper, make_df_quantile,make_df_quantile_year,make_row_df_quantile
@@ -243,6 +244,8 @@ def make_df_merged(df_data, df_rivm, series_name, period):
         ["voorspeld", "verw_rivm"],
         ["lower_ci", "low_rivm"],
         ["upper_ci", "high_rivm"],
+        ["lower_ci_mad", "low_rivm_mad"],
+        ["upper_ci_mad", "high_rivm_mad"],
     ]
     # ["avg_", "verw_cbs"],
 
@@ -644,10 +647,10 @@ def main():
         df_herfstprik,
         df_rioolwater,
         df_kobak, cbs_data_ruw
-    ) = get_all_data(series_name, vanaf_jaar)
+    ) = get_all_data()
     df_sterfte = get_sterftedata(cbs_data_ruw, vanaf_jaar, series_name)
     
-    df_corona, df_quantile, df_rivm, df_merged = calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte)
+    df_corona, df_quantile, df_rivm, df_merged, df_compleet_pivot_rivm = calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte)
     plot_wrapper(
         df_boosters,
         df_herhaalprik,
@@ -664,11 +667,13 @@ def main():
         mergetype,
         sec_y,
     )
+
     
     if how == "quantiles":
         if series_name == "m_v_0_999":
-           
-            plot_graph_rivm(df_rivm, series_name, False)
+            plot_filtered_values_rivm(df_compleet_pivot_rivm, series_name)
+            plot_graph_rivm(df_rivm,df_compleet_pivot_rivm,  series_name, False)
+            #df_merged.to_csv(r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\oversterfte_mrt2025.csv")
             comparison(df_merged, series_name, smooth)
             do_kobak_vs_cbs(df_sterfte)
 
@@ -706,7 +711,7 @@ def calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte):
     df_data = get_data_for_series_wrapper(df_sterfte, series_name, vanaf_jaar).copy(deep=True)
     
     _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
-    df_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
+    df_rivm, df_compleet_pivot_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
 
     if how == "quantiles":
         
@@ -727,7 +732,7 @@ def calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte):
                 df_to_export.to_csv(f"C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\basevalues_sterfte_Y0-120_T.csv")
             except:
                 pass
-    return df_corona,df_quantile,df_rivm,df_merged
+    return df_corona,df_quantile,df_rivm,df_merged,df_compleet_pivot_rivm
 
 if __name__ == "__main__":
     import datetime

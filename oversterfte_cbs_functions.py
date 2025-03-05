@@ -231,7 +231,11 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
         expand=True,
     
     )
-    data_ruw["week"].fillna("_", inplace=True)
+    # data_ruw["week"].fillna("_", inplace=True)
+    
+    data_ruw["week"].fillna("_")
+    #data_ruw.fillna({col: "week"}, inplace=True)
+
     data_ruw["week_number"] = data_ruw["week"].str.extract(r"week (\d+)")
 
     data_ruw["jaar"] = data_ruw["jaar"].astype(int)
