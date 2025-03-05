@@ -29,7 +29,7 @@ oversterfte_url =  "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/inp
 
 rioolwater = pd.read_csv(rioolwater_url, delimiter=';')
 covid_sterfte = pd.read_csv(covid_sterfte_url, delimiter=',')
-oversterfte = pd.read_csv(oversterfte_url, delimiter=',')
+oversterfte = pd.read_csv(oversterfte_url, delimiter=';')
 # oversterfte= oversterfte[["jaar_z","week_z","datum","Overledenen_z","verw_cbs_official","aantal_overlijdens_z"]]
 # oversterfte["jaar_z"]=oversterfte["jaar_z"].astype(int)
 # oversterfte["week_z"]=oversterfte["week_z"].astype(int)
