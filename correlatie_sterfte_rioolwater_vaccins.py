@@ -508,15 +508,19 @@ def main():
     df_ziekenhuis_ic = get_ziekenhuis_ic()
 
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
-    
+    pd.set_option('future.no_silent_downcasting', True)
     df_merged = (
         pd.merge(df, df_rioolwater,  on=["jaar", "week"], how="left")
         .merge(df_ziekenhuis_ic, on=["jaar", "week"], how="left")
         .merge(df_vaccinaties, on=["jaar", "week", "age_sex"], how="left")
-        .fillna(0).infer_objects(copy=False)
-        .merge(df_oversterfte, on=["jaar", "week", "age_sex"], how="left")
+        .fillna(0)
     )
     
+    # Infer objects separately
+    df_merged = df_merged.infer_objects(copy=False)
+        
+    # Merge with df_oversterfte
+    df_merged = df_merged.merge(df_oversterfte, on=["jaar", "week", "age_sex"], how="left")
     df_merged["pseudoweek"] = df_merged["jaar"] * 52 + df_merged["week"]
           
     if fixed_periods:
