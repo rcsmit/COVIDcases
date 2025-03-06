@@ -225,7 +225,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     # data_ruw = data_ruw[(data_ruw['Geslacht'] == 'Totaal mannen en vrouwen') & (data_ruw['LeeftijdOp31December'] == 'Totaal leeftijd')]
     
     # week 2024-53 mist aanduiding 2 dagen
-    data_ruw['Perioden'] = data_ruw['Perioden'].replace('2024 week 53', '2024 week 53 (2 dagen)')
+    #data_ruw['Perioden'] = data_ruw['Perioden'].replace('2024 week 53', '2024 week 53 (2 dagen)')
     data_ruw[["jaar", "week"]] = data_ruw.Perioden.str.split(
         " week ",
         expand=True,
