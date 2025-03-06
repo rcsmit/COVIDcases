@@ -85,8 +85,8 @@ def main():
             ["[55] Fit Mortality/causes death","fit_mortality"],
             ["[56] Bayes Mortality Vaccination","bayes_vaccination"],
             ["[57] Sterfte/rioolw./vaccins","correlatie_sterfte_rioolwater_vaccins"],
-            ["[58] SIR model agent based","SIR_agent_based_vector"],
-    
+            ["[58] SIR model agent based","SIR_agent_based_vector
+            ["[59] Rioolwater vs covidsterfte","rioolwaarde_vs_covidsterfte"],
             ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..

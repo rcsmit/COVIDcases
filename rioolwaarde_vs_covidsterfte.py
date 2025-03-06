@@ -116,42 +116,48 @@ def make_scatterplot(df_temp, what_to_show_l, what_to_show_r,):
 
     st.plotly_chart(fig1xyz, use_container_width=True)
 
-# Load the CSV files
-rioolwater_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2025mrt.csv"
-covid_sterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_covid_months_as_int.csv"
-# oversterfte_url =  "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overl_cbs_vs_rivm.csv"
-# oversterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/oversterfte_mrt2025.csv"
-oversterfte_url = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\oversterfte_mrt2025.csv"
-# https://www.rivm.nl/corona/actueel/weekcijfers
-# https://www.cbs.nl/nl-nl/reeksen/tijd/doodsoorzaken
+def main():
+    st.write("We zetten de rioolwater af tegen de COVID-sterfte zoals door het CBS is geregistreerd en de oversterfte volgens de CBS methode.")
+    st.write("https://www.rivm.nl/corona/actueel/weekcijfers")
+    st.write("https://www.cbs.nl/nl-nl/reeksen/tijd/doodsoorzaken")
 
-rioolwater = pd.read_csv(rioolwater_url, delimiter=';')
-covid_sterfte = pd.read_csv(covid_sterfte_url, delimiter=',')
-oversterfte = pd.read_csv(oversterfte_url, delimiter=',')
+    # Load the CSV files
+    rioolwater_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2025mrt.csv"
+    covid_sterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_covid_months_as_int.csv"
+    oversterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/oversterfte_mrt2025.csv"
+    # https://www.rivm.nl/corona/actueel/weekcijfers
+    # https://www.cbs.nl/nl-nl/reeksen/tijd/doodsoorzaken
+
+    rioolwater = pd.read_csv(rioolwater_url, delimiter=';')
+    covid_sterfte = pd.read_csv(covid_sterfte_url, delimiter=',')
+    oversterfte = pd.read_csv(oversterfte_url, delimiter=',')
 
 
-# Process oversterfte data
-oversterfte['month'] = oversterfte.apply(calculate_month_oversterfte, axis=1)
-#oversterfte['oversterfte_cbs'] = oversterfte['Overledenen_z'] - oversterfte['verw_cbs_official']
+    # Process oversterfte data
+    oversterfte['month'] = oversterfte.apply(calculate_month_oversterfte, axis=1)
+    #oversterfte['oversterfte_cbs'] = oversterfte['Overledenen_z'] - oversterfte['verw_cbs_official']
 
-oversterfte['oversterfte_cbs'] = oversterfte['aantal_overlijdens'] - oversterfte['avg']
-grouped_oversterfte = oversterfte.groupby(['jaar_z', 'month'])['oversterfte_cbs'].mean().reset_index()
+    oversterfte['oversterfte_cbs'] = oversterfte['aantal_overlijdens'] - oversterfte['avg']
+    grouped_oversterfte = oversterfte.groupby(['jaar_z', 'month'])['oversterfte_cbs'].mean().reset_index()
 
-# Process rioolwater data
-df_melted_rioolwater = rioolwater.melt(id_vars=['week'], var_name='year', value_name='value')
-df_melted_rioolwater['selected_year'] = df_melted_rioolwater.apply(select_year, axis=1)
-df_melted_rioolwater['month'] = df_melted_rioolwater.apply(calculate_month, axis=1)
-grouped_df_rioolwater = df_melted_rioolwater.groupby(['selected_year', 'month'])['value'].mean().reset_index()
+    # Process rioolwater data
+    df_melted_rioolwater = rioolwater.melt(id_vars=['week'], var_name='year', value_name='value')
+    df_melted_rioolwater['selected_year'] = df_melted_rioolwater.apply(select_year, axis=1)
+    df_melted_rioolwater['month'] = df_melted_rioolwater.apply(calculate_month, axis=1)
+    grouped_df_rioolwater = df_melted_rioolwater.groupby(['selected_year', 'month'])['value'].mean().reset_index()
 
-# Process covid sterfte data
-df_melted_covid_sterfte = covid_sterfte.melt(id_vars=['month'], var_name='year', value_name='value')
-final_df_covid_sterfte = df_melted_covid_sterfte[['year', 'month', 'value']]
-final_df_covid_sterfte['year'] = final_df_covid_sterfte['year'].astype(int)
+    # Process covid sterfte data
+    df_melted_covid_sterfte = covid_sterfte.melt(id_vars=['month'], var_name='year', value_name='value')
+    final_df_covid_sterfte = df_melted_covid_sterfte[['year', 'month', 'value']]
+    final_df_covid_sterfte['year'] = final_df_covid_sterfte['year'].astype(int)
 
-# Merge the DataFrames
-merged_df = pd.merge(grouped_df_rioolwater, final_df_covid_sterfte, left_on=['selected_year', 'month'], right_on=['year', 'month'], suffixes=('_rioolwater', '_covid_sterfte'))
-merged_df = pd.merge(merged_df, grouped_oversterfte, left_on=['selected_year', 'month'], right_on=['jaar_z', 'month'])
+    # Merge the DataFrames
+    merged_df = pd.merge(grouped_df_rioolwater, final_df_covid_sterfte, left_on=['selected_year', 'month'], right_on=['year', 'month'], suffixes=('_rioolwater', '_covid_sterfte'))
+    merged_df = pd.merge(merged_df, grouped_oversterfte, left_on=['selected_year', 'month'], right_on=['jaar_z', 'month'])
 
-make_lineplot(merged_df)
-make_scatterplot(merged_df, "value_rioolwater", "value_covid_sterfte")
-make_scatterplot(merged_df, "value_rioolwater", "oversterfte_cbs")
+    make_lineplot(merged_df)
+    make_scatterplot(merged_df, "value_rioolwater", "value_covid_sterfte")
+    make_scatterplot(merged_df, "value_rioolwater", "oversterfte_cbs")
+
+if __name__ == "__main__":
+    main()
