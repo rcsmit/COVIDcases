@@ -661,7 +661,7 @@ def loglognormal(df, what_to_display):
     st.text(f"{what_to_display} at end of period shown: {int( exp(ipred[-1])-1)}.")
 
 
-@st.cache(ttl=60 * 60 * 24)
+@st.cache_data(ttl=60 * 60 * 24)
 def download_data_file(url, filename, delimiter_, fileformat):
     """Download the external datafiles
     IN :  url : the url
@@ -725,7 +725,7 @@ def init():
     download = True  # True : download from internet False: download from INPUT_DIR
     # De open data worden om 15.15 uur gepubliceerd
 
-@st.cache(ttl=60 * 60 * 24, allow_output_mutation=True)
+@st.cache_data(ttl=60 * 60 * 24, allow_output_mutation=True)
 def get_data():
     """Get the data from various sources
     In : -
