@@ -56,12 +56,7 @@ def make_lineplot(merged_df):
         xaxis_title='Year-Month',
         yaxis=dict(
             title='Rioolwater Value',
-            titlefont=dict(
-                color='#1f77b4'
-            ),
-            tickfont=dict(
-                color='#1f77b4'
-            )
+        
         ),
     
     )
