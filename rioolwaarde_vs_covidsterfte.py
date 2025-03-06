@@ -25,7 +25,7 @@ def select_year(row):
 rioolwater_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2025mrt.csv"
 covid_sterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_covid_months_as_int.csv"
 oversterfte_url =  "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overl_cbs_vs_rivm.csv"
-
+oversterfte_url = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/oversterfte_mrt2025.csv"
 # https://www.rivm.nl/corona/actueel/weekcijfers
 # https://www.cbs.nl/nl-nl/reeksen/tijd/doodsoorzaken
 
@@ -35,7 +35,9 @@ oversterfte = pd.read_csv(oversterfte_url, delimiter=',')
 
 # Process oversterfte data
 oversterfte['month'] = oversterfte.apply(calculate_month_oversterfte, axis=1)
-oversterfte['oversterfte_cbs'] = oversterfte['Overledenen_z'] - oversterfte['verw_cbs_official']
+#oversterfte['oversterfte_cbs'] = oversterfte['Overledenen_z'] - oversterfte['verw_cbs_official']
+
+oversterfte['oversterfte_cbs'] = oversterfte['aantal_overlijdens'] - oversterfte['avg']
 grouped_oversterfte = oversterfte.groupby(['jaar_z', 'month'])['oversterfte_cbs'].mean().reset_index()
 
 # Process rioolwater data
