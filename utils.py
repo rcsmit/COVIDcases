@@ -15,7 +15,7 @@ import streamlit as st
 # import statsmodels.api as sm
 # from scipy import stats
 from oversterfte_compleet import  get_sterftedata, get_data_for_series_wrapper,make_df_quantile #, layout_annotations_fig
-
+from oversterfte_get_data import get_all_data
 from oversterfte_eurostats_maand import get_data_eurostat
 import pandas as pd
 
@@ -58,7 +58,15 @@ def get_oversterfte(opdeling):
     #     file = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/basevalues_sterfte_Y0-120_T.csv"
     # # Load the CSV file
     # df_ = pd.read_csv(file)
-    df__ = get_sterftedata(2015, "m_v_0_999")
+    (
+        
+        df_boosters,
+        df_herhaalprik,
+        df_herfstprik,
+        df_rioolwater,
+        df_kobak, cbs_data_ruw
+    ) = get_all_data()
+    df__ = get_sterftedata(cbs_data_ruw,2015, "m_v_0_999")
 
     df_data= get_data_for_series_wrapper(df__,"m_v_0_999",2015)
     df_, df_corona, df_quantile = make_df_quantile("m_v_0_999", df_data, "week") 
