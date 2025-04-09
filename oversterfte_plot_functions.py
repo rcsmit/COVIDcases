@@ -433,7 +433,7 @@ def plot_wrapper(
                 fig.add_hline(y=0)
                 st.plotly_chart(fig, use_container_width=True)
 
-        
+    
     def plot_lines(series_name, df_data):
         # fig = plt.figure()
 
