@@ -430,7 +430,7 @@ def plot_wrapper(
 
                 # Set secondary y-axis title
                 fig.update_yaxes(title_text=what_sec, secondary_y=True)
-
+                fig.add_hline(y=0)
                 st.plotly_chart(fig, use_container_width=True)
 
         
