@@ -712,10 +712,10 @@ def calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte):
     
     _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
     df_rivm, df_compleet_pivot_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
-
+    df_merged = make_df_merged(df_data, df_rivm, series_name, period)
     if how == "quantiles":
         
-        df_merged = make_df_merged(df_data, df_rivm, series_name, period)
+        
         
         if 1==2: #if you want an export
             df_merged = df_merged.assign(

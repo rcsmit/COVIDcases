@@ -12,6 +12,13 @@ from scipy.signal import savgol_filter
 from sklearn.linear_model import LinearRegression
 import datetime
 import statsmodels.api as sm
+#from oversterfte_compleet import rolling
+
+
+def rolling(df, what):
+    df[f"{what}_sma"] = df[what].rolling(window=7, center=True).mean()
+    return df
+
 
 def plot_wrapper(
     df_boosters,
@@ -301,6 +308,46 @@ def plot_wrapper(
         st.plotly_chart(fig, use_container_width=True)
         # /plot_graph_oversterfte
 
+
+      
+    def plot_oversterfte_cummulatief(df_corona,df_oversterfte):
+
+        # reproducing https://x.com/SteigstraHerman/status/1909506786702618998
+
+      
+        df_oversterfte = df_oversterfte.merge(df_corona, on=["jaar", "week"])
+        df_oversterfte = df_oversterfte.sort_values(by=["jaar", "week"])
+        # Filter out rows where the year is less than 2020
+        df_oversterfte = df_oversterfte[df_oversterfte["jaar"] >= 2020]
+     
+        df_oversterfte["year_minus_avg"] = (
+            df_oversterfte[series_name] - df_oversterfte["avg"]
+        )
+        df_oversterfte["year_minus_avg_cum"] = df_oversterfte["year_minus_avg"].cumsum()
+
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        
+        fig.add_trace(
+            go.Scatter(
+                x=df_oversterfte["periodenr_x"],
+                y=df_oversterfte["year_minus_avg_cum"],
+                # line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
+                line=dict(width=2, color="rgba(205, 61,62, 1)"),
+                mode="lines",
+                name=how,
+                
+            )
+        )
+        title = f"Cummulatieve overstefte - {series_name}"
+        
+        fig.update_layout(
+            xaxis=dict(title="Weeknumber"),
+            yaxis=dict(title="Number of persons"),
+            title=title,
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+       
     def plot_lines(series_name, df_data):
         # fig = plt.figure()
 
@@ -417,7 +464,7 @@ def plot_wrapper(
     if how == "quantiles":
 
         plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile)
-
+        plot_oversterfte_cummulatief(df_corona, df_quantile)
     elif (
         (how == "year_minus_avg")
         or (how == "over_onder_sterfte")
