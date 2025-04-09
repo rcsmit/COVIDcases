@@ -30,20 +30,20 @@ def get_rioolwater():
     df = pd.read_csv(file, sep=';')
 
     # Melt the dataframe to long format
-    df_long = df.melt(id_vars=df.columns[0], var_name='year', value_name='RNA_flow_per_100000')
-    df_long.columns = ['week', 'year', 'RNA_flow_per_100000']
+    df_long = df.melt(id_vars=df.columns[0], var_name='jaar', value_name='RNA_flow_per_100000')
+    df_long.columns = ['week', 'jaar', 'RNA_flow_per_100000']
 
     # Function to split the years based on week
     def split_year(row):
-        years = row['year'].split('/')
+        years = row['jaar'].split('/')
         week = int(row['week'])
         return years[0] if 40 <= week <= 53 else years[1]
 
     # Apply the function to split the year
-    df_long['year'] = df_long.apply(split_year, axis=1)
+    df_long['jaar'] = df_long.apply(split_year, axis=1)
 
     # Reorder columns
-    df_long = df_long[['year', 'week', 'RNA_flow_per_100000']]
+    df_long = df_long[['jaar', 'week', 'RNA_flow_per_100000']]
     print(df_long.head(10))
     # Save to CSV
     # df_long.to_csv('output.csv', sep=';', index=False)
@@ -407,8 +407,8 @@ def plot_wrapper(
 
         df_rioolwater = get_rioolwater()
         df_vaccinaties = get_vaccinaties()
-        
-
+       
+        df_rioolwater["jaar"] = df_rioolwater["jaar"].astype(int)
         df_oversterfte = (
             pd.merge(df_oversterfte, df_rioolwater,  on=["jaar", "week"], how="left")
            
@@ -420,7 +420,7 @@ def plot_wrapper(
       
         df_oversterfte = df_oversterfte.merge(df_corona, on=["jaar", "week"])
         df_oversterfte = df_oversterfte.sort_values(by=["jaar", "week"])
-        st.write(df_oversterfte)
+        
         # Filter out rows where the year is less than 2020
         df_oversterfte = df_oversterfte[df_oversterfte["jaar"] >= 2020]
      
