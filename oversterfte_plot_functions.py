@@ -16,9 +16,44 @@ import platform
 #from oversterfte_compleet import rolling
 
 
-
 @st.cache_data()
 def get_rioolwater():
+    # https://www.rivm.nl/corona/actueel/weekcijfers
+
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwater_2024okt.csv"
+    # else:
+    #     file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2024okt.csv"
+    
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_april_2025.csv"
+    # Read the CSV data from a file
+    df = pd.read_csv(file, sep=';')
+
+    # Melt the dataframe to long format
+    df_long = df.melt(id_vars=df.columns[0], var_name='year', value_name='RNA_flow_per_100000')
+    df_long.columns = ['week', 'year', 'RNA_flow_per_100000']
+
+    # Function to split the years based on week
+    def split_year(row):
+        years = row['year'].split('/')
+        week = int(row['week'])
+        return years[0] if 40 <= week <= 53 else years[1]
+
+    # Apply the function to split the year
+    df_long['year'] = df_long.apply(split_year, axis=1)
+
+    # Reorder columns
+    df_long = df_long[['year', 'week', 'RNA_flow_per_100000']]
+    print(df_long.head(10))
+    # Save to CSV
+    # df_long.to_csv('output.csv', sep=';', index=False)
+
+    return df_long
+   
+
+
+@st.cache_data()
+def get_rioolwater_old():
     # copied from utils.py, included here to prevent circular imports
     # https://www.rivm.nl/corona/actueel/weekcijfers
 
