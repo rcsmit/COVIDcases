@@ -13,6 +13,7 @@ from oversterfte_get_data import get_all_data, get_df_offical, get_baseline_koba
 from oversterfte_rivm_functions import verwachte_sterfte_rivm
 from oversterfte_cbs_functions import get_sterftedata, get_data_for_series_wrapper, make_df_quantile,make_df_quantile_year,make_row_df_quantile
 
+
 # Impact of different mortality forecasting methods and explicit assumptions on projected future
 # life expectancy
 # Stoeldraijer, L.; van Duin, C.; van Wissen, L.J.G.; Janssen, F

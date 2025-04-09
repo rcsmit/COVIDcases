@@ -1,19 +1,75 @@
 import pandas as pd
-import cbsodata
+# import cbsodata
 import streamlit as st
 import plotly.graph_objects as go
-import numpy as np
+# import numpy as np
 from plotly.subplots import make_subplots
-import get_rioolwater
-
+# import get_rioolwater # scrapes info from RIVM site
+# from utils import get_rioolwater, get_vaccinaties
+import platform
 # from streamlit import caching
-import scipy.stats as stats
-from scipy.signal import savgol_filter
-from sklearn.linear_model import LinearRegression
-import datetime
-import statsmodels.api as sm
+# import scipy.stats as stats
+# from scipy.signal import savgol_filter
+# from sklearn.linear_model import LinearRegression
+# import datetime
+# import statsmodels.api as sm
 #from oversterfte_compleet import rolling
 
+
+
+@st.cache_data()
+def get_rioolwater():
+    # copied from utils.py, included here to prevent circular imports
+    # https://www.rivm.nl/corona/actueel/weekcijfers
+
+    if platform.processor() != "":
+        file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rioolwater_2024okt.csv"
+    else:
+        file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rioolwater_2024okt.csv"
+    df = pd.read_csv(
+        file,
+        delimiter=";",
+
+        low_memory=False,
+    )
+
+    return df
+
+
+
+@st.cache_data()
+def get_vaccinaties():
+    # copied from utils.py, included here to prevent circular imports
+    # https://www.ecdc.europa.eu/en/publications-data/data-covid-19-vaccination-eu-eea
+
+    # if platform.processor() != "":
+    #     file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\vaccinaties_NL_2023.csv"
+    # else:
+    file = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/vaccinaties_NL_2023.csv"
+    df = pd.read_csv(
+        file,
+        delimiter=",",
+
+        low_memory=False,
+    )
+
+    #df['age_sex'] =df['age_sex']+'_T'
+    # df=df[df['age_sex'] =='TOTAL_T']
+    
+    # df = df.groupby(['YearWeekISO', 'age_sex']).sum(numeric_only=True).reset_index()
+    df['TotalDoses'] = df[['FirstDose', 'SecondDose', 'DoseAdditional1', 'DoseAdditional2',
+                       'DoseAdditional3', 'DoseAdditional4', 'DoseAdditional5', 'UnknownDose']].sum(axis=1)
+
+    df["jaar"] = (df["YearWeekISO"].str[:4]).astype(int)
+    df["week"] = (df["YearWeekISO"].str[6:]).astype(int)
+
+    df["periodenr"] = df["jaar"].astype(str) + "_" + df["week"].astype(str).str.zfill(2)
+    
+    
+    # Group by 'periodenr' and aggregate the data
+    # df = df.groupby("periodenr").sum(numeric_only=True).reset_index()
+    df = df.groupby(['YearWeekISO']).sum(numeric_only=True).reset_index()
+    return df
 
 def rolling(df, what):
     df[f"{what}_sma"] = df[what].rolling(window=7, center=True).mean()
@@ -312,42 +368,72 @@ def plot_wrapper(
       
     def plot_oversterfte_cummulatief(df_corona,df_oversterfte):
 
+
+
+        df_rioolwater = get_rioolwater()
+        df_vaccinaties = get_vaccinaties()
+        
+
+        df_oversterfte = (
+            pd.merge(df_oversterfte, df_rioolwater,  on=["jaar", "week"], how="left")
+           
+            .merge(df_vaccinaties, on=["jaar", "week"], how="left")
+            .fillna(0)
+        )
         # reproducing https://x.com/SteigstraHerman/status/1909506786702618998
 
       
         df_oversterfte = df_oversterfte.merge(df_corona, on=["jaar", "week"])
         df_oversterfte = df_oversterfte.sort_values(by=["jaar", "week"])
+        st.write(df_oversterfte)
         # Filter out rows where the year is less than 2020
         df_oversterfte = df_oversterfte[df_oversterfte["jaar"] >= 2020]
      
-        df_oversterfte["year_minus_avg"] = (
+        df_oversterfte["oversterfte"] = (
             df_oversterfte[series_name] - df_oversterfte["avg"]
         )
-        df_oversterfte["year_minus_avg_cum"] = df_oversterfte["year_minus_avg"].cumsum()
-
-        fig = make_subplots(specs=[[{"secondary_y": True}]])
-        
-        fig.add_trace(
-            go.Scatter(
-                x=df_oversterfte["periodenr_x"],
-                y=df_oversterfte["year_minus_avg_cum"],
-                # line=dict(width=2), opacity = 1, # PLOT_COLORS_WIDTH[year][1] , color=PLOT_COLORS_WIDTH[year][0]),
-                line=dict(width=2, color="rgba(205, 61,62, 1)"),
-                mode="lines",
-                name=how,
+        df_oversterfte["oversterfte_cumm"] = df_oversterfte["oversterfte"].cumsum()
+        for what_prim in ["oversterfte", "oversterfte_cumm"]:
+            for what_sec in ["RNA_flow_per_100000"]:
+                fig = make_subplots(specs=[[{"secondary_y": True}]])
                 
-            )
-        )
-        title = f"Cummulatieve overstefte - {series_name}"
-        
-        fig.update_layout(
-            xaxis=dict(title="Weeknumber"),
-            yaxis=dict(title="Number of persons"),
-            title=title,
-        )
-        st.plotly_chart(fig, use_container_width=True)
+                fig.add_trace(
+                    go.Scatter(
+                        x=df_oversterfte["periodenr_x"],
+                        y=df_oversterfte[what_prim],
+                        line=dict(width=2, color="rgba(205, 61,62, 1)"),
+                        mode="lines",
+                        name=what_prim,
+                        
+                    ),
+                    secondary_y=False,
+                )
+                fig.add_trace(
+                            go.Scatter(
+                                name=what_sec,
+                                x=df_oversterfte["periodenr_x"],
+                                y=df_oversterfte[what_sec],
+                                mode="lines",
+                                line=dict(width=2, color="rgba(94, 172, 219, 1)"),
+                            ),
+                            secondary_y=True,
+                        )
+                
+                title = f"{what_prim} - {series_name} | {what_sec}"
+                
+                # Update layout with titles and axis labels
+                fig.update_layout(
+                    title=what_prim,
+                    xaxis_title="Week Number",
+                    yaxis_title="Oversterfte",
+                )
 
-       
+                # Set secondary y-axis title
+                fig.update_yaxes(title_text=what_sec, secondary_y=True)
+
+                st.plotly_chart(fig, use_container_width=True)
+
+        
     def plot_lines(series_name, df_data):
         # fig = plt.figure()
 
