@@ -581,6 +581,7 @@ def plot_wrapper(
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
         
         if series_name in ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999"]:
+
             # vergerlijken met https://www.cbs.nl/nl-nl/visualisaties/welvaart-in-coronatijd/gezondheid-in-coronatijd
             url=r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/cbs_deaths_until_2023.csv"
             #url=r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\cbs_deaths_until_2023_fake2015_2019.csv"
@@ -637,7 +638,9 @@ def plot_wrapper(
             fillcolor="rgba(68, 68, 68, 0.2)",
         )
 
-        try:
+
+        # data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
+        if series_name in ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999"]:
             cbs_low05 = go.Scatter(
                 name="cbs_low",
                 x=df_quantile["periodenr"],
@@ -672,12 +675,6 @@ def plot_wrapper(
                 line=dict(width=0.5, color="rgba(255, 255, 0, 0.5)"),
                 fillcolor="rgba(68, 68, 68, 0.2)",
             )
-        except:
-            cbs_high95, cbs_low05, cbs_avg, cbs_sterfte=None,None,None,None
-
-
-        # data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
-        if series_name in ["m_v_0_64","m_v_65_79","m_v_80_999"]:
             data = [high95, low05, avg, sterfte, cbs_high95, cbs_low05, cbs_avg, cbs_sterfte]  # , value_in_year_2021 ]
         else:
             data = [high95, low05, avg, sterfte]  # , value_in_year_2021 ]

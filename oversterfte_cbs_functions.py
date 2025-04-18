@@ -92,26 +92,66 @@ def get_data_for_series(df, seriename, vanaf_jaar):
         # geen waarde voor 2024, zie https://twitter.com/Cbscommunicatie/status/1800505651833270551
         # huidige waarde 2024 is geexptrapoleerd 2022-2023
          # huidige waarde 2025 is geexptrapoleerd vanuit 2022-2023
-        factors = {
-            2014: 1,
-            2015: 1,
-            2016: 1,
-            2017: 1,
-            2018: 1,
-            2019: 1,
-            2020: 153402 / noemer,
-            2021: 154887 / noemer,
-            2022: 155494 / noemer,
-            2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
-            2024: 157846 / noemer,
-            2025: (((156666/155494)**1) * 157846)/ noemer,
-            2026: (((156666/155494)**2) * 157846)/ noemer,
-            2027: (((156666/155494)**3) * 157846)/ noemer,
-            2028: (((156666/155494)**4) * 157846)/ noemer,
-            2029: (((156666/155494)**5) * 157846)/ noemer,
-        }
+        if seriename =="m_v_0_64":
+            noemer = 21664
 
-#           # 2015	16,9	0,5
+            
+            factors = {
+              
+                # lineaire regressie sterfte 2015-2019
+                # https://chatgpt.com/share/68029f4d-5388-8004-8ba5-bf9b603c84fc
+                # Sum of OBS_VALUE_	Column Labels			
+                # year	Y0-49_T	Y50-64_T	Total
+                # 2015	5643	16480		22123
+                # 2016	5670	16504		22174
+                # 2017	5643	15992		21635
+                # 2018	5442	16060		21502
+                # 2019	5334	15554		20888
+                # 2020	5670	16316		21986
+                # 2021	5525	17063		22588
+                # 2022	5582	16292		21874
+                # 2023	5440	15775		21215
+
+                2014: 1,
+                2015: 1,
+                2016: 1,
+                2017: 1,
+                2018: 1,
+                2019: 1,
+                2020   :       20721.8 / noemer,
+                2021   :       20407.6 / noemer,
+                2022   :       20093.4 / noemer,
+                2023   :       19779.2 / noemer,
+                2024   :       19465.0 / noemer,
+                2025: 19150/ noemer,
+                2026:18837/ noemer,
+                2027:18522/ noemer,
+                2028:18208/ noemer,
+                2029:17894/ noemer,
+                2030:17579/ noemer
+            }
+        else:
+                    
+            factors = {
+                2014: 1,
+                2015: 1,
+                2016: 1,
+                2017: 1,
+                2018: 1,
+                2019: 1,
+                2020: 153402 / noemer,
+                2021: 154887 / noemer,
+                2022: 155494 / noemer,
+                2023: 156666 / noemer,  # or 169333 / som if you decide to use the updated factor
+                2024: 157846 / noemer,
+                2025: (((156666/155494)**1) * 157846)/ noemer,
+                2026: (((156666/155494)**2) * 157846)/ noemer,
+                2027: (((156666/155494)**3) * 157846)/ noemer,
+                2028: (((156666/155494)**4) * 157846)/ noemer,
+                2029: (((156666/155494)**5) * 157846)/ noemer,
+            }
+
+            # 2015	16,9	0,5
             # 2016	17	0,6
             # 2017	17,1	0,6
             # 2018	17,2	0,6
