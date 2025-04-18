@@ -580,7 +580,8 @@ def plot_wrapper(
 
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
         
-        if series_name in ["m_v_0_64","m_v_65_79","m_v_80_999"]:
+        if series_name in ["m_v_0_999","m_v_0_64","m_v_65_79","m_v_80_999"]:
+            # vergerlijken met https://www.cbs.nl/nl-nl/visualisaties/welvaart-in-coronatijd/gezondheid-in-coronatijd
             url=r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/cbs_deaths_until_2023.csv"
             #url=r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\cbs_deaths_until_2023_fake2015_2019.csv"
             df_cbs = pd.read_csv(url, sep=",")
