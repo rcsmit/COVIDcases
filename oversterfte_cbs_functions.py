@@ -97,7 +97,6 @@ def get_data_for_series(df, seriename, vanaf_jaar):
 
             
             factors = {
-              
                 # lineaire regressie sterfte 2015-2019
                 # https://chatgpt.com/share/68029f4d-5388-8004-8ba5-bf9b603c84fc
                 # Sum of OBS_VALUE_	Column Labels			

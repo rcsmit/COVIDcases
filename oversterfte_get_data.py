@@ -29,6 +29,7 @@ def get_baseline_kobak():
     Returns:
         _type_: _description_
     """
+    
     url = r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/kobak_baselines.csv"
     # url ="C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\kobak_baselines.csv"     # Maak een interactieve plot met Plotly
     df_ = pd.read_csv(

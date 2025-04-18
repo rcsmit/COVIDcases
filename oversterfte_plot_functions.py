@@ -447,6 +447,7 @@ def plot_wrapper(
             {"name": "Period 4", "start": (2022, 13), "end": (2022, 52)},  # Week 13 to 52 of 2022
         ]
 
+
         # Iterate over each period and calculate sums
         results = []
         for period in periods:
