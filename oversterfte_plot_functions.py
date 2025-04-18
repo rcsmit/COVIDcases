@@ -227,6 +227,7 @@ def plot_wrapper(
            
         
         fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig = layout_annotations_fig(fig)
         fig.add_trace(
             go.Scatter(
                 x=df_oversterfte["periodenr"],
@@ -428,6 +429,66 @@ def plot_wrapper(
             df_oversterfte[series_name] - df_oversterfte["avg"]
         )
         df_oversterfte["oversterfte_cumm"] = df_oversterfte["oversterfte"].cumsum()
+
+        # https://www.cbs.nl/nl-nl/longread/rapportages/2023/oversterfte-en-doodsoorzaken-in-2020-tot-en-met-2022/3-resultaten
+
+        # 13 tot en met 18 van 2020 (eind maart–eind april 2020).
+
+        #         1) Week 13 tot en met 18 van 2020 (eind maart–eind april 2020).
+        # 2) Week 39 van 2020 tot en met week 3 van 2021 (eind september 2020–januari 2021).    
+        # 3) Week 33 tot en met week 52 van 2021 (half augustus 2021–eind december 2021).
+        # 4) Week 13 tot en met week 52 van 2022 (vanaf eind maart 2022).
+
+        # Define the periods
+        periods = [
+            {"name": "Period 1", "start": (2020, 13), "end": (2020, 18)},  # Week 13 to 18 of 2020
+            {"name": "Period 2", "start": (2020, 39), "end": (2021, 3)},   # Week 39 of 2020 to Week 3 of 2021
+            {"name": "Period 3", "start": (2021, 33), "end": (2021, 52)},  # Week 33 to 52 of 2021
+            {"name": "Period 4", "start": (2022, 13), "end": (2022, 52)},  # Week 13 to 52 of 2022
+        ]
+
+        # Iterate over each period and calculate sums
+        results = []
+        for period in periods:
+            start_year, start_week = period["start"]
+            end_year, end_week = period["end"]
+
+            # Filter the DataFrame for the given period
+           
+            # Filter the DataFrame for the given period
+            if start_year == end_year:
+                # Handle case where start and end years are the same
+                filtered_df = df_oversterfte[
+                    (df_oversterfte["jaar"] == start_year) &
+                    (df_oversterfte["week"] >= start_week) &
+                    (df_oversterfte["week"] <= end_week)
+                ]
+            else:
+                # Handle case where start and end years are different
+                filtered_df = df_oversterfte[
+                    ((df_oversterfte["jaar"] == start_year) & (df_oversterfte["week"] >= start_week)) |
+                    ((df_oversterfte["jaar"] == end_year) & (df_oversterfte["week"] <= end_week)) |
+                    ((df_oversterfte["jaar"] > start_year) & (df_oversterfte["jaar"] < end_year))
+                ]
+           
+            # Calculate the sums for the period
+            sterfte_sum = filtered_df[series_name].sum()
+            oversterfte_sum = filtered_df["oversterfte"].sum()
+            
+            avg_sum = filtered_df["avg"].sum()
+
+            # Append the results
+            results.append({
+                "Period": period["name"],
+                "Sterfte Sum": sterfte_sum,
+                "Oversterfte Sum": oversterfte_sum,
+                "Avg Sum": avg_sum
+            })
+
+        # Display the results
+        for result in results:
+            st.write(f"{result['Period']}: Sterfte Sum = {result['Sterfte Sum']}, Avg Sum = {result['Avg Sum']},Oversterfte Sum = {result['Oversterfte Sum']},")
+        
         for what_prim in ["oversterfte", "oversterfte_cumm"]:
             for what_sec in ["RNA_flow_per_100000"]:
                 fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -466,6 +527,7 @@ def plot_wrapper(
                 # Set secondary y-axis title
                 fig.update_yaxes(title_text=what_sec, secondary_y=True)
                 fig.add_hline(y=0)
+                fig = layout_annotations_fig(fig)
                 st.plotly_chart(fig, use_container_width=True)
 
     
@@ -517,7 +579,19 @@ def plot_wrapper(
         # end of plot_lines
 
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
-    
+        
+        if series_name in ["m_v_0_64","m_v_65_79","m_v_80_999"]:
+            url=r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/cbs_deaths_until_2023.csv"
+            #url=r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\cbs_deaths_until_2023_fake2015_2019.csv"
+            df_cbs = pd.read_csv(url, sep=",")
+            df_cbs = df_cbs[df_cbs["agegroup"] ==series_name]
+            #df_cbs = df_cbs[df_cbs["year"] >=2020] # delete the fake  data 2015-2019
+            df_cbs["periodenr"] = (
+                df_cbs["year"].astype(int).astype(str) + "_" + df_cbs["week"].astype(int).astype(str).str.zfill(2)
+                )
+            df_quantile = df_quantile.merge(df_cbs, on="periodenr", how ="outer")
+
+
         df_corona = df_corona[df_corona["periodenr"] !="2019_1"] #somewhere an error bc of 53 weeks in 53
        
         columnlist = ['avg_', 'low05', 'high95']
@@ -542,7 +616,7 @@ def plot_wrapper(
             x=df_quantile["periodenr"],
             y=df_quantile["avg_"],
             mode="lines",
-            line=dict(width=0.75, color="rgba(68, 68, 68, 0.8)"),
+            line=dict(width=1, color="rgba(68, 68, 68, 0.8)"),
         )
 
         sterfte = go.Scatter(
@@ -562,8 +636,51 @@ def plot_wrapper(
             fillcolor="rgba(68, 68, 68, 0.2)",
         )
 
+        try:
+            cbs_low05 = go.Scatter(
+                name="cbs_low",
+                x=df_quantile["periodenr"],
+                y=df_quantile["cbs_low"],
+                mode="lines",
+                line=dict(width=0.5, color="rgba(255, 255, 0, 0.5)"),
+                fillcolor="rgba(25, 68, 68, 0.1)",
+                fill="tonexty",
+            )
+
+            cbs_avg = go.Scatter(
+                name="cbs_verwacht",
+                x=df_quantile["periodenr"],
+                y=df_quantile["cbs_avg"],
+                mode="lines",
+                line=dict(width=1, color="rgba(68, 255, 68, 0.8)"),
+            )
+
+            cbs_sterfte = go.Scatter(
+                name="cbs_Sterfte",
+                x=df_quantile["periodenr"],
+                y=df_quantile["cbs_value"],
+                mode="lines",
+                line=dict(width=2, color="rgba(255, 255, 0, 0.8)"),
+            )
+
+            cbs_high95 = go.Scatter(
+                name="cbs_high",
+                x=df_quantile["periodenr"],
+                y=df_quantile["cbs_high"],
+                mode="lines",
+                line=dict(width=0.5, color="rgba(255, 255, 0, 0.5)"),
+                fillcolor="rgba(68, 68, 68, 0.2)",
+            )
+        except:
+            cbs_high95, cbs_low05, cbs_avg, cbs_sterfte=None,None,None,None
+
+
         # data = [ q95, high95, q05,low05,avg, sterfte] #, value_in_year_2021 ]
-        data = [high95, low05, avg, sterfte]  # , value_in_year_2021 ]
+        if series_name in ["m_v_0_64","m_v_65_79","m_v_80_999"]:
+            data = [high95, low05, avg, sterfte, cbs_high95, cbs_low05, cbs_avg, cbs_sterfte]  # , value_in_year_2021 ]
+        else:
+            data = [high95, low05, avg, sterfte]  # , value_in_year_2021 ]
+            
         title = f"Overleden x {series_name}"
         layout = go.Layout(
             xaxis=dict(title="Weeknumber"),
@@ -643,6 +760,16 @@ def layout_annotations_fig(fig):
         x0="2021_33",
         x1="2021_52",
         annotation_text="Derde golf",
+        annotation_position="top left",
+        fillcolor="pink",
+        opacity=0.25,
+        line_width=0,
+    )
+
+    fig.add_vrect(
+        x0="2022_13",
+        x1="2022_52",
+        annotation_text="Vierde golf",
         annotation_position="top left",
         fillcolor="pink",
         opacity=0.25,
