@@ -316,7 +316,7 @@ def get_doodsoorzaken(opdeling) -> pd.DataFrame:
     
     df_eind = df_eind[df_eind["aantal"].notna()]
     df_eind = df_eind[df_eind["OBS_VALUE"].notna()]
-    df_eind = df_eind[df_eind["jaar"] != 2024]
+    df_eind = df_eind[df_eind["jaar"] != 2025]
     df_eind["per100k"] = round(df_eind["OBS_VALUE"]/df_eind["aantal"]*100000,1) 
     
     return df_eind 
