@@ -591,7 +591,7 @@ def fit_and_predict(df_before_2020: pd.DataFrame, x_: pd.Series, y_: pd.Series) 
     extended_X = sm.add_constant(extended_years)
     # Predict the trendline and bounds for the extended years
     trendline_extended = model.predict(extended_X)
-    
+
     return trendline,extended_years,trendline_extended
 
 
