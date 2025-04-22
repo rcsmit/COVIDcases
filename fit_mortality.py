@@ -586,7 +586,7 @@ def fit_and_predict(df_before_2020: pd.DataFrame, x_: pd.Series, y_: pd.Series) 
    
     model = sm.OLS(y_, X).fit()
     trendline = model.predict(X)
-    extended_years = np.arange(df_before_2020["jaar"].min(), 2024)
+    extended_years = np.arange(df_before_2020["jaar"].min(), 2025)
     # Create a DataFrame for the extended years
     extended_X = sm.add_constant(extended_years)
     # Predict the trendline and bounds for the extended years
