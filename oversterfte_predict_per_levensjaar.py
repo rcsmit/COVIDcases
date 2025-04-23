@@ -149,8 +149,8 @@ def main():
     
     # https://www.cbs.nl/nl-nl/cijfers/detail/37168
     # overlijdens = get_dataframe(r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_geslacht_leeftijd_burgelijkstaat.csv", ",")
-    overlijdens = get_dataframe(r"sualisaties/dashboard-bevolking/bevolkingspiramide ???
-    bevolking = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_geslacht_leeftijd_burgelijkstaat.csv", ",")
+    # overlijdens = get_dataframe(r"sualisaties/dashboard-bevolking/bevolkingspiramide ???
+    overlijdens = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_geslacht_leeftijd_burgelijkstaat.csv", ",")
    
    # Replace "M" with "Mannen" and "F" with "Vrouwen" in the "Geslacht" column
     bevolking["Geslacht"] = bevolking["geslacht"].replace({"M": "Mannen", "F": "Vrouwen"})
