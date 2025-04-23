@@ -18,7 +18,7 @@ import numpy as np
     
 @st.cache_data(ttl=60 * 60 * 24)
 def get_sterftedata():
-    """Get and manipulate data of the deaths
+    """Get and manipulate data of the deaths. From CBS 70895ned
 
     Args:
         seriename (str, optional): _description_. Defaults to "m_v_0_999".

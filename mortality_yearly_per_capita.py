@@ -15,6 +15,15 @@ except:
     pass
 
 def get_bevolking(country, opdeling):
+    """Gegt beolking, 1960-2024 naar geslacht en leeftijd
+
+    Args:
+        country (_type_): _description_
+        opdeling (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
     if country == "NL":
         if platform.processor() != "":
             file =  r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\bevolking_leeftijd_NL.csv"
