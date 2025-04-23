@@ -202,7 +202,6 @@ def main():
     
         # Predict mortality rates
         voorspellingen,parameters = voorspel_sterftekans(totaal_tabel_geslacht, startjaar=startjaar, eindjaar=2019, voorspeljaren=[2020, 2021, 2022, 2023], model_type=model_type)
-        
         totaal_tabel_geslacht = voorspellingen.merge(totaal_tabel_geslacht, on=["jaar", "leeftijd", "Geslacht"], how="outer")
         totaal_tabel_geslacht["voorspelde_sterfte"] = totaal_tabel_geslacht["voorspelde_sterftekans"] * totaal_tabel_geslacht["aantal"]
         totaal_tabel_geslacht["oversterfte"] = totaal_tabel_geslacht["OverledenenLeeftijdBijOverlijden_1"] - totaal_tabel_geslacht["voorspelde_sterfte"]
@@ -215,6 +214,37 @@ def main():
             
         eindresultaat = pd.concat([eindresultaat, totaal_tabel_geslacht], ignore_index=True)    
     
+        
+        fig = go.Figure()
+        for age in range(leeftijd_min,leeftijd_max,5):
+            totaal_tabel_leeftijd = totaal_tabel_geslacht[totaal_tabel_geslacht["leeftijd"] == age]
+            
+           
+            w=  ["werkelijke_sterftekans", "voorspelde_sterftekans", "sterftekansen"]
+            
+            fig.add_trace(go.Scatter(x=totaal_tabel_leeftijd["jaar"], y=totaal_tabel_leeftijd[w[0]], mode='markers', name=f'{age}'))
+            fig.add_trace(go.Scatter(
+                    x=totaal_tabel_leeftijd[totaal_tabel_leeftijd["jaar"] >= 2020]["jaar"],
+                    y=totaal_tabel_leeftijd[totaal_tabel_leeftijd["jaar"] >= 2020][w[0]],
+                    mode='markers',
+                    name=f' {age}',
+                    
+                ))
+            
+            fig.add_trace(go.Scatter(x=totaal_tabel_leeftijd["jaar"], y=totaal_tabel_leeftijd[w[1]], mode='lines', name=f'{age}',  ))       
+            fig.add_trace(go.Scatter(
+                    x=totaal_tabel_leeftijd[totaal_tabel_leeftijd["jaar"] >= 2020]["jaar"],
+                    y=totaal_tabel_leeftijd[totaal_tabel_leeftijd["jaar"] >= 2020][w[1]],
+                    mode='lines+markers',
+                    name=f'{age}',
+                   )
+                )
+            # Add the line to the graph
+            
+        #fig.add_trace(go.Scatter(x=totaal_tabel_geslacht["jaar"], y=totaal_tabel_geslacht["y_line"], mode='lines', name=f'Voorspelde lijn', line=dict(dash='dash', color='red')))
+        fig.update_layout(title=f"{w[2]} {geslacht}", xaxis_title="Jaar", yaxis_title="Waarde")
+        col.plotly_chart(fig, use_container_width=True)
+        
         totaal_tabel_geslacht = totaal_tabel_geslacht.groupby("jaar").sum().reset_index()
         if leeftijd_min == leeftijd_max:
             wx = [["werkelijke_sterftekans", "voorspelde_sterftekans", "Sterftekans"], ["OverledenenLeeftijdBijOverlijden_1", "voorspelde_sterfte", "Overledenen"]]
