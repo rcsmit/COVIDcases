@@ -281,7 +281,7 @@ def main():
 
     # Toon de tabel
     st.write(oversterfte_tabel)
-    st.write(f"Totale oversterfte : {oversterfte_tabel["Totaal"].sum()}")
+    st.write(f"Totale oversterfte : {oversterfte_tabel['Totaal'].sum()}")
 
 
 if __name__ == "__main__":
