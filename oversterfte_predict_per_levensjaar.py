@@ -213,8 +213,7 @@ def main():
          
             
         eindresultaat = pd.concat([eindresultaat, totaal_tabel_geslacht], ignore_index=True)    
-    
-        
+     
         fig = go.Figure()
         for age in range(leeftijd_min,leeftijd_max,5):
             totaal_tabel_leeftijd = totaal_tabel_geslacht[totaal_tabel_geslacht["leeftijd"] == age]
