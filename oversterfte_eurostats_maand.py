@@ -11,9 +11,68 @@ from oversterfte_plot_functions import layout_annotations_fig
 from oversterfte_get_data import get_herhaalprik,get_boosters 
 
 # (Over)sterfte per week of  maand per geslacht per 5 jaars groep"
-    
 
-@st.cache_data()
+
+def get_dataframe(file, delimiter=";"):
+    """Get data from a file and return as a pandas DataFrame.
+
+    Args:
+        file (str): url or path to the file.
+        delimiter (str, optional): _description_. Defaults to ";".
+
+    Returns:
+        pd.DataFrame: dataframe
+    """   
+    
+    data = pd.read_csv(
+        file,
+        delimiter=delimiter,
+        low_memory=False,
+         encoding='utf-8',
+          on_bad_lines='skip'
+    )
+    return data
+
+
+
+def calculate_per_100k(df_long):
+    # calculte per 100k
+    # only valid when plotting 5-year-bins. (je kan geen fracties bij elkaar optellen denk ik)
+    # Display the resulting dataframe
+   
+    population = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv")   
+    
+    # Step 1: Define bin edges and labels to match df_long
+    bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
+            55, 60, 65, 70, 75, 80, 85, 90, 999]
+    labels = ['Y_LT5_T'] + [f'Y{i}-{i+4}_T' for i in range(5, 85, 5)] + ['Y85-89_T', 'Y_GE90_T']
+
+    # Step 2: Filter and bin ages
+    pop = population[population['geslacht'] == 'T'].copy()
+    pop['leeftijd'] = pd.to_numeric(pop['leeftijd'], errors='coerce')
+    pop = pop.dropna(subset=['leeftijd'])  # drop unknowns
+    pop['age_sex'] = pd.cut(pop['leeftijd'], bins=bins, labels=labels, right=False)
+
+    # Step 3: Group and sum
+    pop_grouped = pop.groupby(['jaar', 'age_sex'], as_index=False)['aantal'].sum()
+    # Add TOTAL_T rows: total per year
+    total = pop.groupby('jaar', as_index=False)['aantal'].sum()
+    total['age_sex'] = 'TOTAL_T'
+
+    # Match column order
+    total = total[['jaar', 'age_sex', 'aantal']]
+
+    # Append to pop_grouped
+    pop_grouped = pd.concat([pop_grouped, total], ignore_index=True)
+   
+    # Step 4: Merge with df_long
+    df_long = df_long.merge(pop_grouped, on=['jaar', 'age_sex'], how='left')
+    df_long = df_long.rename(columns={'aantal': 'population'})
+   
+    df_long["OBS_VALUE"] = df_long["OBS_VALUE"]/df_long["population"]*100000
+    return (df_long)
+
+#@st.cache_data()
 def get_data_eurostat():
     """Get from Eurostat : Deaths by week, sex and 5-year age group
     Data from https://ec.europa.eu/eurostat/databrowser/product/view/demo_r_mwk_05?lang=en
@@ -115,8 +174,8 @@ def get_data_eurostat():
     df_long["jaar"] = (df_long["TIME_PERIOD"].str[:4]).astype(int)
     df_long["week"] = (df_long["TIME_PERIOD"].str[6:]).astype(int)
 
-    # Display the resulting dataframe
-    print (df_long)
+    # df_long=calculate_per_100k(df_long)
+
     return (df_long)
 
 def plot_boosters(df_boosters, series_name):
@@ -338,7 +397,7 @@ def plot_graph_oversterfte_eurostats(how, df, df_corona, df_boosters, df_herhaal
             st.write(f"Correlation = {round(corr,3)}")  
 
     #data.append(booster)  
-    
+
     #layout = go.Layout(xaxis=dict(title="Weeknumber"),yaxis=dict(title="Number of persons"),
     #                        title=title,)
              
@@ -374,7 +433,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
     df__ = df__[df__['age'] !="UNK"]
     #serienames = ["m_v_0_999","m_v_0_49","m_v_50_64","m_v_65_79","m_v_80_89","m_v_90_999" ,"m__0_99","m_0_49","m_50_64","m_65_79","m_80_89","m_90_999","v_0_999","v_0_49","v_50_64","v_65_79","v_80_89","v_90_999"]
     #series_names = df__["age_sex"].unique().sort()
-    series_name_new  = ["Y0-49_T", "Y50-64_T", "Y65-79_T", "Y25-49_T", "Y50-59_T", "Y60-69_T", "Y70-79_T", "Y80-89_T", "Y80-120_T", "Y90-120_T", "Y0-120_T"] 
+    series_name_new  = ["Y0-49_T","Y0-64_T", "Y50-64_T", "Y65-79_T", "Y25-49_T", "Y50-59_T", "Y60-69_T", "Y70-79_T", "Y80-89_T", "Y80-120_T", "Y90-120_T", "Y0-120_T"] 
     series_from_db = df__['age_sex'].drop_duplicates().sort_values()
     series_names = list( series_name_new) + list(series_from_db)
     series_to_show = st.sidebar.multiselect("Series to show", series_names,["TOTAL_T"])# series_names)  
@@ -397,6 +456,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
         df_ = df__.pivot_table(index=["periodenr", "jaar", "maand"], columns='age_sex', values='OBS_VALUE',  aggfunc='sum',).reset_index()
         
     df_["Y0-49_T"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]
+    df_["Y0-64_T"] = df_["Y_LT5_T"] + df_["Y5-9_T"] + df_["Y10-14_T"]+ df_["Y15-19_T"]+ df_["Y20-24_T"] +  df_["Y25-29_T"]+ df_["Y30-34_T"]+ df_["Y35-39_T"]+ df_["Y40-44_T"] + df_["Y45-49_T"]+ df_["Y50-54_T"]+ df_["Y55-59_T"] + df_["Y60-64_T"]
 
     df_["Y50-64_T"] = df_["Y50-54_T"]+ df_["Y55-59_T"] + df_["Y60-64_T"]
     df_["Y65-79_T"] =+ df_["Y65-69_T"]+ df_["Y70-74_T"] + df_["Y75-79_T"]
@@ -413,7 +473,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
 
     for col, series_name in enumerate(series_to_show):
         print (f"---{series_name}----")
-        
+        st.subheader(series_name)
         df_data = get_data_for_series_wrapper(df_, series_name, vanaf_jaar, period).copy(deep=True)
         if period == "week":
             df_data["week"] = (df_["periodenr"].str[5:]).astype(int)
@@ -421,7 +481,7 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
             df_data["maand"] = (df_["periodenr"].str[5:]).astype(int)
         
         df, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
-        st.subheader(series_name)
+        
         
         if how =="quantiles":
             oversterfte = int(df_corona[series_name].sum() - df_quantile["avg"].sum())
@@ -431,19 +491,18 @@ def plot( how,period, yaxis_to_zero, rightax, mergetype, show_scatter, vanaf_jaa
             for what_to_sma in columnlist:
                 df_quantile[what_to_sma] = df_quantile[what_to_sma].rolling(window=wdw, center=sma_center).mean()
 
-                 
+      
             
-            df_quantile["periodenr"] #["jaar"].astype(str) +"_"+ df_quantile["period_"].astype(str).str.zfill(2)
+            #df_quantile["periodenr"] #["jaar"].astype(str) +"_"+ df_quantile["period_"].astype(str).str.zfill(2)
             df_quantile = df_quantile.sort_values(by=['jaar','periodenr'])
             
-
+            
            
             make_plot_eurostats(period, yaxis_to_zero, sma, series_name, df_corona, df_quantile)
 
         elif (how == "year_minus_avg") or (how == "over_onder_sterfte") or (how == "meer_minder_sterfte") or (how == "p_score"):
             plot_graph_oversterfte_eurostats(how, df_quantile, df_corona, df_boosters, df_herhaalprik, series_name, rightax, mergetype, show_scatter,wdw)
            
-
         else:
             #fig = plt.figure()
             
@@ -591,7 +650,7 @@ def make_plot_eurostats(period, yaxis_to_zero, sma, series_name, df_corona, df_q
 
 def footer(vanaf_jaar):
 
-    st.write("Voor de correctiefactor voor 2020, 2021 en 2022 is uitgegaan van de factor over de gehele populatie. *")
+    #st.write("Voor de correctiefactor voor 2020, tot en met  is uitgegaan van de factor over de gehele populatie. *")
     st.write(f"Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van {vanaf_jaar} t/m 2019, er wordt een lopend gemiddelde berekend per 2 maand")
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")
     #st.write("Enkele andere gedeeltelijke weken zijn samengevoegd conform het CBS bestand")

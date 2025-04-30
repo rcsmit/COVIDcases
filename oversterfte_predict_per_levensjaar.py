@@ -314,7 +314,12 @@ def main():
     st.write(oversterfte_tabel)
     st.write(f"Totale oversterfte : {oversterfte_tabel['Totaal'].sum()}")
 
+    # st.write(eindresultaat)
+    # print(eindresultaat.dtypes)
 
+    # voorspelde_sterfte_per_jaar = eindresultaat.groupby("jaar")["voorspelde_sterfte "].sum().reset_index()
+    
+    # eindresultaat.loc[:, "sin"] = np.sin(2 * np.pi * df["boekweek"] / 52)
 if __name__ == "__main__":
     import os
     import datetime

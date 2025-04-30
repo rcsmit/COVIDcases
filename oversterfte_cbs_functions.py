@@ -2,6 +2,71 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 from datetime import datetime
+from scipy.optimize import curve_fit
+
+def voorspel_overlijdens(df, serienaam, startjaar=2015, eindjaar=2019, voorspeljaren=[2020, 2021, 2022, 2023, 2024,2025], model_type="linear"):
+    """Predict mortality  using the specified regression model.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing mortality data.
+        startjaar (int, optional): Start year for regression. Defaults to 2000.
+        eindjaar (int, optional): End year for regression. Defaults to 2019.
+        voorspeljaren (list, optional): Years to predict. Defaults to [2020, 2021, 2022, 2023].
+        model_type (str, optional): Regression model type ("linear" or "quadratic"). Defaults to "linear".
+
+    Returns:
+        pd.DataFrame: DataFrame with predicted mortality rates.
+    """
+    
+    models = {
+        "linear": {
+            "func": lambda x, a, b: a * x + b,
+            "p0": [1, 1],
+            "equation": "a*x + b",
+            "params": ["a", "b"]
+        },
+        "quadratic": {
+            "func": lambda x, a, b, c: a * x**2 + b * x + c,
+            "p0": [1, 1, 1],
+            "equation": "a*x^2 + b*x + c",
+            "params": ["a", "b", "c"]
+        }
+    }
+    
+    
+
+    # Select the model
+    model = models[model_type]
+    func = model["func"]
+    p0 = model["p0"]
+    
+    df_jaar = df.groupby(["jaar"])[serienaam].sum().reset_index()
+
+    noemer = df_jaar[df_jaar["jaar"].between(2015, 2019)][serienaam].mean()
+
+    voorspelde_overlijdens = []
+        # Filter data for regression
+    data = df_jaar[(df_jaar["jaar"] >= startjaar) & (df_jaar["jaar"] <= eindjaar)]
+    # if len(data) < len(p0):  # Ensure enough data points for the model
+    #     continue  # Skip if there is insufficient data
+
+    # Fit the selected regression model
+    try:
+        popt, _ = curve_fit(func, data["jaar"], data[serienaam], p0=p0)
+        params = dict(zip(model["params"], popt))
+
+        # Predict mortality rates for the prediction years
+        for jaar in voorspeljaren:
+            voorspelde_overlijdens_ = func(jaar, *popt)
+            voorspelde_overlijdens.append({"jaar":jaar, "prediction":voorspelde_overlijdens_})
+        
+    except RuntimeError:
+        pass
+        # # Skip if the curve fitting fails
+        # continue
+    
+
+    return voorspelde_overlijdens,params, noemer
 
 
 def get_data_for_series_wrapper(df_, seriename, vanaf_jaar):
@@ -11,14 +76,21 @@ def get_data_for_series_wrapper(df_, seriename, vanaf_jaar):
     df = df[(df["jaar"] > vanaf_jaar)]
     df = df.sort_values(by=["jaar", "week"]).reset_index()
 
+
+
     # Voor 2020 is de verwachte sterfte 153 402 en voor 2021 is deze 154 887.
     # serienames = ["totaal_m_v_0_999","totaal_m_0_999","totaal_v_0_999","totaal_m_v_0_65","totaal_m_0_65","totaal_v_0_65","totaal_m_v_65_80","totaal_m_65_80","totaal_v_65_80","totaal_m_v_80_999","totaal_m_80_999","totaal_v_80_999"]
     # som_2015_2019 = 0
     df = get_data_for_series(df, seriename, vanaf_jaar)
     return df
 def get_data_for_series(df, seriename, vanaf_jaar):
+    voorspelde_overlijdens,params, noemer = voorspel_overlijdens(df, seriename, startjaar=2000, eindjaar=2019, voorspeljaren=[2020, 2021, 2022, 2023, 2024,2025], model_type="linear")
+    with st.expander("Average and expected", expanded=False):
+        df_voorsp = pd.DataFrame(voorspelde_overlijdens)
+        st.write(f"Average deaths 2015-2019 : {noemer}")
+        st.write("Expected deaths (extrapolation from lin. regression 2015-2019)")
+        st.write(df_voorsp)
 
-    noemer = 149832 # average deaths per year 2015-2019
     for y in range(2015, 2020):
         df_year = df[(df["jaar"] == y)]
         # som = df_year["m_v_0_999"].sum()
@@ -129,8 +201,8 @@ def get_data_for_series(df, seriename, vanaf_jaar):
                 2029:17894/ noemer,
                 2030:17579/ noemer
             }
-        else:
-                    
+        elif (seriename =="m_v_0_999") or (seriename=="TOTAL_T"):
+            noemer = 149832 # average deaths per year 2015-2019     
             factors = {
                 2014: 1,
                 2015: 1,
@@ -160,6 +232,25 @@ def get_data_for_series(df, seriename, vanaf_jaar):
             # 2022	17,6	0,7
             # 2023	17,8	1,3
             # 2024	17,9	0,7
+        else:
+            factors = {
+                2014: 1,
+                2015: 1,
+                2016: 1,
+                2017: 1,
+                2018: 1,
+                2019: 1,
+                2020: voorspelde_overlijdens[0]["prediction"] / noemer,
+                2021: voorspelde_overlijdens[1]["prediction"] / noemer,
+                2022: voorspelde_overlijdens[2]["prediction"] / noemer,
+                2023: voorspelde_overlijdens[3]["prediction"] / noemer,  # or 169333 / som if you decide to use the updated factor
+                2024: voorspelde_overlijdens[4]["prediction"] / noemer,
+                2025: voorspelde_overlijdens[5]["prediction"]/ noemer,
+                # 2026: (((156666/155494)**2) * 157846)/ noemer,
+                # 2027: (((156666/155494)**3) * 157846)/ noemer,
+                # 2028: (((156666/155494)**4) * 157846)/ noemer,
+                # 2029: (((156666/155494)**5) * 157846)/ noemer,
+            }
     # avg_overledenen_2015_2019 = (som_2015_2019/5)
     # st.write(avg_overledenen_2015_2019)
     # Loop through the years 2014 to 2024 and apply the factors
