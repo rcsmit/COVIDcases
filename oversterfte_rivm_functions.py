@@ -248,7 +248,7 @@ def verwachte_sterfte_rivm(df, series_naam):
   
     df_compleet = pd.DataFrame()
     df_compleet_pivot = pd.DataFrame()
-    for y in [2019, 2020, 2021, 2022, 2023,2024,2025]:
+    for y in [2019, 2020, 2021, 2022, 2023,2024,2025,2026]:
         # we filteren 5 jaar voor jaar y (y=2020: 2015 t/m 2020 )
         recent_years = y - 5
         df_ = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] <= y)]
