@@ -248,7 +248,7 @@ def verwachte_sterfte_rivm(df, series_naam):
   
     df_compleet = pd.DataFrame()
     df_compleet_pivot = pd.DataFrame()
-    for y in [2019, 2020, 2021, 2022, 2023,2024,2025,2026]:
+    for y in [2019, 2020, 2021, 2022, 2023,2024,2025,2026,2027]:
         # we filteren 5 jaar voor jaar y (y=2020: 2015 t/m 2020 )
         recent_years = y - 5
         df_ = df[(df["boekjaar"] >= recent_years) & (df["boekjaar"] <= y)]
@@ -268,5 +268,7 @@ def verwachte_sterfte_rivm(df, series_naam):
         df_compleet = pd.concat([df_compleet, df_do_lin_regression_rivm])
         df_compleet_pivot = pd.concat([df_compleet_pivot, pivot_df])
     #plot_filtered_values(df_compleet_pivot, series_naam)
-  
+    # st.write("271")
+    # st.write(df_compleet)
+    # st.write(df_compleet_pivot)
     return df_compleet, df_compleet_pivot

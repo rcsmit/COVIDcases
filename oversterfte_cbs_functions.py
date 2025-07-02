@@ -246,6 +246,7 @@ def get_data_for_series(df, seriename, vanaf_jaar):
                 2023: voorspelde_overlijdens[3]["prediction"] / noemer,  # or 169333 / som if you decide to use the updated factor
                 2024: voorspelde_overlijdens[4]["prediction"] / noemer,
                 2025: voorspelde_overlijdens[5]["prediction"]/ noemer,
+                2026: voorspelde_overlijdens[6]["prediction"]/ noemer,
                 # 2026: (((156666/155494)**2) * 157846)/ noemer,
                 # 2027: (((156666/155494)**3) * 157846)/ noemer,
                 # 2028: (((156666/155494)**4) * 157846)/ noemer,
@@ -254,7 +255,7 @@ def get_data_for_series(df, seriename, vanaf_jaar):
     # avg_overledenen_2015_2019 = (som_2015_2019/5)
     # st.write(avg_overledenen_2015_2019)
     # Loop through the years 2014 to 2024 and apply the factors
-    for year in range(2014, datetime.now().year+1):
+    for year in range(2014, datetime.now().year+2):
         new_column_name = f"{seriename}_factor_{year}"
         factor = factors[year]
         # factor=1
@@ -351,6 +352,82 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
         return df
 
    
+    
+    def extend_dataframe_to_future(df_, seriename):
+        """
+        Extends a DataFrame with time series data to include future dates up to 2026 week 52.
+        
+        Parameters:
+        -----------
+        df_ : pandas.DataFrame
+            Original DataFrame with 'jaar', 'periodenr', 'week' and series data columns
+        seriename : str
+            Name of the series column to extend
+            
+        Returns:
+        --------
+        pandas.DataFrame
+            Extended DataFrame with future dates added
+        """
+        import pandas as pd
+        import numpy as np
+        
+        # Create a clean copy with only the columns we need
+        df = df_[["jaar", "periodenr", "week", seriename]].copy()
+        
+        # Sort the dataframe by year and period
+        df = df.sort_values(by=["jaar", "periodenr"])
+        
+        # Get existing year-week combinations
+        existing = set(zip(df['jaar'], df['week']))
+        
+        # Define future period parameters
+        target_year = 2026
+        target_week = 52
+        
+        # Create future records
+        future_records = []
+        
+        for year in range(2025, target_year + 1):
+            max_week = 52 if year < target_year else target_week
+            
+            for week in range(1, max_week + 1):
+                if (year, week) not in existing:
+                    future_records.append({
+                        'jaar': year,
+                        'week': week,
+                        'periodenr': f"{year}_{week:02d}",
+                        seriename: np.nan
+                    })
+        
+        # Only create a new DataFrame if we have future records to add
+        if future_records:
+            # Create future DataFrame
+            df_future = pd.DataFrame(future_records)
+            
+            # Ensure consistent dtypes between original and future DataFrames
+            dtypes = {
+                'jaar': 'int32',
+                'periodenr': 'object',
+                'week': 'int32',
+                seriename: 'float64'
+            }
+            
+            df = df.astype(dtypes)
+            df_future = df_future.astype(dtypes)
+            
+            # Concatenate the DataFrames
+            df_extended = pd.concat([df, df_future], ignore_index=True)
+            
+            # Sort the extended DataFrame
+            df_extended = df_extended.sort_values(by=["jaar", "week"]).reset_index(drop=True)
+            
+            return df_extended
+        else:
+            # If no future records needed, just return the original (sorted)
+            return df.reset_index(drop=True)
+
+    
     # Filter rows where Geslacht is 'Totaal mannen en vrouwen' and LeeftijdOp31December is 'Totaal leeftijd'
     # data_ruw = data_ruw[(data_ruw['Geslacht'] == 'Totaal mannen en vrouwen') & (data_ruw['LeeftijdOp31December'] == 'Totaal leeftijd')]
    
@@ -412,11 +489,15 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
 
     df = df_[["jaar", "periodenr", "week", seriename]].copy(deep=True)
 
-    df = df.sort_values(by=["jaar", "periodenr"]).reset_index()
+    df = df.sort_values(by=["jaar", "periodenr"]) #.reset_index()
 
-    df = get_data_for_series_wrapper(df, seriename, vanaf_jaar)
+
+    df_extended = extend_dataframe_to_future(df, seriename)
+  
+
+    df_x = get_data_for_series_wrapper(df_extended, seriename, vanaf_jaar)
     
-    return df
+    return df_x
 
 def make_row_df_quantile(series_name, year, df_to_use, w_, period):
     """DONE

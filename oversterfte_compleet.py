@@ -710,7 +710,9 @@ def calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte):
      
     print(f"---{series_name}----")
     df_data = get_data_for_series_wrapper(df_sterfte, series_name, vanaf_jaar).copy(deep=True)
+    # st.write("df 713")
     
+    # st.write(df_data)
     _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
     df_rivm, df_compleet_pivot_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)
     df_merged = make_df_merged(df_data, df_rivm, series_name, period)

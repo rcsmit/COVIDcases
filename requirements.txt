@@ -1,5 +1,5 @@
 streamlit
-scipy
+scipy==1.15.3
 matplotlib
 numpy
 pandas
