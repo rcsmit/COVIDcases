@@ -1075,7 +1075,7 @@ def main() -> None:
     columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
     if what_to_do == "selection":
         #age_groups_selected = [st.sidebar.selectbox("age group", age_groups,age_groups_def)]
-        age_groups_selected = st.sidebar.multiselect("age group", age_groups) #,age_groups_def)
+        age_groups_selected = st.sidebar.multiselect("age group", age_groups, ["Y0-120"]) #,age_groups_def)
         start_years = [st.sidebar.number_input("Fitting from year",1950,2019,2010)]
         verbose=True
         secondary_choice_ = st.sidebar.multiselect(
