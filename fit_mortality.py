@@ -1074,7 +1074,8 @@ def main() -> None:
                         ]
     columns = st.sidebar.selectbox("Column hierarchie", possible_columns,0)
     if what_to_do == "selection":
-        age_groups_selected = [st.sidebar.selectbox("age group", age_groups,age_groups_def)]
+        #age_groups_selected = [st.sidebar.selectbox("age group", age_groups,age_groups_def)]
+        age_groups_selected = st.sidebar.multiselect("age group", age_groups) #,age_groups_def)
         start_years = [st.sidebar.number_input("Fitting from year",1950,2019,2010)]
         verbose=True
         secondary_choice_ = st.sidebar.multiselect(
@@ -1096,30 +1097,34 @@ def main() -> None:
     show_confidence_intervals = st.sidebar.checkbox("Show confidence intervals", value=False)
     
     if ("OBS_VALUE" in what_to_plot) or ("per100k" in what_to_plot):
-        scaled = st.sidebar.checkbox("Show relative values", [False, True],0)    
+        scaled = st.sidebar.checkbox("Show relative values",  value=False)    
     else:
         scaled = False
     #df_results = calculate_results(df,age_groups_selected, start_years, sexe, verbose, secondary_choice)
-    if age_groups_selected[0] == "ALLE LEEFTIJDEN IN EEN LOOP":
-        
-        for age_groups_selected_x in age_groups_:
-            st.subheader(age_groups_selected_x)
-            df_results = calculate_results(df, age_groups_selected_x, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot, scaled)
-   
-    else:
-        
-        for age_groups_selected_x in age_groups_selected:
-            st.subheader(age_groups_selected_x)
-            age_groups_selected_y = [age_groups_selected_x]
+    if len(age_groups_selected)>0 :
+        if age_groups_selected[0] == "ALLE LEEFTIJDEN IN EEN LOOP":
             
-            df_results = calculate_results(df, age_groups_selected_y, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot, scaled)
-            df_results.to_csv(f"data_{age_groups_selected_x}.csv")
-     # Pivot the DataFrame to create a multi-level column structure
-    df_pivot = df_results.pivot_table(
-        index='age_group',
-        columns=columns,
-        values='excess_mortality'
-    )
+            for age_groups_selected_x in age_groups_:
+                st.subheader(age_groups_selected_x)
+                df_results = calculate_results(df, age_groups_selected_x, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot, scaled)
+    
+        else:
+            
+            for age_groups_selected_x in age_groups_selected:
+                st.subheader(age_groups_selected_x)
+                age_groups_selected_y = [age_groups_selected_x]
+                
+                df_results = calculate_results(df, age_groups_selected_y, start_years, sexe, verbose, secondary_choice_, show_confidence_intervals,doodsoorzaak_keuze,what_to_plot, scaled)
+                df_results.to_csv(f"data_{age_groups_selected_x}.csv")
+        # Pivot the DataFrame to create a multi-level column structure
+        df_pivot = df_results.pivot_table(
+            index='age_group',
+            columns=columns,
+            values='excess_mortality'
+        )
+    else:
+        st.error("Select agegroup(s) to continue.")
+        st.stop()
 
     # # Flatten the multi-level columns for easier display
     # df_pivot.columns = [f"{year} | {model} | {field}" for year, model, field in df_pivot.columns]
