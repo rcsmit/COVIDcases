@@ -17,6 +17,7 @@ def get_all_data():
     df_rioolwater = get_rioolwater_simpel()  
     print ("Loading cbs data")
     cbs_data_ruw = pd.DataFrame(cbsodata.get_data("70895ned"))
+    # st.write(cbs_data_ruw)
     return df_boosters, df_herhaalprik, df_herfstprik, df_rioolwater, df_kobak, cbs_data_ruw
 
 

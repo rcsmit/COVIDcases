@@ -509,6 +509,7 @@ def main():
 
     df_oversterfte["age_sex"] = df_oversterfte["age_sex"].replace("Y0-120_T", "TOTAL_T")
     pd.set_option('future.no_silent_downcasting', True)
+    df_rioolwater["jaar"] = df_rioolwater["jaar"].astype(int)
     df_merged = (
         pd.merge(df, df_rioolwater,  on=["jaar", "week"], how="left")
         .merge(df_ziekenhuis_ic, on=["jaar", "week"], how="left")

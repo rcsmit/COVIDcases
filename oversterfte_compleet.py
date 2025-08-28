@@ -197,6 +197,7 @@ def display_results(df_merged_jaar, year):
     _df_grouped_transposed = df_grouped.transpose().astype(int)
 
     if year == "All":
+        st.write("df200 _df_grouped_transposed")
         st.write(_df_grouped_transposed)
     else:
         new_data = {
@@ -673,6 +674,8 @@ def main():
     if how == "quantiles":
         if series_name == "m_v_0_999":
             plot_filtered_values_rivm(df_compleet_pivot_rivm, series_name)
+            # st.write("df676")
+            # st.write(df_compleet_pivot_rivm)
             plot_graph_rivm(df_rivm,df_compleet_pivot_rivm,  series_name, False)
             #df_merged.to_csv(r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\oversterfte_mrt2025.csv")
             comparison(df_merged, series_name, smooth)
@@ -710,8 +713,8 @@ def calculate_dataframes(series_name, vanaf_jaar, period, how, df_sterfte):
      
     print(f"---{series_name}----")
     df_data = get_data_for_series_wrapper(df_sterfte, series_name, vanaf_jaar).copy(deep=True)
+
     # st.write("df 713")
-    
     # st.write(df_data)
     _, df_corona, df_quantile = make_df_quantile(series_name, df_data, period)
     df_rivm, df_compleet_pivot_rivm = verwachte_sterfte_rivm(df_sterfte, series_name)

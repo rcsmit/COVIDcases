@@ -48,10 +48,11 @@ def filter_rivm(df, series_name, y):
     de gefilterde waardes
     """
     # Selecteer de gegevens van de afgelopen vijf jaar
-    df = df[(df["boekjaar"] >= y-5) & (df["boekjaar"] < y)]
+    df_ = df[(df["boekjaar"] >= y-5) & (df["boekjaar"] < y)]
 
     # Bereken de drempelwaarde voor de 25% hoogste sterftecijfers van de afgelopen vijf jaar
-    threshold_25 = df[series_name].quantile(0.75)
+    threshold_25 = df_[series_name].quantile(0.75)
+    #threshold_25 = df_[series_name].quantile(1)
 
     # Filter de data voor juli en augustus (weken 27-35) per jaar
     summer_thresholds = df[df["week"].between(27, 35)].groupby("boekjaar")[series_name].quantile(0.80)
@@ -72,7 +73,8 @@ def filter_rivm(df, series_name, y):
         # Create mask for threshold_25 condition
         mask_threshold = ((df["jaar"] >= y-5) & (df[series_name] > threshold_25))
         df_filtered_out_threshold = df[mask_threshold].copy()
-
+        # st.write("df76")
+        # st.write(df_filtered_out_threshold)
         # Create empty DataFrame for summer threshold filtered rows
         df_filtered_out_summer = pd.DataFrame()
 
@@ -83,6 +85,10 @@ def filter_rivm(df, series_name, y):
 
         # Combine all filtered out rows
         df_filtered_out = pd.concat([df_filtered_out_threshold, df_filtered_out_summer])
+        # if y==2025:
+        #     st.write("df 88df_filtered_out")
+
+        #     st.write(df_filtered_out)
 
         # Apply filters to main DataFrame
         df = df[~mask_threshold]
@@ -113,23 +119,23 @@ def create_pivot_df(df_filtered, df_filtered_out, series_name):
   
     # Create display labels with zero-padded week numbers
     df_filtered['date'] = df_filtered.apply(
-        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+        lambda row: f"{int(row['jaar'])}_{row['week']:02d}", axis=1
     )
     df_filtered_out['date'] = df_filtered_out.apply(
-        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+        lambda row: f"{int(row['jaar'])}_{row['week']:02d}", axis=1
     )
     df_filtered['periodenr'] = df_filtered.apply(
-        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+        lambda row: f"{int(row['jaar'])}_{row['week']:02d}", axis=1
     )
     df_filtered_out['periodenr'] = df_filtered_out.apply(
-        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+        lambda row: f"{int(row['jaar'])}_{row['week']:02d}", axis=1
     )
       # Create display labels with zero-padded week numbers
     df_filtered['label'] = df_filtered.apply(
-        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+        lambda row: f"{int(row['jaar'])}_{row['week']:02d}", axis=1
     )
     df_filtered_out['label'] = df_filtered_out.apply(
-        lambda row: f"{int(row['boekjaar'])}_{row['week']:02d}", axis=1
+        lambda row: f"{int(row['jaar'])}_{row['week']:02d}", axis=1
     )
      
     # Combine into one dataframe
@@ -243,9 +249,25 @@ def verwachte_sterfte_rivm(df, series_naam):
     # adding week 52, because its not in the data
     # based on the rivm-data, we assume that the numbers are quit the same
 
-    df["boekjaar"] = df["jaar"].shift(26)
-    df["boekweek"] = df["week"].shift(26)
-  
+    # df["boekjaar"] = df["jaar"].shift(26)
+    # df["boekweek"] = df["week"].shift(26)
+   
+
+    
+    df = df.copy()
+
+    # maak ISO-maandagdatum per jaar/week
+    df["iso_date_mon"] = df.apply(
+        lambda r: pd.Timestamp.fromisocalendar(int(r["jaar"]), int(r["week"]), 1), axis=1
+    )
+
+    # schuif 26 weken vooruit
+    shifted = df["iso_date_mon"] - pd.to_timedelta(26, "W")
+    iso = shifted.dt.isocalendar()
+
+    df["boekjaar"] = iso.year.astype(int)
+    df["boekweek"] = iso.week.astype(int)
+    df.drop(columns=["iso_date_mon"], inplace=True)
     df_compleet = pd.DataFrame()
     df_compleet_pivot = pd.DataFrame()
     for y in [2019, 2020, 2021, 2022, 2023,2024,2025,2026,2027]:
@@ -257,7 +279,15 @@ def verwachte_sterfte_rivm(df, series_naam):
         df_volledig = df_[
             ["periodenr", "jaar", "week", "boekjaar", "boekweek", series_naam]
         ]
+        # if y == 2026:
+        #     st.write("df277 alles ok")
+        #     st.write(df_volledig)
         df_filtered, pivot_df = filter_rivm(df_, series_naam, y)
+        # if y == 2026:
+        #     st.write("df281 not ok")
+        #     st.write(df_filtered)
+
+        #     st.write(pivot_df)        
 
         df_do_lin_regression_rivm = do_lin_regression_rivm(
             df_filtered, df_volledig, series_naam, y
@@ -265,6 +295,9 @@ def verwachte_sterfte_rivm(df, series_naam):
         df_do_lin_regression_rivm = df_do_lin_regression_rivm[
             (df_do_lin_regression_rivm["boekjaar_y"] == y)
         ]
+        # if y==2025:
+        #     st.write("df_do_lin_regression_rivm 2025")
+        #     st.write(df_do_lin_regression_rivm)
         df_compleet = pd.concat([df_compleet, df_do_lin_regression_rivm])
         df_compleet_pivot = pd.concat([df_compleet_pivot, pivot_df])
     #plot_filtered_values(df_compleet_pivot, series_naam)

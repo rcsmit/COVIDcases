@@ -73,7 +73,7 @@ def get_data_for_series_wrapper(df_, seriename, vanaf_jaar):
 
     df = df_[["jaar", "week", "periodenr", seriename]].copy(deep=True)
 
-    df = df[(df["jaar"] > vanaf_jaar)]
+    df = df[(df["jaar"] >= vanaf_jaar)]
     df = df.sort_values(by=["jaar", "week"]).reset_index()
 
 
@@ -382,7 +382,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
         existing = set(zip(df['jaar'], df['week']))
         
         # Define future period parameters
-        target_year = 2026
+        target_year = 2027
         target_week = 52
         
         # Create future records
@@ -446,7 +446,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     data_ruw["week_number"] = data_ruw["week"].str.extract(r"week (\d+)")
 
     data_ruw["jaar"] = data_ruw["jaar"].astype(int)
-    data_ruw = data_ruw[(data_ruw["jaar"] > 2013)]
+    data_ruw = data_ruw[(data_ruw["jaar"] >= 2000)]
     data_ruw = manipulate_data_df(data_ruw)
     data_ruw = data_ruw[data_ruw["categorie"] == seriename]
     data_ruw[["year", "week", "days"]] = data_ruw["Perioden"].apply(
@@ -485,7 +485,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     df_ = df_.replace("2019_1", "2019_01")
     df_ = df_.replace("2025_1", "2025_01")
     #df_ = df_[~df_["week"].isin([0, 53])]
-    df_ = df_[(df_["jaar"] > 2014)]
+    df_ = df_[(df_["jaar"] > vanaf_jaar-1)]
 
     df = df_[["jaar", "periodenr", "week", seriename]].copy(deep=True)
 

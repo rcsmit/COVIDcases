@@ -819,7 +819,7 @@ def layout_annotations_fig(fig):
 def plot_filtered_values_rivm(pivot_df, series_name):
     """Plot the filtered and filtered out values for a given series 
     """
-
+   
     # Create figure
     fig = go.Figure()
     
