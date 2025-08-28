@@ -87,8 +87,8 @@ def main():
             ["[57] Sterfte/rioolw./vaccins","correlatie_sterfte_rioolwater_vaccins"],
             ["[58] SIR model agent based","SIR_agent_based_vector"],
             ["[59] Rioolwater vs covidsterfte","rioolwaarde_vs_covidsterfte"],
-            ["[60] oversterfte predict per levensjaar","oversterfte_predict_per_levensjaar"]
-            ["[61] RIVM model","rivm_model"]
+            ["[60] oversterfte predict per levensjaar","oversterfte_predict_per_levensjaar"],
+            ["[61] RIVM model","rivm_model"],
             ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..
