@@ -281,7 +281,9 @@ def main_chatgpt():
     st.title("Verwachte sterfte • RIVM-stijl baselijn")
     st.caption("5 voorgaande seizoensjaren • trend + sinus/cosinus • pieken uitgesloten")
 
+    st.info("We reproduceren de methode van het RIVM naar aanleiding van https://x.com/infopinie/status/1960744770810073247")
     default_path = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
+    default_path ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_2014_2025.csv"
     uploaded = st.file_uploader("Upload CSV (;-gescheiden) met kolommen: ID;jaar;week;overleden", type=["csv"])
 
     with st.expander("Opties"):
@@ -366,6 +368,7 @@ def main_chatgpt():
     with tab4:
         main_grok()
     
+    st.info("RIVM Grafiek: https://www.rivm.nl/monitoring-sterftecijfers-nederland")
     
 def main_grok():
 
@@ -475,6 +478,7 @@ def main_grok():
     )
     st.plotly_chart(fig)
     st.info("https://grok.com/share/bGVnYWN5LWNvcHk%3D_af78586a-002a-460b-a3a8-1fcf99456ae2")
+
 def main():
     main_chatgpt()
    
