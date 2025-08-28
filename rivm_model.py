@@ -374,8 +374,9 @@ def main_grok():
 
 
     # Path to the CSV file
-    csv_path = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
-
+    # csv_path = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
+    csv_path ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_2014_2025.csv"
+    
     df = pd.read_csv(csv_path, sep=';')
     df = df[['jaar', 'week', 'overleden']]
     df.sort_values(['jaar', 'week'], inplace=True)
