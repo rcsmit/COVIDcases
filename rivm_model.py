@@ -287,7 +287,7 @@ def main_chatgpt():
     uploaded = st.file_uploader("Upload CSV (;-gescheiden) met kolommen: ID;jaar;week;overleden", type=["csv"])
 
     with st.expander("Opties"):
-        use_harm2 = st.checkbox("Gebruik 2 harmonischen", value=False)
+        use_harm2 = st.checkbox("Gebruik 2 harmonischen", value=True)
         show_model = st.checkbox("Toon modeldetails", value=False)
         show_train = st.checkbox("Toon trainingspunten (na uitsluiten)", value=False)
         include_baselines_all = st.checkbox("Toon baselines in 'Alle seizoenen'", value=False)
