@@ -364,6 +364,10 @@ def main_chatgpt():
         # train_filt = train[mask].copy()
         # train_out  = train[~mask].copy()
       
+        df_compleet["upper_delta"] = (df_compleet["upper"] - df_compleet["bovengrens"]) / df_compleet["bovengrens"]*100
+        df_compleet["lower_delta"] = (df_compleet["lower"] -df_compleet["ondergrens"]) / df_compleet["ondergrens"]*100
+        df_compleet["baseline_delta"] = (df_compleet["baseline"] - df_compleet["verwachting"]) /df_compleet["verwachting"]*100
+
         # --- Plot ---
         fig_2 = go.Figure()
 
@@ -376,7 +380,7 @@ def main_chatgpt():
                                 name="Model ondergrens", line=dict(color="red", dash="dot")))
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["upper"],
                                 name="Model bovengrens", line=dict(color="red", dash="dot")))
-
+        
         # RIVM (blue)
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["verwachting"],
                                 name="RIVM verwachting", line=dict(color="blue", dash="dash")))
@@ -413,7 +417,24 @@ def main_chatgpt():
         # ---------- Resultaten ----------
         # df_rivm      -> alle rijen boven elkaar, met kolom 'source'
         # df_rivm_pref -> één tijdreeks met official-voorrang
+        fig_3 = go.Figure()
 
+        
+        fig_3.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["baseline_delta"],
+                                name="baseline (model-rivm)/rivm ", line=dict(dash="dot")))
+        fig_3.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["lower_delta"],
+                                name="lower (model-rivm)/rivm", line=dict(dash="dot")))
+        fig_3.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["upper_delta"],
+                                name="upper (model-rivm)/rivm", line=dict(dash="dot")))
+        fig_3.update_layout(
+            title="Model - RIVM / rivm *100",
+            xaxis_title="Datum",
+            yaxis_title="Verschil (%)",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+
+        st.plotly_chart(fig_3)
     # ---------- UI ----------
     st.title("Verwachte sterfte • RIVM-stijl baselijn")
     st.caption("5 voorgaande seizoensjaren • trend + sinus/cosinus • pieken uitgesloten")
@@ -622,7 +643,7 @@ def uitleg():
     st.info("""### ℹ️ Uitleg: Hoe werkt deze methode?
 
 1. **Tijdreeks maken**  
-   We hebben per week het aantal overlijdens. Dat is een reeks punten \(\(x, y)\).
+   We hebben per week het aantal overlijdens. Dat is een reeks punten [x, y].
 
 2. **Lineaire trend**  
    Omdat de sterfte langzaam verandert (bijvoorbeeld door vergrijzing), voegen we een rechte lijn toe:  
