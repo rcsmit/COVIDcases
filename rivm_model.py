@@ -20,13 +20,16 @@ except:
 def main_chatgpt():
    
     # ---------- Helpers ----------
-    def load_data(uploaded_file=None, fallback_path=None):
-        if uploaded_file is not None:
-            df = pd.read_csv(uploaded_file, sep=";", dtype={"jaar": int, "week": int, "overleden": float})
-        elif fallback_path and os.path.exists(fallback_path):
-            df = pd.read_csv(fallback_path, sep=";", dtype={"jaar": int, "week": int, "overleden": float})
-        else:
-            st.stop()
+    #def load_data(uploaded_file=None, fallback_path=None):
+    def load_data(fallback_path):
+        df = pd.read_csv(fallback_path, sep=";", dtype={"jaar": int, "week": int, "overleden": float})
+        
+        # if uploaded_file is not None:
+        #     df = pd.read_csv(uploaded_file, sep=";", dtype={"jaar": int, "week": int, "overleden": float})
+        # elif fallback_path and os.path.exists(fallback_path):
+        #     df = pd.read_csv(fallback_path, sep=";", dtype={"jaar": int, "week": int, "overleden": float})
+        # else:
+        #     st.stop()
 
         cols = {c.lower(): c for c in df.columns}
         for must in ["jaar", "week", "overleden"]:
@@ -426,7 +429,8 @@ def main_chatgpt():
         show_train = st.checkbox("Toon trainingspunten (na uitsluiten)", value=False)
         include_baselines_all = st.checkbox("Toon baselines in 'Alle seizoenen'", value=False)
 
-    df = load_data(uploaded_file=uploaded, fallback_path=default_path)
+    #df = load_data(uploaded_file=uploaded, fallback_path=default_path)
+    df = load_data(default_path)
 
     min_season_available = int(df["season_year"].min() + 5)
     max_season_available = int(df["season_year"].max())
