@@ -479,9 +479,64 @@ def main_grok():
     )
     st.plotly_chart(fig)
     st.info("https://grok.com/share/bGVnYWN5LWNvcHk%3D_af78586a-002a-460b-a3a8-1fcf99456ae2")
+def uitleg():
+    st.info("""### ℹ️ Uitleg: Hoe werkt deze methode?
 
+1. **Tijdreeks maken**  
+   We hebben per week het aantal overlijdens. Dat is een reeks punten \((x, y)\).
+
+2. **Lineaire trend**  
+   Omdat de sterfte langzaam verandert (bijvoorbeeld door vergrijzing), voegen we een rechte lijn toe:  
+    (zie formule hieronder)
+
+3. **Seizoenseffect**  
+   In de winter is sterfte hoger dan in de zomer. Dat lijkt op een golf.  
+   Daarom voegen we sinus en cosinus toe:  
+    (zie formule hieronder)
+
+4. **Uitschieters weglaten**  
+   - Hoogste 25% weken worden niet meegeteld  
+   - In juli en augustus tellen de hoogste 20% weken niet mee  
+   → Zo trekken hittegolven en epidemieën de lijn niet omhoog.
+
+5. **OLS-regressie (Ordinary Least Squares)**  
+   De computer berekent de lijn en golfjes die gemiddeld het dichtst bij de echte data ligt.
+
+6. **Baseline en onzekerheidsband**  
+   - De **baseline** is de verwachte sterfte zonder pieken.  
+   - De **onzekerheidsband** is:  
+    (zie formule hieronder)  
+     (≈95% van de weken valt hierin).
+
+7. **Interpretatie**  
+   - Als de echte sterfte **binnen de band** ligt → normale sterfte.  
+   - Als de sterfte **boven de band** ligt → verhoogde sterfte.  
+
+🔎 **Kortom:** we combineren een **trend**, een **seizoensgolf**, en sluiten **extreme pieken** uit. Zo krijgen we een realistisch beeld van de verwachte sterfte.
+""")
+    st.markdown("### Formules")
+    st.markdown("**ad. 2) Lineaire trend**")
+    st.latex(r"y = a + b\,t")
+    st.markdown("**ad. 3) Seizoenseffect**")
+    st.latex(r"y = a + b\,t + c\,\sin\!\left(\tfrac{2\pi t}{52}\right) + d\,\cos\!\left(\tfrac{2\pi t}{52}\right)")
+    st.markdown("**ad. 6) Band**")
+    st.latex(r"\text{band} = \text{baseline} \pm 2\,\text{sd}")
+
+    st.info("""### Waarom is de baseline (en de banden) voor 2025/2026 lager terwijl de sterfte steeds hoger wordt?
+**Training window verandert**
+
+Voor 2024/2025 worden de seizoensjaren 2019/2020 – 2023/2024 gebruikt.
+
+Voor 2025/2026 wordt 2020/2021 – 2024/2025 gebruikt.
+→ Het voorjaar van 2020 valt dus weg, en het relatief lage 2025 komt erbij.
+
+**Exclusie van pieken**
+
+Hoge waarden (25% hoogste weken, plus 20% hoogste in juli/augustus) worden verwijderd.
+
+Daardoor blijven lagere weken uit 2022–2025 relatief zwaarder wegen.""")
 def main():
     main_chatgpt()
-   
+    uitleg()
 if __name__ == "__main__":
     main()
