@@ -212,7 +212,7 @@ def main_chatgpt():
         # Doelvenster: half 2019 t/m half 2026
         start_date = pd.Timestamp("2019-07-01")
         end_date = pd.Timestamp("2026-06-30")
-
+        tdf_complete = pd.DataFrame()
         for sy in seasons:
             try:
                 res = fit_baseline(df, sy, harmonics=harmonics)
@@ -226,6 +226,9 @@ def main_chatgpt():
 
             # Banden per seizoen
             if show_bands:
+                tdf_complete = pd.concat([tdf_complete, tdf])
+
+                
                 fig.add_trace(go.Scatter(
                     x=tdf["date"], y=tdf["upper"],
                     name=f"{sy} band boven",
@@ -276,7 +279,138 @@ def main_chatgpt():
             margin=dict(l=10, r=10, t=60, b=10)
         )
         fig.update_xaxes(range=[start_date, end_date])
-        return fig
+        # st.write(tdf_complete)
+      
+      
+        return fig,tdf_complete
+
+    def vergelijking(tdf_complete):
+          # ---------- Instellingen ----------
+        # PATH_OFFICIAL = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rivm_official_290825.csv"
+        # PATH_STERFTE  = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rivm_sterfte.csv"
+        
+        PATH_OFFICIAL = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rivm_official_290825.csv"
+        PATH_STERFTE  = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rivm_sterfte.csv"
+        
+     
+        CUTOFF_DATE   = "2023-07-03"  # rivm_sterfte tot en met deze datum
+
+        # ---------- Inlezen ----------
+        df_off = pd.read_csv(PATH_OFFICIAL, sep=";", parse_dates=["date"])
+        df_st  = pd.read_csv(PATH_STERFTE,  sep=";", parse_dates=["datum"])
+
+        # ---------- Filter sterfte tot cutoff ----------
+        df_st = df_st[df_st["datum"] <= pd.to_datetime(CUTOFF_DATE)].copy()
+
+        # ---------- Harmoniseer kolommen ----------
+        # Official
+        df_off = df_off.rename(columns={
+            "aantal_overlijdens": "aantal",
+            "ondergrens_verwachting": "ondergrens",
+            "verwachting": "verwachting",
+            "bovengrens_verwachting": "bovengrens"
+        })
+        df_off["source"] = "official"
+        df_off = df_off[["date", "aantal", "ondergrens", "verwachting", "bovengrens", "source"]]
+
+        # Sterfte
+        df_st = df_st.rename(columns={
+            "datum": "date",
+            "aantal_overlijdens": "aantal",
+            "ondergrens_verwachting_rivm": "ondergrens",
+            "verw_waarde_rivm": "verwachting",
+            "bovengrens_verwachting_rivm": "bovengrens"
+        })
+        df_st["source"] = "sterfte"
+        df_st = df_st[["date", "aantal", "ondergrens", "verwachting", "bovengrens", "source"]]
+
+        # ---------- Concat tot één dataframe ----------
+        df_rivm = pd.concat([df_off, df_st], ignore_index=True).sort_values("date").reset_index(drop=True)
+   
+      
+        # ---------- Voorkeursreeks maken ----------
+        # --- Merge ---
+        df_compleet = (
+            tdf_complete
+            .merge(df_rivm, on="date", how="outer")
+            .sort_values("date")
+            .reset_index(drop=True)
+        )
+
+        # THESE FILTERING IS NOT LIKE IN THE MODEL (there it the 
+        # tresholds are considered per 5 year frame)
+        # train = df_compleet.copy()
+        # train["month"] = train["date"].dt.month   
+        # # aannames: train heeft kolommen 'overleden' en 'month' (1..12)
+        # q75_all = train["overleden"].quantile(0.75)
+        # mask_all = train["overleden"] <= q75_all
+
+        # is_jul_aug = train["month"].isin([7, 8])
+
+        # if is_jul_aug.any():
+        #     q80_summer = train.loc[is_jul_aug, "overleden"].quantile(0.80)
+        #     mask_summer = pd.Series(True, index=train.index)
+        #     mask_summer[is_jul_aug] = train.loc[is_jul_aug, "overleden"] <= q80_summer
+        # else:
+        #     mask_summer = pd.Series(True, index=train.index)
+
+        # # eindmasker
+        # mask = mask_all & mask_summer
+
+        # # gefilterd vs gefilterd-out
+        # train_filt = train[mask].copy()
+        # train_out  = train[~mask].copy()
+      
+        # --- Plot ---
+        fig_2 = go.Figure()
+
+        # Model (red)
+        fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["overleden"],
+                                name="Model Overleden", line=dict(color="black")))
+        fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["baseline"],
+                                name="Model Baseline", line=dict(color="red", dash="dot")))
+        fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["lower"],
+                                name="Model ondergrens", line=dict(color="red", dash="dot")))
+        fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["upper"],
+                                name="Model bovengrens", line=dict(color="red", dash="dot")))
+
+        # RIVM (blue)
+        fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["verwachting"],
+                                name="RIVM verwachting", line=dict(color="blue", dash="dash")))
+        fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["ondergrens"],
+                                name="RIVM ondergrens", line=dict(color="blue", dash="dash")))
+        fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["bovengrens"],
+                                name="RIVM bovengrens", line=dict(color="blue", dash="dash")))
+
+        # fig_2.add_trace(go.Scatter(x=train_filt["date"], y=train_filt["overleden"],
+        #                    name="Gefilterd", mode="markers", line=dict(color="green")))
+        # fig_2.add_trace(go.Scatter(x=train_out["date"], y=train_out["overleden"],
+        #                    name="Gefilterd-out", mode="markers", line=dict(color="red")))
+      
+        for year in df_compleet["date"].dt.year.unique():
+            fig_2.add_vline(
+                x=pd.Timestamp(f"{year}-07-01"),
+                line=dict(color="gray", dash="dot"),
+                opacity=0.7
+            )
+            # fig_2.add_vline(
+            #     x=pd.Timestamp(f"{year}-01-01"),
+            #     line=dict(color="gray", dash="dash"),
+            #     opacity=0.7
+            # )
+        fig_2.update_layout(
+            title="Model vs RIVM official",
+            xaxis_title="Datum",
+            yaxis_title="Aantal overlijdens",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+
+        st.plotly_chart(fig_2)
+        # ---------- Resultaten ----------
+        # df_rivm      -> alle rijen boven elkaar, met kolom 'source'
+        # df_rivm_pref -> één tijdreeks met official-voorrang
+
     # ---------- UI ----------
     st.title("Verwachte sterfte • RIVM-stijl baselijn")
     st.caption("5 voorgaande seizoensjaren • trend + sinus/cosinus • pieken uitgesloten")
@@ -307,13 +441,14 @@ def main_chatgpt():
         if not seasons_timeline:
             st.info("Onvoldoende data om 2020 t/m 2026 te tonen.")
         else:
-            fig3 = make_plot_timeline_all(
+            fig3, tdf_complete = make_plot_timeline_all(
                 df,
                 seasons=seasons_timeline,
                 show_bands=show_bands_timeline,
                 harmonics=2 if use_harm2 else 1
             )
             st.plotly_chart(fig3, use_container_width=True)
+            vergelijking(tdf_complete)
             st.info("https://chatgpt.com/share/68b0d9ad-fdb0-8004-b943-886a964a8baa")
     with tab2:
         season_choice = st.slider(
@@ -483,7 +618,7 @@ def uitleg():
     st.info("""### ℹ️ Uitleg: Hoe werkt deze methode?
 
 1. **Tijdreeks maken**  
-   We hebben per week het aantal overlijdens. Dat is een reeks punten \((x, y)\).
+   We hebben per week het aantal overlijdens. Dat is een reeks punten \(\(x, y)\).
 
 2. **Lineaire trend**  
    Omdat de sterfte langzaam verandert (bijvoorbeeld door vergrijzing), voegen we een rechte lijn toe:  
