@@ -289,8 +289,8 @@ def main_chatgpt():
         # PATH_OFFICIAL = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rivm_official_290825.csv"
         # PATH_STERFTE  = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\rivm_sterfte.csv"
         
-        PATH_OFFICIAL = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rivm_official_290825.csv"
-        PATH_STERFTE  = "https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/rivm_sterfte.csv"
+        PATH_OFFICIAL = "https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/rivm_official_290825.csv"
+        PATH_STERFTE  = "https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/rivm_sterfte.csv"
         
      
         CUTOFF_DATE   = "2023-07-03"  # rivm_sterfte tot en met deze datum
@@ -417,7 +417,7 @@ def main_chatgpt():
 
     st.info("We reproduceren de methode van het RIVM naar aanleiding van https://x.com/infopinie/status/1960744770810073247")
     default_path = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
-    default_path ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_2014_2025.csv"
+    default_path ="https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/overlijdens_per_week_2014_2025.csv"
     uploaded = st.file_uploader("Upload CSV (;-gescheiden) met kolommen: ID;jaar;week;overleden", type=["csv"])
 
     with st.expander("Opties"):
@@ -510,7 +510,7 @@ def main_grok():
 
     # Path to the CSV file
     # csv_path = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
-    csv_path ="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_per_week_2014_2025.csv"
+    csv_path ="https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/overlijdens_per_week_2014_2025.csv"
     
     df = pd.read_csv(csv_path, sep=';')
     df = df[['jaar', 'week', 'overleden']]
