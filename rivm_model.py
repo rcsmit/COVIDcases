@@ -419,9 +419,9 @@ def main_chatgpt():
     st.caption("5 voorgaande seizoensjaren • trend + sinus/cosinus • pieken uitgesloten")
 
     st.info("We reproduceren de methode van het RIVM naar aanleiding van https://x.com/infopinie/status/1960744770810073247")
-    default_path = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
+    #default_path = r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
     default_path ="https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/overlijdens_per_week_2014_2025.csv"
-    uploaded = st.file_uploader("Upload CSV (;-gescheiden) met kolommen: ID;jaar;week;overleden", type=["csv"])
+    #uploaded = st.file_uploader("Upload CSV (;-gescheiden) met kolommen: ID;jaar;week;overleden", type=["csv"])
 
     with st.expander("Opties"):
         use_harm2 = st.checkbox("Gebruik 2 harmonischen", value=True)
