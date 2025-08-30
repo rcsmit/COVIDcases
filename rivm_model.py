@@ -62,24 +62,24 @@ def main_chatgpt():
 
         return df
 
-    def train_mask_exclusions(train):
-        q75_all = train["overleden"].quantile(0.75)
+    def train_mask_exclusions(train, filter_all, filter_summer):
+        q75_all = train["overleden"].quantile(filter_all)
         mask_all = train["overleden"] <= q75_all
         is_jul_aug = train["month"].isin([7, 8])
         if is_jul_aug.any():
-            q80_summer = train.loc[is_jul_aug, "overleden"].quantile(0.80)
+            q80_summer = train.loc[is_jul_aug, "overleden"].quantile(filter_summer)
             mask_summer = (~is_jul_aug) | (train["overleden"] <= q80_summer)
         else:
             mask_summer = pd.Series(True, index=train.index)
         return mask_all & mask_summer
 
-    def fit_baseline(df, season_year_target: int, harmonics: int = 1):
+    def fit_baseline(df, season_year_target: int, filter_all:float, filter_summer:float, harmonics: int = 1):
         prev_years = list(range(season_year_target - 5, season_year_target))
         train = df[df["season_year"].isin(prev_years)].copy()
         if train.empty or train["overleden"].isna().all():
             raise ValueError("Onvoldoende trainingsdata")
 
-        mask = train_mask_exclusions(train)
+        mask = train_mask_exclusions(train, filter_all, filter_summer)
         train_cln = train.loc[mask].copy()
 
         X_cols = ["t", "sin1", "cos1"] if harmonics == 1 else ["t", "sin1", "cos1", "sin2", "cos2"]
@@ -181,7 +181,7 @@ def main_chatgpt():
             # Baselijn optioneel
             if include_baselines:
                 try:
-                    res = fit_baseline(df, sy, harmonics=harmonics)
+                    res = fit_baseline(df, sy,filter_all, filter_summer, harmonics=harmonics)
                     tgt = res["target_df"].sort_values("season_week_idx")
                     fig.add_trace(go.Scatter(
                         x=tgt["season_week_idx"],
@@ -208,7 +208,7 @@ def main_chatgpt():
         return fig
 
     #--- NIEUW: alles-in-1 tijdlijn ---
-    def make_plot_timeline_all(df, seasons, show_bands=True, harmonics=1):
+    def make_plot_timeline_all(df, seasons,filter_all, filter_summer, show_bands=True, harmonics=1):
         
         fig = go.Figure()
 
@@ -218,7 +218,7 @@ def main_chatgpt():
         tdf_complete = pd.DataFrame()
         for sy in seasons:
             try:
-                res = fit_baseline(df, sy, harmonics=harmonics)
+                res = fit_baseline(df, sy,filter_all, filter_summer, harmonics=harmonics)
             except Exception:
                 continue
 
@@ -375,7 +375,7 @@ def main_chatgpt():
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["overleden"],
                                 name="Model Overleden", line=dict(color="black")))
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["baseline"],
-                                name="Model Baseline", line=dict(color="red", dash="dot")))
+                                name="Model Baseline", line=dict(color="red")))
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["lower"],
                                 name="Model ondergrens", line=dict(color="red", dash="dot")))
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["upper"],
@@ -383,7 +383,7 @@ def main_chatgpt():
         
         # RIVM (blue)
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["verwachting"],
-                                name="RIVM verwachting", line=dict(color="blue", dash="dash")))
+                                name="RIVM verwachting", line=dict(color="blue")))
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["ondergrens"],
                                 name="RIVM ondergrens", line=dict(color="blue", dash="dash")))
         fig_2.add_trace(go.Scatter(x=df_compleet["date"], y=df_compleet["bovengrens"],
@@ -449,7 +449,8 @@ def main_chatgpt():
         show_model = st.checkbox("Toon modeldetails", value=False)
         show_train = st.checkbox("Toon trainingspunten (na uitsluiten)", value=False)
         include_baselines_all = st.checkbox("Toon baselines in 'Alle seizoenen'", value=False)
-
+        filter_all=1- (st.number_input("Percentage hoogste waarden dat wordt weggefilterd (alle waardes)", 0,100,25)/100)
+        filter_summer=1- (st.number_input("Percentage hoogste waarden dat wordt weggefilterd (juli/augustus)", 0,100,20)/100)
     #df = load_data(uploaded_file=uploaded, fallback_path=default_path)
     df = load_data(default_path)
 
@@ -469,6 +470,8 @@ def main_chatgpt():
             fig3, tdf_complete = make_plot_timeline_all(
                 df,
                 seasons=seasons_timeline,
+                filter_all=filter_all, 
+                filter_summer=filter_summer,
                 show_bands=show_bands_timeline,
                 harmonics=2 if use_harm2 else 1
             )
@@ -526,11 +529,11 @@ def main_chatgpt():
             )
             st.plotly_chart(fig2, use_container_width=True)
     with tab4:
-        main_grok()
+        main_grok(filter_all, filter_summer)
     
     st.info("RIVM Grafiek: https://www.rivm.nl/monitoring-sterftecijfers-nederland")
     
-def main_grok():
+def main_grok(filter_all, filter_summer):
 
 
     # Path to the CSV file
@@ -546,15 +549,15 @@ def main_grok():
     df['cos_week'] = np.cos(df['week_rad'])
     df['date'] = pd.to_datetime(df['jaar'].astype(str) + '-' + df['week'].astype(str) + '-1', format='%Y-%W-%w', errors='coerce')
 
-    def calculate_expected_mortality(pred_year):
+    def calculate_expected_mortality(pred_year, filter_all=0.75, filter_summer=0.80):
         past_years = range(pred_year - 5, pred_year)
         past_data = df[df['jaar'].isin(past_years)].copy()
         if len(past_data) == 0:
             return None, None, None, None, None, None
         summer_weeks = range(27, 36)
-        q_all = past_data['overleden'].quantile(0.75)
+        q_all = past_data['overleden'].quantile(filter_all)
         summer_data = past_data[past_data['week'].isin(summer_weeks)]
-        q_summer = summer_data['overleden'].quantile(0.80) if not summer_data.empty else np.inf
+        q_summer = summer_data['overleden'].quantile(filter_summer) if not summer_data.empty else np.inf
         is_peak_all = past_data['overleden'] > q_all
         is_summer = past_data['week'].isin(summer_weeks)
         is_peak_summer = past_data['overleden'] > q_summer
@@ -595,7 +598,7 @@ def main_grok():
     for idx, pred_year in enumerate(available_years):
         if pred_year < min(df['jaar']) + 5:
             continue
-        dates, baseline, lower, upper, observed, observed_dates = calculate_expected_mortality(pred_year)
+        dates, baseline, lower, upper, observed, observed_dates = calculate_expected_mortality(pred_year, filter_all, filter_summer)
         if baseline is None:
             continue
         start_date = pd.to_datetime('2019-07-01')
