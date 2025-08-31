@@ -73,6 +73,40 @@ def main_chatgpt():
             mask_summer = pd.Series(True, index=train.index)
         return mask_all & mask_summer
 
+    # Helper: maak een seizoensframe (wk27–52 + 1–26) en voorspel baseline
+    def make_season_df(season_year, df, model, X_cols):
+        season_weeks = list(range(27, 53)) + list(range(1, 27))
+        rows = []
+        for w in season_weeks:
+            jaar = season_year - 1 if w >= 27 else season_year
+            date = pd.to_datetime(f"{jaar}-W{w:02d}-1", format="%G-W%V-%u", errors="coerce")
+            rows.append({"jaar": jaar, "week": w, "season_year": season_year, "date": date})
+        out = pd.DataFrame(rows)
+
+        # t koppelen of doortrekken
+        df_map = df.set_index(["jaar", "week"])
+        out = out.join(df_map[["t"]], on=["jaar", "week"])
+        if out["t"].isna().any():
+            max_t = df["t"].max()
+            miss_mask = out["t"].isna()
+            out.loc[miss_mask, "t"] = np.arange(max_t + 1, max_t + 1 + miss_mask.sum())
+        out["t"] = out["t"].astype(int)
+
+        # harmonischen
+        week_frac = (out["week"] - 1) / 52.0
+        out["sin1"] = np.sin(2 * np.pi * week_frac)
+        out["cos1"] = np.cos(2 * np.pi * week_frac)
+        out["sin2"] = np.sin(4 * np.pi * week_frac)
+        out["cos2"] = np.cos(4 * np.pi * week_frac)
+
+        # voorspellen
+        Xp = add_constant(out[X_cols])
+        out["baseline"] = model.predict(Xp)
+
+        # actuals toevoegen
+        actual_map = df.set_index(["jaar", "week"])["overleden"]
+        out["overleden"] = actual_map.reindex(list(zip(out["jaar"], out["week"]))).values
+        return out
     def fit_baseline(df, season_year_target: int, filter_all:float, filter_summer:float, harmonics: int = 1):
         prev_years = list(range(season_year_target - 5, season_year_target))
         train = df[df["season_year"].isin(prev_years)].copy()
@@ -126,6 +160,51 @@ def main_chatgpt():
         actual_map = df.set_index(["jaar", "week"])["overleden"]
         target["overleden"] = actual_map.reindex(list(zip(target["jaar"], target["week"]))).values
 
+       
+                
+        # Bepaal alle historische seizoensjaren in je dataset
+        df = df.copy()
+        df["season_year"] = np.where(df["week"] <= 26, df["jaar"], df["jaar"] + 1)
+        #season_years_hist = sorted(y for y in df["season_year"].unique() if y < season_year_target)
+        season_years_hist =range(season_year_target-5,season_year_target)
+        # Bouw historische voorspellingen
+        hist_list = [make_season_df(y, df, model, X_cols) for y in season_years_hist]
+        hist_pred = pd.concat(hist_list, ignore_index=True) if hist_list else pd.DataFrame(columns=["date","baseline","season_year"])
+        fig_4 = go.Figure()
+
+        if season_year_target==2026:
+            color_line ="red"
+        else:
+            color_line ="green"
+        for y in season_years_hist:
+            sub = hist_pred[hist_pred["season_year"] == y]
+            fig_4.add_trace(go.Scatter(
+                x=sub["date"], y=sub["baseline"],
+                name=f"voorspeld {y}", opacity=1,
+                line=dict(width=1, color = color_line), showlegend=False
+            ))
+        fig_4.add_trace(go.Scatter(
+            x=train_cln["date"], y=train_cln["overleden"],
+            name="train", line=dict(dash="dot")
+        ))
+        fig_4.add_trace(go.Scatter(
+            x=target["date"], y=target["baseline"],
+            name="target", line=dict(color = color_line)
+        ))
+        # fig_4.add_trace(go.Scatter(
+        #     x=target["date"], y=target["overleden"],
+        #     name="target", line=dict(color="blue")
+        # ))
+
+        fig_4.update_layout(
+            title=f"Waardes waarop getraind wordt, doeljaar: {season_year_target}",
+            xaxis_title="Datum",
+            yaxis_title="Overledenen",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+
+        st.plotly_chart(fig_4)
         return {
             "target_df": target,
             "train_used": train_cln,
@@ -458,7 +537,7 @@ def main_chatgpt():
     max_season_available = int(df["season_year"].max())
 
    
-    tab1, tab2, tab3, tab4 = st.tabs(["Tijdlijn 2019H2–2026H1","Per seizoen", "Alle seizoenen 2021–2026", "GROK"])
+    tab1, tab2, tab3, tab4,tab5 = st.tabs(["Tijdlijn 2019H2–2026H1","Per seizoen", "Alle seizoenen 2021–2026", "GROK", "Uitleg"])
     with tab1:
         st.subheader("Alle tab1-reeksen in één plot")
         show_bands_timeline = st.checkbox("Toon ±2×sd banden", value=True)
@@ -530,7 +609,8 @@ def main_chatgpt():
             st.plotly_chart(fig2, use_container_width=True)
     with tab4:
         main_grok(filter_all, filter_summer)
-    
+    with tab5:
+        uitleg()
     st.info("RIVM Grafiek: https://www.rivm.nl/monitoring-sterftecijfers-nederland")
     
 def main_grok(filter_all, filter_summer):
@@ -700,6 +780,6 @@ Hoge waarden (25% hoogste weken, plus 20% hoogste in juli/augustus) worden verwi
 Daardoor blijven lagere weken uit 2022–2025 relatief zwaarder wegen.""")
 def main():
     main_chatgpt()
-    uitleg()
+  
 if __name__ == "__main__":
     main()
