@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import cbsodata
 from scipy.stats import linregress
 from scipy.optimize import curve_fit
+import numpy as np
 
 def get_dataframe(file, delimiter=";"):
     """Get data from a file and return as a pandas DataFrame.
@@ -51,7 +52,7 @@ def voorspel_sterftekans(overlijdens, startjaar=2000, eindjaar=2019, voorspeljar
         startjaar (int, optional): Start year for regression. Defaults to 2000.
         eindjaar (int, optional): End year for regression. Defaults to 2019.
         voorspeljaren (list, optional): Years to predict. Defaults to [2020, 2021, 2022, 2023].
-        model_type (str, optional): Regression model type ("linear" or "quadratic"). Defaults to "linear".
+        model_type (str, optional): Regression model type ("linear","exponential" or "quadratic"). Defaults to "linear".
 
     Returns:
         pd.DataFrame: DataFrame with predicted mortality rates.
@@ -63,6 +64,12 @@ def voorspel_sterftekans(overlijdens, startjaar=2000, eindjaar=2019, voorspeljar
             "p0": [1, 1],
             "equation": "a*x + b",
             "params": ["a", "b"]
+        },
+        "exponential": {
+            "func": lambda x, a, b, c: a * np.exp(b * x) + c,
+            "p0": [1.0, 0.1, 0.0],
+            "equation": "a*exp(b*x) + c",
+            "params": ["a", "b", "c"]
         },
         "quadratic": {
             "func": lambda x, a, b, c: a * x**2 + b * x + c,
@@ -180,7 +187,7 @@ def main():
       # Allow user to select model type
     col1,col2,col3,col4=st.columns(4)
     with col1:
-        model_type = st.selectbox("Select regression model", ["linear", "quadratic"])
+        model_type = st.selectbox("Select regression model", ["linear","exponential", "quadratic"])
     with col2:
         startjaar = st.number_input("Start year", min_value=1960, max_value=2019, value=2015)
     with col3:
@@ -256,7 +263,16 @@ def main():
                 b = parameters.get("b", 0)
                 col.write("ax + b")
                 col.write("a = {a}")
-                col.write("b = {b}")  
+                col.write("b = {b}")
+            elif model_type == "exponential":
+                a = parameters.get("a", 0.0)
+                b = parameters.get("b", 0.0)
+                c = parameters.get("c", 0.0)
+
+                col.write("a*exp(b*x) + c")
+                col.write(f"a = {a}")
+                col.write(f"b = {b}")
+                col.write(f"c = {c}")  
             elif model_type == "quadratic": 
                 a = parameters.get("a", 0)
                 b = parameters.get("b", 0)

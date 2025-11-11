@@ -70,7 +70,7 @@ def get_sterftedata():
     print (data_bevolking)
 
 
-def exponential(x: np.ndarray, a: float, b: float) -> np.ndarray:
+def exponential(x: np.ndarray, a: float, b: float,c: float) -> np.ndarray:
     """
     Calculate the exponential function.
 
@@ -80,9 +80,9 @@ def exponential(x: np.ndarray, a: float, b: float) -> np.ndarray:
         b (float): Growth rate.
 
     Returns:
-        np.ndarray: The result of a * exp(b * x).
+        np.ndarray: The result of a * exp(b * x)+c
     """
-    return a * np.exp(b * x)
+    return a * np.exp(b * x)+c
 
 def quadratic(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
     """
@@ -388,9 +388,9 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
                 },
                 "exponential": {
                     "func": exponential,
-                    "p0": [1, 1],
-                    "equation": "a * exp(b*x)",
-                    "params": ["a", "b"]
+                    "p0": [1, 1,1],
+                    "equation": "a * exp(b*x)+c",
+                    "params": ["a", "b","c"]
                 },
                 "gompertz": {
                     "func": gompertz,
