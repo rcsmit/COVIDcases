@@ -320,6 +320,31 @@ def get_doodsoorzaken(opdeling) -> pd.DataFrame:
     df_eind["per100k"] = round(df_eind["OBS_VALUE"]/df_eind["aantal"]*100000,1) 
     
     return df_eind 
+
+
+def x_norm(x):
+    x0 = float(np.mean(x))
+    scale = 10.0
+    return (x - x0) / scale, x0, scale
+
+def expo_p0(x_fit, y):
+    c0 = float(np.percentile(y, 10))
+    y_shift = np.clip(y - c0, 1e-6, None)
+    b0, loga = np.polyfit(x_fit, np.log(y_shift), 1)
+    a0 = float(np.exp(loga))
+    return [a0, float(b0), c0]
+
+def expo_bounds(y):
+    y_min = float(np.nanmin(y))
+    y_max = float(np.nanmax(y))
+    rng = max(1.0, y_max - y_min)
+    mrg = max(1.0, 0.05 * rng)
+    eps = 1e-9
+    lower = np.array([0.0, -5.0, y_min - mrg], dtype=float)
+    upper = np.array([np.inf,  5.0, y_max + mrg], dtype=float)
+    upper = np.maximum(upper, lower + eps)
+    return (lower, upper)
+
 def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool, secondary_choice_: list[str], show_confidence_intervals: bool, doordsoorzaak_keuze:str, what_to_plot:list[str], scaled:bool) -> tuple[float, float]:
 #def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_YEAR: int, verbose: bool, secondary_choice:str) -> tuple[float, float]:  
     """Main analysis function: performs secondary (exponential or quadratic) and linear curve fitting, projections, and plotting.
@@ -374,80 +399,138 @@ def main_(df: pd.DataFrame, value_field: str, age_group: str, sexe: str, START_Y
     
     df_diff = do_calculations_df_diff_lineair( df_diff) 
     result_str =[]
+    EXPO_BOUNDS = ([0.0,5, np.min(y_) - 10.0],
+               [np.inf,  5, np.max(y_) + 10.0])
     # Fit the dummy secondary data
+        
     for secondary_choice in secondary_choice_:
         try:
-         
-            # Dictionary to store function-specific information
+            # data schoon
+            mask = np.isfinite(x_) & np.isfinite(y_)
+            x_clean = x_[mask]
+            y_clean = y_[mask]
+
+            # Dictionary met model-info
             function_info = {
                 "quadratic": {
                     "func": quadratic,
                     "p0": [1, 1, 1],
                     "equation": "a*x^2 + b*x + c",
-                    "params": ["a", "b", "c"]
+                    "params": ["a", "b", "c"],
+                    "bounds": lambda x, y: (-np.inf, np.inf),
+                    "use_norm": False,
                 },
                 "exponential": {
                     "func": exponential,
-                    "p0": [1, 1,1],
-                    "equation": "a * exp(b*x)+c",
-                    "params": ["a", "b","c"]
+                    "p0": lambda x, y: expo_p0(x, y),
+                    "equation": "a*exp(b*x) + c",
+                    "params": ["a", "b", "c"],
+                    "bounds": lambda x, y: expo_bounds(y),
+                    "use_norm": True,
                 },
                 "gompertz": {
                     "func": gompertz,
                     "p0": [1, 1, 1],
                     "equation": "a * exp(-b * exp(-c * x))",
-                    "params": ["a", "b", "c"]
+                    "params": ["a", "b", "c"],
+                    "bounds": lambda x, y: (-np.inf, np.inf),
+                    "use_norm": False,
                 },
                 "first_derivative_gompertz": {
                     "func": first_derivative_gompertz,
                     "p0": [1, 1, 1],
                     "equation": "a * b * c * exp(b * (-1 * exp(-c * x)) - c * x)",
-                    "params": ["a", "b", "c"]
+                    "params": ["a", "b", "c"],
+                    "bounds": lambda x, y: (-np.inf, np.inf),
+                    "use_norm": False,
                 },
                 "gaussian": {
                     "func": gaussian,
                     "p0": lambda x: [1, np.mean(x), np.std(x)],
                     "equation": "a * exp(-((x - b)^2) / c)",
-                    "params": ["a", "b", "c"]
+                    "params": ["a", "b", "c"],
+                    "bounds": lambda x, y: (-np.inf, np.inf),
+                    "use_norm": False,
                 },
                 "linear": {
                     "func": linear,
                     "p0": [1, 1],
                     "equation": "a + b*x",
-                    "params": ["a", "b"]
+                    "params": ["a", "b"],
+                    "bounds": lambda x, y: (-np.inf, np.inf),
+                    "use_norm": False,
                 },
                 "exponential_2": {
                     "func": exponential_2,
                     "p0": [1, 1],
                     "equation": "a * ((1 + b)^x)",
-                    "params": ["a", "b"]
+                    "params": ["a", "b"],
+                    "bounds": lambda x, y: (-np.inf, np.inf),
+                    "use_norm": False,
                 },
-                 "logistic": {
+                "logistic": {
                     "func": logistic,
-                    "p0": [1, 1,1,1],
-                    "equation": "a+ ((b-a)/(1+((x/c)**d)))",
-                    "params": ["a", "b","c","d"]
-                }
+                    "p0": [1, 1, 1, 1],
+                    "equation": "a + ((b-a)/(1+((x/c)**d)))",
+                    "params": ["a", "b", "c", "d"],
+                    "bounds": lambda x, y: (-np.inf, np.inf),
+                    "use_norm": False,
+                },
             }
 
-            if secondary_choice in function_info:
-                info = function_info[secondary_choice]
-                p0 = info["p0"](x_) if callable(info["p0"]) else info["p0"]
-                
-                pars, cov = curve_fit(f=info["func"], xdata=x_, ydata=y_, p0=p0, bounds=(-np.inf, np.inf), maxfev=20000)
-                
-                param_str = ", ".join(f"{param} = {value:.4f}" for param, value in zip(info["params"], pars))
-                result_str.append(f"*{secondary_choice}* - {info['equation']} | {param_str}")
-                
-            else:
+            if secondary_choice not in function_info:
                 st.warning(f"Error in secondary choice {secondary_choice}.")
                 st.stop()
 
-            df_diff = do_calculations_df_diff_secondary_choice(pars, cov, df_diff, secondary_choice) 
-       
-        except Exception as error:
-            print (f"No fitting possible for {secondary_choice} - {error}")
+            info = function_info[secondary_choice]
 
+            # x voor fit
+            if info.get("use_norm", False):
+                x_fit, x0, xscale = x_norm(x_clean)
+            else:
+                x_fit = x_clean
+
+            # startwaardes
+            p0_raw = info["p0"]
+            if callable(p0_raw):
+                try:
+                    p0 = p0_raw(x_fit, y_clean)
+                except TypeError:
+                    p0 = p0_raw(x_fit)
+            else:
+                p0 = p0_raw
+
+            # bounds
+            bounds_raw = info.get("bounds", lambda x, y: (-np.inf, np.inf))
+            bounds = bounds_raw(x_fit, y_clean)
+
+            # p0 binnen bounds drukken
+            if isinstance(bounds, tuple) and len(bounds) == 2:
+                lo, hi = np.asarray(bounds[0], float), np.asarray(bounds[1], float)
+                if np.isscalar(lo):
+                    pass  # onbegrensd
+                else:
+                    eps = 1e-9
+                    p0 = np.clip(np.asarray(p0, float), lo + eps, hi - eps)
+
+            # fit
+            pars, cov = curve_fit(
+                f=info["func"],
+                xdata=x_fit,
+                ydata=y_clean,
+                p0=p0,
+                bounds=bounds,
+                maxfev=20000,
+            )
+
+            param_str = ", ".join(f"{param} = {value:.4f}" for param, value in zip(info["params"], pars))
+            result_str.append(f"*{secondary_choice}* - {info['equation']} | {param_str}")
+
+            df_diff = do_calculations_df_diff_secondary_choice(pars, cov, df_diff, secondary_choice)
+
+        except Exception as error:
+            print(f"No fitting possible for {secondary_choice} - {error}")
+            
     if verbose:
         show_result_str = False
         if ( ((value_field == 'OBS_VALUE') and ("OBS_VALUE" in what_to_plot)) or ((value_field == 'per100k') and ("per100k" in what_to_plot))):
@@ -972,7 +1055,24 @@ def calculate_results(df: pd.DataFrame, age_groups_selected_: list[str], start_y
         
    
     return df_results
-    
+
+def x_norm(x):
+    # Normaliseer x voor niet-lineaire modellen
+    x0 = np.mean(x)
+    scale = 10.0                 # decennia
+    return (x - x0) / scale, x0, scale
+
+def expo_p0(x_fit, y):
+    # Robuuste p0 voor exponentieel
+
+    c0 = np.percentile(y, 10)           # lage asymptoot
+    y_shift = np.clip(y - c0, 1e-6, None)
+    b0, loga = np.polyfit(x_fit, np.log(y_shift), 1)
+    a0 = np.exp(loga)
+    return [a0, b0, c0]
+
+
+
 def main() -> None:
     """
     Main function for the Streamlit application that analyzes mortality data using linear and 
@@ -1141,7 +1241,7 @@ if __name__ == "__main__":
     import datetime
     os.system('cls')
 
-    print(f"--------------{datetime.datetime.now()}-------------------------")
+    print(f"--------------{datetime.datetime.now()}----x---------------------")
 
     
     main()
