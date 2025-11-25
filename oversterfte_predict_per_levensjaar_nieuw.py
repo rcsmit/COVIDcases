@@ -480,10 +480,12 @@ def main_2():
 if __name__ == "__main__":
     os.system("cls" if os.name == "nt" else "clear")
     print(f"--------------{datetime.datetime.now()}-------------------------")
-    tab1,tab2= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht"])
-    with tab1:
-        main()
+    main()
+    main_2()
+    # tab1,tab2= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht"])
+    # with tab1:
+    #     main()
        
-    with tab2:
-        main_2()
+    # with tab2:
+    #     main_2()
         
