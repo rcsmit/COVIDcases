@@ -89,6 +89,7 @@ def main():
             ["[59] Rioolwater vs covidsterfte","rioolwaarde_vs_covidsterfte"],
             ["[60] oversterfte predict per levensjaar","oversterfte_predict_per_levensjaar"],
             ["[61] RIVM model","rivm_model"],
+            ["[62] Oversterfte GAM","oversterfte_predict_per_levensjaar_nieuw.py"],
             ]
 
     #query_params = st.experimental_get_query_params() # reading  the choice from the URL..

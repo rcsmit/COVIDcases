@@ -17,3 +17,4 @@ bs4
 lxml
 eurostat
 isoweek
+pygam
