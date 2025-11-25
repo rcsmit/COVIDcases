@@ -333,7 +333,7 @@ def main():
         
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig)
  
     st.metric("Totale oversterfte 2020–2024", int(oversterfte))
     st.write(res2)
@@ -367,7 +367,7 @@ def make_scatter(eindtabel):
         template="simple_white",
     )
 
-    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter)
 
 def show_metrics(eindtabel):
     tot_mannen = eindtabel.loc[
@@ -418,7 +418,7 @@ def plot_afwijking_leeftijd(eindtabel_afwijking_geslacht):
         template="simple_white",
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig)
 
 def main_2():
     st.header("Oversterfte berekening met GAM ")
