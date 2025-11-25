@@ -339,6 +339,7 @@ def main_2():
     eindtabel = pd.DataFrame()
     for geslacht in ["Vrouwen", "Mannen"]:
         for leeftijd in range(100,101):
+            
             startjaar = 2000
             totaal_tabel_leeftijd = get_data(geslacht, startjaar, leeftijd) 
             print (totaal_tabel_leeftijd)
