@@ -366,6 +366,7 @@ def make_scatter(eindtabel):
         title="Oversterfte 2020–2024 per leeftijd en geslacht",
         template="simple_white",
     )
+    fig_scatter.add_hline(y=0, line=dict(color="black", width=1))
 
     st.plotly_chart(fig_scatter)
 
@@ -417,7 +418,7 @@ def plot_afwijking_leeftijd(eindtabel_afwijking_geslacht):
         title="Gemiddelde afwijking per leeftijd en geslacht",
         template="simple_white",
     )
-
+    fig.add_hline(y=0, line=dict(color="black", width=1))
     st.plotly_chart(fig)
 
 def main_2():
