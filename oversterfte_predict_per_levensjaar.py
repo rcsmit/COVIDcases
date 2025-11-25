@@ -6,6 +6,8 @@ from scipy.stats import linregress
 from scipy.optimize import curve_fit
 import numpy as np
 
+# de oorspronkelijke versie, data tot en met 2023
+
 def get_dataframe(file, delimiter=";"):
     """Get data from a file and return as a pandas DataFrame.
 
@@ -137,19 +139,8 @@ def bereken_verschil(overlijdens, voorspellingen, bevolking):
     totaal_verschil = overlijdens["verschil"].sum()
     return overlijdens, totaal_verschil
 
-def get_bevolkingsdata():
-    #data_ruw = pd.DataFrame(cbsodata.get_data("70895ned"))
-    # cbs_data_ruw = pd.DataFrame(cbsodata.get_data("70895ned")) # Overledenen; geslacht en leeftijd, per week ## ALLEEN MAAR 3 LEEFTIJDCATEGORIEËN
-
-    data_bevolking = pd.DataFrame(cbsodata.get_data("03759ned")) # Bevolking op 1 januari en gemiddeld; geslacht, leeftijd en regio
-    #st.write(cbs_data_ruw)
-    #cbs_data_ruw.to_csv("70895ned.csv")
-    data_bevolking.to_csv("03759ned.csv")
-    st.write(data_bevolking)
-    st.stop()
 
 def main():
-    #get_bevolkingsdata()
     st.header("Oversterfte berekening")
     st.info("""
 1. We delen het aantal overlijdens per leeftijd *l* door het aantal mensen van diezelfde leeftijd *l*.
@@ -163,68 +154,44 @@ def main():
     # sterfte = get_sterftedata()
 
     # https://www.cbs.nl/nl-nl/visualisaties/dashboard-bevolking/bevolkingspiramide ???
-    # bevolking = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv")
+    bevolking = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/bevolking_leeftijd_NL.csv")
     
     # https://www.cbs.nl/nl-nl/cijfers/detail/37168
     # overlijdens = get_dataframe(r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_geslacht_leeftijd_burgelijkstaat.csv", ",")
     # overlijdens = get_dataframe(r"sualisaties/dashboard-bevolking/bevolkingspiramide ???
-    #overlijdens = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_geslacht_leeftijd_burgelijkstaat.csv", ",")
-    # Replace "M" with "Mannen" and "F" with "Vrouwen" in the "Geslacht" column
-    # bevolking["Geslacht"] = bevolking["geslacht"].replace({"M": "Mannen", "F": "Vrouwen"})
+    overlijdens = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_geslacht_leeftijd_burgelijkstaat.csv", ",")
+   
+   # Replace "M" with "Mannen" and "F" with "Vrouwen" in the "Geslacht" column
+    bevolking["Geslacht"] = bevolking["geslacht"].replace({"M": "Mannen", "F": "Vrouwen"})
 
     
-    #  # Filter data
-    # overlijdens = overlijdens[
-    #     ((overlijdens["Geslacht"].isin(["Mannen", "Vrouwen"])) &
-    #     (overlijdens["BurgerlijkeStaat"] == "Totaal burgerlijke staat"))
-    # ]
+     # Filter data
+    overlijdens = overlijdens[
+        ((overlijdens["Geslacht"].isin(["Mannen", "Vrouwen"])) &
+        (overlijdens["BurgerlijkeStaat"] == "Totaal burgerlijke staat"))
+    ]
 
-    #  # Filter "Leeftijd" column to only include values like "xx jaar"
-    # overlijdens = overlijdens[overlijdens["Leeftijd"].str.match(r"^\d{1,2} jaar$")]
+     # Filter "Leeftijd" column to only include values like "xx jaar"
+    overlijdens = overlijdens[overlijdens["Leeftijd"].str.match(r"^\d{1,2} jaar$")]
 
-    # # Convert "24 jaar" to integer 24
-    # overlijdens["leeftijd"] = overlijdens["Leeftijd"].str.extract(r"(\d+)").astype(int)
+    # Convert "24 jaar" to integer 24
+    overlijdens["leeftijd"] = overlijdens["Leeftijd"].str.extract(r"(\d+)").astype(int)
 
-    # overlijdens["jaar"] = overlijdens["Perioden"]
+    overlijdens["jaar"] = overlijdens["Perioden"]
 
-    
-    bevolking_ = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/Bevolking__geslacht__leeftijd_en_burgerlijke_staat__2024.csv",",")
-    
-    bevolking = bevolking_.melt(
-        id_vars=["Geslacht", "Leeftijd"],
-        var_name="Jaar",
-        value_name="Aantal",
-    )
-
-   
-   
-    bevolking = bevolking[["Leeftijd", "Geslacht", "Jaar", "Aantal"]]
-   
-    st.write(bevolking)
-
-    overlijdens_ = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_geslacht_leeftijd_burgelijkstaat2024.csv", ",")
-    st.write(overlijdens_)
-    overlijdens = overlijdens_.melt(
-        id_vars=["Leeftijd", "Jaar"],             # blijft hetzelfde
-        value_vars=["Mannen", "Vrouwen"],         # deze kolommen gaan “onder elkaar”
-        var_name="Geslacht",                      # nieuwe kolomnaam voor mannen/vrouwen
-        value_name="OverledenenLeeftijdBijOverlijden_1"  # nieuwe kolom met aantallen
-    )
-   #
      # 37168
    
     # overlijdens.to_csv("overlijdens_bewerkt.csv", index=False, encoding="utf-8")
-    totaal_tabel = bevolking.merge(overlijdens, on=["Jaar", "Leeftijd", "Geslacht"], how="right")
-    st.write(totaal_tabel)
-    st.stop()
-    
+    totaal_tabel = bevolking.merge(overlijdens, on=["jaar", "leeftijd", "Geslacht"], how="right")
+   
 
+    
       # Allow user to select model type
     col1,col2,col3,col4=st.columns(4)
     with col1:
         model_type = st.selectbox("Select regression model", ["linear","exponential", "quadratic"])
     with col2:
-        startjaar = st.number_input("Start year", min_value=2000, max_value=2019, value=2015)
+        startjaar = st.number_input("Start year", min_value=1960, max_value=2019, value=2015)
     with col3:
         leeftijd_min = st.number_input("Min leeftijd", min_value=0, max_value=99, value=0)
     with col4:
