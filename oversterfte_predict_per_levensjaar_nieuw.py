@@ -292,7 +292,7 @@ def interface():
 # -------------------- Streamlit app -------------------- #
 
 def main():
-    st.header("Oversterfte berekening met GAM")
+    st.header("Oversterfte berekening met GAM.")
 
     geslacht, startjaar, leeftijd = interface()
     totaal_tabel_leeftijd = get_data(geslacht, startjaar, leeftijd)
