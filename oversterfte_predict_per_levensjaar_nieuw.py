@@ -483,7 +483,7 @@ if __name__ == "__main__":
     tab1,tab2= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht"])
     with tab1:
         main()
-        main_2()
+       
     with tab2:
         main_2()
         
