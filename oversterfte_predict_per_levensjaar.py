@@ -188,32 +188,24 @@ def main():
     # overlijdens["jaar"] = overlijdens["Perioden"]
 
     
-    bevolking_ = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/Bevolking__geslacht__leeftijd_en_burgerlijke_staat__2024.csv")
-  
+    bevolking_ = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/Bevolking__geslacht__leeftijd_en_burgerlijke_staat__2024.csv",",")
+    
     bevolking = bevolking_.melt(
-        id_vars=["Geslacht", "leeftijd"],
-        var_name="jaar",
-        value_name="aantal",
+        id_vars=["Geslacht", "Leeftijd"],
+        var_name="Jaar",
+        value_name="Aantal",
     )
 
-    # # geslacht omzetten naar F / M / T
-    # map_geslacht = {
-    #     "Vrouwen": "F",
-    #     "Mannen": "M",
-    #     "Totaal": "T",
-    # }
-    # df_long["geslacht"] = df_long["Geslacht"].map(map_geslacht)
-
-    # kolommen netjes zetten
-    df_long = df_long.rename(columns={"Leeftijd": "leeftijd"})
-    df_long = df_long[["leeftijd", "geslacht", "jaar", "aantal"]]
    
-    
+   
+    bevolking = bevolking[["Leeftijd", "Geslacht", "Jaar", "Aantal"]]
+   
+    st.write(bevolking)
 
     overlijdens_ = get_dataframe(r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_geslacht_leeftijd_burgelijkstaat2024.csv", ",")
-    
+    st.write(overlijdens_)
     overlijdens = overlijdens_.melt(
-        id_vars=["leeftijd", "jaar"],             # blijft hetzelfde
+        id_vars=["Leeftijd", "Jaar"],             # blijft hetzelfde
         value_vars=["Mannen", "Vrouwen"],         # deze kolommen gaan “onder elkaar”
         var_name="Geslacht",                      # nieuwe kolomnaam voor mannen/vrouwen
         value_name="OverledenenLeeftijdBijOverlijden_1"  # nieuwe kolom met aantallen
@@ -222,16 +214,17 @@ def main():
      # 37168
    
     # overlijdens.to_csv("overlijdens_bewerkt.csv", index=False, encoding="utf-8")
-    totaal_tabel = bevolking.merge(overlijdens, on=["jaar", "leeftijd", "Geslacht"], how="right")
-   
-
+    totaal_tabel = bevolking.merge(overlijdens, on=["Jaar", "Leeftijd", "Geslacht"], how="right")
+    st.write(totaal_tabel)
+    st.stop()
+    
     
       # Allow user to select model type
     col1,col2,col3,col4=st.columns(4)
     with col1:
         model_type = st.selectbox("Select regression model", ["linear","exponential", "quadratic"])
     with col2:
-        startjaar = st.number_input("Start year", min_value=1960, max_value=2019, value=2015)
+        startjaar = st.number_input("Start year", min_value=2000, max_value=2019, value=2015)
     with col3:
         leeftijd_min = st.number_input("Min leeftijd", min_value=0, max_value=99, value=0)
     with col4:
