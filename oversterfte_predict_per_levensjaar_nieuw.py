@@ -476,6 +476,7 @@ def main_2():
     # st.write(eindtabel_afwijking_geslacht)
     plot_afwijking_leeftijd(eindtabel_afwijking_geslacht)
 
+
 if __name__ == "__main__":
     os.system("cls" if os.name == "nt" else "clear")
     print(f"--------------{datetime.datetime.now()}-------------------------")
