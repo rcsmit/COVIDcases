@@ -448,11 +448,11 @@ def main_2():
 
             res2 = make_results_table(geslacht, leeftijd, gam, X_future, d_future, y_act, y_pred, totaal_tabel_leeftijd)
             oversterfte = float(res2["Oversterfte"].sum())
-            newrow = pd.DataFrame({
-                "Leeftijd": [leeftijd],
-                "Geslacht": [geslacht],
-                "Oversterfte_2020_2024": [oversterfte]
-            })
+            # newrow = pd.DataFrame({
+            #     "Leeftijd": [leeftijd],
+            #     "Geslacht": [geslacht],
+            #     "Oversterfte_2020_2024": [oversterfte]
+            # })
             #print (f"Leeftijd: {leeftijd} • Geslacht: {geslacht} • Oversterfte 2020–2024: {oversterfte:.0f}")
             eindtabel = pd.concat([eindtabel, res2], ignore_index=True)
      # Zorg dat leeftijden netjes oplopen
@@ -470,13 +470,12 @@ def main_2():
     make_scatter(eindtabel_total_leeftijd_geslacht)
     show_metrics(eindtabel)
     st.write(eindtabel_total_geslacht_pivot)
-      
+
     # st.write(eindtabel)
     eindtabel_afwijking_geslacht=eindtabel.groupby(["Leeftijd","Geslacht"])["afwijking_per100k"].mean().reset_index()
     # st.write(eindtabel_afwijking_geslacht)
     plot_afwijking_leeftijd(eindtabel_afwijking_geslacht)
 
-    
 if __name__ == "__main__":
     os.system("cls" if os.name == "nt" else "clear")
     print(f"--------------{datetime.datetime.now()}-------------------------")
