@@ -291,7 +291,7 @@ def interface():
 
 # -------------------- Streamlit app -------------------- #
 
-def main():
+def main_1():
     st.header("Oversterfte berekening met GAM.")
 
     geslacht, startjaar, leeftijd = interface()
@@ -476,16 +476,19 @@ def main_2():
     # st.write(eindtabel_afwijking_geslacht)
     plot_afwijking_leeftijd(eindtabel_afwijking_geslacht)
 
+def main():
+    tab1,tab2= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht"])
+    with tab1:
+        main_1()
+       
+    with tab2:
+        main_2()
+    
 
 if __name__ == "__main__":
     os.system("cls" if os.name == "nt" else "clear")
     print(f"--------------{datetime.datetime.now()}-------------------------")
     # main()
     # main_2()
-    tab1,tab2= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht"])
-    with tab1:
-        main()
-       
-    with tab2:
-        main_2()
+    main()
         
