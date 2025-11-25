@@ -218,7 +218,7 @@ def main():
     st.write(totaal_tabel)
     st.stop()
     
-    
+
       # Allow user to select model type
     col1,col2,col3,col4=st.columns(4)
     with col1:
