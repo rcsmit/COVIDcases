@@ -224,7 +224,7 @@ def calculate_and_plot__gam_sterfte(
 
 # -------------------- Data ophalen en interface -------------------- #
 @st.cache_data()
-def get_data(geslacht: str, startjaar: int, leeftijd: int) -> pd.DataFrame:
+def get_data(geslacht: str, startjaar: int, leeftijd_min: int, leeftijd_max: int) -> pd.DataFrame:
     """Haal bevolking en overlijdens op en maak gecombineerde tabel voor één leeftijd/geslacht."""
 
     # Bevolking
@@ -264,10 +264,20 @@ def get_data(geslacht: str, startjaar: int, leeftijd: int) -> pd.DataFrame:
     )
 
     subset = totaal_tabel[
-        (totaal_tabel["Leeftijd"] == leeftijd)
+        (totaal_tabel["Leeftijd"] >= leeftijd_min)
+        & (totaal_tabel["Leeftijd"] <= leeftijd_max)
         & (totaal_tabel["Jaar"] >= startjaar)
         & (totaal_tabel["Geslacht"] == geslacht)
     ].copy()
+    if leeftijd_min != leeftijd_max:
+        subset = subset.groupby(["Jaar", "Geslacht"]).agg(
+            {
+                "Aantal": "sum",
+                "OverledenenLeeftijdBijOverlijden_1": "sum",
+            }
+        ).reset_index()
+        
+        subset["Leeftijd"] = f"{leeftijd_min}-{leeftijd_max}"
 
     subset["werkelijke_sterftekans"] = (
         subset["OverledenenLeeftijdBijOverlijden_1"] / subset["Aantal"]
@@ -277,16 +287,18 @@ def get_data(geslacht: str, startjaar: int, leeftijd: int) -> pd.DataFrame:
 
 
 def interface():
-    col1, col2, col3, _ = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         geslacht = st.selectbox("Geslacht", ["Mannen", "Vrouwen"])
     with col2:
         startjaar = st.number_input("Start year", min_value=2000, max_value=2019, value=2000)
     with col3:
-        leeftijd = st.number_input("Leeftijd", min_value=0, max_value=105, value=40)
-
-    return geslacht, startjaar, leeftijd
+        leeftijd_min = st.number_input("Leeftijd min", min_value=0, max_value=105, value=40)
+    with col4:
+        leeftijd_max = st.number_input("Leeftijd max", min_value=0, max_value=105, value=leeftijd_min)
+    
+    return geslacht, startjaar, leeftijd_min, leeftijd_max
 
 
 # -------------------- Streamlit app -------------------- #
@@ -294,8 +306,14 @@ def interface():
 def main_1():
     st.header("Oversterfte berekening met GAM.")
 
-    geslacht, startjaar, leeftijd = interface()
-    totaal_tabel_leeftijd = get_data(geslacht, startjaar, leeftijd)
+    geslacht, startjaar, leeftijd_min,leeftijd_max = interface()
+    totaal_tabel_leeftijd = get_data(geslacht, startjaar, leeftijd_min, leeftijd_max)
+    if leeftijd_min != leeftijd_max:
+        leeftijd = f"{leeftijd_min}-{leeftijd_max}"
+        st.subheader("Oversterfte als de cohort geagregeerd is berekend")
+    else:
+        leeftijd = leeftijd_min
+        st.subheader("Oversterfte als er voor één leeftijd wordt gekeken")
 
     # fig, res, oversterfte = calculate_and_plot__gam_sterfte(
     #     totaal_tabel_leeftijd,
@@ -335,8 +353,10 @@ def main_1():
 
     st.plotly_chart(fig)
  
-    st.metric("Totale oversterfte 2020–2024", int(oversterfte))
+    st.metric(f"Totale oversterfte 2020–2024 - {geslacht} - {leeftijd} jaar", int(oversterfte))
     st.write(res2)
+    st.subheader("Oversterfte als er per leeftijd wordt gekeken")
+    calculate_cohort_per_leeftijd(startjaar, leeftijd_min, leeftijd_max)
 
 def make_scatter(eindtabel):
     fig_scatter = go.Figure()
@@ -424,14 +444,16 @@ def plot_afwijking_leeftijd(eindtabel_afwijking_geslacht):
 def main_2():
     st.header("Oversterfte berekening met GAM ")
     startjaar = st.number_input("Start year", min_value=2000, max_value=2019, value=2000, key="main2_startjaar")
+    calculate_cohort_per_leeftijd(startjaar,0,105)
+
+def calculate_cohort_per_leeftijd(startjaar: int, leeftijd_min: int, leeftijd_max: int):
     eindtabel = pd.DataFrame()
     placeholder = st.empty()
-
     for geslacht in ["Vrouwen", "Mannen"]:
-        for leeftijd in range(0,105):
+        for leeftijd in range(leeftijd_min,leeftijd_max+1):
             placeholder.text(f"Bezig met berekening • Geslacht: {geslacht} • Leeftijd: {leeftijd}/105")
             
-            totaal_tabel_leeftijd = get_data(geslacht, startjaar, leeftijd) 
+            totaal_tabel_leeftijd = get_data(geslacht, startjaar, leeftijd, leeftijd) 
        
             (
                 gam,
@@ -476,15 +498,19 @@ def main_2():
     eindtabel_afwijking_geslacht=eindtabel.groupby(["Leeftijd","Geslacht"])["afwijking_per100k"].mean().reset_index()
     # st.write(eindtabel_afwijking_geslacht)
     plot_afwijking_leeftijd(eindtabel_afwijking_geslacht)
-
+def info():
+    st.info("https://kucharski.substack.com/p/excess-mortality-or-excessive-assumptions")
+    st.info("Bevolking; geslacht, leeftijd en burgerlijke staat, 1 januari: https://opendata.cbs.nl/#/CBS/nl/dataset/7461bev/table?https:%2F%2Fopendata.cbs.nl%2F#%2FCBS%2Fnl%2Fdataset%2F03747%2Ftable%3Fts=1763998647352")
+    st.info("Overledenen; geslacht, leeftijd en burgerlijke staat : https://opendata.cbs.nl/#/CBS/nl/dataset/37168/table?ts=1764041242474")
 def main():
-    tab1,tab2= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht"])
+    tab1,tab2,tab3= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht","Info"])
     with tab1:
         main_1()
        
     with tab2:
         main_2()
-    
+    with tab3:
+        info()
 
 if __name__ == "__main__":
     os.system("cls" if os.name == "nt" else "clear")
