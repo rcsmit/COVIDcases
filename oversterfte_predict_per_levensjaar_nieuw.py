@@ -358,7 +358,7 @@ def main_1():
     st.subheader("Oversterfte als er per leeftijd wordt gekeken")
     calculate_cohort_per_leeftijd(startjaar, leeftijd_min, leeftijd_max)
 
-def make_scatter(eindtabel):
+def make_scatter(eindtabel,x):
     fig_scatter = go.Figure()
 
     for g, kleur in [("Mannen", "blue"), ("Vrouwen", "red")]:
@@ -366,12 +366,12 @@ def make_scatter(eindtabel):
 
         fig_scatter.add_trace(
             go.Scatter(
-                x=df_g["Leeftijd"],
+                x=df_g[x],
                 y=df_g["Oversterfte"],
                 mode="markers",
                 text=df_g["Jaar"],  # hier stop je Jaar in
                 hovertemplate=(
-                    "Leeftijd: %{x}<br>"
+                    "X: %{x}<br>"
                     "Oversterfte: %{y:.0f}<br>"
                     "Jaar: %{text}<extra></extra>"
                 ),name=g,
@@ -381,7 +381,7 @@ def make_scatter(eindtabel):
         )
 
     fig_scatter.update_layout(
-        xaxis_title="Leeftijd",
+        xaxis_title=x,
         yaxis_title="Oversterfte 2020–2024",
         title="Oversterfte 2020–2024 per leeftijd en geslacht",
         template="simple_white",
@@ -490,8 +490,11 @@ def calculate_cohort_per_leeftijd(startjaar: int, leeftijd_min: int, leeftijd_ma
     eindtabel_total_geslacht_pivot["Totaal"] = eindtabel_total_geslacht_pivot["Mannen"] + eindtabel_total_geslacht_pivot["Vrouwen"]
     
     # make_scatter(eindtabel)
-    make_scatter(eindtabel_total_leeftijd_geslacht)
+    make_scatter(eindtabel_total_leeftijd_geslacht,"Leeftijd")
+
     show_metrics(eindtabel)
+
+    make_scatter(eindtabel_total_geslacht,"Jaar")
     st.write(eindtabel_total_geslacht_pivot)
 
     # st.write(eindtabel)
