@@ -5,7 +5,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from pygam import LinearGAM, s
+
+from pygam import LinearGAM, PoissonGAM, s
 
 
 # -------------------- Data inlezen -------------------- #
@@ -13,6 +14,45 @@ from pygam import LinearGAM, s
 def get_dataframe(file: str, delimiter: str = ";") -> pd.DataFrame:
     """Get data from a file or url and return as a pandas DataFrame."""
     return pd.read_csv(file, delimiter=delimiter, low_memory=False)
+
+@st.cache_data()
+def load_base_table() -> pd.DataFrame:
+    """Laad bevolking + overlijdens als één grote tabel (Leeftijd, Geslacht, Jaar)."""
+
+    # Bevolking
+    bevolking_ = get_dataframe(
+        r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/Bevolking__geslacht__leeftijd_en_burgerlijke_staat__2024.csv",
+        ",",
+    )
+
+    bevolking = bevolking_.melt(
+        id_vars=["Geslacht", "Leeftijd"],
+        var_name="Jaar",
+        value_name="Aantal",
+    )
+    bevolking = bevolking[["Leeftijd", "Geslacht", "Jaar", "Aantal"]]
+    bevolking["Jaar"] = bevolking["Jaar"].astype(int)
+
+    # Overlijdens
+    overlijdens_ = get_dataframe(
+        r"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/overlijdens_geslacht_leeftijd_burgelijkstaat2024.csv",
+        ",",
+    )
+
+    overlijdens = overlijdens_.melt(
+        id_vars=["Leeftijd", "Jaar"],
+        value_vars=["Mannen", "Vrouwen"],
+        var_name="Geslacht",
+        value_name="OverledenenLeeftijdBijOverlijden_1",
+    )
+
+    totaal_tabel = bevolking.merge(
+        overlijdens,
+        on=["Jaar", "Leeftijd", "Geslacht"],
+        how="right",
+    )
+
+    return totaal_tabel
 
 
 # -------------------- GAM hulpmethoden -------------------- #
@@ -221,10 +261,39 @@ def calculate_and_plot__gam_sterfte(
 
     return fig, res2, oversterfte_totaal
 
+@st.cache_data()
+def get_data(geslacht: str, startjaar: int, leeftijd_min: int, leeftijd_max: int) -> pd.DataFrame:
+    """Maak gecombineerde tabel voor één leeftijdsrange/geslacht (zoals je nu al doet)."""
+
+    totaal_tabel = load_base_table()
+
+    subset = totaal_tabel[
+        (totaal_tabel["Leeftijd"] >= leeftijd_min)
+        & (totaal_tabel["Leeftijd"] <= leeftijd_max)
+        & (totaal_tabel["Jaar"] >= startjaar)
+        & (totaal_tabel["Geslacht"] == geslacht)
+    ].copy()
+
+    if leeftijd_min != leeftijd_max:
+        subset = subset.groupby(["Jaar", "Geslacht"]).agg(
+            {
+                "Aantal": "sum",
+                "OverledenenLeeftijdBijOverlijden_1": "sum",
+            }
+        ).reset_index()
+
+        subset["Leeftijd"] = f"{leeftijd_min}-{leeftijd_max}"
+
+    subset["werkelijke_sterftekans"] = (
+        subset["OverledenenLeeftijdBijOverlijden_1"] / subset["Aantal"]
+    )
+
+    return subset
+
 
 # -------------------- Data ophalen en interface -------------------- #
 @st.cache_data()
-def get_data(geslacht: str, startjaar: int, leeftijd_min: int, leeftijd_max: int) -> pd.DataFrame:
+def get_data_oud(geslacht: str, startjaar: int, leeftijd_min: int, leeftijd_max: int) -> pd.DataFrame:
     """Haal bevolking en overlijdens op en maak gecombineerde tabel voor één leeftijd/geslacht."""
 
     # Bevolking
@@ -501,19 +570,181 @@ def calculate_cohort_per_leeftijd(startjaar: int, leeftijd_min: int, leeftijd_ma
     eindtabel_afwijking_geslacht=eindtabel.groupby(["Leeftijd","Geslacht"])["afwijking_per100k"].mean().reset_index()
     # st.write(eindtabel_afwijking_geslacht)
     plot_afwijking_leeftijd(eindtabel_afwijking_geslacht)
+def fit_joint_gam_excess(
+    startjaar: int,
+    leeftijd_min: int,
+    leeftijd_max: int,
+    train_end: int = 2019,
+    pred_end: int = 2024,
+):
+    """Eén gezamenlijk GAM op log-sterfte per 100k voor alle leeftijden/geslacht."""
+
+    totaal_tabel = load_base_table()
+
+    df_all = totaal_tabel[
+        (totaal_tabel["Leeftijd"] >= leeftijd_min)
+        & (totaal_tabel["Leeftijd"] <= leeftijd_max)
+        & (totaal_tabel["Jaar"] >= startjaar)
+        & (totaal_tabel["Jaar"] <= pred_end)
+    ].copy()
+
+    # weg met rijen zonder populatie
+    df_all = df_all[df_all["Aantal"] > 0].copy()
+
+    # sterfte per 100k
+    df_all["rate_actual_per100k"] = (
+        df_all["OverledenenLeeftijdBijOverlijden_1"] / df_all["Aantal"] * 100_000
+    )
+
+    # kleine eps zodat log() geen -inf wordt
+    eps = 1e-6
+    df_all["rate_clipped"] = df_all["rate_actual_per100k"].clip(lower=eps)
+    df_all["log_rate"] = np.log(df_all["rate_clipped"])
+
+    # features
+    df_all["jaar_c"] = df_all["Jaar"] - df_all["Jaar"].min()
+    df_all["leeftijd_c"] = df_all["Leeftijd"]
+
+    X = df_all[["jaar_c", "leeftijd_c"]].to_numpy()
+    y_log = df_all["log_rate"].to_numpy()
+
+    # alleen jaren t/m train_end gebruiken voor de fit
+    mask_train = df_all["Jaar"] <= train_end
+    X_train = X[mask_train]
+    y_train = y_log[mask_train]
+
+    gam = LinearGAM(
+        s(0, n_splines=10) + s(1, n_splines=10)
+    ).fit(X_train, y_train)
+
+    # voorspelde log-rate en terug naar per 100k
+    df_all["log_rate_pred"] = gam.predict(X)
+    df_all["rate_pred_per100k"] = np.exp(df_all["log_rate_pred"])
+
+    # verwachte en extra doden
+    df_all["expected_deaths"] = (
+        df_all["rate_pred_per100k"] * df_all["Aantal"] / 100_000
+    )
+    df_all["excess_deaths"] = (
+        df_all["OverledenenLeeftijdBijOverlijden_1"] - df_all["expected_deaths"]
+    )
+
+    # focus op 2020–2024
+    df_excess = df_all[df_all["Jaar"].between(train_end + 1, pred_end)].copy()
+
+    return gam, df_all, df_excess
+
+def main_3_from_age_gams():
+    st.header("Oversterfte op basis van som van per-leeftijd GAMs")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        startjaar = st.number_input(
+            "Start year (train tot en met)",
+            min_value=2000,
+            max_value=2019,
+            value=2000,
+            key="agg_startjaar",
+        )
+    with col2:
+        leeftijd_min = st.number_input(
+            "Leeftijd min voor aggregatie",
+            min_value=0,
+            max_value=105,
+            value=40,
+            key="agg_leeftijd_min",
+        )
+    with col3:
+        leeftijd_max = st.number_input(
+            "Leeftijd max voor aggregatie",
+            min_value=0,
+            max_value=105,
+            value=50,
+            key="agg_leeftijd_max",
+        )
+
+    # Bereken eerst voor alle leeftijden afzonderlijk
+    eindtabel = calculate_cohort_per_leeftijd(startjaar, 0, 105)
+
+    # Filter op gekozen leeftijdsrange en jaren 2020–2024
+    mask_range = (eindtabel["Leeftijd"] >= leeftijd_min) & (eindtabel["Leeftijd"] <= leeftijd_max)
+    mask_period = eindtabel["Jaar"].between(2020, 2024)
+    df_sel = eindtabel[mask_range & mask_period].copy()
+
+    # Aggregatie naar geslacht
+    tot_mannen = df_sel.loc[df_sel["Geslacht"] == "Mannen", "Oversterfte"].sum()
+    tot_vrouwen = df_sel.loc[df_sel["Geslacht"] == "Vrouwen", "Oversterfte"].sum()
+    tot_totaal = tot_mannen + tot_vrouwen
+
+    colm1, colm2, colm3 = st.columns(3)
+
+    def fmt(x):
+        return f"{x:,.0f}".replace(",", ".")
+
+    titel_range = f"{leeftijd_min}-{leeftijd_max} jaar"
+
+    colm1.metric(f"Oversterfte mannen 2020–2024 ({titel_range})", fmt(tot_mannen))
+    colm2.metric(f"Oversterfte vrouwen 2020–2024 ({titel_range})", fmt(tot_vrouwen))
+    colm3.metric(f"Totale oversterfte 2020–2024 ({titel_range})", fmt(tot_totaal))
+
+    # Oversterfte per jaar in die leeftijdsrange
+    df_year = (
+        df_sel.groupby(["Jaar", "Geslacht"])["Oversterfte"]
+        .sum()
+        .reset_index()
+    )
+
+    fig = go.Figure()
+    for g, kleur in [("Mannen", "blue"), ("Vrouwen", "red")]:
+        df_g = df_year[df_year["Geslacht"] == g].sort_values("Jaar")
+        fig.add_trace(
+            go.Scatter(
+                x=df_g["Jaar"],
+                y=df_g["Oversterfte"],
+                mode="lines+markers",
+                name=g,
+                line=dict(color=kleur),
+                marker=dict(size=7),
+                hovertemplate="Jaar: %{x}<br>Oversterfte: %{y:.0f}<extra></extra>",
+            )
+        )
+
+    fig.update_layout(
+        xaxis_title="Jaar",
+        yaxis_title=f"Oversterfte {titel_range}",
+        title=f"Oversterfte per jaar en geslacht ({titel_range}, som van per-leeftijd GAMs)",
+        template="simple_white",
+    )
+    fig.add_hline(y=0, line=dict(color="black", width=1))
+    st.plotly_chart(fig)
+
+    st.subheader("Onderliggende per-leeftijd resultaten (2020–2024, gekozen range)")
+    st.dataframe(df_sel)
+
 def info():
     st.info("https://kucharski.substack.com/p/excess-mortality-or-excessive-assumptions")
     st.info("Bevolking; geslacht, leeftijd en burgerlijke staat, 1 januari: https://opendata.cbs.nl/#/CBS/nl/dataset/7461bev/table?https:%2F%2Fopendata.cbs.nl%2F#%2FCBS%2Fnl%2Fdataset%2F03747%2Ftable%3Fts=1763998647352")
     st.info("Overledenen; geslacht, leeftijd en burgerlijke staat : https://opendata.cbs.nl/#/CBS/nl/dataset/37168/table?ts=1764041242474")
+
 def main():
-    tab1,tab2,tab3= st.tabs(["Enkele leeftijd/geslacht", "Alle leeftijden/geslacht","Info"])
+    tab1, tab2, tab4 = st.tabs([
+        "Enkele leeftijd/geslacht",
+        "Alle leeftijden/geslacht",
+        
+        "Info",
+    ])
+
     with tab1:
         main_1()
-       
+
+    
     with tab2:
         main_2()
-    with tab3:
+
+    
+    with tab4:
         info()
+
 
 if __name__ == "__main__":
     os.system("cls" if os.name == "nt" else "clear")

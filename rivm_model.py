@@ -769,12 +769,10 @@ def main() -> None:
 
     st.info("We reproduceren de methode van het RIVM n.a.v. https://x.com/infopinie/status/1960744770810073247")
 
-    df = load_data_from_url(DEFAULT_INPUT_URL)
-
-    min_season_available = int(df["season_year"].min() + 5)
-    max_season_available = int(df["season_year"].max())
+   
 
     with st.expander("Opties"):
+        keuze = st.selectbox("Welke kolom te gebruiken voor overledenen?", options=["Totaal leeftijd";"0 tot 65 jaar";"65 tot 80 jaar";"80 jaar of ouder"], index=0)
         use_harm2 = st.checkbox("Gebruik 2 harmonischen", value=True)
         show_model = st.checkbox("Toon modeldetails", value=False)
         show_train = st.checkbox("Toon trainingspunten (na uitsluiten)", value=False)
@@ -782,6 +780,10 @@ def main() -> None:
         q_all = 1 - (st.number_input("Percentage hoogste waarden dat wordt weggefilterd (alle waardes)", 0, 100, 25) / 100)
         q_summer = 1 - (st.number_input("Percentage hoogste waarden dat wordt weggefilterd (juli/augustus)", 0, 100, 20) / 100)
 
+    df = load_data_from_url(DEFAULT_INPUT_URL)
+    df["overleden"] = df[keuze]
+    min_season_available = int(df["season_year"].min() + 5)
+    max_season_available = int(df["season_year"].max())
     harmonics = 2 if use_harm2 else 1
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["Tijdlijn 2019H2–2026H1", "Per seizoen", "Alle seizoenen 2021–2026", "GROK", "Uitleg"])
