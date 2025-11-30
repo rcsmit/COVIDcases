@@ -75,6 +75,7 @@ def load_data_from_url(url: str = DEFAULT_INPUT_URL) -> pd.DataFrame:
     # if missing:
     #     raise ValueError(f"Ontbrekende kolommen: {missing}")
     st.write(df)
+    
     # Normaliseer kolomnamen
     cols = {c.lower(): c for c in df.columns}
     df = df.rename(
