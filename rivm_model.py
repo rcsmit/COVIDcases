@@ -70,11 +70,11 @@ def load_data_from_url(url: str = DEFAULT_INPUT_URL) -> pd.DataFrame:
         - season_week_idx (1..52; W27..W52 + W01..W26)
     """
     df = pd.read_csv(url, sep=";", dtype={"jaar": int, "week": int, "overleden": float})
-    required = {"jaar", "week", "overleden"}
-    missing = required - set(map(str.lower, df.columns))
-    if missing:
-        raise ValueError(f"Ontbrekende kolommen: {missing}")
-
+    # required = {"jaar", "week", "overleden"}
+    # missing = required - set(map(str.lower, df.columns))
+    # if missing:
+    #     raise ValueError(f"Ontbrekende kolommen: {missing}")
+    st.write(df)
     # Normaliseer kolomnamen
     cols = {c.lower(): c for c in df.columns}
     df = df.rename(
@@ -772,7 +772,7 @@ def main() -> None:
    
 
     with st.expander("Opties"):
-        keuze = st.selectbox("Welke kolom te gebruiken voor overledenen?", options=["Totaal leeftijd";"0 tot 65 jaar";"65 tot 80 jaar";"80 jaar of ouder"], index=0)
+        keuze = st.selectbox("Welke kolom te gebruiken voor overledenen?", options=["Totaal leeftijd","0 tot 65 jaar","65 tot 80 jaar","80 jaar of ouder"], index=0)
         use_harm2 = st.checkbox("Gebruik 2 harmonischen", value=True)
         show_model = st.checkbox("Toon modeldetails", value=False)
         show_train = st.checkbox("Toon trainingspunten (na uitsluiten)", value=False)
