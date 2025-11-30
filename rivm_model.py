@@ -23,7 +23,6 @@ except Exception:
     # Voorkom fout bij gedeelde omgevingen die set_page_config al hebben aangeroepen
     pass
 
-
 # --------------------------------------------------------------------------------------
 # Constantes
 # --------------------------------------------------------------------------------------
@@ -31,6 +30,7 @@ DEFAULT_INPUT_URL = (
     "https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/"
     "overlijdens_per_week_2014_2025.csv"
 )
+#DEFAULT_INPUT_URL=r"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\overlijdens_per_week_2014_2025.csv"
 RIVM_OFFICIAL_URL = (
     "https://raw.githubusercontent.com/rcsmit/COVIDcases/refs/heads/main/input/"
     "rivm_official_290825.csv"
