@@ -7,14 +7,14 @@ seaborn
 lmfit
 imageio
 tabulate
-gsheetsdb
+# gsheetsdb
 plotly
 statsmodels
 patsy
 scikit-learn
 cbsodata
 bs4
-lxml
+# lxml
 eurostat
 isoweek
 pygam

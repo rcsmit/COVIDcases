@@ -258,9 +258,10 @@ def fit_baseline(
     target["overleden"] = actual_map.reindex(list(zip(target["jaar"], target["week"]))).values
 
     # Visual: trainingsweken en historische baselines
-    hist_preds = _historical_baselines(df, model, X_cols, season_year_target)
-    _plot_training_and_hist(train, train_used, target, hist_preds, season_year_target)
-    st.write(model.summary())
+    with st.expander(f"Per jaar - {season_year_target}", expanded=False):
+        hist_preds = _historical_baselines(df, model, X_cols, season_year_target)
+        _plot_training_and_hist(train, train_used, target, hist_preds, season_year_target)
+        st.write(model.summary())
     return {
         "target_df": target,
         "train_used": train_used,

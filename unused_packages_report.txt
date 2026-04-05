@@ -1,0 +1,88 @@
+UNUSED PACKAGES REPORT
+======================================================================
+
+Repository: C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases
+Total packages in requirements.txt: 20
+Used packages: 18
+Unused packages: 2
+
+======================================================================
+PACKAGE USAGE MAP (Which Python file imports which package)
+======================================================================
+
+Note: Only showing file references for packages used in fewer than 7 files
+
+[*] bs4 (used in 1 file(s))
+    - get_rioolwater.py
+
+[*] cbsodata (used in 6 file(s))
+    - fit_mortality.py
+    - mortality_causes.py
+    - oversterfte_compleet.py
+    - oversterfte_get_data.py
+    - oversterfte_predict_per_levensjaar.py
+    - rki_predict_per_levensjaar.py
+
+[*] eurostat (used in 5 file(s))
+    - mortality_yearly_per_capita.py
+    - not_active_on_streamlit\oversterfte_eurostats.py
+    - oversterfte_eurostats_maand.py
+    - verwachte_sterfte - Copy.py
+    - verwachte_sterfte.py
+
+[*] imageio (used in 5 file(s))
+    - calculate_r_per_country_owid_streamlit.py
+    - fit_to_data_owid_levitt_streamlit_animated.py
+    - fit_to_data_owid_streamlit_animated.py
+    - fit_to_data_streamlit.py
+    - not_active_on_streamlit\fit_to_data_india_streamlit_animated.py
+
+[*] isoweek (used in 1 file(s))
+    - find_baseline_length.py
+
+[*] lmfit (used in 4 file(s))
+    - calculate_r_per_country_owid_streamlit.py
+    - fit_to_data_owid_streamlit_animated.py
+    - fit_to_data_streamlit.py
+    - not_active_on_streamlit\fit_to_data_india_streamlit_animated.py
+
+[*] matplotlib (used in 54 file(s))
+
+[*] numpy (used in 77 file(s))
+
+[*] pandas (used in 94 file(s))
+
+[*] patsy (used in 1 file(s))
+    - VE_CI_calculations.py
+
+[*] plotly (used in 45 file(s))
+
+[*] pygam (used in 1 file(s))
+    - oversterfte_predict_per_levensjaar_nieuw.py
+
+[*] scikit-learn (used in 29 file(s))
+
+[*] scipy (used in 43 file(s))
+
+[*] seaborn (used in 8 file(s))
+
+[*] statsmodels (used in 19 file(s))
+
+[*] streamlit (used in 91 file(s))
+
+[*] tabulate (used in 5 file(s))
+    - calculate_false_positive_rate_covid_test_streamlit.py
+    - calculate_ifr_from_prevalence_streamlit.py
+    - calculate_se_sp_rapidtest_streamlit.py
+    - not_active_on_streamlit\calculate_false_positive_rate_covid_test.py
+    - not_active_on_streamlit\calculate_ifr_prevalence.py
+
+
+======================================================================
+UNUSED PACKAGES
+======================================================================
+WARNING: Some packages may be used indirectly or at runtime.
+Review carefully before removing!
+
+gsheetsdb
+lxml

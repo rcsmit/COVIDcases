@@ -1,0 +1,101 @@
+Context
+A security review was requested to identify API keys, credentials, and other security vulnerabilities in the rcsmit/COVIDcases repository. This is a COVID-19 data analysis and visualization project built with Python/Streamlit.
+
+Findings
+1. API Keys / Credentials — NONE FOUND ✅
+
+No hardcoded API keys, tokens, secrets, or passwords were found in any .py, .json, .yaml, .cfg, .env, or other config files.
+No .env files exist in the repo.
+The gsheetsdb package (in requirements.txt) enables Google Sheets access, but no credentials for it appear to be hardcoded.
+
+Note — .git/config has a local proxy username:
+url = http://local_proxy@127.0.0.1:48652/git/rcsmit/COVIDcases
+This is a local development proxy artifact (not a real leaked credential), but it shows HTTP with embedded username pattern. Not a real risk since .git/ is not published.
+Note — Hardcoded Windows developer paths in multiple files:
+pythonr"C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\input\"
+```
+Files affected: `calculate_baselines.py`, `deltavax.py`, `find_baseline_length.py`, `fit_to_data_streamlit.py`, `get_rioolwater.py`, `herhaalprik.py`, and others. These expose a developer username (`rcxsm`) but contain no passwords or tokens. They are portability issues, not security issues.
+
+---
+
+### 2. Weak `.gitignore` — LOW RISK
+
+**File:** `/home/user/COVIDcases/.gitignore`
+
+The `.gitignore` only ignores:
+```
+__pycache__/
+input/prullenbak/
+It does not ignore common sensitive file patterns such as .env, *.key, *.pem, secrets.py, credentials.json, etc. If a developer ever adds such a file locally, it could accidentally be committed.
+Fix: Add standard Python + secrets patterns to .gitignore.
+
+3. os.system() Usage — LOW RISK
+7 files use os.system('cls') or os.system('clear') to clear the terminal:
+FileLinecorrelatie_sterfte_rioolwater_vaccins.py712sterfte_2000_2024.py791fit_mortality.py1242rki_predict_per_levensjaar.py550oversterfte_predict_per_levensjaar_nieuw.py750oversterfte_predict_per_levensjaar.py344mortality_causes.py519
+The arguments are hardcoded strings (not user input), so there is no actual injection risk. However, os.system() is generally discouraged. The safer alternative is subprocess.run(['cls'/'clear']) or using os.name to pick the right command without shell invocation.
+Fix: Replace with subprocess.run(["clear"], check=False) or use print("\033[H\033[2J", end="") for a cross-platform ANSI escape approach.
+
+4. unsafe_allow_html=True in Streamlit — LOW RISK
+96 occurrences across 31 files use st.markdown(..., unsafe_allow_html=True).
+All current uses embed hardcoded HTML strings (footers, links, formatted text), so there is no XSS risk today. The risk would arise if user-controlled input were ever interpolated into these strings.
+Fix (preventive): No immediate change needed, but add a code comment convention to always use hardcoded strings with unsafe_allow_html=True, and never interpolate user input.
+
+5. HTTP URLs (not HTTPS) — VERY LOW RISK
+Several files embed http:// links in rendered HTML/markdown:
+
+Twitter links: http://www.twitter.com/rcsmit (multiple files)
+http://skranz.github.io in VE_CI_calculations.py
+http://www.qog.pol.gu.se in qog_owid.py
+
+These are presentation links in a read-only analysis tool, so there is no security risk. However, HTTPS is preferred for integrity/privacy.
+Fix: Update to https:// equivalents.
+
+6. eval() calls — NOT A RISK ✅
+All .eval() occurrences are method calls on lmfit model result objects (e.g., result.eval()), not Python's built-in eval(). These are safe.
+
+7. Unpinned Dependencies — LOW/MEDIUM RISK
+File: /home/user/COVIDcases/requirements.txt
+Only scipy==1.15.3 is pinned. All other packages (streamlit, pandas, numpy, plotly, lmfit, gsheetsdb, etc.) are unpinned, meaning future installs could pull in versions with known vulnerabilities without warning.
+Fix: Pin all dependencies with pip freeze > requirements.txt (in a clean venv), or add pip audit / safety check to CI.
+
+8. Duplicate / Backup Files in Repo — MINOR
+The repo contains several backup files that should not be committed:
+
+rivm_model copy.py
+verwachte_sterfte - Copy.py
+temp-plot.html (generated output file)
+
+Fix: Delete these files and add patterns to .gitignore (*copy*.py, temp-*.html).
+
+9. Individual-Level Data File — CONTEXT NOTE
+input/COVID-19_casus_landelijk_2021.csv (25 MB) contains individual-level case records with fields: Agegroup, Sex, Province, Deceased, Week_of_death, Municipal_health_service. No names or national IDs are present — this is de-identified public RIVM data. No PII risk.
+
+10. No Other Vulnerabilities Found ✅
+
+No SQL injection (no database queries)
+No pickle.loads() or unsafe deserialization
+No subprocess calls with shell=True
+No user-controlled input passed to dangerous functions
+No Jupyter notebooks (no risk of cached sensitive output)
+No AWS/GCP/Azure credential patterns
+
+
+Recommended Fixes (Prioritized)
+
+Strengthen .gitignore (low effort, prevents future accidents)
+
+Add: .env, *.key, *.pem, *.p12, secrets.py, credentials.json, *.secret
+
+
+Replace os.system('cls') calls (7 files) with a safer alternative
+Update HTTP links to HTTPS (cosmetic, many files)
+No action needed on unsafe_allow_html or eval() calls
+
+
+Verification
+After making changes:
+
+Run git diff to review changes
+Confirm .gitignore additions with git check-ignore -v .env (should show ignored)
+Run the Streamlit app to verify no regressions in HTML rendering
+Run grep -r "os.system" . to confirm all instances are replaced

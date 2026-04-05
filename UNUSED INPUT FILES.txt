@@ -1,0 +1,464 @@
+
+======================================================================
+ANALYZING REPOSITORY
+======================================================================
+
+Found 155 files/references in input directory
+Found 119 Python files in repository
+
+Scanning Python files for references...
+Found 83 referenced files
+
+======================================================================
+RESULTS
+======================================================================
+
+** Found 50 potentially unused files:
+
+  • EINDTABELx.csv (654,688 bytes)
+  • Google_or_waze.csv.csv (1,899 bytes)
+  • LCPS_oud_covid-19.csv (14,651 bytes)
+  • README.md (233 bytes)
+  • bevolking_leeftijd_NL copy.csv (136,545 bytes)
+  • bevolking_nederland_per5jaar.csv (29,606 bytes)
+  • boosters_per_week_per_leeftijdscat.xlsx (38,352 bytes)
+  • cases-among-vaccinated-132.csv (22,656 bytes)
+  • df_merged_m_v_0_64.csv (193,953 bytes)
+  • df_merged_m_v_0_999.csv (199,859 bytes)
+  • df_merged_m_v_80_999.csv (202,307 bytes)
+  • excess-mortality-timeseries_NL_kobak.csv (3,167 bytes)
+  • gemeente_COVID-19_vaccinatiegraad_per_gemeente_per_week_leeftijd.csv (90,301 bytes)
+  • gemeente_COVID-19_vaccinatiegraad_per_week_leeftijd.csv (27,813 bytes)
+  • herfstprik_per_week_per_leeftijdscat.xlsx (15,308 bytes)
+  • herhaalprik_onder_overstefte_per_week_per_leeftijdscat.xlsx (25,213 bytes)
+  • herhaalprik_per_week_per_leeftijdscat.xlsx (32,753 bytes)
+  • knmi2.csv (13,544 bytes)
+  • landelijk_leeftijd_pivot.csv (34,696 bytes)
+  • overledenen_cbs.csv (975,014 bytes)
+  • overlijdens_2014_2025.csv (11,443 bytes)
+  • overlijdens_accidentele_val.csv (610 bytes)
+  • overlijdens_ademhalingsorganen.csv (657 bytes)
+  • overlijdens_covid.csv (543 bytes)
+  • overlijdens_gemeentes_per_maand.csv (4,411,558 bytes)
+  • overlijdens_hart_vaat_ziektes.csv (721 bytes)
+  • overlijdens_nieuwvormingen.csv (721 bytes)
+  • overlijdens_per_jaar.csv (2,380 bytes)
+  • overlijdens_per_week_meer_leeftijdscat.csv (24,031 bytes)
+  • overlijdens_wegverkeersongevallen.csv (499 bytes)
+  • oversterftem_v_0_49.csv (5,300 bytes)
+  • oversterftem_v_0_999.csv (5,486 bytes)
+  • oversterftem_v_50_64.csv (5,423 bytes)
+  • oversterftem_v_65_79.csv (5,341 bytes)
+  • oversterftem_v_80_89.csv (5,382 bytes)
+  • oversterftem_v_90_999.csv (5,266 bytes)
+  • prepare_google_mob_data.py (788 bytes)
+  • prognosetafel2020_mannen.csv (271,919 bytes)
+  • prognosetafel2020_vrouwen.csv (271,919 bytes)
+  • prognosetafel2022_mannen.csv (188,669 bytes)
+  • prognosetafel2022_vrouwen.csv (188,669 bytes)
+  • rioolwaarde2024.xlsx (40,152 bytes)
+  • rioolwaardes_official_rivm_oud.csv (13,076 bytes)
+  • st02_03.xls (140,800 bytes)
+  • sterfte_basevalue.csv (743,596 bytes)
+  • sterfte_eurostats.csv (5,546,253 bytes)
+  • sterfte_eurostats_new20230212.csv (5,640,349 bytes)
+  • sterfte_eurostats_new_2022_47.csv (5,602,699 bytes)
+  • vaccinated-per-day-2021-09-25.csv (71,186 bytes)
+  • vaccination_NL.csv (364,268 bytes)
+
+======================================================================
+Summary: 50 unused out of 133 total files
+======================================================================
+
+======================================================================
+FILE USAGE MAP
+======================================================================
+
+Showing which Python scripts use which input files:
+
+📄 Bevolking__geslacht__leeftijd_en_burgerlijke_staat__2024.csv
+   → oversterfte_predict_per_levensjaar_nieuw.py
+
+📄 COVID-19_aantallen_gemeente_per_dag_grouped_per_day.csv
+   → grafiek_pos_testen_per_leeftijdscategorie_streamlit.py
+
+📄 COVID-19_casus_landelijk_2021.csv
+   → dag_verschillen_casus_landelijk.py
+   → r_getal_per_provincie.py
+   → r_number_by_age.py
+
+📄 COVID-19_vaccinatiegraad_per_gemeente_per_week_leeftijd (2).csv
+   → oversterfte_gemeente.py
+
+📄 EINDTABEL.csv
+   → fit_to_data_streamlit.py
+   → not_active_on_streamlit\fit_to_data_india_streamlit_animated.py
+
+📄 GDPpercapita.csv
+   → covid_dashboard_owid.py
+
+📄 Google_or_waze.csv
+   → covid_dashboard_owid.py
+
+📄 SWEDEN_our_world_in_data.csv
+   → covid_dashboard_rcsmit.py
+   → fit_to_data_streamlit.py
+
+📄 basevalues_sterfte.csv
+   → utils.py
+
+📄 basevalues_sterfte_Y0-120_T.csv
+   → oversterfte_compleet.py
+   → sterfte_2000_2024.py
+   → utils.py
+
+📄 bevolking_leeftijd_BE.csv
+   → mortality_yearly_per_capita.py
+   → verwachte_sterfte - Copy.py
+   → verwachte_sterfte.py
+
+📄 bevolking_leeftijd_NL.csv
+   → agtable_mortality.py
+   → bayes_vaccination.py
+   → mortality_weekly_per_age_per_capita.py
+   → mortality_yearly_per_capita.py
+   → not_active_on_streamlit\oversterfte_eurostats.py
+   → not_active_on_streamlit\verwachte_sterrfte_2020_en_verder.py
+   → oversterfte_eurostats_maand.py
+   → oversterfte_predict_per_levensjaar.py
+   → rki_predict_per_levensjaar.py
+   → rki_predict_per_levensjaar_engels.py
+   → sterfte_2000_2024.py
+   → verwachte_sterfte - Copy.py
+   → verwachte_sterfte.py
+
+📄 boosters_per_week_per_leeftijdscat.csv
+   → not_active_on_streamlit\oversterfte_eurostats.py
+   → oversterfte_get_data.py
+
+📄 cases_hospital_deceased__ages.csv
+   → fit_to_data_streamlit.py
+
+📄 cases_per_age_per_province.csv
+   → perprovincieperleeftijd.py
+
+📄 cbs_deaths_until_2023.csv
+   → oversterfte_plot_functions.py
+
+📄 cbs_deaths_until_2023_fake2015_2019.csv
+   → oversterfte_plot_functions.py
+
+📄 contactmatrix.tsv
+   → SIR_age_structured_streamlit.py
+   → show_contactmatrix.py
+
+📄 datum_50_pct_voll_gevaxx.csv
+   → VE_nederland_.py
+
+📄 df_merged_m_v_65_79.csv
+   → bayes_vaccination.py
+
+📄 excess_mortality.csv
+   → vacc_excess_mort.py
+
+📄 final_result_vanuit_casus_landelijk.csv
+   → covid_dashboard_rcsmit.py
+
+📄 gemeente_inwoners_oppervlakte.csv
+   → oversterfte_gemeente.py
+   → vacc_inkomen_cases.py
+
+📄 gemeente_niet_west_immigr.csv
+   → vacc_inkomen_cases.py
+
+📄 gemeente_percentage_migratieachtergrond.csv
+   → vacc_inkomen_cases.py
+
+📄 gemeente_reported_hospital_deceased.csv
+   → vacc_inkomen_cases.py
+
+📄 gemeente_verkiezingen2021.csv
+   → vacc_inkomen_cases.py
+
+📄 google_mob_world.csv
+   → covid_dashboard_owid.py
+   → input\prepare_google_mob_data.py
+
+📄 herfstprik_per_week_per_leeftijdscat.csv
+   → oversterfte_get_data.py
+
+📄 herhaalprik_per_week_per_leeftijdscat.csv
+   → herhaalprik.py
+   → not_active_on_streamlit\oversterfte_eurostats.py
+   → oversterfte_get_data.py
+
+📄 inkomen_per_gemeente.csv
+   → vacc_inkomen_cases.py
+
+📄 input_latest_age_pos_test_kids_seperated.csv
+   → grafiek_pos_testen_per_leeftijdscategorie_PREPARE.py
+   → grafiek_pos_testen_per_leeftijdscategorie_streamlit.py
+
+📄 input_latest_age_pos_tests.csv
+   → grafiek_pos_testen_per_leeftijdscategorie_PREPARE.py
+   → grafiek_pos_testen_per_leeftijdscategorie_streamlit.py
+
+📄 inwoners_rzwi.csv
+   → rioolwater_vs_ziekenhuis.py
+
+📄 israel_zijlstra_mastersheet.csv
+   → israel_zijlstra.py
+
+📄 knmi3.csv
+   → covid_dashboard_rcsmit.py
+   → fit_to_data_streamlit.py
+
+📄 kobak_baselines.csv
+   → oversterfte_get_data.py
+
+📄 landelijk_leeftijd_week_vanuit_casus_landelijk_20211006.csv
+   → cases_hospital_decased_NL.py
+
+📄 landelijk_uitslag_per_partij2021.csv
+   → vacc_inkomen_cases.py
+
+📄 mobility.csv
+   → covid_dashboard_owid.py
+   → covid_dashboard_rcsmit.py
+   → fit_to_data_streamlit.py
+   → not_active_on_streamlit\masterfile_covid.py
+
+📄 motorvehicles.csv
+   → covid_dashboard_owid.py
+
+📄 overl_cbs_vs_rivm.csv
+   → oversterfte_get_data.py
+
+📄 overleden_rioolwater.csv
+   → overledenen_rioolwaardes.py
+
+📄 overlijdens_covid_months_as_int.csv
+   → rioolwaarde_vs_covidsterfte.py
+
+📄 overlijdens_gemeentes_jaar.csv
+   → oversterfte_gemeente.py
+
+📄 overlijdens_geslacht_leeftijd_burgelijkstaat.csv
+   → oversterfte_predict_per_levensjaar.py
+
+📄 overlijdens_geslacht_leeftijd_burgelijkstaat2024.csv
+   → oversterfte_predict_per_levensjaar_nieuw.py
+
+📄 overlijdens_per_week.csv
+   → calculate_baselines.py
+
+📄 overlijdens_per_week_2014_2025.csv
+   → rivm_model copy.py
+   → rivm_model.py
+   → rivm_model_met_categorien.py
+
+📄 overlijdens_per_week_2014_2025_met_categorien.csv
+   → rivm_model_met_categorien.py
+
+📄 oversterfte_mrt2025.csv
+   → oversterfte_compleet.py
+   → rioolwaarde_vs_covidsterfte.py
+
+📄 owid-covid-data.csv
+   → calculate_r_per_country_owid_streamlit.py
+   → covid_dashboard_owid.py
+   → fit_to_data_owid_levitt_streamlit_animated.py
+   → fit_to_data_owid_streamlit_animated.py
+   → not_active_on_streamlit\calculate_r_per_country_owid_uitgekleed.py
+   → not_active_on_streamlit\fit_to_data_owid_levitt_streamlit.py
+   → qog_owid.py
+   → scatterplots_owid.py
+
+📄 owid-covid-data_17_10_2021.csv
+   → qog_owid.py
+
+📄 owid-covid-data_20211202.csv
+   → fit_to_data_owid_levitt_streamlit_animated.py
+   → scatterplots_owid.py
+
+📄 owid-covid-data_NL.csv
+   → fit_to_data_owid_levitt_streamlit_animated.py
+   → not_active_on_streamlit\fit_to_data_owid_levitt_streamlit.py
+
+📄 pop_size_age_NL.csv
+   → cases_hospital_decased_NL.py
+
+📄 pop_size_age_NL2.csv
+   → VE_nederland_.py
+
+📄 populatie_grootte.csv
+   → israel_zijlstra.py
+
+📄 pos_test_leeftijdscat_wekelijks.csv
+   → grafiek_pos_testen_per_leeftijdscategorie_PREPARE.py
+   → grafiek_pos_testen_per_leeftijdscategorie_streamlit.py
+   → not_active_on_streamlit\NOT_MAINTAINED_grafiek_pos_testen_per_leeftijdscategorie.py
+
+📄 postestennaarleeftijd2.csv
+   → getest_leeftijd_weekcijfers.py
+   → postestennaarleeftyd.py
+
+📄 prognosetafel2024_mannen.csv
+   → rki_predict_per_levensjaar.py
+
+📄 prognosetafel2024_vrouwen.csv
+   → rki_predict_per_levensjaar.py
+
+📄 qog_variables.csv
+   → qog_owid.py
+
+📄 restrictions.csv
+   → covid_dashboard_owid.py
+   → covid_dashboard_rcsmit.py
+   → not_active_on_streamlit\masterfile_covid.py
+   → show_dashboard_graph_functions.py
+
+📄 rioolwaarde2024.csv
+   → not_active_on_streamlit\oversterfte_eurostats.py
+   → oversterfte_get_data.py
+
+📄 rioolwaardes_official_rivm.csv
+   → get_rioolwater.py
+
+📄 rioolwater_2024okt.csv
+   → herhaalprik.py
+   → oversterfte_get_data.py
+   → oversterfte_plot_functions.py
+   → utils.py
+
+📄 rioolwater_2025mrt.csv
+   → rioolwaarde_vs_covidsterfte.py
+
+📄 rioolwater_april_2025.csv
+   → oversterfte_plot_functions.py
+   → utils.py
+
+📄 rivm_deltavax.csv
+   → deltavax.py
+
+📄 rivm_official_290825.csv
+   → rivm_model copy.py
+   → rivm_model.py
+   → rivm_model_met_categorien.py
+
+📄 rivm_sterfte.csv
+   → oversterfte_get_data.py
+   → rivm_model copy.py
+   → rivm_model.py
+   → rivm_model_met_categorien.py
+
+📄 sterfte_eurostats_BE.csv
+   → find_baseline_length.py
+   → herhaalprik.py
+   → mortality_yearly_per_capita.py
+   → utils.py
+   → verwachte_sterfte - Copy.py
+   → verwachte_sterfte.py
+
+📄 sterfte_eurostats_NL.csv
+   → find_baseline_length.py
+   → herhaalprik.py
+   → mortality_weekly_per_age_per_capita.py
+   → mortality_yearly_per_capita.py
+   → not_active_on_streamlit\oversterfte_eurostats.py
+   → not_active_on_streamlit\verwachte_sterrfte_2020_en_verder.py
+   → utils.py
+   → verwachte_sterfte - Copy.py
+   → verwachte_sterfte.py
+
+📄 vaccinated_sortir_a_paris.csv
+   → qog_owid.py
+
+📄 vaccinatie_incidentie.csv
+   → vacc_inkomen_cases.py
+
+📄 vaccinaties_NL_2023.csv
+   → oversterfte_plot_functions.py
+   → utils.py
+
+📄 vaccinations_NL_2021.csv
+   → bayes_vaccination.py
+
+📄 vaccinations_OWOD_NL_daily.csv
+   → utils.py
+
+📄 vaccinations_europe.csv
+   → vacc_excess_mort.py
+
+📄 waze.csv
+   → covid_dashboard_owid.py
+   → covid_dashboard_rcsmit.py
+
+📄 waze_mobility.csv
+   → covid_dashboard_owid.py
+   → covid_dashboard_rcsmit.py
+
+📄 weektabel.csv
+   → getest_leeftijd_weekcijfers.py
+
+======================================================================
+
+======================================================================
+
+Do you want to move these unused files to 'unused' directory? (yes/no): y
+
+Moving unused files...
+
+Creating directory: C:\Users\rcxsm\Documents\python_scripts\covid19_seir_models\COVIDcases\unused
+  ✓ Moved: prullenbak\df_merged_m_v_0_64.csv
+  ✓ Moved: prognosetafel2022_mannen.csv
+  ✓ Moved: overlijdens_gemeentes_per_maand.csv
+  ✓ Moved: overlijdens_per_week_meer_leeftijdscat.csv
+  ✓ Moved: overlijdens_ademhalingsorganen.csv
+  ✓ Moved: rioolwaardes_official_rivm_oud.csv
+  ✓ Moved: prullenbak\oversterftem_v_90_999.csv
+  ✓ Moved: overlijdens_nieuwvormingen.csv
+  ✓ Moved: excess-mortality-timeseries_NL_kobak.csv
+  ✓ Moved: Google_or_waze.csv.csv
+  ✓ Moved: prognosetafel2020_mannen.csv
+  ✓ Moved: israel_zijlstra\cases-among-vaccinated-132.csv
+  ✓ Moved: israel_zijlstra\st02_03.xls
+  ✓ Moved: prognosetafel2022_vrouwen.csv
+  ✓ Moved: israel_zijlstra\vaccinated-per-day-2021-09-25.csv
+  ✓ Moved: prullenbak\oversterftem_v_0_999.csv
+  ✓ Moved: prepare_google_mob_data.py
+  ✓ Moved: prullenbak\oversterftem_v_50_64.csv
+  ✓ Moved: overlijdens_accidentele_val.csv
+  ✓ Moved: vaccination_NL.csv
+  ✓ Moved: prullenbak\sterfte_eurostats_new_2022_47.csv
+  ✓ Moved: prognosetafel2020_vrouwen.csv
+  ✓ Moved: extra_files\herfstprik_per_week_per_leeftijdscat.xlsx
+  ✓ Moved: prullenbak\df_merged_m_v_80_999.csv
+  ✓ Moved: landelijk_leeftijd_pivot.csv
+  ✓ Moved: prullenbak\sterfte_eurostats.csv
+  ✓ Moved: overlijdens_covid.csv
+  ✓ Moved: prullenbak\oversterftem_v_80_89.csv
+  ✓ Moved: extra_files\herhaalprik_per_week_per_leeftijdscat.xlsx
+  ✓ Moved: LCPS_oud_covid-19.csv
+  ✓ Moved: bevolking_leeftijd_NL copy.csv
+  ✓ Moved: israel_zijlstra\README.md
+  ✓ Moved: gemeente_COVID-19_vaccinatiegraad_per_gemeente_per_week_leeftijd.csv
+  ✓ Moved: rioolwaarde2024.xlsx
+  ✓ Moved: EINDTABELx.csv
+  ✓ Moved: prullenbak\oversterftem_v_0_49.csv
+  ✓ Moved: overlijdens_wegverkeersongevallen.csv
+  ✓ Moved: prullenbak\oversterftem_v_65_79.csv
+  ✓ Moved: overlijdens_per_jaar.csv
+  ✓ Moved: overledenen_cbs.csv
+  ✓ Moved: gemeente_COVID-19_vaccinatiegraad_per_week_leeftijd.csv
+  ✓ Moved: knmi2.csv
+  ✓ Moved: overlijdens_2014_2025.csv
+  ✓ Moved: prullenbak\sterfte_eurostats_new20230212.csv
+  ✓ Moved: extra_files\boosters_per_week_per_leeftijdscat.xlsx
+  ✓ Moved: bevolking_nederland_per5jaar.csv
+  ✓ Moved: sterfte_basevalue.csv
+  ✓ Moved: df_merged_m_v_0_999.csv
+  ✓ Moved: extra_files\herhaalprik_onder_overstefte_per_week_per_leeftijdscat.xlsx
+  ✓ Moved: overlijdens_hart_vaat_ziektes.csv
+
+* Successfully moved 50 files to 'unused' directory

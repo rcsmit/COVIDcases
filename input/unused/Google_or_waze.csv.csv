@@ -1,0 +1,45 @@
+_,transit_stations,driving_waze,transit_stations_SMA,driving_waze_SMA,Who_wins
+Argentina,-0.293,-0.375,-0.311,-0.405,Waze
+Australia,0.618,0.187,0.659,0.189,Google
+Austria,0.452,0.355,0.479,0.415,Google
+Belgium,0.356,0.251,0.375,0.24,Google
+Brazil,-0.177,-0.36,-0.192,-0.396,Waze
+Canada,0.477,0.061,0.526,0.06,Google
+Chile,0.187,-0.094,0.203,-0.11,Google
+Colombia,-0.266,-0.343,-0.288,-0.365,Waze
+Costa Rica,0.086,-0.019,0.097,-0.022,Google
+Czechia,0.233,0.179,0.246,0.194,Google
+Ecuador,-0.24,-0.273,-0.267,-0.297,Waze
+Estonia,0.221,0.183,0.231,0.216,Google
+France,0.43,0.287,0.449,0.323,Google
+Germany,0.452,0.26,0.486,0.275,Google
+Guatemala,-0.457,-0.503,-0.489,-0.541,Waze
+Hungary,0.12,0.195,0.146,0.21,Waze
+Indonesia,0.054,-0.082,0.052,-0.094,Waze
+Israel,0.217,-0.04,0.231,-0.046,Google
+Italy,0.407,0.3,0.418,0.296,Google
+Latvia,0.351,0.307,0.378,0.371,Google
+Lithuania,0.335,0.232,0.354,0.339,Google
+Luxembourg,0.357,0.329,0.391,0.367,Google
+Malaysia,0.485,0.416,0.498,0.434,Google
+Mexico,-0.233,-0.447,-0.258,-0.468,Waze
+Morocco,-0.275,-0.268,-0.278,-0.279,Google
+Netherlands,0.544,0.373,0.577,0.376,Google
+Peru,-0.439,-0.529,-0.515,-0.583,Waze
+Philippines,-0.066,-0.217,-0.065,-0.221,Waze
+Poland,-0.004,-0.163,-0.013,-0.178,Waze
+Portugal,0.394,0.125,0.418,0.134,Google
+Qatar,-0.387,-0.389,-0.405,-0.396,Waze
+Romania,-0.056,-0.2,-0.056,-0.197,Waze
+Russia,-0.241,-0.361,-0.256,-0.488,Waze
+Singapore,0.061,-0.03,0.065,-0.031,Google
+Slovakia,0.372,0.41,0.396,0.438,Waze
+South Africa,0.059,-0.135,0.059,-0.149,Waze
+Spain,0.371,0.413,0.386,0.446,Waze
+Sweden,0.118,-0.168,0.132,-0.217,Waze
+Switzerland,0.453,0.366,0.488,0.411,Google
+Ukraine,-0.345,-0.527,-0.353,-0.479,Waze
+United Arab Emirates,-0.256,-0.34,-0.257,-0.343,Waze
+United Kingdom,0.7,0.414,0.725,0.424,Google
+United States,0.481,0.055,0.527,0.012,Google
+Uruguay,0.468,0.43,0.577,0.501,Google

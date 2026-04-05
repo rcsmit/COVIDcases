@@ -254,7 +254,7 @@ def main() -> None:
     with col6:
         min=st.number_input("Start year",2000,2023,2020)
     with col7:
-        max=st.number_input("End year (incl)",2000,2023,2023)
+        max=st.number_input("End year (incl)",2000,2030,2025)
     
     
     # Filter based on age, sex, year range, and doodsoorzaak containing 'totaal'
