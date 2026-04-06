@@ -102,7 +102,7 @@ CATEGORIES = [
     ("E", "💉  Vaccines & Effectiveness",   [22, 23, 24, 25, 27, 28, 29, 47, 54, 56], "#27AE60"),
     ("F", "📈  Curve fitting",              [6, 11, 30],                               "#2980B9"),
     ("G", "⚰️  Mortality & Excess deaths",  [36, 37, 38, 39, 40, 41, 42, 43, 45, 46, 48, 50, 51, 52, 53, 55, 57, 59, 60, 62, 63], "#8E44AD"),
-    ("H", "🚿  Sewage water",               [17, 44, 59],                              "#16A085"),
+    ("H", "🚿  Sewage water",               [17, 44],                              "#16A085"),
     ("I", "🌍  International comparisons",  [26, 32, 33],                              "#2C3E50"),
     ("J", "📐  Statistics & Methods",       [49, 38, 40],                              "#7F8C8D"),
 ]
