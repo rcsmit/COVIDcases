@@ -545,7 +545,6 @@ def plot_multi_group(
 # Streamlit App
 # ---------------------------------------------------------------------------
 
-
 def main() -> None:
     """Hoofdfunctie van de Streamlit app."""
     st.set_page_config(
