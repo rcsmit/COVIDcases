@@ -546,7 +546,7 @@ def plot_multi_group(
 # ---------------------------------------------------------------------------
 
 
-def run_app() -> None:
+def main() -> None:
     """Hoofdfunctie van de Streamlit app."""
     st.set_page_config(
         page_title="CBS Oversterfte Analyse",
@@ -776,5 +776,5 @@ def run_app() -> None:
 - Recente jaren kunnen voorlopige cijfers bevatten
         """)
 
-
-run_app()
+if __name__ == "__main__":
+    main()
