@@ -39,7 +39,7 @@ _DEATHS_GROUP_MAP: dict[str, str] = {
 }
 
 
-FIT_TYPES = ["exponentieel", "lineair", "kwadratisch", "logaritmisch"]
+FIT_TYPES = ["exponentieel", "lineair", "kwadratisch", "logaritmisch", "logaritmisch2"]
 COLORS = [
     "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
     "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
@@ -207,6 +207,9 @@ def fit_baseline(
         coeffs = np.polyfit(x_base, y_base, 2)
         return np.polyval(coeffs, x_all), "kwadratisch"
 
+    
+      
+
     if fit_type == "logaritmisch":
         # log(0) vermijden: x_base loopt vanaf 0, dus verschuif met 1
         try:
@@ -214,6 +217,17 @@ def fit_baseline(
             return np.polyval(coeffs, np.log(x_all + 1)), "logaritmisch"
         except (ValueError, np.linalg.LinAlgError):
             fit_type = "lineair"  # fallback
+    if fit_type == "logaritmisch2":
+        try:
+            log_y = np.log(y_base)
+
+            coeffs = np.polyfit(x_base, log_y, 1)
+
+            y_pred = np.exp(np.polyval(coeffs, x_all))
+
+            return y_pred, "log(y) lineair"
+        except (ValueError, np.linalg.LinAlgError):
+            fit_type = "lineair"
 
     # lineair (default / fallback)
     coeffs = np.polyfit(x_base, y_base, 1)
@@ -270,8 +284,10 @@ def calculate_mortality_analysis(
         return None
 
     x_offset = baseline_start
+    #x_offset = (baseline_start + baseline_end) / 2
     x_base = (baseline["jaar"] - x_offset).values.astype(float)
     y_base = baseline["sterfte_per_100k"].values.astype(float)
+    #y_base = np.clip(y_base, 1e-6, None)
     x_all = (merged["jaar"] - x_offset).values.astype(float)
 
     basislijn_vals, used_fit_type = fit_baseline(x_base, y_base, x_all, fit_type)
@@ -438,6 +454,7 @@ def plot_fit_comparison(
     df_lin: pd.DataFrame,
     df_kwa: pd.DataFrame,
     df_log: pd.DataFrame,
+    df_log2: pd.DataFrame,
     group: str,
     baseline_start: int,
     baseline_end: int,
@@ -469,6 +486,7 @@ def plot_fit_comparison(
         (df_lin, COLORS[2], "Lineair"),
         (df_kwa, COLORS[3], "Kwadratisch"),
         (df_log, COLORS[4], "Logaritmisch"),
+        (df_log2, COLORS[5], "Logaritmisch2"),
     ]:
         fig.add_trace(go.Scatter(
             x=df["jaar"], y=df["basislijn_per_100k"],
@@ -660,27 +678,31 @@ def main() -> None:
         deaths, pop, selected_group, baseline_start, baseline_end, "logaritmisch"
     )
 
+    df_log2 = calculate_mortality_analysis(
+        deaths, pop, selected_group, baseline_start, baseline_end, "logaritmisch2"
+    )
+
     # --- Grafieken ---
 
     # Rij 1: sterfte per 100k + absolute sterfte
    
     st.plotly_chart(
         plot_mortality_rate(df_analysis, selected_group, baseline_start, baseline_end),
-        use_container_width=True,
+        width='stretch',
     )
 
     st.plotly_chart(
         plot_absolute_mortality(df_analysis, selected_group, baseline_start, baseline_end),
-        use_container_width=True,
+        width='stretch',
     )
 
     # Rij 2: vergelijking alle drie basislijnen
     if df_exp is not None and df_lin is not None and df_kwa is not None:
         st.plotly_chart(
             plot_fit_comparison(
-                df_exp, df_lin, df_kwa,df_log, selected_group, baseline_start, baseline_end
+                df_exp, df_lin, df_kwa,df_log,df_log2, selected_group, baseline_start, baseline_end
             ),
-            use_container_width=True,
+            width='stretch',
         )
 
     # Rij 3: oversterfte per 100k + absoluut
@@ -688,12 +710,12 @@ def main() -> None:
     with col3:
         st.plotly_chart(
             plot_excess_mortality(df_analysis, selected_group, per_100k=True),
-            use_container_width=True,
+            width='stretch',
         )
     with col4:
         st.plotly_chart(
             plot_excess_mortality(df_analysis, selected_group, per_100k=False),
-            use_container_width=True,
+            width='stretch',
         )
 
     # Rij 4: multi-groep vergelijking
@@ -702,7 +724,7 @@ def main() -> None:
             plot_multi_group(
                 deaths, pop, compare_groups, baseline_start, baseline_end, fit_type
             ),
-            use_container_width=True,
+            width='stretch',
         )
 
     # --- Samenvatting recente jaren ---
@@ -742,7 +764,7 @@ def main() -> None:
         fmt_ok = {k: v for k, v in fmt.items() if k in avail}
         st.dataframe(
             df_analysis[avail].style.format(fmt_ok),
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
         )
 
