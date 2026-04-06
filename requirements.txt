@@ -18,3 +18,4 @@ bs4
 eurostat
 isoweek
 pygam
+openpyxl 
