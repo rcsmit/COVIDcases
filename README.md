@@ -1,113 +1,157 @@
-# COVIDcases
+# 🦠 René Smit — COVID Scripts
 
-Various files with models and graphs concerning COVID-19. 
+> A collection of 63+ interactive Python/Streamlit apps covering epidemic modelling, vaccine effectiveness, excess mortality, Dutch open data, and more.
 
-Accessible at https://share.streamlit.io/rcsmit/covidcases/main/covid_menu_streamlit.py
-
-Sorry, sourcecode, input and outputfiles are mixed in one directory. If I'd do it again, I would split it up and make an utils.py file also. 
-
-## Interesting files/scripts
-
-* **1) covid_dashboard_rcsmit.py** - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs. 
-![image](https://user-images.githubusercontent.com/1609141/112730553-8b1cf680-8f32-11eb-83f6-1569f5114678.png)
-
- [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/covid_dashboard_rcsmit.py)
-
-* **2) Plot_hosp_ic_streamlit.py** - Plot the number of hospital and ICU admissions per age in time in the Netherlands
-<img width="877" alt="plothospIC" src="https://user-images.githubusercontent.com/1609141/118802804-e02a1880-b8a2-11eb-8772-cc495bf7bca8.png">
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/grafiek_pos_testen_per_leeftijdscategorie_streamlit.py)
+🔗 **Live app:** [rcsmit-covidcases.streamlit.app](https://rcsmit-covidcases.streamlit.app)
 
 
-**3) calculate_false_positive_rate_covid_test.py** - HOE BETROUWBAAR ZIJN DE TESTEN ?
-![image](https://user-images.githubusercontent.com/1609141/115085095-2b4eb580-9f0a-11eb-8c1f-02642e846114.png)
-![image](https://user-images.githubusercontent.com/1609141/115085050-14a85e80-9f0a-11eb-9732-87a78ffa73d3.png)
+### 🦠 Epidemic models
+| # | Script | Description |
+|---|--------|-------------|
+| 7 | [SEIR hobbeland](https://rcsmit-covidcases.streamlit.app/?choice=7) | Classic SEIR epidemic model (hobbeland variant) |
+| 8 | [Show contactmatrix](https://rcsmit-covidcases.streamlit.app/?choice=8) | Age-structured contact matrix visualizer |
+| 10 | [Cases from susceptibles](https://rcsmit-covidcases.streamlit.app/?choice=10) | Case trajectory from susceptible pool dynamics |
+| 18 | [SIR model met leeftijdsgroepen](https://rcsmit-covidcases.streamlit.app/?choice=18) | Age-structured SIR epidemic model |
+| 34 | [Playing with R0](https://rcsmit-covidcases.streamlit.app/?choice=34) | Interactive R₀ sensitivity explorer |
+| 58 | [SIR model agent based](https://rcsmit-covidcases.streamlit.app/?choice=58) | Vectorized agent-based SIR epidemic model |
+| 61 | [RIVM model](https://rcsmit-covidcases.streamlit.app/?choice=61) | Replicated RIVM epidemic model |
 
-* **4) number_of_cases_interactive.py** - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity
+### 📊 Cases & R number
+| # | Script | Description |
+|---|--------|-------------|
+| 1 | [Covid dashboard](https://rcsmit-covidcases.streamlit.app/?choice=1) | Main COVID dashboard for the Netherlands |
+| 2 | [Plot hosp/IC per age](https://rcsmit-covidcases.streamlit.app/?choice=2) | Hospital and IC admissions per age group |
+| 4 | [Number of cases interactive](https://rcsmit-covidcases.streamlit.app/?choice=4) | Interactive case count visualization |
+| 9 | [R getal per provincie](https://rcsmit-covidcases.streamlit.app/?choice=9) | Reproduction number R per Dutch province |
+| 12 | [Calculate R per country OWID](https://rcsmit-covidcases.streamlit.app/?choice=12) | R number per country using OWID data |
+| 13 | [Covid dashboard OWID/Google](https://rcsmit-covidcases.streamlit.app/?choice=13) | COVID dashboard with OWID, Google, and Waze mobility data |
+| 14 | [Dag verschillen per leeftijd](https://rcsmit-covidcases.streamlit.app/?choice=14) | Daily case differences per age group |
+| 16 | [R getal per leeftijdscategorie](https://rcsmit-covidcases.streamlit.app/?choice=16) | Reproduction number R per age category |
+| 19 | [Pos testen per leeftijdscat.](https://rcsmit-covidcases.streamlit.app/?choice=19) | Positive test rate per age category |
+| 20 | [Per provincie per leeftijd](https://rcsmit-covidcases.streamlit.app/?choice=20) | Cases per province per age group |
 
-![image](https://user-images.githubusercontent.com/1609141/112731094-945b9280-8f35-11eb-8c3d-a99e5f48487d.png)
+**[1] Covid dashboard**
+![covid dashboard](https://user-images.githubusercontent.com/1609141/112730553-8b1cf680-8f32-11eb-83f6-1569f5114678.png)
 
- [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/rcsmit/covidcases/main/number_of_cases_interactive.py)
+**[2] Plot hosp/IC per age**
+![plot hosp IC](https://user-images.githubusercontent.com/1609141/118802804-e02a1880-b8a2-11eb-8772-cc495bf7bca8.png)
 
+**[4] Number of cases interactive**
+![number of cases](https://user-images.githubusercontent.com/1609141/112731094-945b9280-8f35-11eb-8c3d-a99e5f48487d.png)
 
-**5) calculate_ifr_prevalence.py** - calculate percentage of population who had covid and the IFR from the prevalence
-![image](https://user-images.githubusercontent.com/1609141/115160069-8f05e980-a096-11eb-87f4-106738c6feed.png)
+**[19] Pos testen per leeftijdscat.**
+![pos testen per leeftijdscategorie](https://user-images.githubusercontent.com/1609141/112730260-e0f09f00-8f30-11eb-9bff-a835c2f965f7.png)
 
+### 🧪 Testing & Serology
+| # | Script | Description |
+|---|--------|-------------|
+| 3 | [False positive rate covid test](https://rcsmit-covidcases.streamlit.app/?choice=3) | False positive rate calculator for COVID tests |
+| 5 | [IFR from prevalence](https://rcsmit-covidcases.streamlit.app/?choice=5) | Infection fatality rate derived from seroprevalence data |
+| 15 | [Abs./rel. humidity from RH](https://rcsmit-covidcases.streamlit.app/?choice=15) | Calculate specific/absolute humidity from relative humidity |
+| 21 | [Kans om COVID op te lopen](https://rcsmit-covidcases.streamlit.app/?choice=21) | Probability of contracting COVID |
+| 31 | [Aerosol concentration in room](https://rcsmit-covidcases.streamlit.app/?choice=31) | Aerosol concentration in room by @hk_nien |
+| 35 | [Calculate Se & Sp Rapidtest](https://rcsmit-covidcases.streamlit.app/?choice=35) | Sensitivity and specificity calculator for rapid tests |
 
-**6)fit_to_data_streamlit.py** - FIT THE DATA 
-![image](https://user-images.githubusercontent.com/1609141/115085210-651fbc00-9f0a-11eb-99e6-6aa4504fd325.png)
+### 💉 Vaccines & Effectiveness
+| # | Script | Description |
+|---|--------|-------------|
+| 22 | [Data per gemeente](https://rcsmit-covidcases.streamlit.app/?choice=22) | Vaccination, income, and cases per municipality |
+| 23 | [VE Israel](https://rcsmit-covidcases.streamlit.app/?choice=23) | Vaccine effectiveness — Israel (Zijlstra method) |
+| 24 | [Hosp/death NL](https://rcsmit-covidcases.streamlit.app/?choice=24) | Dutch hospitalizations and deaths over time |
+| 25 | [VE Nederland](https://rcsmit-covidcases.streamlit.app/?choice=25) | Vaccine effectiveness Netherlands |
+| 27 | [VE & CI calculations](https://rcsmit-covidcases.streamlit.app/?choice=27) | Vaccine effectiveness and confidence interval calculations |
+| 28 | [VE scenario calculator](https://rcsmit-covidcases.streamlit.app/?choice=28) | Vaccine effectiveness under different scenario assumptions |
+| 29 | [VE vs inv. odds](https://rcsmit-covidcases.streamlit.app/?choice=29) | Vaccine effectiveness vs inverse odds analysis |
+| 47 | [Deltavax](https://rcsmit-covidcases.streamlit.app/?choice=47) | Delta variant and vaccination interaction model |
+| 54 | [Herhaalprik](https://rcsmit-covidcases.streamlit.app/?choice=54) | Booster vaccination uptake and effect analysis |
+| 56 | [Bayes Mortality Vaccination](https://rcsmit-covidcases.streamlit.app/?choice=56) | Bayesian analysis of mortality and vaccination |
 
-* **7) SEIR_hobbeland.py** -  Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745
-![image](https://user-images.githubusercontent.com/1609141/112730583-adaf0f80-8f32-11eb-9517-0b2fd6443c42.png)
+### 📈 Curve fitting
+| # | Script | Description |
+|---|--------|-------------|
+| 6 | [Fit to data](https://rcsmit-covidcases.streamlit.app/?choice=6) | Curve fitting to COVID case data |
+| 11 | [Fit to data OWID animated](https://rcsmit-covidcases.streamlit.app/?choice=11) | Animated curve fitting to Our World in Data |
+| 30 | [Fit to data Levitt](https://rcsmit-covidcases.streamlit.app/?choice=30) | Animated Levitt-style curve fitting (OWID) |
 
-* **8) Show contact matrix**
-* **9) r getal per provincie**
-* **10) Cases from suspectibles**
-* **11) Fit to data OWID**
-* **12) Calculate R per country owid**
-* **13) Covid dashboard OWID/Google or Waze**
-* **14) Dag verschillen per leeftijd**
-* **15) Calculate spec)/abs) humidity from rel) hum**
-* **16) R getal per leeftijdscategorie**
-* **17) Show rioolwaardes**
-* **18) SIR model met leeftijdsgroepen**
+### ⚰️ Mortality & Excess deaths
+| # | Script | Description |
+|---|--------|-------------|
+| 36 | [Oversterfte gemeente](https://rcsmit-covidcases.streamlit.app/?choice=36) | Excess mortality per Dutch municipality |
+| 37 | [Sterfte patronen](https://rcsmit-covidcases.streamlit.app/?choice=37) | Dutch mortality patterns 2000–2024 |
+| 38 | [Bayes Lines tools](https://rcsmit-covidcases.streamlit.app/?choice=38) | Bayesian line-fitting tools for mortality data |
+| 39 | [Oversterfte (CBS Odata)](https://rcsmit-covidcases.streamlit.app/?choice=39) | Excess mortality using CBS open data API |
+| 41 | [Disabled by Long covid](https://rcsmit-covidcases.streamlit.app/?choice=41) | Disability burden estimates from Long COVID |
+| 42 | [Oversterfte 5yr Eurostats](https://rcsmit-covidcases.streamlit.app/?choice=42) | Monthly excess mortality — 5-year baseline, Eurostat |
+| 43 | [Doodsoorzaken Sankey](https://rcsmit-covidcases.streamlit.app/?choice=43) | Sankey diagram of causes of death |
+| 45 | [Rioolwaarde vs overleden CBS](https://rcsmit-covidcases.streamlit.app/?choice=45) | Sewage signal vs deaths (CBS data) |
+| 46 | [Mortality yearly per capita](https://rcsmit-covidcases.streamlit.app/?choice=46) | Annual mortality per capita trend analysis |
+| 48 | [Verwachte sterfte](https://rcsmit-covidcases.streamlit.app/?choice=48) | Expected mortality baseline calculation |
+| 50 | [Calculate baselines (Poisson)](https://rcsmit-covidcases.streamlit.app/?choice=50) | Poisson-based mortality baseline calculator |
+| 51 | [AG table mortality](https://rcsmit-covidcases.streamlit.app/?choice=51) | AG actuarial table mortality analysis |
+| 52 | [Find baseline length](https://rcsmit-covidcases.streamlit.app/?choice=52) | Sensitivity analysis on baseline window length |
+| 53 | [Mortality/week/100k](https://rcsmit-covidcases.streamlit.app/?choice=53) | Weekly mortality per age per 100,000 population |
+| 55 | [Fit Mortality/causes death](https://rcsmit-covidcases.streamlit.app/?choice=55) | Curve fitting on cause-of-death mortality data |
+| 57 | [Sterfte/rioolw./vaccins](https://rcsmit-covidcases.streamlit.app/?choice=57) | Correlation: mortality, sewage signal, vaccinations |
+| 60 | [Oversterfte predict per levensjaar](https://rcsmit-covidcases.streamlit.app/?choice=60) | Excess mortality prediction per year of life |
+| 62 | [Oversterfte GAM](https://rcsmit-covidcases.streamlit.app/?choice=62) | GAM-based excess mortality prediction |
+| 63 | [CBS-Oversterfte](https://rcsmit-covidcases.streamlit.app/?choice=63) | Excess mortality analysis with CBS data — back to the drawing board |
 
-* **19) grafiek_pos_testen_per_leeftijdscategorie_streamlit)py** - draw graphs of positieve cases per age in time**
- ![image](https://user-images)githubusercontent)com/1609141/112730260-e0f09f00-8f30-11eb-9bff-a835c2f965f7)png)**
- [![Open in Streamlit](https://static)streamlit)io/badges/streamlit_badge_black_white)svg)](https://share)streamlit)io/rcsmit/covidcases/main/grafiek_pos_testen_per_leeftijdscategorie_streamlit)py)**
- 
-* **20) per provincie per leeftijd**
-* **21) kans om covid op te lopen**
-![image](https://user-images.githubusercontent.com/1609141/140588996-b5ab2727-3fd8-40e4-ba7a-efe32f394b32.png)
+### 🚿 Sewage water
+| # | Script | Description |
+|---|--------|-------------|
+| 17 | [Show rioolwaardes](https://rcsmit-covidcases.streamlit.app/?choice=17) | Sewage water COVID signal visualization |
+| 44 | [Rioolwaarde vs ziekenhuis](https://rcsmit-covidcases.streamlit.app/?choice=44) | Sewage signal vs hospital admissions |
+| 59 | [Rioolwater vs covidsterfte](https://rcsmit-covidcases.streamlit.app/?choice=59) | Sewage COVID signal vs COVID deaths |
 
-* **22) Data per gemeente**
-* **23) VE Israel**
-* **24) Hosp/death NL**
-* **25) VE Nederland**
-* **26) Scatterplots QoG OWID** - Combine a lot of information of Qog and Our World in Data
-* ![image](https://user-images.githubusercontent.com/1609141/140589065-ad81c492-5371-4cf6-91ba-e31552c337a5.png)
+### 🌍 International comparisons
+| # | Script | Description |
+|---|--------|-------------|
+| 26 | [Scatterplots QoG OWID](https://rcsmit-covidcases.streamlit.app/?choice=26) | Quality of Government vs OWID COVID scatterplots |
+| 32 | [Compare two variants](https://rcsmit-covidcases.streamlit.app/?choice=32) | Side-by-side comparison of two COVID variants |
+| 33 | [Scatterplot OWID](https://rcsmit-covidcases.streamlit.app/?choice=33) | OWID country-level scatterplot explorer |
 
-* **27) VE & CI calculations**
-* **28) VE scenario calculator**
-* **29) VE vs inv. odds**
+### 📐 Statistics & Methods
+| # | Script | Description |
+|---|--------|-------------|
+| 40 | [Bayes berekeningen IC/ziekenhuis](https://rcsmit-covidcases.streamlit.app/?choice=40) | Bayesian probability calculations for IC and hospital data |
+| 49 | [Logistic regression](https://rcsmit-covidcases.streamlit.app/?choice=49) | Logistic regression on COVID outcome data |
 
+---
 
-## Help files
-* **grafiek_pos_testen_per_leeftijdscategorie_PREPARE)py**
-* **prepare_casuslandelijk.py** 
-* 
-## Required files
-* **mobilityR.csv** - Contains google- and apple mobility data for *masterfile_covid.py*
-* **requirements.txt** - required to use *number_of_cases_interactive.py* at share.streamlit.io 
- 
-## DATA FILES
+## 🚀 Running locally
 
-* **knmi2.csv** - weather info
-* **mobility.csv** - mobility info
-* **pos_test_leeftijdscat_wekelijks.csv** - table 14 from 'wekelijks rapport RIVM' with tested/tested positive with different ageclasses -from 2020/8/1
-* **postestennaarleeftijd2.csv** - table 14 from 'wekelijks rapport RIVM' with tested/tested positive with different ageclasses - from 2021/1/1
-* **input_latest_age_pos_test_kids_seperated.csv** - table 14 from 'wekelijks rapport RIVM' with tested/tested positive with different ageclasses - from 2021/1/1 >20 in 10 years cohorts and kids still separated
-* **input_latest_age_pos_tests.csv** - table 14 from 'wekelijks rapport RIVM' with tested/tested positive with different ageclasses - from 2021/1/1 >20 in 10 years cohorts and kids in one chohort
-* **restrictions.csv** - restrictions in NL
-* **SWEDEN_our_world_in_data.csv** - info about sweden
-* **weektabel.csv** - all data from the dashboard aggregated per week - 2021
+```bash
+git clone https://github.com/rcsmit/COVIDcases.git
+cd COVIDcases
+pip install -r requirements.txt
+streamlit run covid_menu_streamlit.py
+```
 
-## Installing
-Just download or copy paste. Do not forget the required files
-## Built With
-* Python
-* [Streamlit](http://www.streamlit.io/) - Streamlit
+### Deep-link to a specific script
+```
+?choice=39          # opens script #39 (Oversterfte CBS Odata)
+?cat=G              # opens the Mortality & Excess deaths category
+?choice=39&cat=G    # both in sync
+```
 
-## Tutorial
-See explanation how to make interactive graphs with Streamlit here 
-https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d
+---
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+## 🛠️ Tech stack
 
-## Acknowledgments
-* Thanks to [Han-Kwang Nienhuys](https://twitter.com/hk_nien) for his help on several topics and some code snippets (MIT-licensed)
-* Thanks to [Josette Schoenmakers](https://twitter.com/JosetteSchoenma) and [Maarten van den Berg](https://twitter.com/mr_Smith_Econ) for their inspiration, help and feedback
+- **Python** · Streamlit · Plotly · pandas · NumPy
+- **Data sources:** CBS Odata, RIVM, Eurostat, Our World in Data, OWID
+- **Statistics:** SciPy, statsmodels, PyMC / Bayesian methods
+- **Simulation:** SEIR/SIR models, Monte Carlo, agent-based models
 
-## Contact
-* [Twitter @rcsmit](https://twitter.com/rcsmit)
+---
 
+## 👤 About
+
+I'm René Smit — a Dutch multidisciplinary freelancer with a background in data analysis and a long-standing interest in epidemiology, public health data, and critical appraisal of scientific claims.
+These scripts were built during and after the COVID-19 pandemic as a way to understand and visualize what was happening.
+
+🌐 [rene-smit.com](https://rene-smit.com) · 📊 [rcsmit.streamlit.app](https://rcsmit.streamlit.app) · 🐙 [github.com/rcsmit](https://github.com/rcsmit)
+
+---
+
+*MIT License · Contributions and feedback welcome via Issues or PRs*

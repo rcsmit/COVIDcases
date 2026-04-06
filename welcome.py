@@ -1,50 +1,254 @@
 import streamlit as st
 
+# ---------------------------------------------------------------------------
+# covid_welcome.py  —  Landing page for COVID scripts of René Smit
+# options + CATEGORIES are kept in sync with covid_menu_streamlit.py
+# ---------------------------------------------------------------------------
 
-def main():
-    st.header ("Welcome_!")
-    toelichting = (
-        "<p>Here you'll find the scripts I made in the last months regarding to COVID-19 in the Netherlands.</p>"
-        "<br><br><i>1. covid_dashboard_rcsmit</i> - aggregates a lot of information and statistics from the Netherlands. Shows correlations and graphs."
-        "<br><img src='https://user-images.githubusercontent.com/1609141/112730553-8b1cf680-8f32-11eb-83f6-1569f5114678.png' width=400>"
-        "<br><br><i>2. plot_hosp_ic_streamlit</i> - Plot the number of hospital or ICU admissions per agegroup"
-        "<br><img src='https://user-images.githubusercontent.com/1609141/118802804-e02a1880-b8a2-11eb-8772-cc495bf7bca8.png' width=400>"
-        "<br><br><i>3. calculate_false_positive_rate_covid_test_streamlit</i> -  HOE BETROUWBAAR ZIJN DE TESTEN ?"
-        "<br><img src='https://user-images.githubusercontent.com/1609141/115085050-14a85e80-9f0a-11eb-9732-87a78ffa73d3.png' width=400>"
-        "<br><br><i>4. number_of_cases_interactive</i> - Plotting the number of COVID cases with different values. Contains a SIR-graph and a classical SIR-model. Including immunity"
-        "<br><img src='https://user-images.githubusercontent.com/1609141/112731094-945b9280-8f35-11eb-8c3d-a99e5f48487d.png' width=400>"
-        "<br><br><i>5. calculate_ifr_from_prevalence_streamlit</i> - calculate percentage of population who had covid and the IFR from the prevalence"
-        "<br><img src='https://user-images.githubusercontent.com/1609141/115160069-8f05e980-a096-11eb-87f4-106738c6feed.png' width=400>"
-        "<br><br><i>6. fit_to_data_streamlit</i> - Fit the various curves to a derivate formula. Make an animation to see how the maximum predicted value changes in time"
-        "<br><img src='https://user-images.githubusercontent.com/1609141/115085210-651fbc00-9f0a-11eb-99e6-6aa4504fd325.png' width=400>"
-        "<br><br><i>7. SEIR_hobbeland</i> - Make an interactive version of the SEIR model, inspired by Hobbeland - https://twitter.com/MinaCoen/status/1362910764739231745"
-        "<br><img src='https://user-images.githubusercontent.com/1609141/112730583-adaf0f80-8f32-11eb-9517-0b2fd6443c42.png' width=400>"
-
-        "<br><br><i>8. show contactmatrix</i> - Laat de contactmatrix voor en na covid (1e golf) zien en laat zien welke cellen het meest zijn veranderd "
-        "<br><br><i>9. r getal per provincie</i> - Berekent het R getal per provincie vanuit casus_landelijk (duurt lang om te laden!) "
-        "<br><br><i>10. Cases from suspectibles</i> - Een simpel scriptje wat een bierviltjes berekening maakt om te zien wat er gebeurt als je alles open gooit zonder maatregelen. "
-        "<br><br><i>11. Fit to data OWID</i> - Fitting data from Our World in Data to formulas "
-        "<br><br><i>12. Calculate R per country owid</i> - Fitting data from Our World in Data to formula and calculate R-number for each country "
-        "<br><br><i>13. Covid dashboard OWID/Google or Waze</i> - Show the data from Our World in Data. Link it to the Google and Waze-info. Calcuate which one has a bigger correlation with the R-number "
-        "<br><br><i>14. Dag verschillen per leeftijd</i> - Calculate the differences of cases per age between a date-frame "
-        "<br><br><i>15. Calculate spec./abs. humidity from rel. hum</i> - Calculate specific and absolute humidity from relative humidity and temperature "
-        "<br><br><i>16. R getal per leeftijdscategorie</i> -  - Berekent het R getal per leeftijdscategorie vanuit casus_landelijk (duurt lang om te laden!) "
-        "<br><br><i>17.grafiek_pos_testen_per_leeftijdscategorie_streamlit</i> -  draw graphs of positieve cases per age in time. DATA NOT UPDATED"
-        "<br><img src='https://user-images.githubusercontent.com/1609141/112730260-e0f09f00-8f30-11eb-9bff-a835c2f965f7.png' width=400>"
-        "<br><br><i>18.perprovincieperleeftijd</i> - Zijn kinderen de redenen dat het percentage positief daalt? DATA NOT UPDATED"
+from covid_menu_streamlit import options, CATEGORIES
 
 
+def main() -> None:
+    """Render the COVID scripts landing page."""
+    st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
 
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+
+    .hero {
+        background: linear-gradient(135deg, #fff0f0 0%, #fce8e8 100%);
+        border: 1px solid #f0d1d1;
+        border-radius: 16px;
+        padding: 2.6rem 2.4rem 2rem;
+        margin-bottom: 1.8rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: -50px; right: -50px;
+        width: 220px; height: 220px;
+        background: radial-gradient(circle, rgba(231,76,60,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .hero-title {
+        font-family: 'Space Mono', monospace;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a2340;
+        margin: 0 0 0.2rem;
+        letter-spacing: -1px;
+    }
+    .hero-sub {
+        font-size: 0.95rem;
+        color: #5a6a82;
+        margin: 0 0 1.2rem;
+        font-weight: 300;
+    }
+    .hero-tag {
+        display: inline-block;
+        background: #ffffff;
+        border: 1px solid #f0c0c0;
+        color: #7a2020;
+        border-radius: 20px;
+        padding: 3px 11px;
+        font-size: 0.73rem;
+        font-family: 'Space Mono', monospace;
+        margin: 0 4px 5px 0;
+    }
+    .stats-row {
+        display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.4rem;
+    }
+    .stat-pill {
+        background: #ffffff;
+        border: 1px solid #f0d1d1;
+        border-radius: 10px;
+        padding: 0.55rem 1rem;
+        text-align: center;
+        min-width: 80px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .stat-number {
+        font-family: 'Space Mono', monospace;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #c0392b;
+    }
+    .stat-label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* category cards */
+    .cat-card {
+        background: #ffffff;
+        border: 1px solid #e4eaf2;
+        border-radius: 12px;
+        padding: 1.15rem 1.2rem 0.7rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .cat-header {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid currentColor;
+        opacity: 1;
+    }
+    .script-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.55rem;
+        padding: 0.32rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .script-row:last-child { border-bottom: none; }
+    .script-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .script-num {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.65rem;
+        color: #b0bec5;
+        margin-top: 2px;
+        flex-shrink: 0;
+        width: 20px;
+    }
+    .script-name {
+        font-size: 0.845rem;
+        font-weight: 600;
+        color: #1e293b;
+        line-height: 1.3;
+    }
+    .script-desc {
+        font-size: 0.74rem;
+        color: #94a3b8;
+        line-height: 1.35;
+    }
+
+    .about-box {
+        background: #fff8f8;
+        border: 1px solid #f5dada;
+        border-radius: 12px;
+        padding: 1.6rem 1.8rem;
+        margin-top: 2rem;
+    }
+    .about-box h3 {
+        font-family: 'Space Mono', monospace;
+        color: #c0392b;
+        margin-top: 0;
+        font-size: 0.95rem;
+    }
+    .about-box p { color: #475569; line-height: 1.7; font-size: 0.875rem; margin: 0 0 0.6rem; }
+    .about-box a { color: #c0392b; text-decoration: none; font-weight: 500; }
+    .about-box a:hover { text-decoration: underline; }
+
+    footer { visibility: hidden; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ── Hero ─────────────────────────────────────────────────────────────
+    tags = ["Python", "Streamlit", "Plotly", "CBS data", "RIVM", "Eurostat", "OWID", "Open source"]
+    tag_html = "".join(f'<span class="hero-tag">{t}</span>' for t in tags)
+
+    n_scripts = len(options) - 1  # exclude welcome itself
+    n_cats    = len(CATEGORIES) - 1
+
+    stats_html = "".join(
+        f'<div class="stat-pill"><div class="stat-number">{v}</div><div class="stat-label">{k}</div></div>'
+        for k, v in [("Scripts", str(n_scripts)), ("Categories", str(n_cats)), ("Years active", "4+")]
     )
-    tekst = (
-        "<style> .infobox {  background-color: lightblue; padding: 5px;}</style>"
-        "<hr><div class='infobox'>Made by Rene Smit. (<a href='http://www.twitter.com/rcsmit' target=\"_blank\">@rcsmit</a>) <br>"
-        'Sourcecode : <a href="https://github.com/rcsmit/COVIDcases/" target="_blank">github.com/rcsmit</a><br>'
-        'How-to tutorial : <a href="https://rcsmit.medium.com/making-interactive-webbased-graphs-with-python-and-streamlit-a9fecf58dd4d" target="_blank">rcsmit.medium.com</a><br>'
-        'With support of : @hk_nien, @mr_Smith_Econ, @dimgrr, @JosetteSchoenma e.a'
-    )
-    st.markdown(toelichting, unsafe_allow_html=True)
-    st.markdown(tekst, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div class="hero">
+        <div class="hero-title">🦠 COVID Scripts</div>
+        <div class="hero-sub">René Smit · Epidemic models · Excess mortality · Vaccine effectiveness · Dutch open data</div>
+        {tag_html}
+        <div class="stats-row">{stats_html}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("👈 **Use the sidebar** to open any script, or browse the full catalogue below.")
+    st.markdown("---")
+
+    # ── Category grid — driven entirely by CATEGORIES + options ──────────
+    cols = st.columns(2, gap="medium")
+    col_idx = 0
+    readme_txt = ""
+
+    for letter, cat_name, cat_indices, color in CATEGORIES:
+        if cat_indices == [0]:   # skip Home meta-entry
+            continue
+
+        scripts_html  = ""
+        readme_txt_cat = ""
+
+        for idx in cat_indices:
+            label = options[idx][0]
+            desc  = options[idx][2]
+            num   = label.split("]")[0].replace("[", "").strip()
+            name  = label.split("] ", 1)[-1]
+            scripts_html += f"""
+<div class='script-row'>
+<div class='script-dot' style='background:{color}'></div>
+<div class='script-num'>{num}</div>
+<div>
+<div class='script-name'>{name}</div>
+<div class='script-desc'>{desc}</div>
+</div>
+</div>"""
+            readme_txt_cat += f"\n| {num} | [{name}](https://rcsmit-covidcases.streamlit.app/?choice={num}) | {desc} |"
+
+        cols[col_idx % 2].markdown(f"""
+<div class='cat-card'>
+<div class='cat-header' style='color:{color}; border-color:{color}'>
+{cat_name}
+</div>
+{scripts_html}
+</div>
+        """, unsafe_allow_html=True)
+
+        readme_txt += f"""
+### {cat_name}
+| # | Script | Description |
+|---|--------|-------------|{readme_txt_cat}
+"""
+        col_idx += 1
+
+    # ── About ─────────────────────────────────────────────────────────────
+    st.markdown("""
+    <div class="about-box">
+        <h3>👋 About</h3>
+        <p>
+            A collection of 63+ interactive Streamlit apps built during and after the COVID-19 pandemic.
+            Topics range from classic epidemic models (SEIR/SIR) and curve fitting, to vaccine effectiveness
+            analysis, excess mortality with CBS and Eurostat data, sewage water signals, and Dutch open data exploration.
+        </p>
+        <p>
+            All scripts are written in Python with Streamlit, Plotly, and pandas.
+            Data sources include CBS Odata, RIVM, Eurostat, Our World in Data, and public health APIs.
+            Everything is open source.
+        </p>
+        <p>
+            🔗 <a href="https://github.com/rcsmit/COVIDcases" target="_blank">GitHub — COVIDcases</a> &nbsp;·&nbsp;
+            🌐 <a href="https://rene-smit.com" target="_blank">rene-smit.com</a> &nbsp;·&nbsp;
+            📊 <a href="https://rcsmit.streamlit.app" target="_blank">General portfolio</a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("Contents for README.md"):
+        st.code(readme_txt)
+
 
 if __name__ == "__main__":
     main()
