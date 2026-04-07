@@ -382,7 +382,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
         existing = set(zip(df['jaar'], df['week']))
         
         # Define future period parameters
-        target_year = 2027
+        target_year = datetime.now().year+1 # 2027
         target_week = 52
         
         # Create future records
