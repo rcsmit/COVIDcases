@@ -484,7 +484,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     df_ = df_.replace("2020_1", "2020_01")
     df_ = df_.replace("2019_1", "2019_01")
     df_ = df_.replace("2025_1", "2025_01")
-    df_ = df_.replace("2025_1", "2026_01")
+    df_ = df_.replace("2026_1", "2026_01")
     #df_ = df_[~df_["week"].isin([0, 53])]
     df_ = df_[(df_["jaar"] > vanaf_jaar-1)]
 
