@@ -210,7 +210,8 @@ def main_new(mortality_data,population_data):
 def main():
     st.header("AG Table Mortality Forecast")
     
-    for a in ["0"]:
+    
+    for a in ["2"]:
         # URLs of the CSV files
         male_url = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel202{a}_mannen.csv"
         female_url = f"https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/prognosetafel202{a}_vrouwen.csv"
