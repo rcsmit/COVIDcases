@@ -272,7 +272,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     Args:
         seriename (str, optional): _description_. Defaults to "m_v_0_999".
     """
- 
+    print("oversterfte cbs_functions line 275 v070420261333")
     def manipulate_data_df(data):
         """Filters out week 0 and 53 and makes a category column (eg. "M_V_0_999")"""
 
