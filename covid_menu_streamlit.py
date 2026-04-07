@@ -24,7 +24,7 @@ def dynamic_import(module: str):
 # Script catalogue  [display_label, module_name, description]
 # ---------------------------------------------------------------------------
 options = [
-    ["[0] welcome",                          "covid_welcome",                         "Landing page and overview of all COVID scripts"],
+    ["[0] welcome",                          "welcome",                         "Landing page and overview of all COVID scripts"],
     ["[1] Covid dashboard",                  "covid_dashboard_rcsmit",                "Main COVID dashboard for the Netherlands"],
     ["[2] Plot hosp/IC per age",             "plot_hosp_ic_streamlit",                "Hospital and IC admissions per age group"],
     ["[3] False positive rate covid test",   "calculate_false_positive_rate_covid_test_streamlit", "False positive rate calculator for COVID tests"],
