@@ -176,7 +176,7 @@ def get_rioolwater_simpel():
     df_rioolwater["periodenr"] = (
         df_rioolwater["jaar"].astype(int).astype(str)
         + "_"
-        + df_rioolwater["week"].astype(int).astype(str)
+        + df_rioolwater["week"].astype(int).astype(str).str.zfill(2)
     )
     df_rioolwater["rioolwater_sma"] = (
         df_rioolwater["rioolwaarde"].rolling(window=5, center=False).mean().round(1)
