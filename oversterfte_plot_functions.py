@@ -397,7 +397,7 @@ def plot_wrapper(
 
         fig.update_yaxes(rangemode="tozero")
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         # /plot_graph_oversterfte
 
 
@@ -529,7 +529,7 @@ def plot_wrapper(
                 fig.update_yaxes(title_text=what_sec, secondary_y=True)
                 fig.add_hline(y=0)
                 fig = layout_annotations_fig(fig)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
 
     
     def plot_lines(series_name, df_data):
@@ -576,7 +576,7 @@ def plot_wrapper(
         )
 
         fig = go.Figure(data=data, layout=layout)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         # end of plot_lines
 
     def plot_quantiles(yaxis_to_zero, series_name, df_corona, df_quantile):
@@ -693,7 +693,7 @@ def plot_wrapper(
 
         if yaxis_to_zero:
             fig.update_yaxes(rangemode="tozero")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         return df_quantile
         # end of plot quantiles
 
