@@ -476,16 +476,22 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     df_["week"] = df_["week"].astype(int)
     df_["jaar"] = df_["jaar"].astype(int)
 
+        # After the pivot and the split:
+    df_[["periodenr", "delete"]] = df_.periodenr.str.split(r" \(", expand=True)
+
+    # Add this line to fix all years at once:
+    df_["periodenr"] = df_["jaar"].astype(str) + "_" + df_["week"].astype(str).str.zfill(2)
+
     # dit moet nog ergens anders
-    df_[["periodenr", "delete"]] = df_.periodenr.str.split(
-        r" \(",
-        expand=True,
-    )
-    df_ = df_.replace("2015_1", "2015_01")
-    df_ = df_.replace("2020_1", "2020_01")
-    df_ = df_.replace("2019_1", "2019_01")
-    df_ = df_.replace("2025_1", "2025_01")
-    df_ = df_.replace("2026_1", "2026_01")
+    # df_[["periodenr", "delete"]] = df_.periodenr.str.split(
+    #     r" \(",
+    #     expand=True,
+    # )
+    # df_ = df_.replace("2015_1", "2015_01")
+    # df_ = df_.replace("2020_1", "2020_01")
+    # df_ = df_.replace("2019_1", "2019_01")
+    # df_ = df_.replace("2025_1", "2025_01")
+    # df_ = df_.replace("2026_1", "2026_01")
     #df_ = df_[~df_["week"].isin([0, 53])]
     df_ = df_[(df_["jaar"] > vanaf_jaar-1)]
 
