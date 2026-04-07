@@ -84,7 +84,7 @@ def get_data_for_series_wrapper(df_, seriename, vanaf_jaar):
     df = get_data_for_series(df, seriename, vanaf_jaar)
     return df
 def get_data_for_series(df, seriename, vanaf_jaar):
-    voorspelde_overlijdens,params, noemer = voorspel_overlijdens(df, seriename, startjaar=2000, eindjaar=2019, voorspeljaren=[2020, 2021, 2022, 2023, 2024,2025], model_type="linear")
+    voorspelde_overlijdens,params, noemer = voorspel_overlijdens(df, seriename, startjaar=2000, eindjaar=2019, voorspeljaren=[2020, 2021, 2022, 2023, 2024,2025,2026], model_type="linear")
     with st.expander("Average and expected", expanded=False):
         df_voorsp = pd.DataFrame(voorspelde_overlijdens)
         st.write(f"Average deaths 2015-2019 : {noemer}")
