@@ -388,6 +388,9 @@ def footer():
         "De correctiefactor voor 2020, 2021 en 2022 is berekend over de gehele populatie."
     )
     st.write(
+        "De correctiefactoren na 2023 zijn berekend aan de hand van de groei tussen 2022 en 2023 omdat het CBS geen verwachte bevolkingsgrootte meer gaf."
+    )
+    st.write(
         "Het 95%-interval is berekend aan de hand van het gemiddelde en standaarddeviatie (z=2)  over de waardes per week van 2015 t/m 2019"
     )
     # st.write("Week 53 van 2020 heeft een verwachte waarde en 95% interval van week 52")

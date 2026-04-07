@@ -504,7 +504,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
   
 
     df_x = get_data_for_series_wrapper(df_extended, seriename, vanaf_jaar)
-    st.write(df_x)
+    # st.write(df_x)
     return df_x
 
 def make_row_df_quantile(series_name, year, df_to_use, w_, period):
