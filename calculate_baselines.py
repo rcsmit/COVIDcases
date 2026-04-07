@@ -12,6 +12,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 from oversterfte_compleet import get_sterftedata
 from statsmodels.genmod.generalized_linear_model import GLMResultsWrapper
+import cbsodata
 
 # https://chatgpt.com/c/66e2ce71-2938-8004-b28b-fbd1f01eac49
 # https://chatgpt.com/c/66e2beaf-a1f8-8004-ae1d-0b28393d2a48
@@ -348,8 +349,8 @@ def main():
     # For not changing the code totally, I just set take_factor_in_account on True
 
    
-
-    df_data = get_sterftedata()
+    cbs_data_ruw = pd.DataFrame(cbsodata.get_data("70895ned"))
+    df_data = get_sterftedata(cbs_data_ruw, series_name)
     df_data = add_fields(df_data, series_name)
     df_data = adjust_overledenen(df_data)
     perform_poisson_analysis(df_data, take_factor_in_account)
