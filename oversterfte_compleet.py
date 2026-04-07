@@ -308,7 +308,7 @@ def comparison(df_merged, series_name, smooth):
     show_official = st.sidebar.selectbox("Show official values", [True, False], 0)
     st.subheader("Vergelijking")
 
-    for year in ["All", 2020, 2021, 2022, 2023, 2024]:
+    for year in ["All", 2020, 2021, 2022, 2023, 2024,2025,2026]:
         expanded = True if year == "All" else False
         
         with st.expander(f"{year}", expanded=expanded):
