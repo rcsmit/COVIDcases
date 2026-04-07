@@ -475,7 +475,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     ).reset_index()
     df_["week"] = df_["week"].astype(int)
     df_["jaar"] = df_["jaar"].astype(int)
-
+    df_ = df_[(df_["jaar"] > vanaf_jaar-1)]
         # After the pivot and the split:
     df_[["periodenr", "delete"]] = df_.periodenr.str.split(r" \(", expand=True)
 
@@ -493,7 +493,7 @@ def get_sterftedata(data_ruw, vanaf_jaar, seriename="m_v_0_999", ):
     # df_ = df_.replace("2025_1", "2025_01")
     # df_ = df_.replace("2026_1", "2026_01")
     #df_ = df_[~df_["week"].isin([0, 53])]
-    df_ = df_[(df_["jaar"] > vanaf_jaar-1)]
+    # df_ = df_[(df_["jaar"] > vanaf_jaar-1)]
 
     df = df_[["jaar", "periodenr", "week", seriename]].copy(deep=True)
 
