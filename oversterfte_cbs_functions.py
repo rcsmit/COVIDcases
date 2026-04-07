@@ -255,7 +255,7 @@ def get_data_for_series(df, seriename, vanaf_jaar):
     # avg_overledenen_2015_2019 = (som_2015_2019/5)
     # st.write(avg_overledenen_2015_2019)
     # Loop through the years 2014 to 2024 and apply the factors
-    for year in range(2014, datetime.now().year+2):
+    for year in range(2014, datetime.now().year+1):
         new_column_name = f"{seriename}_factor_{year}"
         factor = factors[year]
         # factor=1
