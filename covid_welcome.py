@@ -1,11 +1,10 @@
 import streamlit as st
+from covid_catalogue import options, CATEGORIES
 
 # ---------------------------------------------------------------------------
 # covid_welcome.py  —  Landing page for COVID scripts of René Smit
-# options + CATEGORIES are kept in sync with covid_menu_streamlit.py
+# options + CATEGORIES are imported from covid_catalogue.py (single source of truth)
 # ---------------------------------------------------------------------------
-
-from covid_menu_streamlit import options, CATEGORIES
 
 
 def main() -> None:
@@ -237,6 +236,12 @@ def main() -> None:
             All scripts are written in Python with Streamlit, Plotly, and pandas.
             Data sources include CBS Odata, RIVM, Eurostat, Our World in Data, and public health APIs.
             Everything is open source.
+        </p>
+        <p>
+            These scripts were developed over several years and most are not actively maintained. 
+            External data sources and Python dependencies change over time, which may affect 
+            the functionality of individual tools. If you encounter an issue or have a specific 
+            use case in mind, please feel free to reach out.
         </p>
         <p>
             🔗 <a href="https://github.com/rcsmit/COVIDcases" target="_blank">GitHub — COVIDcases</a> &nbsp;·&nbsp;
