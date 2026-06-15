@@ -569,7 +569,7 @@ def sidebar_input(df):
     countrylist =  df['location'].drop_duplicates().sort_values().tolist()
 
 
-    country_ = st.sidebar.selectbox("Which country",countrylist, 149)
+    country_ = st.sidebar.selectbox("Which country",countrylist)
     df = df.loc[df['location'] == country_]
     df = df[["date", "location",what_to_display]]
     title = st.sidebar.text_input("Title", country_)
