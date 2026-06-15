@@ -430,7 +430,7 @@ def main():
     df = df_getdata.copy(deep=False)
 
     df[DATEFIELD] = pd.to_datetime(df[DATEFIELD], format=DATE_FORMAT)
-    df.fillna(value=0, inplace=True)
+    # df.fillna(value=0, inplace=True)
 
     # df = df[(df.location == COUNTRY)].deepcopy()
 
