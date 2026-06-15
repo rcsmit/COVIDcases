@@ -413,9 +413,10 @@ def getdata():
     if platform.processor() != "":
         #url1 = "C:\\Users\\rcxsm\\Documents\\pyhton_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_NL.csv"
         url1 = "C:\\Users\\rcxsm\\Documents\\python_scripts\\covid19_seir_models\\COVIDcases\\input\\owid-covid-data_20211202.csv" 
+        url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
     else:
-        url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
-        #url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
+        #url1= "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+        url1="https://raw.githubusercontent.com/rcsmit/COVIDcases/main/input/owid-covid-data_NL.csv"
     return pd.read_csv(url1, delimiter=",", low_memory=False)
 
 def main():
