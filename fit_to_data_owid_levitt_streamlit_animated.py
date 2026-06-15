@@ -371,7 +371,7 @@ def add_column_levit(df, what_to_display):
 
         if df.iloc[i][what_to_display] != None:
             date_ = pd.to_datetime(df.iloc[i]["date"], format="%Y-%m-%d")
-            date_ = df.iloc[i]["date"]
+            #date_ = df.iloc[i]["date"]
             if (df.iloc[i - d]["what_to_display_cumm"] != 0) or (df.iloc[i - d]["what_to_display_cumm"] is not None) or (df.iloc[i]["what_to_display_cumm"] != df.iloc[i - d]["what_to_display_cumm"]) :
                 log_factor_ = round(np.log10(np.log (((df.iloc[i]["what_to_display_cumm"] / df.iloc[i - d]["what_to_display_cumm"]))                  )), 2)
 
